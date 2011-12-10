@@ -2,14 +2,15 @@ package chessPieces;
 
 public class Values {
 	public static final int KING_VALUE = 1000000;
-	public static final int QUEEN_VALUE = 800;
-	public static final int ROOK_VALUE = 500;
+	public static final int QUEEN_VALUE = 1025;
+	public static final int ROOK_VALUE = 600;
 	public static final int BISHOP_VALUE = 400;
-	public static final int KNIGHT_VALUE = 300;
+	public static final int KNIGHT_VALUE = 450;
 	public static final int PAWN_VALUE = 100;
-	public static final int CASTLE_VALUE = 75;
-	public static final int CASTLE_ABILITY_LOST_VALUE = -25;
+	public static final int CASTLE_VALUE = 80;
+	public static final int CASTLE_ABILITY_LOST_VALUE = -40;
 	public static final int RISK_QUEEN = -10;
+	public static final int KNIGHT_ENDGAME_INC = 6;
 	
 	public static final int getPieceValue(PieceID id){
 		int value;

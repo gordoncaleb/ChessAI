@@ -6,6 +6,7 @@ import chessGUI.BoardGUI;
 import chessPieces.Bishop;
 import chessPieces.Piece;
 import chessPieces.PiecePosition;
+import chessPieces.PositionBonus;
 import chessPieces.Values;
 import chessPieces.PositionStatus;
 import chessPieces.King;
@@ -19,6 +20,7 @@ public class Board {
 	private Vector<Piece> aiPieces;
 	private Vector<Piece> userPieces;
 	private Piece lastMovedPiece;
+	private int knightValue;
 
 	public Board(BoardGUI gui) {
 		buildBoard();
@@ -28,6 +30,7 @@ public class Board {
 		this.board = board;
 		this.aiPieces = aiPieces;
 		this.userPieces = playerPieces;
+		adjustKnightValue();
 	}
 
 	public Board() {
@@ -92,30 +95,31 @@ public class Board {
 
 	}
 
-	public int moveChessPiece(Move m, Player player) {
+	public void moveChessPiece(Move move, Player player) {
+		int moveBonus = 0;
+		
+		if (move.getNote() == MoveNote.DO_NOTHING)
+			return;
 
-		if (m.getNote() == MoveNote.DO_NOTHING)
-			return 0;
-
-		if (hasPiece(m.getToRow(), m.getToCol())) {
-			if (getPiece(m.getToRow(), m.getToCol()).getPlayer() == Player.USER) {
-				userPieces.remove(getPiece(m.getToRow(), m.getToCol()));
+		if (hasPiece(move.getToRow(), move.getToCol())) {
+			if (getPiece(move.getToRow(), move.getToCol()).getPlayer() == Player.USER) {
+				userPieces.remove(getPiece(move.getToRow(), move.getToCol()));
 			} else {
-				aiPieces.remove(getPiece(m.getToRow(), m.getToCol()));
+				aiPieces.remove(getPiece(move.getToRow(), move.getToCol()));
 			}
 		}
 
 		// add detection of losing the ability to castle as -0.5 and moves that
 		// keep the opponent from castling +0.5 maybe
-		board[m.getFromRow()][m.getFromCol()].move(m);
-		board[m.getToRow()][m.getToCol()] = board[m.getFromRow()][m.getFromCol()];
-		board[m.getFromRow()][m.getFromCol()] = null;
+		board[move.getFromRow()][move.getFromCol()].move(move);
+		board[move.getToRow()][move.getToCol()] = board[move.getFromRow()][move.getFromCol()];
+		board[move.getFromRow()][move.getFromCol()] = null;
 
-		if (m.getNote() == MoveNote.NEW_QUEEN) {
-			board[m.getToRow()][m.getToCol()] = new Queen(player, m.getToRow(), m.getToCol());
+		if (move.getNote() == MoveNote.NEW_QUEEN) {
+			board[move.getToRow()][move.getToCol()] = new Queen(player, move.getToRow(), move.getToCol());
 		}
 
-		if (m.getNote() == MoveNote.CASTLE_NEAR) {
+		if (move.getNote() == MoveNote.CASTLE_NEAR) {
 			if (player == Player.AI) {
 				moveChessPiece(new Move(0, 7, 0, 5), player);
 			} else {
@@ -123,7 +127,7 @@ public class Board {
 			}
 		}
 
-		if (m.getNote() == MoveNote.CASTLE_FAR) {
+		if (move.getNote() == MoveNote.CASTLE_FAR) {
 			if (player == Player.AI) {
 				moveChessPiece(new Move(0, 0, 0, 3), player);
 			} else {
@@ -131,9 +135,8 @@ public class Board {
 			}
 		}
 
-		lastMovedPiece = board[m.getToRow()][m.getToCol()];
-
-		return m.getValue();
+		lastMovedPiece = board[move.getToRow()][move.getToCol()];
+		
 	}
 
 	public PositionStatus checkPiece(int row, int col, Player player) {
@@ -261,6 +264,15 @@ public class Board {
 		}
 
 		return canCastleNear;
+	}
+	
+	private void adjustKnightValue(){
+		int piecesMissing = 32-(aiPieces.size()+userPieces.size());
+		knightValue = Values.KNIGHT_VALUE - piecesMissing*Values.KNIGHT_ENDGAME_INC;
+	}
+	
+	public int getKnightValue(){
+		return knightValue;
 	}
 
 	public Board getCopy() {

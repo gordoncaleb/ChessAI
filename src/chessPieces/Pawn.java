@@ -30,6 +30,7 @@ public class Pawn extends PieceBase implements Piece {
 		int currentCol = this.getCol();
 		Player player = this.getPlayer();
 		int dir;
+		int bonus;
 		Move validMove;
 
 		this.clearValidMoves();
@@ -41,7 +42,8 @@ public class Pawn extends PieceBase implements Piece {
 		}
 
 		if (!board.hasPiece(currentRow + dir, currentCol)) {
-			validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol);
+			bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + dir, currentCol, this.getPlayer());
+			validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol,bonus,MoveNote.NONE);
 			if((currentRow + dir) == 0 || (currentRow + dir) == 7){
 				validMove.setNote(MoveNote.NEW_QUEEN);
 				validMove.setValue(Values.QUEEN_VALUE);
@@ -49,7 +51,8 @@ public class Pawn extends PieceBase implements Piece {
 			this.addValidMove(validMove);
 
 			if (!this.hasMoved() && !board.hasPiece(currentRow + 2 * dir, currentCol)) {
-				this.addValidMove(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol));
+				bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, this.getPlayer());
+				this.addValidMove(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol,bonus,MoveNote.NONE));
 			}
 
 		}

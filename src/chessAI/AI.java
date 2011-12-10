@@ -9,17 +9,26 @@ import chessBackend.Player;
 import chessBackend.Move;
 import chessGUI.BoardGUI;
 import chessPieces.Piece;
+import chessPieces.PieceID;
 import chessPieces.Values;
 
 public class AI {
 	private DecisionNode rootNode;
-	private int levels;
+	private int maxTwigLevel;
+	private int maxDecisionTreeLevel;
+	private boolean twigIsInCheck;
+	private boolean twigIsInvalid;
+	private boolean twigParentIsInCheck;
 	private int[] childNum = new int[10];
 
 	public AI(Board board) {
 		rootNode = new DecisionNode(null, null, 0, board, Player.USER);
-		levels = 1;
-		growDecisionTree(rootNode, 1);
+
+		// These numbers determine how many moves ahead the AI thinks
+		maxDecisionTreeLevel = 1;
+		maxTwigLevel = 1;
+
+		growDecisionTree(rootNode, maxDecisionTreeLevel);
 		countChildren(rootNode, 0);
 		for (int i = 0; i < 10; i++) {
 			System.out.println(childNum[i] + " at level " + i);
@@ -38,11 +47,14 @@ public class AI {
 
 		setRoot(usersDecision);
 
-		if (rootNode.getStatus() != GameStatus.CHECKMATE && rootNode.getStatus() != GameStatus.STALEMATE) { // Game Over																				// Over
+		if (rootNode.getStatus() != GameStatus.CHECKMATE && rootNode.getStatus() != GameStatus.STALEMATE) { // Game
+																											// Over
+																											// //
+																											// Over
 			setRoot(usersDecision.getChosenChild());
-			growDecisionTree(rootNode, levels);
+			growDecisionTree(rootNode, maxDecisionTreeLevel);
 		}
-		
+
 		// expandDecisionTree(rootNode, 0);
 
 		for (int i = 0; i < 10; i++) {
@@ -99,13 +111,11 @@ public class AI {
 				for (int m = 0; m < moves.size(); m++) {
 
 					move = moves.elementAt(m);
-					newBoard = board.getCopy();
-					moveValue = newBoard.moveChessPiece(move, player);
-
+					moveValue = move.getValue();
 					// check to see if the move in question resulted in
 					// the loss of your king. Such a move is invalid because
 					// you can't move into check.
-					if (moveValue == Values.KING_VALUE) {
+					if (move.getNote() == MoveNote.TAKE_PIECE && move.getPieceTaken() == PieceID.KING) {
 						// A move note of DO_NOTHING is what the board would
 						// look like if the user passed up his/her move and
 						// allowed the AI to take what is available. If the
@@ -120,27 +130,26 @@ public class AI {
 						return 0;
 					}
 
+					newBoard = board.getCopy();
+					newBoard.moveChessPiece(move, player);
 					newNode = new DecisionNode(branch, move, moveValue, newBoard, nextPlayer);
-
 					branch.addChild(newNode);
 
 					// check to see if you are at the bottom of the branch
 					if (level > 0) {
 						suggestedPathValue = growDecisionTree(newNode, level - 1);
-						// check if that move was valid
-						if (!newNode.getNodeMove().isValid()) {
-							branch.removeChild(newNode);
-							continue;
-						}
 					} else {
-						suggestedPathValue = moveValue - expandTwig(newNode, nextPlayer, 1);
+						suggestedPathValue = moveValue - expandTwig(newNode);
 						newNode.setChosenPathValue(suggestedPathValue);
-						if (!newNode.getNodeMove().isValid()) {
-							branch.removeChild(newNode);
-							continue;
-						}
 					}
 
+					// Check if the newNode move was invalidated
+					if (!newNode.getNodeMove().isValid()) {
+						branch.removeChild(newNode);
+						continue;
+					}
+
+					// Find the maximum move value
 					if (suggestedPathValue > bestMoveValue) {
 						bestMoveValue = suggestedPathValue;
 						branch.setChosenPathValue(branch.getMoveValue() - bestMoveValue);
@@ -219,24 +228,33 @@ public class AI {
 		return branch.getChosenPathValue();
 	}
 
-	private int expandTwig(DecisionNode twig, Player player, int level) {
-		int twigSuggestedPathValue = growDecisionTreeLite(twig.getBoard(), player, level);
+	private int expandTwig(DecisionNode twig) {
+		twigIsInCheck = false;
+		twigIsInvalid = false;
+		twigParentIsInCheck = false;
+		
+		int twigSuggestedPathValue = growDecisionTreeLite(twig.getBoard(), twig.getPlayer(), twig.getNodeMove(), 0);
 
-		if (twigSuggestedPathValue == Values.KING_VALUE) {
-			if (twig.getNodeMove().getNote() == MoveNote.DO_NOTHING) {
-				twig.getParent().setStatus(GameStatus.CHECK);
-			}
-
+		if (twigIsInCheck) {
+			twig.setStatus(GameStatus.CHECK);
+		}
+		
+		if(twigIsInvalid){
 			twig.getNodeMove().setNote(MoveNote.INVALIDATED);
 		}
+		
+		if(twigParentIsInCheck){
+			twig.getParent().setStatus(GameStatus.CHECK);
+		}	
 
 		return twigSuggestedPathValue;
 	}
 
-	private int growDecisionTreeLite(Board board, Player player, int level) {
+	private int growDecisionTreeLite(Board board, Player player, Move parentMove, int level) {
 		Board newBoard;
 		Vector<Piece> pieces = board.getPlayerPieces(player);
 		Vector<Move> moves;
+		Move move;
 		int suggestedMove;
 		int suggestedPathValue;
 		int moveValue;
@@ -247,41 +265,47 @@ public class AI {
 			pieces.elementAt(p).generateValidMoves();
 			moves = pieces.elementAt(p).getValidMoves();
 			for (int m = 0; m < moves.size(); m++) {
-				newBoard = board.getCopy();
-				moveValue = newBoard.moveChessPiece(moves.elementAt(m), player);
+				move = moves.elementAt(m);
 
-				// If the king wasn't taken then proceed. Otherwise game is
-				// over. Due to the lite nature of this growDecisionTree there
-				// is no way to tell at what level the game ended, which could
-				// confuse the expandTwig() method into thinking it's twig was a
-				// "CHECK" situation. To fix this I only allow the top level to
-				// return an end game value of KING_VALUE. All other levels will
-				// return KING_VALUE-1. This slight difference in score will let
-				// the twig show that its a valuable move but maybe doesn't mean
-				// that the twig's is an invalid move.
-				if (moveValue != Values.KING_VALUE) {
-					if (level > 0) {
-						suggestedMove = growDecisionTreeLite(newBoard, getNextPlayer(player), level - 1);
-						suggestedPathValue = moveValue - suggestedMove;
-
-						// The king was taken but not at the top level. Still
-						// return high value but let it be known that it wasn't
-						// at the top level and instead happend somewhere
-						// deeper.
-						if (suggestedMove == Values.KING_VALUE) {
-							return (Values.KING_VALUE - 1);
+				// These global variables get around the fact that this recursive method id lite weight and has no reference to parent and grantpar
+				if (move.getNote() == MoveNote.TAKE_PIECE && move.getPieceTaken() == PieceID.KING) {
+					if (level == 0) {
+						if (parentMove.getNote() == MoveNote.DO_NOTHING) {
+							twigParentIsInCheck = true;
 						}
-
-					} else {
-						suggestedPathValue = moveValue;
+						twigIsInvalid = true;
+					}
+					if (level == 1) {
+						if (parentMove.getNote() == MoveNote.DO_NOTHING) {
+							twigIsInCheck = true;
+						}
 					}
 
-					if (suggestedPathValue > bestMove) {
-						bestMove = suggestedPathValue;
-					}
-				} else {
 					return Values.KING_VALUE;
 				}
+
+				moveValue = move.getValue();
+
+				if (level < maxTwigLevel) {
+					newBoard = board.getCopy();
+					newBoard.moveChessPiece(move, player);
+					suggestedMove = growDecisionTreeLite(newBoard, getNextPlayer(player), move, level + 1);
+					suggestedPathValue = moveValue - suggestedMove;
+
+					// The king was taken on the next move, which means this
+					// move is invalid. Move on to the next move.
+					if (suggestedMove == Values.KING_VALUE) {
+						continue;
+					}
+
+				} else {
+					suggestedPathValue = moveValue;
+				}
+
+				if (suggestedPathValue > bestMove) {
+					bestMove = suggestedPathValue;
+				}
+
 			}
 		}
 
@@ -346,8 +370,8 @@ public class AI {
 
 		return chosenNode;
 	}
-	
-	public DecisionNode getRoot(){
+
+	public DecisionNode getRoot() {
 		return rootNode;
 	}
 
