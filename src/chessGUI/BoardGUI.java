@@ -23,6 +23,10 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 	private DecisionNode rootDecision;
 	private Game game;
+	private int gameHeight;
+	private int gameWidth;
+	private int sidebarWidth;
+	private int imageWidth;
 	private JFrame frame;
 	private JPanel boardGUIPanel;
 	private JPanel lostAiPiecesPanel;
@@ -40,24 +44,30 @@ public class BoardGUI implements MouseListener, KeyListener {
 	private JScrollPane treeView;
 
 	public BoardGUI(Game game, DecisionNode rootDecision, boolean debug) {
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		gameHeight = (int)((double)dim.height*0.8);
+		gameWidth = (int)((double)gameHeight*1.2);
+		sidebarWidth = (int)((double)gameHeight*0.1);
+		imageWidth = (int)((double)sidebarWidth*0.6);
+		
 		frame = new JFrame("CHESS AI");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 
 		boardGUIPanel = new JPanel(new GridLayout(8, 8));
 		boardGUIPanel.setBackground(Color.BLACK);
-		boardGUIPanel.setPreferredSize(new Dimension(800, 800));
+		boardGUIPanel.setPreferredSize(new Dimension(gameHeight, gameHeight));
 		// boardGUIPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		frame.add(boardGUIPanel, BorderLayout.CENTER);
 
 		lostAiPiecesPanel = new JPanel();
-		lostAiPiecesPanel.setBackground(Color.BLACK);
-		lostAiPiecesPanel.setPreferredSize(new Dimension(100, 800));
+		lostAiPiecesPanel.setBackground(Color.GRAY);
+		lostAiPiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
 		frame.add(lostAiPiecesPanel, BorderLayout.WEST);
 
 		lostUserPiecesPanel = new JPanel();
-		lostUserPiecesPanel.setBackground(Color.BLACK);
-		lostUserPiecesPanel.setPreferredSize(new Dimension(100, 800));
+		lostUserPiecesPanel.setBackground(Color.GRAY);
+		lostUserPiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
 		frame.add(lostUserPiecesPanel, BorderLayout.EAST);
 
 		this.rootDecision = rootDecision;
@@ -65,7 +75,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 		this.loadChessImages();
 		this.buildBoardGUI();
 
-		frame.setSize(1000, 800);
+		frame.setSize(gameWidth, gameHeight);
 		// frame.setResizable(false);
 		// frame.pack();
 		frame.setVisible(true);
@@ -110,9 +120,9 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 		for (int i = 0; i < 6; i++) {
 			try {
-				chessPieceGraphics[0][i] = ImageIO.read(new File(imgDir + "black_" + pieceNames[i] + ".png")).getScaledInstance(60, 100,
+				chessPieceGraphics[0][i] = ImageIO.read(new File(imgDir + "black_" + pieceNames[i] + ".png")).getScaledInstance(imageWidth, sidebarWidth,
 						Image.SCALE_SMOOTH);
-				chessPieceGraphics[1][i] = ImageIO.read(new File(imgDir + "white_" + pieceNames[i] + ".png")).getScaledInstance(60, 100,
+				chessPieceGraphics[1][i] = ImageIO.read(new File(imgDir + "white_" + pieceNames[i] + ".png")).getScaledInstance(imageWidth, sidebarWidth,
 						Image.SCALE_SMOOTH);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -200,10 +210,16 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 	private void aiPieceTaken(PieceID pieceTaken) {
 		System.out.println("Ai loses piece " + pieceTaken.toString());
+		JLabel picLabel = new JLabel();
+		picLabel.setIcon(new ImageIcon(this.getChessImage(pieceTaken, Player.AI)));
+		lostAiPiecesPanel.add(picLabel);
 	}
 
 	private void userPieceTaken(PieceID pieceTaken) {
 		System.out.println("user loses piece " + pieceTaken.toString());
+		JLabel picLabel = new JLabel();
+		picLabel.setIcon(new ImageIcon(this.getChessImage(pieceTaken, Player.USER)));
+		lostUserPiecesPanel.add(picLabel);
 	}
 
 	// Debug methods
