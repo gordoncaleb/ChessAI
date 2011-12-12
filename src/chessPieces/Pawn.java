@@ -23,6 +23,11 @@ public class Pawn extends PieceBase implements Piece {
 	public String getName(){
 		return "Pawn";
 	}
+	
+	public void updateValue() {
+		int bonus = PositionBonus.getPawnPositionBonus(this.getRow(), this.getCol(), this.getPlayer());
+		setPieceValue(Values.PAWN_VALUE + bonus);
+	}
 
 	public void generateValidMoves() {
 		Board board = this.getBoard();

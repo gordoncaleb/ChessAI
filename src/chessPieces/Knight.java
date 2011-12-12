@@ -10,7 +10,8 @@ public class Knight extends PieceBase implements Piece {
 
 	public Knight(Player player, int xpos, int ypos) {
 		super(player, xpos, ypos);
-		setPieceValue(Values.KNIGHT_VALUE);
+		int bonus = PositionBonus.getKnightPositionBonus(this.getRow(), this.getCol(), this.getPlayer());
+		setPieceValue(Values.KING_VALUE+bonus);
 	}
 
 	public Knight(Player player, int row, int col, boolean moved, int value) {
@@ -26,7 +27,8 @@ public class Knight extends PieceBase implements Piece {
 	}
 
 	public void updateValue() {
-		setPieceValue(this.getBoard().getKnightValue());
+		int bonus = PositionBonus.getKnightPositionBonus(this.getRow(), this.getCol(), this.getPlayer());
+		setPieceValue(this.getBoard().getKnightValue()+bonus);
 	}
 
 	public void generateValidMoves() {
@@ -67,6 +69,7 @@ public class Knight extends PieceBase implements Piece {
 	}
 
 	public Piece getCopy() {
+		updateValue();
 		return new Knight(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved(), this.getPieceValue());
 	}
 }

@@ -37,12 +37,32 @@ public class PositionBonus {
 		return bonus;
 	}
 	
+	public static final int getKnightPositionBonus(int row, int col, Player player){
+		int bonus;
+		if(player==Player.AI){
+			bonus = knightBonus[row][col];
+		}else{
+			bonus = knightBonus[7 - row][col];
+		}
+		return bonus;
+	}
+	
 	public static final int getPawnPositionBonus(int fromRow, int fromCol, int toRow, int toCol, Player player){
 		int bonus;
 		if(player==Player.AI){
 			bonus = pawnBonus[toRow][toCol] - pawnBonus[fromRow][fromCol];
 		}else{
 			bonus = pawnBonus[7 - toRow][toCol] - pawnBonus[7- fromRow][fromCol];
+		}
+		return bonus;
+	}
+	
+	public static final int getPawnPositionBonus(int row, int col, Player player){
+		int bonus;
+		if(player==Player.AI){
+			bonus = pawnBonus[row][col];
+		}else{
+			bonus = pawnBonus[7 - row][col];
 		}
 		return bonus;
 	}

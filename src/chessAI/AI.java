@@ -7,12 +7,12 @@ import chessBackend.GameStatus;
 import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
-import chessGUI.BoardGUI;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 import chessPieces.Values;
 
 public class AI {
+	private boolean debug;
 	private DecisionNode rootNode;
 	private int maxTwigLevel;
 	private int maxDecisionTreeLevel;
@@ -21,17 +21,24 @@ public class AI {
 	private boolean twigParentIsInCheck;
 	private int[] childNum = new int[10];
 
-	public AI(Board board) {
-		rootNode = new DecisionNode(null, null, 0, board, Player.USER);
+	public AI(Board board, boolean debug) {
+		this.debug = debug;
+		rootNode = new DecisionNode(null, null, board, Player.USER);
 
 		// These numbers determine how many moves ahead the AI thinks
 		maxDecisionTreeLevel = 1;
 		maxTwigLevel = 1;
 
-		growDecisionTree(rootNode, maxDecisionTreeLevel);
-		countChildren(rootNode, 0);
-		for (int i = 0; i < 10; i++) {
-			System.out.println(childNum[i] + " at level " + i);
+		growDecisionTree(rootNode, 0);
+		
+		System.out.println("Tree grown");
+		//expandGoodDecisions(rootNode,2);
+
+		if (debug) {
+			countChildren(rootNode, 0);
+			for (int i = 0; i < 10; i++) {
+				System.out.println(childNum[i] + " at level " + i);
+			}
 		}
 	}
 
@@ -39,52 +46,46 @@ public class AI {
 
 		DecisionNode usersDecision = usersMove.getNode();
 
-		if (usersDecision == rootNode.getChosenChild()) {
-			System.out.println("AI predicted the users move!!");
+		if (debug) {
+			if (usersDecision == rootNode.getChosenChild()) {
+				System.out.println("AI predicted the users move!!");
+			}
 		}
-
-		// growDecisionTree(usersDecision, levels);
 
 		setRoot(usersDecision);
 
-		if (rootNode.getStatus() != GameStatus.CHECKMATE && rootNode.getStatus() != GameStatus.STALEMATE) { // Game
-																											// Over
-																											// //
-																											// Over
+		// Game Over?
+		if (rootNode.getStatus() != GameStatus.CHECKMATE && rootNode.getStatus() != GameStatus.STALEMATE) {
 			setRoot(usersDecision.getChosenChild());
-			growDecisionTree(rootNode, maxDecisionTreeLevel);
+			growDecisionTree(rootNode, 0);
+			//expandGoodDecisions(rootNode,5);
 		}
 
-		// expandDecisionTree(rootNode, 0);
+		if (debug) {
+			for (int i = 0; i < 10; i++) {
+				childNum[i] = 0;
+			}
 
-		for (int i = 0; i < 10; i++) {
-			childNum[i] = 0;
+			countChildren(rootNode, 0);
+
+			for (int i = 0; i < 10; i++) {
+				System.out.println(childNum[i] + " at level " + i);
+			}
+
+			System.out.println("AI chose move worth " + rootNode.getChosenPathValue());
+
 		}
-
-		countChildren(rootNode, 0);
-
-		for (int i = 0; i < 10; i++) {
-			System.out.println(childNum[i] + " at level " + i);
-		}
-
-		System.out.println("AI chose move worth " + rootNode.getChosenPathValue());
 
 		return rootNode;
 	}
 
 	private int growDecisionTree(DecisionNode branch, int level) {
 
-		Player nextPlayer;
 		Player player = branch.getPlayer();
+		Player nextPlayer = getNextPlayer(player);
 		Board board = branch.getBoard();
 
-		nextPlayer = getNextPlayer(player);
-
 		int suggestedPathValue;
-		int bestMoveValue = Integer.MIN_VALUE;
-		Vector<Integer> invalidMoves = new Vector<Integer>();
-		Vector<DecisionNode> bestMoves = new Vector<DecisionNode>();
-		DecisionNode chosenNode;
 
 		if (!branch.hasChildren()) {
 
@@ -98,12 +99,11 @@ public class AI {
 			DecisionNode newNode;
 			Board newBoard;
 
-			pieces = board.getPlayerPieces(player); // get the the pieces of
-													// whose
-													// turn it is
+			// get the the pieces of whose turn it is
+			pieces = board.getPlayerPieces(player);
 
-			for (int p = 0; p < pieces.size(); p++) { // check all moves of all
-														// pieces
+			// check all moves of all pieces
+			for (int p = 0; p < pieces.size(); p++) {
 				piece = pieces.elementAt(p);
 				piece.generateValidMoves();
 				moves = piece.getValidMoves();
@@ -122,43 +122,32 @@ public class AI {
 						// AI
 						// can take the king in that instance, then the user
 						// is in check.
-						if (branch.getNodeMove().getNote() == MoveNote.DO_NOTHING) {
+						if (branch.getMove().getNote() == MoveNote.DO_NOTHING) {
 							branch.getParent().setStatus(GameStatus.CHECK);
 						}
 
-						branch.getNodeMove().setNote(MoveNote.INVALIDATED);
+						branch.getMove().setNote(MoveNote.INVALIDATED);
 						return 0;
 					}
 
 					newBoard = board.getCopy();
 					newBoard.moveChessPiece(move, player);
-					newNode = new DecisionNode(branch, move, moveValue, newBoard, nextPlayer);
-					branch.addChild(newNode);
+					newNode = new DecisionNode(branch, move, newBoard, nextPlayer);
 
 					// check to see if you are at the bottom of the branch
-					if (level > 0) {
-						suggestedPathValue = growDecisionTree(newNode, level - 1);
+					if (level < maxDecisionTreeLevel) {
+						suggestedPathValue = growDecisionTree(newNode, level + 1);
 					} else {
 						suggestedPathValue = moveValue - expandTwig(newNode);
-						newNode.setChosenPathValue(suggestedPathValue);
 					}
+
+					newNode.setChosenPathValue(suggestedPathValue);
 
 					// Check if the newNode move was invalidated
-					if (!newNode.getNodeMove().isValid()) {
-						branch.removeChild(newNode);
-						continue;
-					}
-
-					// Find the maximum move value
-					if (suggestedPathValue > bestMoveValue) {
-						bestMoveValue = suggestedPathValue;
-						branch.setChosenPathValue(branch.getMoveValue() - bestMoveValue);
-						bestMoves.removeAllElements();
-						bestMoves.add(newNode);
-					} else {
-						if (suggestedPathValue == bestMoveValue) {
-							bestMoves.add(newNode);
-						}
+					if (newNode.getMove().isValidated()) {
+						
+						//System.out.println("addedNew Node");
+						branch.addChild(newNode);
 					}
 
 				}
@@ -166,55 +155,50 @@ public class AI {
 
 		} else {
 			// Node has already been created and has children
-			Vector<DecisionNode> children = branch.getChildren();
-			DecisionNode child;
-			for (int i = 0; i < children.size(); i++) {
-				child = children.elementAt(i);
+			int childChosenPathValue;
+			int childrenSize = branch.getChildrenSize();
+			DecisionNode nextChild;
+			DecisionNode currentChild = branch.getHeadChild();
+			for (int i = 0; i < childrenSize; i++) {
+				
+				//System.out.println(" next child" + i);
+				nextChild = currentChild.getNextSibling();
+				
+				// save current chosen path value to see if it changes. If it
+				// changes then the DecisionNode needs to resort it into its
+				// children
+				childChosenPathValue = currentChild.getChosenPathValue();
 
 				// explore down tree
-				suggestedPathValue = growDecisionTree(child, level - 1);
+				suggestedPathValue = growDecisionTree(currentChild, level + 1);
 
 				// Checks if that move was valid. This invalidated check is used
 				// after every move by the user. It would remove user moves that
 				// put the user in check.
-				if (!child.getNodeMove().isValid()) {
-					invalidMoves.add(new Integer(i));
-					continue;
-				}
+				if (currentChild.getMove().isValidated()) {
 
-				// Assume the user and AI should choose highest value move
-				if (suggestedPathValue > bestMoveValue) {
-					bestMoveValue = suggestedPathValue;
-					bestMoves.removeAllElements();
-					bestMoves.add(child);
-					branch.setChosenPathValue(branch.getMoveValue() - suggestedPathValue);
-				} else {
-					if (suggestedPathValue == bestMoveValue) {
-						bestMoves.add(child);
+					// If chosen path value has changed then it can be resorted
+					// by removeing it from the list and re-adding it to the
+					// branch. The add() method automatically sorts the added
+					// node.
+					if (childChosenPathValue != suggestedPathValue) {
+						branch.removeChild(currentChild);
+						branch.addChild(currentChild);
 					}
+
+				} else {
+					// The child represents an invalid move. i.e moving into
+					// check.
+					branch.removeChild(currentChild);
 				}
 
-			}
-
-			// cleanup invalid moves
-			for (int i = 0; i < invalidMoves.size(); i++) {
-				children.remove(invalidMoves.elementAt(i).intValue());
+				currentChild = nextChild;
 			}
 
 		} // end of node already has children code
 
-		// game isn't over at this point
-		if (branch.hasChildren()) {
-
-			if (bestMoves.size() != 0) {
-				chosenNode = tieBreaker(bestMoves, player);
-			} else {
-				chosenNode = bestMoves.elementAt(0);
-			}
-
-			branch.setChosenChild(chosenNode);
-
-		} else { // check for checkmate/stalemate conditions
+		// game is over at this point
+		if (!branch.hasChildren()) {
 
 			if (branch.getStatus() == GameStatus.CHECK) {
 				branch.setStatus(GameStatus.CHECKMATE);
@@ -232,20 +216,20 @@ public class AI {
 		twigIsInCheck = false;
 		twigIsInvalid = false;
 		twigParentIsInCheck = false;
-		
-		int twigSuggestedPathValue = growDecisionTreeLite(twig.getBoard(), twig.getPlayer(), twig.getNodeMove(), 0);
+
+		int twigSuggestedPathValue = growDecisionTreeLite(twig.getBoard(), twig.getPlayer(), twig.getMove(), 0);
 
 		if (twigIsInCheck) {
 			twig.setStatus(GameStatus.CHECK);
 		}
-		
-		if(twigIsInvalid){
-			twig.getNodeMove().setNote(MoveNote.INVALIDATED);
+
+		if (twigIsInvalid) {
+			twig.getMove().setNote(MoveNote.INVALIDATED);
 		}
-		
-		if(twigParentIsInCheck){
+
+		if (twigParentIsInCheck) {
 			twig.getParent().setStatus(GameStatus.CHECK);
-		}	
+		}
 
 		return twigSuggestedPathValue;
 	}
@@ -267,7 +251,9 @@ public class AI {
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
 
-				// These global variables get around the fact that this recursive method id lite weight and has no reference to parent and grantpar
+				// These global variables get around the fact that this
+				// recursive method id lite weight and has no reference to
+				// parent and grantpar
 				if (move.getNote() == MoveNote.TAKE_PIECE && move.getPieceTaken() == PieceID.KING) {
 					if (level == 0) {
 						if (parentMove.getNote() == MoveNote.DO_NOTHING) {
@@ -312,64 +298,102 @@ public class AI {
 		return bestMove;
 	}
 
-	private DecisionNode tieBreaker(Vector<DecisionNode> ties, Player player) {
-		int randomIndex;
-		int leastChildren;
-		int mostChildren;
-		DecisionNode chosenNode;
-		DecisionNode candidateNode;
-		Vector<DecisionNode> candidateNodes = new Vector<DecisionNode>();
+	public void growDecisionBranch(DecisionNode branch) {
 
-		candidateNode = ties.elementAt(0);
+		int previousSuggestedPathValue = branch.getChosenPathValue();
+		int suggestedPathValue = growDecisionTree(branch, 0);
 
-		if (candidateNode.hasChildren()) {
-			if (player == Player.USER) {
-				// chose node with least children
-				leastChildren = candidateNode.getChildrenSize();
-				candidateNodes.add(candidateNode);
-				for (int i = 1; i < ties.size(); i++) {
-					candidateNode = ties.elementAt(i);
-					if (candidateNode.getChildrenSize() < leastChildren) {
-						leastChildren = candidateNode.getChildrenSize();
-						candidateNodes.removeAllElements();
-						candidateNodes.add(candidateNode);
-					} else {
-						if (candidateNode.getChildrenSize() == leastChildren) {
-							candidateNodes.add(candidateNode);
-						}
-					}
-				}
-			} else {
-				// chose node with most children
-				mostChildren = candidateNode.getChildrenSize();
-				candidateNodes.add(candidateNode);
-				for (int i = 1; i < ties.size(); i++) {
-					candidateNode = ties.elementAt(i);
-					if (candidateNode.getChildrenSize() > mostChildren) {
-						leastChildren = candidateNode.getChildrenSize();
-						candidateNodes.removeAllElements();
-						candidateNodes.add(candidateNode);
-					} else {
-						if (candidateNode.getChildrenSize() == mostChildren) {
-							candidateNodes.add(candidateNode);
-						}
-					}
-				}
-			}
-
-			if (candidateNodes.size() != 0) {
-				randomIndex = (int) (Math.random() * candidateNodes.size());
-				chosenNode = candidateNodes.elementAt(randomIndex);
-			} else {
-				chosenNode = candidateNodes.elementAt(0);
-			}
-		} else {
-			randomIndex = (int) (Math.random() * ties.size());
-			chosenNode = ties.elementAt(randomIndex);
+		// After thinking further down this path, the path value has changed.
+		// Any parents or grandparents need to be notified.
+		if (previousSuggestedPathValue != suggestedPathValue) {
+			System.out.println("updating parents");
+			updateParents(branch);
 		}
-
-		return chosenNode;
 	}
+
+	private void updateParents(DecisionNode child) {
+		DecisionNode parent = child.getParent();
+		if (parent != null) {
+			parent.removeChild(child);
+			parent.addChild(child);
+			updateParents(parent);
+		}
+	}
+	
+	private void expandGoodDecisions(DecisionNode branch, int numOfBestDecisions){
+		int childrenSize = Math.min(branch.getChildrenSize(),numOfBestDecisions);
+		
+		DecisionNode nextChild;
+		DecisionNode currentChild = branch.getHeadChild();
+		for(int i=0;i<childrenSize;i++){
+			
+			System.out.println("expanding " + i);
+			nextChild = currentChild.getNextSibling();
+			growDecisionBranch(currentChild);
+			
+			currentChild = nextChild;
+		}
+	}
+
+	// private DecisionNode tieBreaker(Vector<DecisionNode> ties, Player player)
+	// {
+	// int randomIndex;
+	// int leastChildren;
+	// int mostChildren;
+	// DecisionNode chosenNode;
+	// DecisionNode candidateNode;
+	// Vector<DecisionNode> candidateNodes = new Vector<DecisionNode>();
+	//
+	// candidateNode = ties.elementAt(0);
+	//
+	// if (candidateNode.hasChildren()) {
+	// if (player == Player.USER) {
+	// // chose node with least children
+	// leastChildren = candidateNode.getChildrenSize();
+	// candidateNodes.add(candidateNode);
+	// for (int i = 1; i < ties.size(); i++) {
+	// candidateNode = ties.elementAt(i);
+	// if (candidateNode.getChildrenSize() < leastChildren) {
+	// leastChildren = candidateNode.getChildrenSize();
+	// candidateNodes.removeAllElements();
+	// candidateNodes.add(candidateNode);
+	// } else {
+	// if (candidateNode.getChildrenSize() == leastChildren) {
+	// candidateNodes.add(candidateNode);
+	// }
+	// }
+	// }
+	// } else {
+	// // chose node with most children
+	// mostChildren = candidateNode.getChildrenSize();
+	// candidateNodes.add(candidateNode);
+	// for (int i = 1; i < ties.size(); i++) {
+	// candidateNode = ties.elementAt(i);
+	// if (candidateNode.getChildrenSize() > mostChildren) {
+	// leastChildren = candidateNode.getChildrenSize();
+	// candidateNodes.removeAllElements();
+	// candidateNodes.add(candidateNode);
+	// } else {
+	// if (candidateNode.getChildrenSize() == mostChildren) {
+	// candidateNodes.add(candidateNode);
+	// }
+	// }
+	// }
+	// }
+	//
+	// if (candidateNodes.size() != 0) {
+	// randomIndex = (int) (Math.random() * candidateNodes.size());
+	// chosenNode = candidateNodes.elementAt(randomIndex);
+	// } else {
+	// chosenNode = candidateNodes.elementAt(0);
+	// }
+	// } else {
+	// randomIndex = (int) (Math.random() * ties.size());
+	// chosenNode = ties.elementAt(randomIndex);
+	// }
+	//
+	// return chosenNode;
+	// }
 
 	public DecisionNode getRoot() {
 		return rootNode;
@@ -387,12 +411,13 @@ public class AI {
 	}
 
 	private void countChildren(DecisionNode branch, int depth) {
-		Vector<DecisionNode> children = branch.getChildren();
 
 		childNum[depth]++;
 
-		for (int i = 0; i < children.size(); i++) {
-			countChildren(children.elementAt(i), depth + 1);
+		DecisionNode currentChild = branch.getHeadChild();
+		for (int i = 0; i < branch.getChildrenSize(); i++) {
+			countChildren(currentChild, depth + 1);
+			currentChild = currentChild.getNextSibling();
 		}
 
 	}

@@ -110,5 +110,9 @@ public class PieceBase {
 	public void setBoard(Board board) {
 		this.board = board;
 	}
+	
+	public void updateValue(){
+		//only Knight and Pawn use this
+	}
 
 }

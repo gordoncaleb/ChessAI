@@ -17,6 +17,7 @@ public interface Piece {
 	public String getName();
 	public int getPieceValue();
 	public void setPieceValue(int value);
+	public void updateValue();
 	public Board getBoard();
 	public void setBoard(Board board);
 	public boolean hasMoved();

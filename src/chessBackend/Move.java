@@ -108,7 +108,7 @@ public class Move {
 		this.value = value;
 	}
 	
-	public boolean isValid(){	
+	public boolean isValidated(){	
 		return !(note==MoveNote.INVALIDATED || note ==MoveNote.DO_NOTHING);
 	}
 	

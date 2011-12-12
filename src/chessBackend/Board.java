@@ -22,19 +22,15 @@ public class Board {
 	private Piece lastMovedPiece;
 	private int knightValue;
 
-	public Board(BoardGUI gui) {
-		buildBoard();
-	}
-
 	public Board(Piece[][] board, Vector<Piece> aiPieces, Vector<Piece> playerPieces) {
 		this.board = board;
 		this.aiPieces = aiPieces;
 		this.userPieces = playerPieces;
-		adjustKnightValue();
 	}
 
 	public Board() {
 		buildBoard();
+		adjustKnightValue();
 	}
 
 	public void buildBoard() {
@@ -96,7 +92,6 @@ public class Board {
 	}
 
 	public void moveChessPiece(Move move, Player player) {
-		int moveBonus = 0;
 		
 		if (move.getNote() == MoveNote.DO_NOTHING)
 			return;
@@ -107,10 +102,10 @@ public class Board {
 			} else {
 				aiPieces.remove(getPiece(move.getToRow(), move.getToCol()));
 			}
+			
+			adjustKnightValue();
 		}
 
-		// add detection of losing the ability to castle as -0.5 and moves that
-		// keep the opponent from castling +0.5 maybe
 		board[move.getFromRow()][move.getFromCol()].move(move);
 		board[move.getToRow()][move.getToCol()] = board[move.getFromRow()][move.getFromCol()];
 		board[move.getFromRow()][move.getFromCol()] = null;
@@ -136,6 +131,8 @@ public class Board {
 		}
 
 		lastMovedPiece = board[move.getToRow()][move.getToCol()];
+		
+		board[move.getToRow()][move.getToCol()].updateValue();
 		
 	}
 
@@ -266,7 +263,7 @@ public class Board {
 		return canCastleNear;
 	}
 	
-	private void adjustKnightValue(){
+	public void adjustKnightValue(){
 		int piecesMissing = 32-(aiPieces.size()+userPieces.size());
 		knightValue = Values.KNIGHT_VALUE - piecesMissing*Values.KNIGHT_ENDGAME_INC;
 	}
@@ -295,6 +292,7 @@ public class Board {
 						copyPlayerPieces.add(copyBoard[row][col]);
 					}
 
+					newBoard.adjustKnightValue();
 				}
 			}
 		}

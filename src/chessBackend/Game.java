@@ -5,23 +5,26 @@ import chessAI.DecisionNode;
 import chessGUI.BoardGUI;
 
 public class Game {
-	
+
 	private BoardGUI gui;
 	private AI ai;
-	
-	public Game(){
+
+	public Game() {
+
+		boolean debug = true;
+
 		Board board = new Board();
-		ai = new AI(board);
-		gui = new BoardGUI(this,ai.getRoot(), true);
+		ai = new AI(board, debug);
+		gui = new BoardGUI(this, ai.getRoot(), debug);
 	}
-	
-	public void userMoved(Move usersMove){
+
+	public void userMoved(Move usersMove) {
 		System.out.println("User Moved");
 		gui.aiMove(ai.move(usersMove));
 	}
-	
-	public AI getAI(){
+
+	public AI getAI() {
 		return ai;
 	}
-	
+
 }
