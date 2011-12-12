@@ -37,8 +37,6 @@ public class King extends PieceBase implements Piece {
 		PositionStatus pieceStatus;
 
 		this.clearValidMoves();
-
-		this.addValidMove(new Move(currentRow, currentCol, currentRow, currentCol, 0, MoveNote.DO_NOTHING));
 		
 		boolean canCastleFar = board.canCastleFar(player);
 		boolean canCastleNear = board.canCastleNear(player);
@@ -50,13 +48,11 @@ public class King extends PieceBase implements Piece {
 
 			if (pieceStatus == PositionStatus.NO_PIECE) {
 
-				if (this.hasMoved()) {
-					this.addValidMove(new Move(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE));
-				} else {
+				if (canCastleFar || canCastleNear) {
 					// The player loses points for losing the ability to castle
-					if (canCastleFar || canCastleNear) {
-						this.addValidMove(new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE, MoveNote.NONE));
-					}
+					this.addValidMove(new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE, MoveNote.NONE));
+				} else {
+					this.addValidMove(new Move(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE));
 				}
 			}
 
@@ -68,32 +64,14 @@ public class King extends PieceBase implements Piece {
 		}
 
 		//add possible castle move
-		if(canCastleFar){
+		if(canCastleFar && !board.isInCheck()){
 			this.addValidMove(new Move(currentRow, currentCol, currentRow, currentCol-2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
 		}
 		
-		if(canCastleNear){
+		if(canCastleNear && !board.isInCheck()){
 			this.addValidMove(new Move(currentRow, currentCol, currentRow, currentCol+2, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
 		}
 
-	}
-
-	// Since generateValidMoves is ran before the board is known to be in check
-	// or not, this function is used to remove the possibility of castling that
-	// the piece may have thought possible. You can't castle out of check!
-	public boolean noCastle() {
-		boolean changedValidMoves = false;
-		Vector<Move> moves = this.getValidMoves();
-		Move move;
-		for (int m = 0; m < moves.size(); m++) {
-			move = moves.elementAt(m);
-			if (move.getNote() == MoveNote.CASTLE_FAR || move.getNote() == MoveNote.CASTLE_NEAR) {
-				move.setNote(MoveNote.INVALIDATED);
-				changedValidMoves = true;
-			}
-		}
-
-		return changedValidMoves;
 	}
 
 	public Piece getCopy() {

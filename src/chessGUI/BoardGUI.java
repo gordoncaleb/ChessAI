@@ -46,7 +46,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 	public BoardGUI(Game game, DecisionNode rootDecision, boolean debug) {
 		this.debug = debug;
-		
+
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		gameHeight = (int) ((double) dim.height * 0.8);
 		imageHeight = (int) ((double) gameHeight * 0.10);
@@ -103,7 +103,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
-				square = new PiecePositionGUI(col % 2 == row % 2, row, col,debug);
+				square = new PiecePositionGUI(col % 2 == row % 2, row, col, debug);
 				square.setGUI(this);
 				square.addMouseListener(this);
 
@@ -120,7 +120,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 	private void loadChessImages() {
 		chessPieceGraphics = new Image[2][6];
 		String pieceNames[] = { "rook", "knight", "bishop", "queen", "king", "pawn" };
-		String imgDir = ".\\img\\pieces2\\";
+		String imgDir = "img\\pieces2\\";
 
 		for (int i = 0; i < 6; i++) {
 			try {
@@ -174,8 +174,8 @@ public class BoardGUI implements MouseListener, KeyListener {
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 				chessSquares[row][col].clearChessPiece();
-				
-				if(debug){
+
+				if (debug) {
 					chessSquares[row][col].updateDebugInfo("");
 				}
 			}
@@ -212,14 +212,16 @@ public class BoardGUI implements MouseListener, KeyListener {
 			// king in check.
 			if (move.isValidated()) {
 				chessSquares[move.getToRow()][move.getToCol()].setValidMove(valid);
-				if(valid){
-					chessSquares[move.getToRow()][move.getToCol()].updateDebugInfo(move.getNode().getChosenPathValue()+"");
-				}else{
-					chessSquares[move.getToRow()][move.getToCol()].updateDebugInfo("");
+
+				if (debug) {
+					if (valid && move!=null) {
+						chessSquares[move.getToRow()][move.getToCol()].updateDebugInfo(move.getNode().getChosenPathValue() + "");
+					} else {
+						chessSquares[move.getToRow()][move.getToCol()].updateDebugInfo("");
+					}
 				}
 			}
-			
-			
+
 		}
 	}
 
@@ -252,13 +254,13 @@ public class BoardGUI implements MouseListener, KeyListener {
 	}
 
 	public void setRootDecisionTree(DecisionNode decisionTreeRoot) {
-		//showDecisionTreeScores(decisionTreeRoot);
+		// showDecisionTreeScores(decisionTreeRoot);
 		rootGUI.removeAllChildren();
 		buildDecisionTreeGUI(rootGUI, decisionTreeRoot);
 		decisionTreeGUI.updateUI();
 	}
-	
-	public void showDecisionTreeScores(DecisionNode decisionTreeRoot){
+
+	public void showDecisionTreeScores(DecisionNode decisionTreeRoot) {
 		DecisionNode child;
 		int toRow;
 		int toCol;
@@ -267,7 +269,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 		for (int i = 0; i < decisionTreeRoot.getChildrenSize(); i++) {
 			toRow = child.getMove().getToRow();
 			toCol = child.getMove().getToCol();
-			chessSquares[toRow][toCol].updateDebugInfo(child.getChosenPathValue()+"");
+			chessSquares[toRow][toCol].updateDebugInfo(child.getChosenPathValue() + "");
 			child = child.getNextSibling();
 		}
 	}
@@ -306,7 +308,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 			if (nodeInfo instanceof DecisionNode) {
 				// System.out.println("Mouse Clicked " + nodeInfo.toString());
 				this.setBoard(((DecisionNode) nodeInfo).getBoard());
-				//showDecisionTreeScores(((DecisionNode) nodeInfo));
+				// showDecisionTreeScores(((DecisionNode) nodeInfo));
 			}
 		}
 	}
@@ -336,15 +338,14 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 		if (selectedSquare == null) {
 			if (clickedSquare.hasPiece()) {
-				//if (clickedSquare.getPiece().getPlayer() == Player.USER) {
+				// if (clickedSquare.getPiece().getPlayer() == Player.USER) {
 
-					selectedSquare = clickedSquare;
-					selectedSquare.setSelected(true);
-					
+				selectedSquare = clickedSquare;
+				selectedSquare.setSelected(true);
 
-					// selectedSquare.getPiece().generateValidMoves(board);
-				//}
-				
+				// selectedSquare.getPiece().generateValidMoves(board);
+				// }
+
 				colorValidMoveSquares(clickedSquare.getPiece(), true);
 			}
 
@@ -368,19 +369,18 @@ public class BoardGUI implements MouseListener, KeyListener {
 					game.userMoved(validMove);
 				} else {
 					if (clickedSquare.hasPiece()) {
-						//if (clickedSquare.getPiece().getPlayer() == Player.USER) {
-							
-							colorValidMoveSquares(selectedSquare.getPiece(), false);
-							colorValidMoveSquares(clickedSquare.getPiece(), true);
-							
-							selectedSquare.setSelected(false);
-							selectedSquare = clickedSquare;
-							selectedSquare.setSelected(true);
-							// selectedSquare.getPiece().generateValidMoves(board);
-						//}
-						
-						
-						
+						// if (clickedSquare.getPiece().getPlayer() ==
+						// Player.USER) {
+
+						colorValidMoveSquares(selectedSquare.getPiece(), false);
+						colorValidMoveSquares(clickedSquare.getPiece(), true);
+
+						selectedSquare.setSelected(false);
+						selectedSquare = clickedSquare;
+						selectedSquare.setSelected(true);
+						// selectedSquare.getPiece().generateValidMoves(board);
+						// }
+
 					} else {
 						System.out.println("Invalid move");
 					}
@@ -425,7 +425,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 			} else {
 				if (arg0.isShiftDown() && arg0.isActionKey()) {
 					this.setBoard(branch.getBoard());
-					//showDecisionTreeScores(((DecisionNode) nodeInfo));
+					// showDecisionTreeScores(((DecisionNode) nodeInfo));
 				}
 			}
 		}

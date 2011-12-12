@@ -109,7 +109,7 @@ public class Move {
 	}
 	
 	public boolean isValidated(){	
-		return !(note==MoveNote.INVALIDATED || note ==MoveNote.DO_NOTHING);
+		return !(note==MoveNote.INVALIDATED);
 	}
 	
 	public PieceID getPieceTaken(){

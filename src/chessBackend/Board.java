@@ -17,6 +17,7 @@ import chessPieces.Rook;
 
 public class Board {
 	private Piece[][] board;
+	private boolean inCheck;
 	private Vector<Piece> aiPieces;
 	private Vector<Piece> userPieces;
 	private Piece lastMovedPiece;
@@ -92,9 +93,6 @@ public class Board {
 	}
 
 	public void moveChessPiece(Move move, Player player) {
-		
-		if (move.getNote() == MoveNote.DO_NOTHING)
-			return;
 
 		if (hasPiece(move.getToRow(), move.getToCol())) {
 			if (getPiece(move.getToRow(), move.getToCol()).getPlayer() == Player.USER) {
@@ -180,22 +178,16 @@ public class Board {
 		}
 	}
 
-	public boolean inCheck(Player player) {
-		boolean changedValidMoves = false;
-
-		Vector<Piece> pieces = getPlayerPieces(player);
-		for (int p = 0; p < pieces.size(); p++) {
-			if (pieces.elementAt(p) instanceof King) {
-				changedValidMoves = ((King) pieces.elementAt(p)).noCastle();
-				break;
-			}
-		}
-
-		return changedValidMoves;
+	public boolean isInCheck() {
+		return inCheck;
+	}
+	
+	public void setInCheck(boolean inCheck){
+		this.inCheck = inCheck;
 	}
 
 	public boolean canCastleFar(Player player) {
-		boolean canCastleFar = false;
+
 		if (player == Player.AI) {
 
 			if (hasPiece(0, 4)) {
@@ -203,7 +195,7 @@ public class Board {
 					if (!hasPiece(0, 3) && !hasPiece(0, 2) && !hasPiece(0, 1)) {
 						if (hasPiece(0, 0)) {
 							if (!hasMoved(0, 0)) {
-								canCastleFar = true;
+								return true;
 							}
 						}
 					}
@@ -217,7 +209,7 @@ public class Board {
 					if (!hasPiece(7, 3) && !hasPiece(7, 2) && !hasPiece(7, 1)) {
 						if (hasPiece(7, 0)) {
 							if (!hasMoved(7, 0)) {
-								canCastleFar = true;
+								return true;
 							}
 						}
 					}
@@ -225,13 +217,13 @@ public class Board {
 				}
 			}
 		}
+		
+		return false;
 
-		return canCastleFar;
 	}
 
 	public boolean canCastleNear(Player player) {
-			
-		boolean canCastleNear = false;
+		
 		if (player == Player.AI) {
 
 			if (hasPiece(0, 4)) {
@@ -239,7 +231,7 @@ public class Board {
 					if (!hasPiece(0, 5) && !hasPiece(0, 6)) {
 						if (hasPiece(0, 7)) {
 							if (!hasMoved(0, 7)) {
-								canCastleNear = true;
+								return true;
 							}
 						}
 					}
@@ -252,7 +244,7 @@ public class Board {
 					if (!hasPiece(7, 5) && !hasPiece(7, 6)) {
 						if (hasPiece(7, 7)) {
 							if (!hasMoved(7, 7)) {
-								canCastleNear = true;
+								return true;
 							}
 						}
 					}
@@ -260,7 +252,7 @@ public class Board {
 			}
 		}
 
-		return canCastleNear;
+		return false;
 	}
 	
 	public void adjustKnightValue(){
@@ -291,8 +283,6 @@ public class Board {
 					} else {
 						copyPlayerPieces.add(copyBoard[row][col]);
 					}
-
-					newBoard.adjustKnightValue();
 				}
 			}
 		}

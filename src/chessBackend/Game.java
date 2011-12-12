@@ -17,6 +17,11 @@ public class Game {
 		ai = new AI(board, debug);
 		gui = new BoardGUI(this, ai.getRoot(), debug);
 	}
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Game game = new Game();
+	}
 
 	public void userMoved(Move usersMove) {
 		System.out.println("User Moved");

@@ -46,7 +46,7 @@ public class Pawn extends PieceBase implements Piece {
 			dir = 1;
 		}
 
-		if (!board.hasPiece(currentRow + dir, currentCol)) {
+		if (board.checkPiece(currentRow + dir, currentCol, player) == PositionStatus.NO_PIECE) {
 			bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + dir, currentCol, this.getPlayer());
 			validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol,bonus,MoveNote.NONE);
 			if((currentRow + dir) == 0 || (currentRow + dir) == 7){
@@ -55,7 +55,7 @@ public class Pawn extends PieceBase implements Piece {
 			}
 			this.addValidMove(validMove);
 
-			if (!this.hasMoved() && !board.hasPiece(currentRow + 2 * dir, currentCol)) {
+			if (!this.hasMoved() && board.checkPiece(currentRow + 2*dir, currentCol, player) == PositionStatus.NO_PIECE) {
 				bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, this.getPlayer());
 				this.addValidMove(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol,bonus,MoveNote.NONE));
 			}

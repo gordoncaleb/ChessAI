@@ -14,7 +14,6 @@ public class DecisionNode {
 	// Children which represent all the possible moves of "player
 	private DecisionNode headChild;
 	private DecisionNode tailChild;
-	private DecisionNode currentChild;
 	private DecisionNode nextSibling;
 	private DecisionNode previousSibling;
 	private int childrenSize;
@@ -42,7 +41,6 @@ public class DecisionNode {
 		// Linked List data struct pointers
 		this.headChild = null;
 		this.tailChild = null;
-		this.currentChild = null;
 		this.childrenSize = 0;
 		this.nextSibling = null;
 		this.previousSibling = null;
@@ -69,35 +67,36 @@ public class DecisionNode {
 		if (childrenSize == 0) {
 			headChild = newChild;
 			tailChild = newChild;
-			headChild.setNextSibling(headChild);
-			headChild.setPreviousSibling(headChild);
+			headChild.setNextSibling(tailChild);
+			headChild.setPreviousSibling(tailChild);
 			childrenSize = 1;
 		} else {
-			currentChild = headChild;
-			while (newChild.getChosenPathValue() < currentChild.getChosenPathValue() && currentChild != tailChild) {
+			int childrenSize = this.getChildrenSize();
+			int childNum = 0;
+			DecisionNode currentChild = headChild;
+
+			while (newChild.getChosenPathValue() < currentChild.getChosenPathValue() && childNum < childrenSize) {
 				currentChild = currentChild.getNextSibling();
+				childNum++;
 			}
 
 			if (newChild.getChosenPathValue() >= currentChild.getChosenPathValue()) {
-				
-//				if(newChild.getChosenPathValue() == currentChild.getChosenPathValue()){
-//					while(newChild.getChosenPathValue() == currentChild.getChosenPathValue() && Math.random()>0.5){
-//						currentChild = currentChild.getNextSibling();
-//					}
-//				}
-				
-				if (currentChild == headChild) {
+
+				while (newChild.getChosenPathValue() == currentChild.getChosenPathValue() && Math.random() > 0.5) {
+					currentChild = currentChild.getNextSibling();
+					childNum++;
+				}
+
+				if (currentChild == headChild && childNum == 0) {
 					headChild = newChild;
 				}
 
 				insertChild(newChild, currentChild.getPreviousSibling(), currentChild);
 			} else {
-				insertChild(newChild, tailChild, headChild);
-				tailChild = newChild;
+				insertChild(newChild, headChild.getPreviousSibling(), headChild);
 			}
 		}
 
-		currentChild = newChild;
 	}
 
 	private void insertChild(DecisionNode child, DecisionNode previousChild, DecisionNode nextChild) {
@@ -106,16 +105,6 @@ public class DecisionNode {
 		previousChild.setNextSibling(child);
 		nextChild.setPreviousSibling(child);
 		childrenSize++;
-	}
-
-	public void removeChild() {
-		
-		removeChild(currentChild);
-		
-		if(currentChild!=null){
-			currentChild = currentChild.getNextSibling();
-		}
-		
 	}
 
 	public void removeChild(DecisionNode child) {
@@ -129,12 +118,11 @@ public class DecisionNode {
 			child.getPreviousSibling().setNextSibling(child.getNextSibling());
 			child.getNextSibling().setPreviousSibling(child.getPreviousSibling());
 
-		}else{
+		} else {
 			headChild = null;
 			tailChild = null;
-			currentChild = null;
 		}
-		
+
 		childrenSize--;
 	}
 
@@ -197,14 +185,14 @@ public class DecisionNode {
 	}
 
 	public int getChosenPathValue() {
-		if(childrenSize != 0){
+		if (childrenSize != 0) {
 			return this.getMoveValue() - headChild.getChosenPathValue();
-		}else{
+		} else {
 			return chosenPathValue;
 		}
 	}
-	
-	public void setChosenPathValue(int chosenPathValue){
+
+	public void setChosenPathValue(int chosenPathValue) {
 		this.chosenPathValue = chosenPathValue;
 	}
 
@@ -229,20 +217,7 @@ public class DecisionNode {
 		this.status = status;
 
 		if (status == GameStatus.CHECK) {
-			boolean changedValidMoves = board.inCheck(player);
-
-			if (changedValidMoves) {
-				currentChild = headChild;
-				for (int c = 0; c < childrenSize; c++) {
-
-					if (currentChild.getMove().getNote() == MoveNote.INVALIDATED) {
-						removeChild();
-					}
-
-					currentChild = currentChild.getNextSibling();
-				}
-
-			}
+			board.setInCheck(true);
 		}
 	}
 
@@ -254,7 +229,8 @@ public class DecisionNode {
 			chosen = false;
 
 		if (move != null)
-			return move.toString() + " Move Value =" + this.getMoveValue() + " Chosen Path Value =" + this.getChosenPathValue() + " Chosen: " + chosen;
+			return move.toString() + " Move Value =" + this.getMoveValue() + " Chosen Path Value =" + this.getChosenPathValue() + " Chosen: "
+					+ chosen;
 		else
 			return "Board Start";
 	}

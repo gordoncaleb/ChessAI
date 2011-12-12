@@ -99,6 +99,9 @@ public class AI {
 			DecisionNode newNode;
 			Board newBoard;
 
+			// If board is in check, castleing isn't valid
+			board.setInCheck(isInCheck(nextPlayer, board));
+			
 			// get the the pieces of whose turn it is
 			pieces = board.getPlayerPieces(player);
 
@@ -112,25 +115,18 @@ public class AI {
 
 					move = moves.elementAt(m);
 					moveValue = move.getValue();
-					// check to see if the move in question resulted in
+					
+					// Check to see if the move in question resulted in
 					// the loss of your king. Such a move is invalid because
 					// you can't move into check.
 					if (move.getNote() == MoveNote.TAKE_PIECE && move.getPieceTaken() == PieceID.KING) {
-						// A move note of DO_NOTHING is what the board would
-						// look like if the user passed up his/her move and
-						// allowed the AI to take what is available. If the
-						// AI
-						// can take the king in that instance, then the user
-						// is in check.
-						if (branch.getMove().getNote() == MoveNote.DO_NOTHING) {
-							branch.getParent().setStatus(GameStatus.CHECK);
-						}
-
 						branch.getMove().setNote(MoveNote.INVALIDATED);
+						System.out.println("Move " + move.toString() + " invalidated");
 						return 0;
 					}
 
 					newBoard = board.getCopy();
+					newBoard.adjustKnightValue();
 					newBoard.moveChessPiece(move, player);
 					newNode = new DecisionNode(branch, move, newBoard, nextPlayer);
 
@@ -213,22 +209,12 @@ public class AI {
 	}
 
 	private int expandTwig(DecisionNode twig) {
-		twigIsInCheck = false;
 		twigIsInvalid = false;
-		twigParentIsInCheck = false;
 
 		int twigSuggestedPathValue = growDecisionTreeLite(twig.getBoard(), twig.getPlayer(), twig.getMove(), 0);
 
-		if (twigIsInCheck) {
-			twig.setStatus(GameStatus.CHECK);
-		}
-
 		if (twigIsInvalid) {
 			twig.getMove().setNote(MoveNote.INVALIDATED);
-		}
-
-		if (twigParentIsInCheck) {
-			twig.getParent().setStatus(GameStatus.CHECK);
 		}
 
 		return twigSuggestedPathValue;
@@ -256,15 +242,7 @@ public class AI {
 				// parent and grantpar
 				if (move.getNote() == MoveNote.TAKE_PIECE && move.getPieceTaken() == PieceID.KING) {
 					if (level == 0) {
-						if (parentMove.getNote() == MoveNote.DO_NOTHING) {
-							twigParentIsInCheck = true;
-						}
 						twigIsInvalid = true;
-					}
-					if (level == 1) {
-						if (parentMove.getNote() == MoveNote.DO_NOTHING) {
-							twigIsInCheck = true;
-						}
 					}
 
 					return Values.KING_VALUE;
@@ -333,6 +311,36 @@ public class AI {
 			
 			currentChild = nextChild;
 		}
+	}
+	
+	/**
+	 * 
+	 * @param player The player who is putting the other player in check
+	 * @param board Board being checked for check situation
+	 * @return Whether or not "player" has put his/her opponent in check
+	 */
+	private boolean isInCheck(Player player, Board board){
+	
+		Vector<Piece> pieces = board.getPlayerPieces(player);
+		Piece piece;
+		Vector<Move> moves;
+		Move move;
+		
+		for(int p=0;p<pieces.size();p++){
+			piece = pieces.elementAt(p);
+			piece.generateValidMoves();
+			moves = piece.getValidMoves();
+			for(int m=0;m<moves.size();m++){
+				move = moves.elementAt(m);
+				if(move.getNote()==MoveNote.TAKE_PIECE && move.getPieceTaken()==PieceID.KING){
+					return true;
+				}
+			}
+		}
+		
+		
+		return false;
+		
 	}
 
 	// private DecisionNode tieBreaker(Vector<DecisionNode> ties, Player player)
