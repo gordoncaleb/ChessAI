@@ -60,9 +60,9 @@ public class Rook extends PieceBase implements Piece {
 			if(pieceStatus == PositionStatus.ENEMY){
 				Piece piece = board.getPiece(nextRow, nextCol);
 				if(rightRook && board.canCastleNear(player) || !rightRook && board.canCastleFar(player)){
-					this.addValidMove(new Move(currentRow, currentCol, nextRow,nextCol,piece.getPieceValue() + Values.CASTLE_ABILITY_LOST_VALUE,MoveNote.TAKE_PIECE));
+					this.addValidMove(new Move(currentRow, currentCol, nextRow,nextCol,piece.getPieceValue() + Values.CASTLE_ABILITY_LOST_VALUE,piece.getPieceID()));
 				}else{
-					this.addValidMove(new Move(currentRow, currentCol, nextRow,nextCol,piece.getPieceID()));
+					this.addValidMove(new Move(currentRow, currentCol, nextRow,nextCol,piece.getPieceValue(),piece.getPieceID()));
 				}
 			}
 			

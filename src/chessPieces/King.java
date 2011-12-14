@@ -57,8 +57,8 @@ public class King extends PieceBase implements Piece {
 			}
 
 			if (pieceStatus == PositionStatus.ENEMY) {
-				PieceID pieceID = board.getPiece(nextRow, nextCol).getPieceID();
-				this.addValidMove(new Move(currentRow, currentCol, nextRow, nextCol, pieceID));
+				Piece piece = board.getPiece(nextRow, nextCol);
+				this.addValidMove(new Move(currentRow, currentCol, nextRow, nextCol, piece.getPieceValue(), piece.getPieceID()));
 			}
 
 		}
