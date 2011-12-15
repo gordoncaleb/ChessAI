@@ -97,6 +97,12 @@ public class BoardGUI implements MouseListener, KeyListener {
 		}
 	}
 
+	public void newGame(DecisionNode rootDecision) {
+		this.rootDecision = rootDecision;
+		clearPiecesTaken();
+		setBoard(rootDecision.getBoard());
+	}
+
 	private void buildBoardGUI() {
 		chessSquares = new PiecePositionGUI[8][8];
 		PiecePositionGUI square;
@@ -149,79 +155,98 @@ public class BoardGUI implements MouseListener, KeyListener {
 		lastMovedSquare = chessSquares[m.getToRow()][m.getToCol()];
 		lastMovedSquare.setLastMoved(true);
 
-		// chessSquares[m.getToRow()][m.getToCol()].invalidate();
 	}
 
-	public void aiMove(DecisionNode aiDecision) {
+	public void setAiResponse(DecisionNode aiResponse) {
 
-		rootDecision = aiDecision;
+		rootDecision = aiResponse;
 		setBoard(rootDecision.getBoard());
 
 		if (debug)
 			setRootDecisionTree(rootDecision);
 
 		// check for taken pieces
-		if (aiDecision.getMove().getNote() == MoveNote.TAKE_PIECE) {
-			userPieceTaken(aiDecision.getMove().getPieceTaken());
+		if (aiResponse.getMove().getNote() == MoveNote.TAKE_PIECE) {
+			userPieceTaken(aiResponse.getMove().getPieceTaken());
 		}
 
-		if (aiDecision.getStatus() == GameStatus.CHECK) {
+		if (aiResponse.getStatus() == GameStatus.CHECK) {
 			System.out.println("CHECK!");
 		}
 
-		if (aiDecision.getStatus() == GameStatus.CHECKMATE) {
-			Object[] options = { "Yes, please", "No, I'm kinda a bitch." };
-//			int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
-//					JOptionPane.QUESTION_MESSAGE, null, // do not use a custom
-//														// Icon
-//					options, // the titles of buttons
-//					options[0]); // default button title
-			
-			System.out.println("AI wins!!!!!!");
+		if (aiResponse.getPlayer() == Player.USER) {
+
+			if (aiResponse.getStatus() == GameStatus.CHECKMATE) {
+				Object[] options = { "Yes, please", "Nah, I'm kinda a bitch." };
+				int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE, null, // do not use a
+															// custom
+															// Icon
+						options, // the titles of buttons
+						options[0]); // default button title
+
+				if (n == JOptionPane.YES_OPTION) {
+					game.newGame();
+				} else {
+					System.exit(0);
+				}
+
+			}
+
+			if (aiResponse.getStatus() == GameStatus.STALEMATE) {
+				Object[] options = { "Yes, please", "Nah, maybe later." };
+				int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE, null, // do not use a
+															// custom
+															// Icon
+						options, // the titles of buttons
+						options[0]); // default button title
+
+				if (n == JOptionPane.YES_OPTION) {
+					game.newGame();
+				} else {
+					System.exit(0);
+				}
+
+			}
+
+		} else {
+
+			if (aiResponse.getStatus() == GameStatus.CHECKMATE) {
+				Object[] options = { "Yeah, why not?", "Nah." };
+				int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE, null, // do not use a
+															// custom
+															// Icon
+						options, // the titles of buttons
+						options[0]); // default button title
+
+				if (n == JOptionPane.YES_OPTION) {
+					game.newGame();
+				} else {
+					System.exit(0);
+				}
+
+			}
+
+			if (aiResponse.getStatus() == GameStatus.STALEMATE) {
+				Object[] options = { "Yes, please", "Nah, maybe later." };
+				int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE, null, // do not use a
+															// custom
+															// Icon
+						options, // the titles of buttons
+						options[0]); // default button title
+
+				if (n == JOptionPane.YES_OPTION) {
+					game.newGame();
+				} else {
+					System.exit(0);
+				}
+			}
 
 		}
-		
-		if (aiDecision.getStatus() == GameStatus.STALEMATE) {
-//			Object[] options = { "Yes, please", "Nah, maybe later." };
-//			int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-//					JOptionPane.QUESTION_MESSAGE, null, // do not use a custom
-//														// Icon
-//					options, // the titles of buttons
-//					options[0]); // default button title
-			
-			System.out.println("AI caused Stalemate");
 
-		}
-
-	}
-	
-	private void userMove(DecisionNode userDecision){
-		game.userMoved(userDecision);
-		
-		if (userDecision.getStatus() == GameStatus.CHECKMATE) {
-//			Object[] options = { "Yeah, why not?", "Nah." };
-//			int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
-//					JOptionPane.QUESTION_MESSAGE, null, // do not use a custom
-//														// Icon
-//					options, // the titles of buttons
-//					options[0]); // default button title
-			
-			System.out.println("User has won!!!!!!!");
-
-		}
-		
-		if (userDecision.getStatus() == GameStatus.STALEMATE) {
-//			Object[] options = { "Yes, please", "Nah, maybe later." };
-//			int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-//					JOptionPane.QUESTION_MESSAGE, null, // do not use a custom
-//														// Icon
-//					options, // the titles of buttons
-//					options[0]); // default button title
-			
-			System.out.println("User caused Stalemate");
-			
-
-		}
 	}
 
 	public void setBoard(Board board) {
@@ -294,6 +319,13 @@ public class BoardGUI implements MouseListener, KeyListener {
 		JLabel picLabel = new JLabel();
 		picLabel.setIcon(new ImageIcon(this.getChessImage(pieceTaken, Player.USER)));
 		lostUserPiecesPanel.add(picLabel);
+	}
+
+	private void clearPiecesTaken() {
+		lostAiPiecesPanel.removeAll();
+		lostAiPiecesPanel.updateUI();
+		lostUserPiecesPanel.removeAll();
+		lostUserPiecesPanel.updateUI();
 	}
 
 	// Debug methods
@@ -423,7 +455,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 						aiPieceTaken(validMove.getPieceTaken());
 					}
 
-					this.userMove(validMove.getNode());
+					game.userMoved(validMove.getNode());
 				} else {
 					if (clickedSquare.hasPiece()) {
 						// if (clickedSquare.getPiece().getPlayer() ==

@@ -13,8 +13,7 @@ public class Game {
 
 		boolean debug = true;
 
-		Board board = new Board();
-		ai = new AI(board, debug);
+		ai = new AI(debug);
 		gui = new BoardGUI(this, ai.getRoot(), debug);
 	}
 	
@@ -22,10 +21,15 @@ public class Game {
 		// TODO Auto-generated method stub
 		Game game = new Game();
 	}
+	
+	public void newGame(){
+		ai.newGame();
+		gui.newGame(ai.getRoot());
+	}
 
 	public void userMoved(DecisionNode usersDecision) {
 		System.out.println("User Moved");
-		gui.aiMove(ai.move(usersDecision));
+		gui.setAiResponse(ai.move(usersDecision));
 	}
 
 	public AI getAI() {

@@ -20,9 +20,14 @@ public class AI {
 	private boolean twigIsInvalid;
 	private int[] childNum = new int[10];
 
-	public AI(Board board, boolean debug) {
+	public AI(boolean debug) {
 		this.debug = debug;
-		rootNode = new DecisionNode(null, null, board, Player.USER);
+		newGame();
+	}
+	
+	public void newGame(){
+		
+		rootNode = new DecisionNode(null, null, new Board(), Player.USER);
 
 		// init tree
 		growDecisionTree(rootNode, 0);
@@ -31,7 +36,6 @@ public class AI {
 		maxDecisionTreeLevel = 1;
 		maxTwigLevel = 2;
 
-		System.out.println("Tree grown");
 		// expandGoodDecisions(rootNode,2);
 
 		if (debug) {
@@ -152,7 +156,6 @@ public class AI {
 					// you can't move into check.
 					if (move.getNote() == MoveNote.TAKE_PIECE && move.getPieceTaken() == PieceID.KING) {
 						branch.getMove().setNote(MoveNote.INVALIDATED);
-						System.out.println("Move " + move.toString() + " invalidated");
 						return 0;
 					}
 
@@ -487,66 +490,6 @@ public class AI {
 		return false;
 
 	}
-
-	// private DecisionNode tieBreaker(Vector<DecisionNode> ties, Player player)
-	// {
-	// int randomIndex;
-	// int leastChildren;
-	// int mostChildren;
-	// DecisionNode chosenNode;
-	// DecisionNode candidateNode;
-	// Vector<DecisionNode> candidateNodes = new Vector<DecisionNode>();
-	//
-	// candidateNode = ties.elementAt(0);
-	//
-	// if (candidateNode.hasChildren()) {
-	// if (player == Player.USER) {
-	// // chose node with least children
-	// leastChildren = candidateNode.getChildrenSize();
-	// candidateNodes.add(candidateNode);
-	// for (int i = 1; i < ties.size(); i++) {
-	// candidateNode = ties.elementAt(i);
-	// if (candidateNode.getChildrenSize() < leastChildren) {
-	// leastChildren = candidateNode.getChildrenSize();
-	// candidateNodes.removeAllElements();
-	// candidateNodes.add(candidateNode);
-	// } else {
-	// if (candidateNode.getChildrenSize() == leastChildren) {
-	// candidateNodes.add(candidateNode);
-	// }
-	// }
-	// }
-	// } else {
-	// // chose node with most children
-	// mostChildren = candidateNode.getChildrenSize();
-	// candidateNodes.add(candidateNode);
-	// for (int i = 1; i < ties.size(); i++) {
-	// candidateNode = ties.elementAt(i);
-	// if (candidateNode.getChildrenSize() > mostChildren) {
-	// leastChildren = candidateNode.getChildrenSize();
-	// candidateNodes.removeAllElements();
-	// candidateNodes.add(candidateNode);
-	// } else {
-	// if (candidateNode.getChildrenSize() == mostChildren) {
-	// candidateNodes.add(candidateNode);
-	// }
-	// }
-	// }
-	// }
-	//
-	// if (candidateNodes.size() != 0) {
-	// randomIndex = (int) (Math.random() * candidateNodes.size());
-	// chosenNode = candidateNodes.elementAt(randomIndex);
-	// } else {
-	// chosenNode = candidateNodes.elementAt(0);
-	// }
-	// } else {
-	// randomIndex = (int) (Math.random() * ties.size());
-	// chosenNode = ties.elementAt(randomIndex);
-	// }
-	//
-	// return chosenNode;
-	// }
 
 	public DecisionNode getRoot() {
 		return rootNode;
