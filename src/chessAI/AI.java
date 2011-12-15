@@ -24,11 +24,12 @@ public class AI {
 		this.debug = debug;
 		rootNode = new DecisionNode(null, null, board, Player.USER);
 
+		// init tree
+		growDecisionTree(rootNode, 0);
+
 		// These numbers determine how many moves ahead the AI thinks
 		maxDecisionTreeLevel = 1;
 		maxTwigLevel = 2;
-
-		growDecisionTree(rootNode, 0);
 
 		System.out.println("Tree grown");
 		// expandGoodDecisions(rootNode,2);
@@ -45,14 +46,12 @@ public class AI {
 	 * This method notifies the AI that the user has moved and also tells gives
 	 * it the move that the user made.
 	 * 
-	 * @param usersMove
+	 * @param usersDecision
 	 *            The users move. This has a reference to the position on the
 	 *            decision tree that the user effectively selected.
 	 * @return The new root node, which is the AI response to 'userMove'.
 	 */
-	public DecisionNode move(Move usersMove) {
-
-		DecisionNode usersDecision = usersMove.getNode();
+	public DecisionNode move(DecisionNode usersDecision) {
 
 		if (debug) {
 			if (usersDecision == rootNode.getChosenChild()) {
@@ -64,12 +63,13 @@ public class AI {
 
 		// Game Over?
 		if (rootNode.getStatus() != GameStatus.CHECKMATE && rootNode.getStatus() != GameStatus.STALEMATE) {
-			setRoot(usersDecision.getChosenChild());
+
 			long time = 0;
 
 			time = new Date().getTime();
 
 			growDecisionTree(rootNode, 0);
+			setRoot(usersDecision.getChosenChild());
 
 			long timeTaken = new Date().getTime() - time;
 			System.out.println("Ai took " + timeTaken + "ms to move.");
@@ -95,10 +95,23 @@ public class AI {
 		return rootNode;
 	}
 
+	/**
+	 * 
+	 * @param branch
+	 * @param level
+	 * @return
+	 */
 	private int growDecisionTree(DecisionNode branch, int level) {
 
+		// This is the player making the child moves, not the player that made
+		// the branch.
 		Player player = branch.getPlayer();
+
+		// This is the player that made the branch as well as the player making
+		// moves on children of branch.
 		Player nextPlayer = getNextPlayer(player);
+
+		// Current state at branch
 		Board board = branch.getBoard();
 
 		int suggestedPathValue;
@@ -116,7 +129,9 @@ public class AI {
 			Board newBoard;
 
 			// If board is in check, castleing isn't valid
-			board.setInCheck(isInCheck(nextPlayer, board));
+			if (isInCheck(nextPlayer, board)) {
+				branch.setStatus(GameStatus.CHECK);
+			}
 
 			// get the the pieces of whose turn it is
 			pieces = board.getPlayerPieces(player);
@@ -160,6 +175,15 @@ public class AI {
 
 						// System.out.println("addedNew Node");
 						branch.addChild(newNode);
+					}
+
+					// alpha beta pruning
+					if (nextPlayer == Player.AI && branch.getParent() != null) {
+						if (branch.getParent().getHeadChild() != null) {
+							if (branch.getMoveValue() - suggestedPathValue < branch.getParent().getHeadChild().getChosenPathValue()) {
+								return suggestedPathValue;
+							}
+						}
 					}
 
 				}
@@ -214,10 +238,10 @@ public class AI {
 
 			if (branch.getStatus() == GameStatus.CHECK) {
 				branch.setStatus(GameStatus.CHECKMATE);
-				branch.setChosenPathValue(2 * Values.KING_VALUE);
+				branch.setChosenPathValue(Values.CHECKMATE_MOVE);
 			} else {
 				branch.setStatus(GameStatus.STALEMATE);
-				branch.setChosenPathValue(Values.KING_VALUE);
+				branch.setChosenPathValue(Values.STALEMATE_MOVE);
 			}
 		}
 
@@ -257,6 +281,14 @@ public class AI {
 		if (twigIsInvalid) {
 			twig.getMove().setNote(MoveNote.INVALIDATED);
 		}
+		
+		if(twigSuggestedPathValue == Values.CHECKMATE_MOVE){
+			twig.setStatus(GameStatus.CHECKMATE);
+		}
+		
+		if(twigSuggestedPathValue == Values.STALEMATE_MOVE){
+			twig.setStatus(GameStatus.STALEMATE);
+		}
 
 		return twigSuggestedPathValue;
 	}
@@ -281,20 +313,24 @@ public class AI {
 		Board newBoard;
 		Vector<Move> moves;
 		Move move;
+		boolean hasMove = false;
 		int suggestedMove;
 		int suggestedPathValue;
 		int moveValue;
 
 		int bestMove = Integer.MIN_VALUE;
+		Player nextPlayer = getNextPlayer(player);
 
 		// If board is in check, castleing isn't valid
 		board.setInCheck(isInCheck(getNextPlayer(player), board));
 
 		Vector<Piece> pieces = board.getPlayerPieces(player);
-		for (int p = 0; p < pieces.size(); p++) {
+		
+		piecesLoop: for (int p = 0; p < pieces.size(); p++) {
 			pieces.elementAt(p).generateValidMoves();
 			moves = pieces.elementAt(p).getValidMoves();
-			for (int m = 0; m < moves.size(); m++) {
+			
+			movesLoop: for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
 
 				// These global variables get around the fact that this
@@ -315,33 +351,40 @@ public class AI {
 					newBoard.adjustKnightValue();
 					newBoard.moveChessPiece(move, player);
 
-					suggestedMove = growDecisionTreeLite(newBoard, getNextPlayer(player), moveValue, bestMove, level + 1);
+					suggestedMove = growDecisionTreeLite(newBoard, nextPlayer, moveValue, bestMove, level + 1);
 					suggestedPathValue = moveValue - suggestedMove;
 
 					// The king was taken on the next move, which means this
 					// move is invalid. Move on to the next move.
 					if (suggestedMove == Values.KING_VALUE) {
-						continue;
+						continue movesLoop;
 					}
 
 				} else {
 					suggestedPathValue = moveValue;
 				}
 
+				hasMove = true;
+
 				if (suggestedPathValue > bestMove) {
 					bestMove = suggestedPathValue;
 				}
 
-				if (parentMoveValue - bestMove < parentBestMove) {
-					// if(level == 0){
-					// System.out.println("pruned at twig child level");
-					// }
-					return bestMove;
+				if (parentMoveValue - bestMove < parentBestMove && player == Player.USER) {
+					break piecesLoop;
 				}
 
 			}
 		}
 
+		if(!hasMove){
+			if(board.isInCheck()){
+				bestMove = Values.CHECKMATE_MOVE;
+			}else{
+				bestMove = Values.STALEMATE_MOVE;
+			}
+		}
+		
 		return bestMove;
 	}
 

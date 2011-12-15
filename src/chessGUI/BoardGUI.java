@@ -165,6 +165,63 @@ public class BoardGUI implements MouseListener, KeyListener {
 			userPieceTaken(aiDecision.getMove().getPieceTaken());
 		}
 
+		if (aiDecision.getStatus() == GameStatus.CHECK) {
+			System.out.println("CHECK!");
+		}
+
+		if (aiDecision.getStatus() == GameStatus.CHECKMATE) {
+			Object[] options = { "Yes, please", "No, I'm kinda a bitch." };
+//			int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
+//					JOptionPane.QUESTION_MESSAGE, null, // do not use a custom
+//														// Icon
+//					options, // the titles of buttons
+//					options[0]); // default button title
+			
+			System.out.println("AI wins!!!!!!");
+
+		}
+		
+		if (aiDecision.getStatus() == GameStatus.STALEMATE) {
+//			Object[] options = { "Yes, please", "Nah, maybe later." };
+//			int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
+//					JOptionPane.QUESTION_MESSAGE, null, // do not use a custom
+//														// Icon
+//					options, // the titles of buttons
+//					options[0]); // default button title
+			
+			System.out.println("AI caused Stalemate");
+
+		}
+
+	}
+	
+	private void userMove(DecisionNode userDecision){
+		game.userMoved(userDecision);
+		
+		if (userDecision.getStatus() == GameStatus.CHECKMATE) {
+//			Object[] options = { "Yeah, why not?", "Nah." };
+//			int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
+//					JOptionPane.QUESTION_MESSAGE, null, // do not use a custom
+//														// Icon
+//					options, // the titles of buttons
+//					options[0]); // default button title
+			
+			System.out.println("User has won!!!!!!!");
+
+		}
+		
+		if (userDecision.getStatus() == GameStatus.STALEMATE) {
+//			Object[] options = { "Yes, please", "Nah, maybe later." };
+//			int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
+//					JOptionPane.QUESTION_MESSAGE, null, // do not use a custom
+//														// Icon
+//					options, // the titles of buttons
+//					options[0]); // default button title
+			
+			System.out.println("User caused Stalemate");
+			
+
+		}
 	}
 
 	public void setBoard(Board board) {
@@ -214,7 +271,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 				chessSquares[move.getToRow()][move.getToCol()].setValidMove(valid);
 
 				if (debug) {
-					if (valid && move!=null) {
+					if (valid && move != null) {
 						chessSquares[move.getToRow()][move.getToCol()].updateDebugInfo(move.getNode().getChosenPathValue() + "");
 					} else {
 						chessSquares[move.getToRow()][move.getToCol()].updateDebugInfo("");
@@ -366,7 +423,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 						aiPieceTaken(validMove.getPieceTaken());
 					}
 
-					game.userMoved(validMove);
+					this.userMove(validMove.getNode());
 				} else {
 					if (clickedSquare.hasPiece()) {
 						// if (clickedSquare.getPiece().getPlayer() ==

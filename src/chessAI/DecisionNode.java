@@ -229,8 +229,7 @@ public class DecisionNode {
 			chosen = false;
 
 		if (move != null)
-			return move.toString() + " Move Value =" + this.getMoveValue() + " Chosen Path Value =" + this.getChosenPathValue() + " Chosen: "
-					+ chosen;
+			return move.toString() + " Status =" + getStatus().name() + " Move Value =" + this.getMoveValue() + " Chosen Path Value =" + this.getChosenPathValue() + " Chosen: " + chosen;
 		else
 			return "Board Start";
 	}

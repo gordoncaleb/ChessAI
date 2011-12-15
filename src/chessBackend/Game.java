@@ -23,9 +23,9 @@ public class Game {
 		Game game = new Game();
 	}
 
-	public void userMoved(Move usersMove) {
+	public void userMoved(DecisionNode usersDecision) {
 		System.out.println("User Moved");
-		gui.aiMove(ai.move(usersMove));
+		gui.aiMove(ai.move(usersDecision));
 	}
 
 	public AI getAI() {
