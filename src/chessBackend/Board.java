@@ -51,7 +51,7 @@ public class Board {
 		aiPieces.add(new Rook(player, rowOne, 0,false));
 		aiPieces.add(new Knight(player, rowOne, 1));
 		aiPieces.add(new Bishop(player, rowOne, 2));
-		aiPieces.add(new Queen(player, rowOne, 6));
+		aiPieces.add(new Queen(player, rowOne, 3));
 		aiPieces.add(new King(player, rowOne, 4));
 		aiPieces.add(new Bishop(player, rowOne, 5));
 		aiPieces.add(new Knight(player, rowOne, 6));
