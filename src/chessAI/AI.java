@@ -532,14 +532,14 @@ public class AI extends Thread {
 	 * @return Whether or not "player" has put his/her opponent in check
 	 */
 	private boolean isInCheck(Player player, Board board) {
-		int[][] kingLeftRight = { { 0, 3, 0, 5 }, { 7, 3, 7, 5 } };
+		int[][] kingLeftRight = { { 7, 3, 7, 5 }, { 0, 3, 0, 5 }};
 		Vector<Piece> pieces = board.getPlayerPieces(player);
 		Piece piece;
 		Vector<Move> moves;
 		Move move;
 		boolean inCheck = false;
-		boolean canFar = false;
-		boolean canNear = false;
+		boolean canFar = true;
+		boolean canNear = true;
 
 		for (int p = 0; p < pieces.size(); p++) {
 			piece = pieces.elementAt(p);
@@ -552,11 +552,11 @@ public class AI extends Thread {
 				}
 
 				if (move.getToRow() == kingLeftRight[player.ordinal()][0] && move.getToCol() == kingLeftRight[player.ordinal()][1]) {
-					canFar = true;
+					canFar = false;
 				}
 
 				if (move.getToRow() == kingLeftRight[player.ordinal()][2] && move.getToCol() == kingLeftRight[player.ordinal()][3]) {
-					canNear = true;
+					canNear = false;
 				}
 			}
 			piece.clearValidMoves();
