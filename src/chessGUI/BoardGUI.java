@@ -144,19 +144,6 @@ public class BoardGUI implements MouseListener, KeyListener {
 		return chessPieceGraphics[player.ordinal()][id.ordinal()];
 	}
 
-//	public void moveChessPiece(Move m) {
-//		Piece p = chessSquares[m.getFromRow()][m.getFromCol()].getPiece();
-//		chessSquares[m.getToRow()][m.getToCol()].setChessPiece(p);
-//		chessSquares[m.getFromRow()][m.getFromCol()].clearChessPiece();
-//
-//		if (lastMovedSquare != null)
-//			lastMovedSquare.setLastMoved(false);
-//
-//		lastMovedSquare = chessSquares[m.getToRow()][m.getToCol()];
-//		lastMovedSquare.setLastMoved(true);
-//
-//	}
-
 	public void setAiResponse(DecisionNode aiResponse) {
 
 		rootDecision = aiResponse;
