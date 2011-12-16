@@ -8,6 +8,7 @@ import chessBackend.GameStatus;
 import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
+import chessPieces.CastleDetails;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 import chessPieces.Values;
@@ -24,9 +25,9 @@ public class AI {
 		this.debug = debug;
 		newGame();
 	}
-	
-	public void newGame(){
-		
+
+	public void newGame() {
+
 		rootNode = new DecisionNode(null, null, new Board(), Player.USER);
 
 		// init tree
@@ -284,12 +285,12 @@ public class AI {
 		if (twigIsInvalid) {
 			twig.getMove().setNote(MoveNote.INVALIDATED);
 		}
-		
-		if(twigSuggestedPathValue == Values.CHECKMATE_MOVE){
+
+		if (twigSuggestedPathValue == Values.CHECKMATE_MOVE) {
 			twig.setStatus(GameStatus.CHECKMATE);
 		}
-		
-		if(twigSuggestedPathValue == Values.STALEMATE_MOVE){
+
+		if (twigSuggestedPathValue == Values.STALEMATE_MOVE) {
 			twig.setStatus(GameStatus.STALEMATE);
 		}
 
@@ -328,11 +329,11 @@ public class AI {
 		board.setInCheck(isInCheck(getNextPlayer(player), board));
 
 		Vector<Piece> pieces = board.getPlayerPieces(player);
-		
+
 		piecesLoop: for (int p = 0; p < pieces.size(); p++) {
 			pieces.elementAt(p).generateValidMoves();
 			moves = pieces.elementAt(p).getValidMoves();
-			
+
 			movesLoop: for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
 
@@ -380,14 +381,14 @@ public class AI {
 			}
 		}
 
-		if(!hasMove){
-			if(board.isInCheck()){
+		if (!hasMove) {
+			if (board.isInCheck()) {
 				bestMove = Values.CHECKMATE_MOVE;
-			}else{
+			} else {
 				bestMove = Values.STALEMATE_MOVE;
 			}
 		}
-		
+
 		return bestMove;
 	}
 
@@ -468,11 +469,14 @@ public class AI {
 	 * @return Whether or not "player" has put his/her opponent in check
 	 */
 	private boolean isInCheck(Player player, Board board) {
-
+		int[][] kingLeftRight = { { 0, 3, 0, 5 }, { 7, 3, 7, 5 } };
 		Vector<Piece> pieces = board.getPlayerPieces(player);
 		Piece piece;
 		Vector<Move> moves;
 		Move move;
+		boolean inCheck = false;
+		boolean canFar = false;
+		boolean canNear = false;
 
 		for (int p = 0; p < pieces.size(); p++) {
 			piece = pieces.elementAt(p);
@@ -481,13 +485,44 @@ public class AI {
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
 				if (move.getNote() == MoveNote.TAKE_PIECE && move.getPieceTaken() == PieceID.KING) {
-					return true;
+					inCheck = true;
+				}
+
+				if (move.getToRow() == kingLeftRight[player.ordinal()][0] && move.getToCol() == kingLeftRight[player.ordinal()][1]) {
+					canFar = true;
+				}
+
+				if (move.getToRow() == kingLeftRight[player.ordinal()][2] && move.getToCol() == kingLeftRight[player.ordinal()][3]) {
+					canNear = true;
 				}
 			}
 			piece.clearValidMoves();
 		}
 
-		return false;
+		setCastleDetails(board, canFar, canNear, inCheck);
+
+		return inCheck;
+
+	}
+
+	private void setCastleDetails(Board board, boolean canFar, boolean canNear, boolean inCheck) {
+		CastleDetails castleDetails = CastleDetails.NO_CASTLE;
+
+		if (!inCheck) {
+			if (canNear && canFar) {
+				castleDetails = CastleDetails.CASTLE_BOTH;
+			} else {
+				if (canNear) {
+					castleDetails = CastleDetails.CASTLE_NEAR;
+				}
+
+				if (canFar) {
+					castleDetails = CastleDetails.CASTLE_FAR;
+				}
+			}
+		}
+
+		board.setCastleDetails(castleDetails);
 
 	}
 

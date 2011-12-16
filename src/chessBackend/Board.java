@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import chessGUI.BoardGUI;
 import chessPieces.Bishop;
+import chessPieces.CastleDetails;
 import chessPieces.Piece;
 import chessPieces.PiecePosition;
 import chessPieces.PositionBonus;
@@ -18,6 +19,8 @@ import chessPieces.Rook;
 public class Board {
 	private Piece[][] board;
 	private boolean inCheck;
+	private boolean noCheckNear;
+	private boolean noCheckFar;
 	private Vector<Piece> aiPieces;
 	private Vector<Piece> userPieces;
 	private Piece lastMovedPiece;
@@ -82,12 +85,15 @@ public class Board {
 		board = new Piece[8][8];
 
 		for (int i = 0; i < userPieces.size(); i++) {
-			aiPiece = aiPieces.elementAt(i);
-			board[aiPiece.getRow()][aiPiece.getCol()] = aiPiece;
-			aiPiece.setBoard(this);
 			userPiece = userPieces.elementAt(i);
 			board[userPiece.getRow()][userPiece.getCol()] = userPiece;
 			userPiece.setBoard(this);
+		}
+		
+		for (int i = 0; i < aiPieces.size(); i++) {
+			aiPiece = aiPieces.elementAt(i);
+			board[aiPiece.getRow()][aiPiece.getCol()] = aiPiece;
+			aiPiece.setBoard(this);
 		}
 
 	}
@@ -186,6 +192,25 @@ public class Board {
 		this.inCheck = inCheck;
 	}
 
+	public void setCastleDetails(CastleDetails castleDetails){
+		if(castleDetails == CastleDetails.CASTLE_BOTH){
+			noCheckNear = true;
+			noCheckFar = true;
+		}else{
+			if(castleDetails == CastleDetails.CASTLE_FAR){
+				noCheckFar = true;
+			}else{
+				noCheckFar = false;
+			}
+			
+			if(castleDetails == CastleDetails.CASTLE_NEAR){
+				noCheckNear = true;
+			}else{
+				noCheckNear = false;
+			}
+		}
+	}
+
 	public boolean canCastleFar(Player player) {
 
 		if (player == Player.AI) {
@@ -194,7 +219,7 @@ public class Board {
 				if (!getPiece(0, 4).hasMoved()) {
 					if (!hasPiece(0, 3) && !hasPiece(0, 2) && !hasPiece(0, 1)) {
 						if (hasPiece(0, 0)) {
-							if (!hasMoved(0, 0)) {
+							if (!hasMoved(0, 0) && noCheckFar) {
 								return true;
 							}
 						}
@@ -208,7 +233,7 @@ public class Board {
 				if (!getPiece(7, 4).hasMoved()) {
 					if (!hasPiece(7, 3) && !hasPiece(7, 2) && !hasPiece(7, 1)) {
 						if (hasPiece(7, 0)) {
-							if (!hasMoved(7, 0)) {
+							if (!hasMoved(7, 0) && noCheckFar) {
 								return true;
 							}
 						}
@@ -230,7 +255,7 @@ public class Board {
 				if (!getPiece(0, 4).hasMoved()) {
 					if (!hasPiece(0, 5) && !hasPiece(0, 6)) {
 						if (hasPiece(0, 7)) {
-							if (!hasMoved(0, 7)) {
+							if (!hasMoved(0, 7) && noCheckNear) {
 								return true;
 							}
 						}
@@ -243,7 +268,7 @@ public class Board {
 				if (!getPiece(7, 4).hasMoved()) {
 					if (!hasPiece(7, 5) && !hasPiece(7, 6)) {
 						if (hasPiece(7, 7)) {
-							if (!hasMoved(7, 7)) {
+							if (!hasMoved(7, 7) && noCheckNear) {
 								return true;
 							}
 						}

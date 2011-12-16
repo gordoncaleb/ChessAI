@@ -31,7 +31,7 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 	
 	private JLabel picLabel;
 	private boolean selectedSquare;
-	private boolean darkSquare;
+	private boolean lightSquare;
 	private boolean lastMovedSquare;
 	private boolean validMoveSquare;
 
@@ -44,9 +44,9 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 	private Color lastMoved = new Color(255, 0, 0);
 	private Color validMove = new Color(255, 255, 0);
 
-	public PiecePositionGUI(boolean darkSquare, int row, int col, boolean debug) {
+	public PiecePositionGUI(boolean lightSquare, int row, int col, boolean debug) {
 		super(new BorderLayout());
-		this.darkSquare = darkSquare;
+		this.lightSquare = lightSquare;
 		pos[0] = row;
 		pos[1] = col;
 
@@ -96,16 +96,16 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 				this.setBackground(lastMoved);
 			} else {
 				if (selectedSquare) {
-					if (darkSquare) {
-						this.setBackground(darkSelected);
-					} else {
+					if (lightSquare) {
 						this.setBackground(lightSelected);
+					} else {
+						this.setBackground(darkSelected);
 					}
 				} else {
-					if (darkSquare) {
-						this.setBackground(dark);
-					} else {
+					if (lightSquare) {
 						this.setBackground(light);
+					} else {
+						this.setBackground(dark);
 					}
 				}
 			}
