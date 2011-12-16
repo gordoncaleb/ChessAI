@@ -121,7 +121,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 	private void loadChessImages() {
 		chessPieceGraphics = new Image[2][6];
 		String pieceNames[] = { "rook", "knight", "bishop", "queen", "king", "pawn" };
-		String imgDir = "img\\pieces2\\";
+		String imgDir = "img" + File.separator + "pieces2" + File.separator;
 
 		for (int i = 0; i < 6; i++) {
 			try {
