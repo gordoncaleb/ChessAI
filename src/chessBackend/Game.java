@@ -13,8 +13,10 @@ public class Game {
 
 		boolean debug = true;
 
-		ai = new AI(debug);
-		gui = new BoardGUI(this, ai.getRoot(), debug);
+		gui = new BoardGUI(this, debug);
+		ai = new AI(this, debug);
+		
+		ai.start();
 	}
 	
 	public static void main(String[] args) {
@@ -22,18 +24,21 @@ public class Game {
 		Game game = new Game();
 	}
 	
-	public void newGame(){
-		ai.newGame();
-		gui.newGame(ai.getRoot());
+	public synchronized void newGame(){
+		ai.setMakeNewGame();
 	}
 
-	public void userMoved(DecisionNode usersDecision) {
-		System.out.println("User Moved");
-		gui.setAiResponse(ai.move(usersDecision));
+	public synchronized void userMoved(DecisionNode usersDecision) {
+		ai.setUserDecision(usersDecision);
+	}
+	
+	public synchronized void aiMoved(DecisionNode aiDecision){
+		gui.setAiResponse(aiDecision);
+	}
+	
+	public synchronized void growBranch(DecisionNode branch){
+		ai.growBranch(branch);
 	}
 
-	public AI getAI() {
-		return ai;
-	}
 
 }

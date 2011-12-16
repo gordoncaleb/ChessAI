@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import chessBackend.Board;
+import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.MoveNote;
 import chessBackend.Player;
@@ -13,7 +14,10 @@ import chessPieces.Piece;
 import chessPieces.PieceID;
 import chessPieces.Values;
 
-public class AI {
+public class AI extends Thread {
+
+	private Game game;
+
 	private boolean debug;
 	private DecisionNode rootNode;
 	private int maxTwigLevel;
@@ -21,50 +25,62 @@ public class AI {
 	private boolean twigIsInvalid;
 	private int[] childNum = new int[10];
 
-	public AI(boolean debug) {
+	private boolean userMoved;
+	private DecisionNode userDecision;
+	
+	private boolean makeNewGame;
+	
+	private boolean growBranch;
+	private DecisionNode branchToGrow;
+
+	public AI(Game game, boolean debug) {
 		this.debug = debug;
+		this.game = game;
 		newGame();
 	}
 
-	public void newGame() {
+	@Override
+	public void run() {
 
-		rootNode = new DecisionNode(null, null, new Board(), Player.USER);
+		while (!this.isInterrupted()) {
 
-		// init tree
-		growDecisionTree(rootNode, 0);
-
-		// These numbers determine how many moves ahead the AI thinks
-		maxDecisionTreeLevel = 1;
-		maxTwigLevel = 2;
-
-		// expandGoodDecisions(rootNode,2);
-
-		if (debug) {
-			countChildren(rootNode, 0);
-			for (int i = 0; i < 10; i++) {
-				System.out.println(childNum[i] + " at level " + i);
+			while (!userMoved && !makeNewGame && !growBranch) {
+				try {
+					this.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
+			
+			if(userMoved){
+				move();
+				userMoved = false;
+			}
+			
+			if(makeNewGame){
+				newGame();
+				makeNewGame = false;
+			}
+			
+			if(growBranch){
+				growDecisionBranch(branchToGrow);
+				growBranch = false;
+			}
+
 		}
+
 	}
 
-	/**
-	 * This method notifies the AI that the user has moved and also tells gives
-	 * it the move that the user made.
-	 * 
-	 * @param usersDecision
-	 *            The users move. This has a reference to the position on the
-	 *            decision tree that the user effectively selected.
-	 * @return The new root node, which is the AI response to 'userMove'.
-	 */
-	public DecisionNode move(DecisionNode usersDecision) {
+	private void move() {
+		userMoved = false;
 
 		if (debug) {
-			if (usersDecision == rootNode.getChosenChild()) {
+			if (userDecision == rootNode.getChosenChild()) {
 				System.out.println("AI predicted the users move!!");
 			}
 		}
 
-		setRoot(usersDecision);
+		setRoot(userDecision);
 
 		// Game Over?
 		if (rootNode.getStatus() != GameStatus.CHECKMATE && rootNode.getStatus() != GameStatus.STALEMATE) {
@@ -74,7 +90,7 @@ public class AI {
 			time = new Date().getTime();
 
 			growDecisionTree(rootNode, 0);
-			setRoot(usersDecision.getChosenChild());
+			setRoot(userDecision.getChosenChild());
 
 			long timeTaken = new Date().getTime() - time;
 			System.out.println("Ai took " + timeTaken + "ms to move.");
@@ -97,7 +113,54 @@ public class AI {
 
 		}
 
-		return rootNode;
+		game.aiMoved(rootNode);
+
+	}
+	
+	public void newGame() {
+
+		rootNode = new DecisionNode(null, new Move(0,0,0,0), new Board(), Player.USER);
+
+		// init tree
+		growDecisionTree(rootNode, 0);
+
+		// These numbers determine how many moves ahead the AI thinks
+		maxDecisionTreeLevel = 1;
+		maxTwigLevel = 2;
+
+		// expandGoodDecisions(rootNode,2);
+
+		if (debug) {
+			countChildren(rootNode, 0);
+			for (int i = 0; i < 10; i++) {
+				System.out.println(childNum[i] + " at level " + i);
+			}
+		}
+		
+		game.aiMoved(rootNode);
+	}
+
+	/**
+	 * This method notifies the AI that the user has moved and also tells gives
+	 * it the move that the user made.
+	 * 
+	 * @param usersDecision
+	 *            The users move. This has a reference to the position on the
+	 *            decision tree that the user effectively selected.
+	 * @return The new root node, which is the AI response to 'userMove'.
+	 */
+	public void setUserDecision(DecisionNode userDecision) {
+		userMoved = true;
+		this.userDecision = userDecision;
+	}
+	
+	public void setMakeNewGame(){
+		makeNewGame = true;
+	}
+	
+	public void growBranch(DecisionNode branch){
+		growBranch = true;
+		branchToGrow = branch;
 	}
 
 	/**

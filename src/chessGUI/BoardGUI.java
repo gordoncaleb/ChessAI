@@ -44,7 +44,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 	private DefaultMutableTreeNode rootGUI;
 	private JScrollPane treeView;
 
-	public BoardGUI(Game game, DecisionNode rootDecision, boolean debug) {
+	public BoardGUI(Game game, boolean debug) {
 		this.debug = debug;
 
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -74,7 +74,6 @@ public class BoardGUI implements MouseListener, KeyListener {
 		lostUserPiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
 		frame.add(lostUserPiecesPanel, BorderLayout.EAST);
 
-		this.rootDecision = rootDecision;
 		this.game = game;
 		this.loadChessImages();
 		this.buildBoardGUI();
@@ -93,7 +92,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 			// debugFrame.setResizable(false);
 			debugFrame.setVisible(true);
 			buildDebugGUI();
-			setRootDecisionTree(rootDecision);
+			//setRootDecisionTree(rootDecision);
 		}
 	}
 
@@ -112,10 +111,6 @@ public class BoardGUI implements MouseListener, KeyListener {
 				square = new PiecePositionGUI(col % 2 == row % 2, row, col, debug);
 				square.setGUI(this);
 				square.addMouseListener(this);
-
-				if (rootDecision.getBoard().getPiece(row, col) != null) {
-					square.setChessPiece(rootDecision.getBoard().getPiece(row, col));
-				}
 
 				chessSquares[row][col] = square;
 				boardGUIPanel.add(chessSquares[row][col]);
@@ -487,7 +482,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 			if (((int) arg0.getKeyChar()) == 10) {
 				System.out.println("Enter pressed on " + nodeInfo.toString());
-				game.getAI().growDecisionBranch(branch);
+				game.growBranch(branch);
 				setRootDecisionTree(rootDecision);
 
 			} else {
