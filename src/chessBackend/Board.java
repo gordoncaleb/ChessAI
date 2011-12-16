@@ -51,7 +51,7 @@ public class Board {
 		aiPieces.add(new Rook(player, rowOne, 0,false));
 		aiPieces.add(new Knight(player, rowOne, 1));
 		aiPieces.add(new Bishop(player, rowOne, 2));
-		aiPieces.add(new Queen(player, rowOne, 3));
+		aiPieces.add(new Queen(player, rowOne, 6));
 		aiPieces.add(new King(player, rowOne, 4));
 		aiPieces.add(new Bishop(player, rowOne, 5));
 		aiPieces.add(new Knight(player, rowOne, 6));
@@ -193,20 +193,19 @@ public class Board {
 	}
 
 	public void setCastleDetails(CastleDetails castleDetails){
+		noCheckNear = false;
+		noCheckFar = false;
+		
 		if(castleDetails == CastleDetails.CASTLE_BOTH){
 			noCheckNear = true;
 			noCheckFar = true;
 		}else{
 			if(castleDetails == CastleDetails.CASTLE_FAR){
 				noCheckFar = true;
-			}else{
-				noCheckFar = false;
 			}
 			
 			if(castleDetails == CastleDetails.CASTLE_NEAR){
 				noCheckNear = true;
-			}else{
-				noCheckNear = false;
 			}
 		}
 	}
@@ -291,8 +290,8 @@ public class Board {
 
 	public Board getCopy() {
 		Piece[][] copyBoard = new Piece[8][8];
-		Vector<Piece> copyAiPieces = new Vector<Piece>();
-		Vector<Piece> copyPlayerPieces = new Vector<Piece>();
+		Vector<Piece> copyAiPieces = new Vector<Piece>(16);
+		Vector<Piece> copyPlayerPieces = new Vector<Piece>(16);
 		Board newBoard = new Board(copyBoard, copyAiPieces, copyPlayerPieces);
 
 		for (int row = 0; row < 8; row++) {
