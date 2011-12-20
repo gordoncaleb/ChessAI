@@ -13,6 +13,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
 import chessPieces.Piece;
@@ -26,7 +27,6 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 	private JLabel debugLocationLabel;
 	private JLabel debugScoreLabel;
 	private JLabel debugPieceValue;
-	private String debugScore="";
 	private boolean debug;
 	
 	private JLabel picLabel;
@@ -50,7 +50,7 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 		pos[0] = row;
 		pos[1] = col;
 
-		this.setBorder(BorderFactory.createLineBorder(Color.black));
+		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
 		updateBackgroundColor();
 
@@ -116,14 +116,19 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 
 		if (validMoveSquare) {
 			this.setBorder(BorderFactory.createLineBorder(validMove));
+			
+			//this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,validMove,Color.black));
 		} else {
 			if (lastMovedSquare) {
 				this.setBorder(BorderFactory.createLineBorder(lastMoved));
+				//this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,lastMoved,Color.black));
 			} else {
 				if (selectedSquare) {
-					this.setBorder(BorderFactory.createLineBorder(Color.white));
-				} else {
 					this.setBorder(BorderFactory.createLineBorder(Color.black));
+				} else {
+					//this.setBorder(BorderFactory.createLineBorder(Color.black));
+					this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+					//this.setBorder(BorderFactory.createEtchedBorder());
 				}
 			}
 		}
@@ -201,7 +206,6 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 	}
 
 	public void updateDebugInfo(String score) {
-		this.debugScore = score;
 		debugScoreLabel.setText(score + "");
 	}
 

@@ -36,6 +36,8 @@ public class BoardGUI implements MouseListener, KeyListener {
 	private Image[][] chessPieceGraphics;
 	private PiecePositionGUI selectedSquare;
 	private PiecePositionGUI lastMovedSquare;
+	private boolean spinBoard;
+	private Player whitePlayer;
 
 	// debug components
 	private boolean debug;
@@ -46,6 +48,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 	public BoardGUI(Game game, boolean debug) {
 		this.debug = debug;
+		this.spinBoard = false;
 
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		gameHeight = (int) ((double) dim.height * 0.8);
@@ -92,11 +95,13 @@ public class BoardGUI implements MouseListener, KeyListener {
 			// debugFrame.setResizable(false);
 			debugFrame.setVisible(true);
 			buildDebugGUI();
-			//setRootDecisionTree(rootDecision);
+			// setRootDecisionTree(rootDecision);
 		}
+		
 	}
 
-	public void newGame() {
+	public void newGame(Player whitePlayer) {
+		this.whitePlayer = whitePlayer;
 		clearPiecesTaken();
 	}
 
@@ -134,7 +139,15 @@ public class BoardGUI implements MouseListener, KeyListener {
 	}
 
 	public Image getChessImage(PieceID id, Player player) {
-		return chessPieceGraphics[player.ordinal()][id.ordinal()];
+		int color;
+		
+		if(whitePlayer == player){
+			color = 1;
+		}else{
+			color = 0;
+		}
+		
+		return chessPieceGraphics[color][id.ordinal()];
 	}
 
 	public void setAiResponse(DecisionNode aiResponse) {
@@ -230,13 +243,23 @@ public class BoardGUI implements MouseListener, KeyListener {
 	}
 
 	public void setBoard(Board board) {
+		int getRow;
+		int getCol;
 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
+
+				if (spinBoard) {
+					getRow = 7 - row;
+					getCol = 7 - col;
+				} else {
+					getRow = row;
+					getCol = col;
+				}
 				chessSquares[row][col].clearChessPiece();
-				
-				if(board.hasPiece(row, col)){
-					chessSquares[row][col].setChessPiece(board.getPiece(row, col));
+
+				if (board.hasPiece(getRow, getCol)) {
+					chessSquares[row][col].setChessPiece(board.getPiece(getRow, getCol));
 				}
 
 				if (debug) {
@@ -248,15 +271,26 @@ public class BoardGUI implements MouseListener, KeyListener {
 		this.selectedSquare = null;
 
 		Piece lastMovedPiece = board.getLastMovedPiece();
-		
+
 		if (lastMovedPiece != null) {
-			chessSquares[lastMovedPiece.getRow()][lastMovedPiece.getCol()].setLastMoved(true);
+			
+			if(spinBoard){
+				getRow = 7 - lastMovedPiece.getRow();
+				getCol = 7 - lastMovedPiece.getCol();
+			}else{
+				getRow = lastMovedPiece.getRow();
+				getCol = lastMovedPiece.getCol();
+			}
+			
+			chessSquares[getRow][getCol].setLastMoved(true);
 		}
 	}
 
 	private void colorValidMoveSquares(Piece piece, boolean valid) {
 		Vector<Move> validMoves = piece.getValidMoves();
 		Move move;
+		int getRow;
+		int getCol;
 
 		for (int i = 0; i < validMoves.size(); i++) {
 			move = validMoves.elementAt(i);
@@ -264,13 +298,20 @@ public class BoardGUI implements MouseListener, KeyListener {
 			// because of higher level game situations like the move puts the
 			// king in check.
 			if (move.isValidated()) {
-				chessSquares[move.getToRow()][move.getToCol()].setValidMove(valid);
+				if (spinBoard) {
+					getRow = 7 - move.getToRow();
+					getCol = 7 - move.getToCol();
+				} else {
+					getRow = move.getToRow();
+					getCol = move.getToCol();
+				}
+				chessSquares[getRow][getCol].setValidMove(valid);
 
 				if (debug) {
 					if (valid && move != null) {
-						chessSquares[move.getToRow()][move.getToCol()].updateDebugInfo(move.getNode().getChosenPathValue() + "");
+						chessSquares[getRow][getCol].updateDebugInfo(move.getNode().getChosenPathValue() + "");
 					} else {
-						chessSquares[move.getToRow()][move.getToCol()].updateDebugInfo("");
+						chessSquares[getRow][getCol].updateDebugInfo("");
 					}
 				}
 			}
@@ -351,6 +392,10 @@ public class BoardGUI implements MouseListener, KeyListener {
 			child = child.getNextSibling();
 		}
 	}
+	
+	public JFrame getFrame(){
+		return frame;
+	}
 
 	// Listener Methods
 
@@ -396,6 +441,11 @@ public class BoardGUI implements MouseListener, KeyListener {
 			return;
 		}
 
+		int fromRow;
+		int fromCol;
+		int toRow;
+		int toCol;
+
 		if (selectedSquare == null) {
 			if (clickedSquare.hasPiece()) {
 				// if (clickedSquare.getPiece().getPlayer() == Player.USER) {
@@ -413,7 +463,20 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 			if (selectedSquare != clickedSquare) {
 				Piece p = selectedSquare.getPiece();
-				Move m = new Move(p.getRow(), p.getCol(), clickedSquare.getRow(), clickedSquare.getCol());
+
+				if (spinBoard) {
+					fromRow = p.getRow();
+					fromCol = p.getCol();
+					toRow = 7 - clickedSquare.getRow();
+					toCol = 7 - clickedSquare.getCol();
+				} else {
+					fromRow = p.getRow();
+					fromCol = p.getCol();
+					toRow = clickedSquare.getRow();
+					toCol = clickedSquare.getCol();
+				}
+
+				Move m = new Move(fromRow, fromCol, toRow, toCol);
 				Move validMove = p.checkIfValidMove(m);
 				if (validMove != null) {
 					// board.moveChessPiece(validMove);

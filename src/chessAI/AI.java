@@ -26,6 +26,7 @@ public class AI extends Thread {
 	private DecisionNode userDecision;
 
 	private boolean makeNewGame;
+	private Player firstMove;
 
 	private boolean growBranch;
 	private DecisionNode branchToGrow;
@@ -38,15 +39,13 @@ public class AI extends Thread {
 		this.game = game;
 
 		processorThreads = new AIProcessor[Runtime.getRuntime().availableProcessors()];
-		//processorThreads = new AIProcessor[1];
+		// processorThreads = new AIProcessor[1];
 		for (int i = 0; i < processorThreads.length; i++) {
-			processorThreads[i] = new AIProcessor(this, 0, 0);
+			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel, maxTwigLevel);
 			processorThreads[i].start();
 		}
-		
-		System.out.println(processorThreads.length + " threads created and started.");
 
-		newGame();
+		System.out.println(processorThreads.length + " threads created and started.");
 	}
 
 	@Override
@@ -90,7 +89,7 @@ public class AI extends Thread {
 			}
 		}
 
-		setRoot(userDecision);
+		setRootNode(userDecision);
 
 		// Game Over?
 		if (rootNode.getStatus() != GameStatus.CHECKMATE && rootNode.getStatus() != GameStatus.STALEMATE) {
@@ -108,10 +107,10 @@ public class AI extends Thread {
 					e.printStackTrace();
 				}
 			}
-			
+
 			printChildren(userDecision);
-			
-			setRoot(userDecision.getChosenChild());
+
+			setRootNode(userDecision.getChosenChild());
 
 			long timeTaken = new Date().getTime() - time;
 			System.out.println("Ai took " + timeTaken + "ms to move.");
@@ -139,15 +138,30 @@ public class AI extends Thread {
 	}
 
 	public void newGame() {
-		
-		rootNode = new DecisionNode(null, new Move(0, 0, 0, 0), new Board(), Player.USER);
+
+		rootNode = new DecisionNode(null, new Move(0, 0, 0, 0), new Board(), firstMove);
+
+		// These two numbers represent how large the initial decision tree is.
+		// In the case that the user is going first it is small, so as to speed
+		// up startup times. In the case of the AI is first it is large so that
+		// "thought" is put into the AI's first Move.
+		if (firstMove == Player.AI) {
+			game.aiMoved(rootNode);
+			maxDecisionTreeLevel = 1;
+			maxTwigLevel = 2;
+		} else {
+			maxDecisionTreeLevel = 0;
+			maxTwigLevel = 0;
+		}
+
+		setProcessorLevels();
 
 		// init tree
 		clearProcessorDone();
-		processorThreads[0].setTask(null,rootNode,1);
+		processorThreads[0].setTask(null, rootNode, 1);
 
 		System.out.println("Init game task set");
-		
+
 		while (processorDone == 0) {
 			try {
 				Thread.sleep(10);
@@ -155,13 +169,18 @@ public class AI extends Thread {
 				e.printStackTrace();
 			}
 		}
-		
+
 		System.out.println("Init game task completed");
 
-		// These numbers determine how many moves ahead the AI thinks
+		// These numbers determine how many moves ahead the AI thinks for the rest of the game.
 		maxDecisionTreeLevel = 0;
 		maxTwigLevel = 2;
 		setProcessorLevels();
+
+		if (firstMove == Player.AI) {
+			setRootNode(rootNode.getChosenChild());
+			game.aiMoved(rootNode);
+		}
 
 		if (debug) {
 			countChildren(rootNode, 0);
@@ -172,15 +191,15 @@ public class AI extends Thread {
 
 		game.aiMoved(rootNode);
 	}
-	
-	private void printChildren(DecisionNode parent){
-		
+
+	private void printChildren(DecisionNode parent) {
+
 		DecisionNode currentChild = parent.getHeadChild();
-		for(int i=0;i<parent.getChildrenSize();i++){
+		for (int i = 0; i < parent.getChildrenSize(); i++) {
 			System.out.println(currentChild.toString());
 			currentChild = currentChild.getNextSibling();
 		}
-		
+
 	}
 
 	/**
@@ -197,7 +216,8 @@ public class AI extends Thread {
 		this.userDecision = userDecision;
 	}
 
-	public void setMakeNewGame() {
+	public void setMakeNewGame(Player firstMove) {
+		this.firstMove = firstMove;
 		makeNewGame = true;
 	}
 
@@ -216,9 +236,9 @@ public class AI extends Thread {
 
 	private void delagateProcessors(DecisionNode root) {
 
-		//root.removeAllChildren();
-		
-		//Create DecisionNode for each possible AI response
+		// root.removeAllChildren();
+
+		// Create DecisionNode for each possible AI response
 		Board board = root.getBoard();
 		Board newBoard;
 		Player player = root.getPlayer();
@@ -229,7 +249,7 @@ public class AI extends Thread {
 		Move move;
 		Vector<Piece> pieces = board.getPlayerPieces(player);
 		Piece piece;
-		
+
 		DecisionNode aiMoveNode = null;
 		DecisionNode aiFirstMoveNode = null;
 		int numAiMoves = 0;
@@ -245,14 +265,14 @@ public class AI extends Thread {
 				newBoard.adjustKnightValue();
 				newBoard.moveChessPiece(move, player);
 				newNode = new DecisionNode(root, move, newBoard, nextPlayer);
-				if(aiMoveNode == null){
+				if (aiMoveNode == null) {
 					aiMoveNode = newNode;
 					aiFirstMoveNode = aiMoveNode;
-				}else{
+				} else {
 					aiMoveNode.setNextSibling(newNode);
 					aiMoveNode = newNode;
 				}
-				
+
 				numAiMoves++;
 
 			}
@@ -272,13 +292,14 @@ public class AI extends Thread {
 			}
 		}
 
-		// Assign moves to different threads according to previous distribution calculation
+		// Assign moves to different threads according to previous distribution
+		// calculation
 		aiMoveNode = aiFirstMoveNode;
 
 		for (int d = 0; d < threadDistribution.length; d++) {
 
 			processorThreads[d].setTask(root, aiMoveNode, threadDistribution[d]);
-			
+
 			for (int i = 0; i < threadDistribution[d]; i++) {
 				aiMoveNode = aiMoveNode.getNextSibling();
 			}
@@ -354,11 +375,11 @@ public class AI extends Thread {
 		}
 	}
 
-	private void setRoot(DecisionNode newRootNode) {
-		rootNode = newRootNode;
-		rootNode.setParent(null);
+	private void setRootNode(DecisionNode rootNode) {
+		this.rootNode = rootNode;
+		this.rootNode.setParent(null);
 
-		if (rootNode.getStatus() != GameStatus.IN_PLAY) {
+		if (this.rootNode.getStatus() != GameStatus.IN_PLAY) {
 			System.out.println(rootNode.getStatus().toString());
 		}
 
