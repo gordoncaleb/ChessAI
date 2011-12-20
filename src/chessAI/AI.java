@@ -139,7 +139,7 @@ public class AI extends Thread {
 	}
 
 	public void newGame() {
-
+		
 		rootNode = new DecisionNode(null, new Move(0, 0, 0, 0), new Board(), Player.USER);
 
 		// init tree
@@ -160,7 +160,7 @@ public class AI extends Thread {
 
 		// These numbers determine how many moves ahead the AI thinks
 		maxDecisionTreeLevel = 0;
-		maxTwigLevel = 3;
+		maxTwigLevel = 2;
 		setProcessorLevels();
 
 		if (debug) {
