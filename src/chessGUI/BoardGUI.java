@@ -96,10 +96,8 @@ public class BoardGUI implements MouseListener, KeyListener {
 		}
 	}
 
-	public void newGame(DecisionNode rootDecision) {
-		this.rootDecision = rootDecision;
+	public void newGame() {
 		clearPiecesTaken();
-		setBoard(rootDecision.getBoard());
 	}
 
 	private void buildBoardGUI() {

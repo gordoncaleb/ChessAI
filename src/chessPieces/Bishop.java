@@ -21,6 +21,10 @@ public class Bishop extends PieceBase implements Piece {
 		return PieceID.BISHOP;
 	}
 	
+	public static PieceID getID(){
+		return PieceID.BISHOP;
+	}
+	
 	public String getName(){
 		return "Bishop";
 	}

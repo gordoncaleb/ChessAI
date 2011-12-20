@@ -21,6 +21,10 @@ public class Knight extends PieceBase implements Piece {
 	public PieceID getPieceID() {
 		return PieceID.KNIGHT;
 	}
+	
+	public static PieceID getID() {
+		return PieceID.KNIGHT;
+	}
 
 	public String getName() {
 		return "Knight";

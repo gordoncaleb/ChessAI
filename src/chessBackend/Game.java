@@ -25,6 +25,7 @@ public class Game {
 	}
 	
 	public synchronized void newGame(){
+		gui.newGame();
 		ai.setMakeNewGame();
 	}
 

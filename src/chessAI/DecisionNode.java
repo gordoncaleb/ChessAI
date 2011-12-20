@@ -63,7 +63,7 @@ public class DecisionNode {
 	 * @param newChild
 	 *            The child to be added to the sorted linked list of children
 	 */
-	public void addChild(DecisionNode newChild) {
+	public synchronized void addChild(DecisionNode newChild) {
 		if (childrenSize == 0) {
 			headChild = newChild;
 			tailChild = newChild;
@@ -124,6 +124,12 @@ public class DecisionNode {
 		}
 
 		childrenSize--;
+	}
+	
+	public void removeAllChildren(){
+		headChild = null;
+		tailChild = null;
+		childrenSize = 0;
 	}
 
 	public DecisionNode getHeadChild() {

@@ -22,6 +22,10 @@ public class King extends PieceBase implements Piece {
 	public PieceID getPieceID() {
 		return PieceID.KING;
 	}
+	
+	public static PieceID getID() {
+		return PieceID.KING;
+	}
 
 	public String getName() {
 		return "King";

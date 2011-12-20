@@ -24,6 +24,10 @@ public class Rook extends PieceBase implements Piece {
 		return PieceID.ROOK;
 	}
 	
+	public static PieceID getID(){
+		return PieceID.ROOK;
+	}
+	
 	public String getName(){
 		return "Rook";
 	}

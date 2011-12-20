@@ -35,8 +35,8 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 	private boolean lastMovedSquare;
 	private boolean validMoveSquare;
 
-	private Color dark = new Color(100, 100, 100);
-	private Color light = new Color(170, 200, 200);
+	private Color dark = new Color(181, 136, 99);
+	private Color light = new Color(240, 217, 181);
 
 	private Color darkSelected = new Color(50, 50, 50);
 	private Color lightSelected = new Color(230, 230, 230);

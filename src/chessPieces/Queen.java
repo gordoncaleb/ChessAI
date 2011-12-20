@@ -20,6 +20,10 @@ public class Queen extends PieceBase implements Piece {
 	public PieceID getPieceID() {
 		return PieceID.QUEEN;
 	}
+	
+	public static PieceID getID() {
+		return PieceID.QUEEN;
+	}
 
 	public String getName() {
 		return "Queen";
