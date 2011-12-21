@@ -1,6 +1,8 @@
 package chessGUI;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -19,7 +21,7 @@ import chessBackend.*;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 
-public class BoardGUI implements MouseListener, KeyListener {
+public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 	private DecisionNode rootDecision;
 	private Game game;
@@ -28,10 +30,16 @@ public class BoardGUI implements MouseListener, KeyListener {
 	private int sidebarWidth;
 	private int imageWidth;
 	private int imageHeight;
+
 	private JFrame frame;
 	private JPanel boardGUIPanel;
 	private JPanel lostAiPiecesPanel;
 	private JPanel lostUserPiecesPanel;
+
+	private JMenuItem gameAsBlackMenu;
+	private JMenuItem gameAsWhiteMenu;
+	private JMenuItem undoUserMoveMenu;
+
 	private PiecePositionGUI[][] chessSquares;
 	private Image[][] chessPieceGraphics;
 	private PiecePositionGUI selectedSquare;
@@ -57,9 +65,25 @@ public class BoardGUI implements MouseListener, KeyListener {
 		sidebarWidth = 2 * (int) ((double) imageWidth * 1.1);
 		gameWidth = 2 * sidebarWidth + gameHeight;
 
-		frame = new JFrame("CHESS AI");
+		frame = new JFrame("Oh,Word? " + game.VERSION);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
+
+		JMenuBar menuBar = new JMenuBar();
+		JMenu gameMenu = new JMenu("Game");
+		gameMenu.setMnemonic(KeyEvent.VK_G);
+		gameAsBlackMenu = new JMenuItem("New Game As Black");
+		gameAsBlackMenu.addActionListener(this);
+		gameMenu.add(gameAsBlackMenu);
+		gameAsWhiteMenu = new JMenuItem("New Game As White");
+		gameAsWhiteMenu.addActionListener(this);
+		gameMenu.add(gameAsWhiteMenu);
+		undoUserMoveMenu = new JMenuItem("Undo Last Move");
+		undoUserMoveMenu.addActionListener(this);
+		gameMenu.add(undoUserMoveMenu);
+
+		menuBar.add(gameMenu);
+		frame.setJMenuBar(menuBar);
 
 		boardGUIPanel = new JPanel(new GridLayout(8, 8));
 		boardGUIPanel.setBackground(Color.GRAY);
@@ -97,7 +121,7 @@ public class BoardGUI implements MouseListener, KeyListener {
 			buildDebugGUI();
 			// setRootDecisionTree(rootDecision);
 		}
-		
+
 	}
 
 	public void newGame(Player whitePlayer) {
@@ -140,13 +164,13 @@ public class BoardGUI implements MouseListener, KeyListener {
 
 	public Image getChessImage(PieceID id, Player player) {
 		int color;
-		
-		if(whitePlayer == player){
+
+		if (whitePlayer == player) {
 			color = 1;
-		}else{
+		} else {
 			color = 0;
 		}
-		
+
 		return chessPieceGraphics[color][id.ordinal()];
 	}
 
@@ -273,15 +297,15 @@ public class BoardGUI implements MouseListener, KeyListener {
 		Piece lastMovedPiece = board.getLastMovedPiece();
 
 		if (lastMovedPiece != null) {
-			
-			if(spinBoard){
+
+			if (spinBoard) {
 				getRow = 7 - lastMovedPiece.getRow();
 				getCol = 7 - lastMovedPiece.getCol();
-			}else{
+			} else {
 				getRow = lastMovedPiece.getRow();
 				getCol = lastMovedPiece.getCol();
 			}
-			
+
 			chessSquares[getRow][getCol].setLastMoved(true);
 		}
 	}
@@ -392,28 +416,32 @@ public class BoardGUI implements MouseListener, KeyListener {
 			child = child.getNextSibling();
 		}
 	}
-	
-	public JFrame getFrame(){
+
+	public JFrame getFrame() {
 		return frame;
 	}
 
 	// Listener Methods
 
 	public void mouseClicked(MouseEvent arg0) {
+		
+		if (arg0.getComponent() == decisionTreeGUI) {
 
-		if (debug) {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) decisionTreeGUI.getLastSelectedPathComponent();
+			if (debug) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) decisionTreeGUI.getLastSelectedPathComponent();
 
-			if (node == null || !arg0.isShiftDown())
-				// Nothing is selected.
-				return;
+				if (node == null || !arg0.isShiftDown())
+					// Nothing is selected.
+					return;
 
-			Object nodeInfo = node.getUserObject();
+				Object nodeInfo = node.getUserObject();
 
-			if (nodeInfo instanceof DecisionNode) {
-				// System.out.println("Mouse Clicked " + nodeInfo.toString());
-				this.setBoard(((DecisionNode) nodeInfo).getBoard());
-				// showDecisionTreeScores(((DecisionNode) nodeInfo));
+				if (nodeInfo instanceof DecisionNode) {
+					// System.out.println("Mouse Clicked " +
+					// nodeInfo.toString());
+					this.setBoard(((DecisionNode) nodeInfo).getBoard());
+					// showDecisionTreeScores(((DecisionNode) nodeInfo));
+				}
 			}
 		}
 	}
@@ -558,6 +586,24 @@ public class BoardGUI implements MouseListener, KeyListener {
 	@Override
 	public void keyTyped(KeyEvent arg0) {
 
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		System.out.println("Action from " + arg0.getSource().toString());
+		
+		if (arg0.getSource() == gameAsBlackMenu) {
+			game.newGame(Player.AI);
+		}
+
+		if (arg0.getSource()  == gameAsWhiteMenu) {
+			game.newGame(Player.USER);
+		}
+
+		if (arg0.getSource()  == undoUserMoveMenu) {
+			game.undoUserMove();
+		}
+		
 	}
 
 }

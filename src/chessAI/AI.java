@@ -30,6 +30,8 @@ public class AI extends Thread {
 
 	private boolean growBranch;
 	private DecisionNode branchToGrow;
+	
+	private boolean undoUserMove;
 
 	private int processorDone;
 	private AIProcessor[] processorThreads;
@@ -53,7 +55,7 @@ public class AI extends Thread {
 
 		while (!this.isInterrupted()) {
 
-			while (!userMoved && !makeNewGame && !growBranch) {
+			while (!userMoved && !makeNewGame && !growBranch && !undoUserMove) {
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
@@ -74,6 +76,11 @@ public class AI extends Thread {
 			if (growBranch) {
 				growDecisionBranch(branchToGrow);
 				growBranch = false;
+			}
+			
+			if(undoUserMove){
+				undoUserMove();
+				undoUserMove = false;
 			}
 
 		}
@@ -172,7 +179,8 @@ public class AI extends Thread {
 
 		System.out.println("Init game task completed");
 
-		// These numbers determine how many moves ahead the AI thinks for the rest of the game.
+		// These numbers determine how many moves ahead the AI thinks for the
+		// rest of the game.
 		maxDecisionTreeLevel = 0;
 		maxTwigLevel = 2;
 		setProcessorLevels();
@@ -232,6 +240,10 @@ public class AI extends Thread {
 
 	public void clearProcessorDone() {
 		processorDone = 0;
+	}
+	
+	public void setUndoUserMove(){
+		this.undoUserMove = true;
 	}
 
 	private void delagateProcessors(DecisionNode root) {
@@ -375,15 +387,48 @@ public class AI extends Thread {
 		}
 	}
 
-	private void setRootNode(DecisionNode rootNode) {
-		this.rootNode = rootNode;
-		this.rootNode.setParent(null);
+	private void setRootNode(DecisionNode newRootNode) {
+
+		this.rootNode.removeAllChildren();
+		this.rootNode.addChild(newRootNode);
+		this.rootNode = newRootNode;
 
 		if (this.rootNode.getStatus() != GameStatus.IN_PLAY) {
-			System.out.println(rootNode.getStatus().toString());
+			System.out.println(newRootNode.getStatus().toString());
 		}
 
 		System.gc();
+	}
+
+	private void undoUserMove() {
+		DecisionNode oldRootNode = rootNode.getParent().getParent();
+		rootNode = oldRootNode;
+		rootNode.removeAllChildren();
+
+		// ai thought isnt needed
+		maxDecisionTreeLevel = 0;
+		maxTwigLevel = 0;
+		setProcessorLevels();
+
+		// reinit tree
+		clearProcessorDone();
+		processorThreads[0].setTask(null, rootNode, 1);
+
+		while (processorDone == 0) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		//set ai to think after user move
+		maxDecisionTreeLevel = 0;
+		maxTwigLevel = 2;
+		setProcessorLevels();
+		
+		game.aiMoved(rootNode);
+
 	}
 
 	/**

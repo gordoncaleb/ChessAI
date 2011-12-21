@@ -7,7 +7,7 @@ import chessAI.DecisionNode;
 import chessGUI.BoardGUI;
 
 public class Game {
-
+	public static String VERSION = "0.2.122011";
 	private BoardGUI gui;
 	private AI ai;
 
@@ -30,8 +30,6 @@ public class Game {
 
 	public void newGame() {
 
-		
-
 		Object[] options = { "White", "Black" };
 		int n = JOptionPane.showOptionDialog(gui.getFrame(), "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, // do not use a
@@ -49,6 +47,11 @@ public class Game {
 		}
 
 	}
+	
+	public void newGame(Player whitePlayer){
+		gui.newGame(whitePlayer);
+		ai.setMakeNewGame(whitePlayer);
+	}
 
 	public synchronized void userMoved(DecisionNode usersDecision) {
 		ai.setUserDecision(usersDecision);
@@ -60,6 +63,10 @@ public class Game {
 
 	public synchronized void growBranch(DecisionNode branch) {
 		ai.growBranch(branch);
+	}
+	
+	public synchronized void undoUserMove(){
+		ai.setUndoUserMove();
 	}
 
 }
