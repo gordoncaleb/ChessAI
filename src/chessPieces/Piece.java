@@ -18,15 +18,10 @@ public interface Piece {
 	public int getPieceValue();
 	public void setPieceValue(int value);
 	public void updateValue();
-	public Board getBoard();
-	public void setBoard(Board board);
 	public boolean hasMoved();
 	
-	public void generateValidMoves();
-	public Move checkIfValidMove(Move newMove);
-	public Vector<Move> getValidMoves();
-	public void clearValidMoves();
+	public Vector<Move> generateValidMoves(Board board);
 	
-	public Piece getCopy();
+	public Piece getCopy(Board board);
 
 }

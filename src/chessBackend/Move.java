@@ -1,11 +1,8 @@
 package chessBackend;
 
-import chessAI.DecisionNode;
 import chessPieces.PieceID;
-import chessPieces.Values;
 
 public class Move {
-	private DecisionNode node;
 	private MoveNote note;
 	private PieceID pieceTaken;
 	private int value;
@@ -20,6 +17,7 @@ public class Move {
 		this.toRow = toRow;
 		this.toCol = toCol;
 		this.note = MoveNote.NONE;
+		this.pieceTaken = PieceID.NONE;
 	}
 
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note) {
@@ -29,6 +27,7 @@ public class Move {
 		this.toCol = toCol;
 		this.note = note;
 		this.value = value;
+		this.pieceTaken = PieceID.NONE;
 	}
 
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, PieceID id) {
@@ -49,7 +48,7 @@ public class Move {
 	}
 
 	public String toString() {
-		return ("Moving from " + fromRow + "," + fromCol + " to " + toRow + "," + toCol + " Move Note: " + note.toString());
+		return ("Moving from " + fromRow + "," + fromCol + " to " + toRow + "," + toCol + " Move Note: " + note.toString() + " Value:" + value);
 	}
 
 	public void setNote(MoveNote note) {
@@ -92,14 +91,6 @@ public class Move {
 		this.toCol = toCol;
 	}
 
-	public DecisionNode getNode() {
-		return node;
-	}
-
-	public void setNode(DecisionNode node) {
-		this.node = node;
-	}
-
 	public int getValue() {
 		return value;
 	}
@@ -118,6 +109,10 @@ public class Move {
 
 	public void setPieceTaken(PieceID pieceTaken) {
 		this.pieceTaken = pieceTaken;
+	}
+	
+	public Move reverse(){
+		return new Move(toRow, toCol, fromRow, fromCol);
 	}
 
 }

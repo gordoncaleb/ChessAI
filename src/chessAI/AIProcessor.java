@@ -8,18 +8,16 @@ import chessBackend.Move;
 import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessPieces.CastleDetails;
-import chessPieces.Piece;
 import chessPieces.PieceID;
 import chessPieces.Values;
 
 public class AIProcessor extends Thread {
 	private DecisionNode rootNode;
-	private DecisionNode branchNode;
-	private int taskSize;
 	private boolean isNewTask;
 
 	private int maxTreeLevel;
 	private int maxTwigLevel;
+	private boolean pruningEnabled;
 	private AI ai;
 
 	private boolean twigIsInvalid;
@@ -34,7 +32,7 @@ public class AIProcessor extends Thread {
 	public void run() {
 
 		while (!isInterrupted()) {
-			
+
 			System.out.println("Processor " + this.getId() + " ready!");
 
 			while (!isNewTask) {
@@ -49,36 +47,31 @@ public class AIProcessor extends Thread {
 
 			executeTask();
 
-			ai.processorDone();
-
 		}
 	}
 
-	public void setTask(DecisionNode rootNode, DecisionNode branchNode, int taskSize) {
+	public void setNewTask(DecisionNode rootNode) {
 		this.rootNode = rootNode;
-		this.branchNode = branchNode;
-		this.taskSize = taskSize;
-		System.out.println("Processor " + this.getId() + " receieved task size of " + taskSize);
 		this.isNewTask = true;
 	}
 
 	private void executeTask() {
-		DecisionNode nextBranch;
+		DecisionNode task;
 
-		for (int i = 0; i < taskSize; i++) {
-			
-			//System.out.println("Processing move " + branchNode.getMove().toString());
-			growDecisionTree(branchNode, 0);
-			
-			nextBranch = branchNode.getNextSibling();
-			
-			if(rootNode!=null && branchNode.getMove().isValidated()){
-				rootNode.addChild(branchNode);
+		while ((task = ai.getNextTask())!=null) {
+
+			// System.out.println("Processing move " +
+			// branchNode.getMove().toString());
+			growDecisionTree(task, 0);	
+
+			if (rootNode != null) {
+				if (!task.getMove().isValidated()) {
+					rootNode.removeChild(task);
+				}
 			}
 			
-			//System.out.println("Processor " + this.getId() + " completed a task.");
-			
-			branchNode = nextBranch;
+			ai.taskDone();
+
 		}
 
 	}
@@ -105,13 +98,12 @@ public class AIProcessor extends Thread {
 		Board board = branch.getBoard();
 
 		int suggestedPathValue;
+		boolean pruned = false;
 
 		if (!branch.hasChildren()) {
 
 			// Node was at the bottom of the tree. This "branch" has to grow.
 
-			Vector<Piece> pieces;
-			Piece piece;
 			Vector<Move> moves;
 			Move move;
 			int moveValue;
@@ -123,33 +115,28 @@ public class AIProcessor extends Thread {
 				branch.setStatus(GameStatus.CHECK);
 			}
 
-			// get the the pieces of whose turn it is
-			pieces = board.getPlayerPieces(player);
-
 			// check all moves of all pieces
-			for (int p = 0; p < pieces.size(); p++) {
-				piece = pieces.elementAt(p);
-				piece.generateValidMoves();
-				moves = piece.getValidMoves();
+			moves = board.generateValidMoves(player);
 
-				for (int m = 0; m < moves.size(); m++) {
+			for (int m = 0; m < moves.size(); m++) {
 
-					move = moves.elementAt(m);
-					moveValue = move.getValue();
+				move = moves.elementAt(m);
+				moveValue = move.getValue();
 
-					// Check to see if the move in question resulted in
-					// the loss of your king. Such a move is invalid because
-					// you can't move into check.
-					if (move.getPieceTaken() == PieceID.KING) {
-						branch.getMove().setNote(MoveNote.INVALIDATED);
-						return 0;
-					}
+				// Check to see if the move in question resulted in
+				// the loss of your king. Such a move is invalid because
+				// you can't move into check.
+				if (move.getPieceTaken() == PieceID.KING) {
+					branch.getMove().setNote(MoveNote.INVALIDATED);
+					return 0;
+				}
 
-					newBoard = board.getCopy();
-					newBoard.adjustKnightValue();
-					newBoard.moveChessPiece(move, player);
-					newNode = new DecisionNode(branch, move, newBoard, nextPlayer);
+				newBoard = board.getCopy();
+				newBoard.adjustKnightValue();
+				newBoard.makeMove(move, player);
+				newNode = new DecisionNode(branch, move, newBoard, nextPlayer);
 
+				if (!pruned) {
 					// check to see if you are at the bottom of the branch
 					if (level < maxTreeLevel) {
 						suggestedPathValue = growDecisionTree(newNode, level + 1);
@@ -157,31 +144,32 @@ public class AIProcessor extends Thread {
 						suggestedPathValue = moveValue - expandTwig(newNode);
 					}
 
-					newNode.setChosenPathValue(suggestedPathValue);
+				} else {
+					suggestedPathValue = moveValue;
+				}
 
-					// Check if the newNode move was invalidated
-					if (newNode.getMove().isValidated()) {
+				newNode.setChosenPathValue(suggestedPathValue);
 
-						// System.out.println("addedNew Node");
-						branch.addChild(newNode);
-					}
+				// Check if the newNode move was invalidated
+				if (newNode.getMove().isValidated()) {
 
-					// alpha beta pruning
-					if (nextPlayer == Player.AI && branch.getParent() != null) {
-						if (branch.getParent().getHeadChild() != null) {
-							if (branch.getMoveValue() - suggestedPathValue < branch.getParent().getHeadChild().getChosenPathValue()) {
-								branch.getMove().setNote(MoveNote.INVALIDATED);
-								return suggestedPathValue;
-							}
+					// System.out.println("addedNew Node");
+					branch.addChild(newNode);
+				}
+
+				// alpha beta pruning
+				if (pruningEnabled) {
+					if (branch.getParent().getHeadChild() != null) {
+						if (branch.getMoveValue() - suggestedPathValue < branch.getParent().getHeadChild().getChosenPathValue()) {
+							pruned = true;
 						}
 					}
-
 				}
+
 			}
 
 		} else {
 			// Node has already been created and has children
-			int childChosenPathValue;
 			int childrenSize = branch.getChildrenSize();
 			DecisionNode nextChild;
 			DecisionNode currentChild = branch.getHeadChild();
@@ -190,36 +178,31 @@ public class AIProcessor extends Thread {
 				// System.out.println(" next child" + i);
 				nextChild = currentChild.getNextSibling();
 
-				// save current chosen path value to see if it changes. If it
-				// changes then the DecisionNode needs to resort it into its
-				// children
-				childChosenPathValue = currentChild.getChosenPathValue();
-
 				// explore down tree
 				suggestedPathValue = growDecisionTree(currentChild, level + 1);
 
 				// Checks if that move was valid. This invalidated check is used
 				// after every move by the user. It would remove user moves that
 				// put the user in check.
-				if (currentChild.getMove().isValidated()) {
-
-					// If chosen path value has changed then it can be resorted
-					// by removeing it from the list and re-adding it to the
-					// branch. The add() method automatically sorts the added
-					// node.
-					if (childChosenPathValue != suggestedPathValue) {
-						branch.removeChild(currentChild);
-						branch.addChild(currentChild);
-					}
-
-				} else {
+				if (!currentChild.getMove().isValidated()) {
 					// The child represents an invalid move. i.e moving into
 					// check.
 					branch.removeChild(currentChild);
+				} else {
+					// alpha beta pruning
+					if (pruningEnabled) {
+						if (branch.getParent().getHeadChild() != null) {
+							if (branch.getMoveValue() - suggestedPathValue < branch.getParent().getHeadChild().getChosenPathValue()) {
+								return suggestedPathValue;
+							}
+						}
+					}
 				}
 
 				currentChild = nextChild;
 			}
+
+			branch.resort();
 
 		} // end of node already has children code
 
@@ -271,8 +254,8 @@ public class AIProcessor extends Thread {
 		if (twigIsInvalid) {
 			twig.getMove().setNote(MoveNote.INVALIDATED);
 		}
-		
-		if(twig.getBoard().isInCheck()){
+
+		if (twig.getBoard().isInCheck()) {
 			twig.setStatus(GameStatus.CHECK);
 		}
 
@@ -318,57 +301,52 @@ public class AIProcessor extends Thread {
 		// If board is in check, castleing isn't valid
 		board.setInCheck(isInCheck(getNextPlayer(player), board));
 
-		Vector<Piece> pieces = board.getPlayerPieces(player);
+		moves = board.generateValidMoves(player);
 
-		piecesLoop: for (int p = 0; p < pieces.size(); p++) {
-			pieces.elementAt(p).generateValidMoves();
-			moves = pieces.elementAt(p).getValidMoves();
+		for (int m = 0; m < moves.size(); m++) {
+			move = moves.elementAt(m);
 
-			movesLoop: for (int m = 0; m < moves.size(); m++) {
-				move = moves.elementAt(m);
-
-				// These global variables get around the fact that this
-				// recursive method id lite weight and has no reference to
-				// parent and grantparent
-				if (move.getPieceTaken() == PieceID.KING) {
-					if (level == 0) {
-						twigIsInvalid = true;
-					}
-
-					return Values.KING_VALUE;
+			// These global variables get around the fact that this
+			// recursive method id lite weight and has no reference to
+			// parent and grantparent
+			if (move.getPieceTaken() == PieceID.KING) {
+				if (level == 0) {
+					twigIsInvalid = true;
 				}
 
-				moveValue = move.getValue();
-
-				if (level < maxTwigLevel) {
-					newBoard = board.getCopy();
-					newBoard.adjustKnightValue();
-					newBoard.moveChessPiece(move, player);
-
-					suggestedMove = growDecisionTreeLite(newBoard, nextPlayer, moveValue, bestMove, level + 1);
-					suggestedPathValue = moveValue - suggestedMove;
-
-					// The king was taken on the next move, which means this
-					// move is invalid. Move on to the next move.
-					if (suggestedMove == Values.KING_VALUE) {
-						continue movesLoop;
-					}
-
-				} else {
-					suggestedPathValue = moveValue;
-				}
-
-				hasMove = true;
-
-				if (suggestedPathValue > bestMove) {
-					bestMove = suggestedPathValue;
-				}
-
-				if (parentMoveValue - bestMove < parentBestMove && player == Player.USER) {
-					break piecesLoop;
-				}
-
+				return Values.KING_VALUE;
 			}
+
+			moveValue = move.getValue();
+
+			if (level < maxTwigLevel) {
+				newBoard = board.getCopy();
+				newBoard.adjustKnightValue();
+				newBoard.makeMove(move, player);
+
+				suggestedMove = growDecisionTreeLite(newBoard, nextPlayer, moveValue, bestMove, level + 1);
+				suggestedPathValue = moveValue - suggestedMove;
+
+				// The king was taken on the next move, which means this
+				// move is invalid. Move on to the next move.
+				if (suggestedMove == Values.KING_VALUE) {
+					continue;
+				}
+
+			} else {
+				suggestedPathValue = moveValue;
+			}
+
+			hasMove = true;
+
+			if (suggestedPathValue > bestMove) {
+				bestMove = suggestedPathValue;
+			}
+
+			if (parentMoveValue - bestMove < parentBestMove) {
+				break;
+			}
+
 		}
 
 		if (!hasMove) {
@@ -393,33 +371,26 @@ public class AIProcessor extends Thread {
 	 */
 	private boolean isInCheck(Player player, Board board) {
 		int[][] kingLeftRight = { { 7, 3, 7, 5 }, { 0, 3, 0, 5 } };
-		Vector<Piece> pieces = board.getPlayerPieces(player);
-		Piece piece;
 		Vector<Move> moves;
 		Move move;
 		boolean inCheck = false;
 		boolean canFar = true;
 		boolean canNear = true;
 
-		for (int p = 0; p < pieces.size(); p++) {
-			piece = pieces.elementAt(p);
-			piece.generateValidMoves();
-			moves = piece.getValidMoves();
-			for (int m = 0; m < moves.size(); m++) {
-				move = moves.elementAt(m);
-				if (move.getNote() == MoveNote.TAKE_PIECE && move.getPieceTaken() == PieceID.KING) {
-					inCheck = true;
-				}
-
-				if (move.getToRow() == kingLeftRight[player.ordinal()][0] && move.getToCol() == kingLeftRight[player.ordinal()][1]) {
-					canFar = false;
-				}
-
-				if (move.getToRow() == kingLeftRight[player.ordinal()][2] && move.getToCol() == kingLeftRight[player.ordinal()][3]) {
-					canNear = false;
-				}
+		moves = board.generateValidMoves(player);
+		for (int m = 0; m < moves.size(); m++) {
+			move = moves.elementAt(m);
+			if (move.getPieceTaken() == PieceID.KING) {
+				inCheck = true;
 			}
-			piece.clearValidMoves();
+
+			if (move.getToRow() == kingLeftRight[player.ordinal()][0] && move.getToCol() == kingLeftRight[player.ordinal()][1]) {
+				canFar = false;
+			}
+
+			if (move.getToRow() == kingLeftRight[player.ordinal()][2] && move.getToCol() == kingLeftRight[player.ordinal()][3]) {
+				canNear = false;
+			}
 		}
 
 		setCastleDetails(board, canFar, canNear, inCheck);
@@ -463,6 +434,10 @@ public class AIProcessor extends Thread {
 
 	public void setMaxTwigLevel(int maxTwigLevel) {
 		this.maxTwigLevel = maxTwigLevel;
+	}
+
+	public void setPruningEnabled(boolean pruningEnabled) {
+		this.pruningEnabled = pruningEnabled;
 	}
 
 }

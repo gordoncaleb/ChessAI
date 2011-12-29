@@ -2,12 +2,10 @@ package chessBackend;
 
 import java.util.Vector;
 
-import chessGUI.BoardGUI;
 import chessPieces.Bishop;
 import chessPieces.CastleDetails;
 import chessPieces.Piece;
-import chessPieces.PiecePosition;
-import chessPieces.PositionBonus;
+import chessPieces.PieceID;
 import chessPieces.Values;
 import chessPieces.PositionStatus;
 import chessPieces.King;
@@ -23,7 +21,6 @@ public class Board {
 	private boolean noCheckFar;
 	private Vector<Piece> aiPieces;
 	private Vector<Piece> userPieces;
-	private Piece lastMovedPiece;
 	private int knightValue;
 
 	public Board(Piece[][] board, Vector<Piece> aiPieces, Vector<Piece> playerPieces) {
@@ -87,18 +84,16 @@ public class Board {
 		for (int i = 0; i < userPieces.size(); i++) {
 			userPiece = userPieces.elementAt(i);
 			board[userPiece.getRow()][userPiece.getCol()] = userPiece;
-			userPiece.setBoard(this);
 		}
 		
 		for (int i = 0; i < aiPieces.size(); i++) {
 			aiPiece = aiPieces.elementAt(i);
 			board[aiPiece.getRow()][aiPiece.getCol()] = aiPiece;
-			aiPiece.setBoard(this);
 		}
 
 	}
 
-	public void moveChessPiece(Move move, Player player) {
+	public void makeMove(Move move, Player player) {
 
 		if (hasPiece(move.getToRow(), move.getToCol())) {
 			if (getPiece(move.getToRow(), move.getToCol()).getPlayer() == Player.USER) {
@@ -120,24 +115,49 @@ public class Board {
 
 		if (move.getNote() == MoveNote.CASTLE_NEAR) {
 			if (player == Player.AI) {
-				moveChessPiece(new Move(0, 7, 0, 5), player);
+				makeMove(new Move(0, 7, 0, 5), player);
 			} else {
-				moveChessPiece(new Move(7, 7, 7, 5), player);
+				makeMove(new Move(7, 7, 7, 5), player);
 			}
 		}
 
 		if (move.getNote() == MoveNote.CASTLE_FAR) {
 			if (player == Player.AI) {
-				moveChessPiece(new Move(0, 0, 0, 3), player);
+				makeMove(new Move(0, 0, 0, 3), player);
 			} else {
-				moveChessPiece(new Move(7, 0, 7, 3), player);
+				makeMove(new Move(7, 0, 7, 3), player);
 			}
 		}
-
-		lastMovedPiece = board[move.getToRow()][move.getToCol()];
 		
 		board[move.getToRow()][move.getToCol()].updateValue();
 		
+	}
+	
+	public Vector<Move> generateValidMoves(Player player){
+		Vector<Move> validMoves = new Vector<Move>(30);
+		
+		Vector<Piece> pieces = getPlayerPieces(player);
+		Vector<Move> moves;
+		for(int p=0;p<pieces.size();p++){
+			moves = pieces.elementAt(p).generateValidMoves(this);
+			for(int m=0;m<moves.size();m++){
+				addSortValidMove(validMoves, moves.elementAt(m));
+				//validMoves.add(moves.elementAt(m));
+			}
+		}
+	
+		return validMoves;
+	}
+	
+	private void addSortValidMove(Vector<Move> validMoves,Move move){
+		for(int m=0;m<validMoves.size();m++){
+			if(move.getValue()>=validMoves.elementAt(m).getValue()){
+				validMoves.add(m, move);
+				return;
+			}
+		}
+		
+		validMoves.add(move);
 	}
 
 	public PositionStatus checkPiece(int row, int col, Player player) {
@@ -163,6 +183,14 @@ public class Board {
 	public Piece getPiece(int row, int col) {
 		return board[row][col];
 	}
+	
+	public PieceID getPieceID(int row, int col){
+		return board[row][col].getPieceID();
+	}
+	
+	public Player getPlayer(int row,int col){
+		return board[row][col].getPlayer();
+	}
 
 	public boolean hasPiece(int row, int col) {
 		return (board[row][col] != null);
@@ -170,10 +198,6 @@ public class Board {
 
 	public boolean hasMoved(int row, int col) {
 		return board[row][col].hasMoved();
-	}
-
-	public Piece getLastMovedPiece() {
-		return lastMovedPiece;
 	}
 
 	public Vector<Piece> getPlayerPieces(Player player) {
@@ -299,8 +323,7 @@ public class Board {
 
 				if (board[row][col] != null) {
 
-					copyBoard[row][col] = board[row][col].getCopy();
-					copyBoard[row][col].setBoard(newBoard);
+					copyBoard[row][col] = board[row][col].getCopy(this);
 
 					if (copyBoard[row][col].getPlayer() == Player.AI) {
 						copyAiPieces.add(copyBoard[row][col]);

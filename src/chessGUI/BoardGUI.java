@@ -17,13 +17,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
 import chessAI.DecisionNode;
+import chessAI.MoveBook;
+import chessAI.MoveBookNode;
 import chessBackend.*;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 
 public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
-	private DecisionNode rootDecision;
 	private Game game;
 	private int gameHeight;
 	private int gameWidth;
@@ -40,23 +41,20 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	private JMenuItem gameAsWhiteMenu;
 	private JMenuItem undoUserMoveMenu;
 
-	private PiecePositionGUI[][] chessSquares;
+	private SquareGUI[][] chessSquares;
 	private Image[][] chessPieceGraphics;
-	private PiecePositionGUI selectedSquare;
-	private PiecePositionGUI lastMovedSquare;
-	private boolean spinBoard;
+	private SquareGUI selectedSquare;
+	private SquareGUI lastMovedSquare;
+	private boolean flipBoard;
 	private Player whitePlayer;
 
-	// debug components
+	private Adjudicator adjudicator;
+
 	private boolean debug;
-	private JFrame debugFrame;
-	private JTree decisionTreeGUI;
-	private DefaultMutableTreeNode rootGUI;
-	private JScrollPane treeView;
 
 	public BoardGUI(Game game, boolean debug) {
 		this.debug = debug;
-		this.spinBoard = false;
+		this.flipBoard = false;
 
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		gameHeight = (int) ((double) dim.height * 0.8);
@@ -65,7 +63,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		sidebarWidth = 2 * (int) ((double) imageWidth * 1.1);
 		gameWidth = 2 * sidebarWidth + gameHeight;
 
-		frame = new JFrame("Oh,Word? " + game.VERSION);
+		frame = new JFrame("Oh,Word? " + Game.VERSION);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 
@@ -88,7 +86,6 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		boardGUIPanel = new JPanel(new GridLayout(8, 8));
 		boardGUIPanel.setBackground(Color.GRAY);
 		boardGUIPanel.setPreferredSize(new Dimension(gameHeight, gameHeight));
-		// boardGUIPanel.setBorder(BorderFactory.createLineBorder(Color.black));
 		frame.add(boardGUIPanel, BorderLayout.CENTER);
 
 		lostAiPiecesPanel = new JPanel(new FlowLayout());
@@ -107,35 +104,33 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 		frame.setSize(gameWidth, gameHeight);
 		frame.setResizable(false);
-		// frame.pack();
 		frame.setVisible(true);
 
 		this.debug = debug;
 		if (debug) {
-			debugFrame = new JFrame("Decision Tree Observer");
-			debugFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			debugFrame.setLayout(new BorderLayout(1, 1));
-			debugFrame.setSize(800, 800);
-			// debugFrame.setResizable(false);
-			debugFrame.setVisible(true);
-			buildDebugGUI();
-			// setRootDecisionTree(rootDecision);
+
 		}
 
 	}
 
 	public void newGame(Player whitePlayer) {
 		this.whitePlayer = whitePlayer;
+
+		adjudicator = new Adjudicator(new Board(), whitePlayer);
+		
 		clearPiecesTaken();
+		updateLastMovedSquare();
+		attachValidMoves();
+		setBoard(adjudicator.getCurrentBoard());
 	}
 
 	private void buildBoardGUI() {
-		chessSquares = new PiecePositionGUI[8][8];
-		PiecePositionGUI square;
+		chessSquares = new SquareGUI[8][8];
 
+		SquareGUI square;
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
-				square = new PiecePositionGUI(col % 2 == row % 2, row, col, debug);
+				square = new SquareGUI(col % 2 == row % 2, row, col, debug);
 				square.setGUI(this);
 				square.addMouseListener(this);
 
@@ -143,6 +138,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 				boardGUIPanel.add(chessSquares[row][col]);
 			}
 		}
+
 	}
 
 	private void loadChessImages() {
@@ -174,94 +170,53 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		return chessPieceGraphics[color][id.ordinal()];
 	}
 
-	public void setAiResponse(DecisionNode aiResponse) {
+	public void aiMoved(Move aisMove) {
 
-		rootDecision = aiResponse;
-		setBoard(rootDecision.getBoard());
+		adjudicator.move(aisMove);
+		// Update the gui to show move that AI made
+		makeMove(aisMove);
 
-		if (debug)
-			setRootDecisionTree(rootDecision);
+		attachValidMoves();
 
-		// check for taken pieces
-		if (aiResponse.getMove().getNote() == MoveNote.TAKE_PIECE) {
-			userPieceTaken(aiResponse.getMove().getPieceTaken());
+	}
+
+	private void userMoved(Move usersMove) {
+		adjudicator.move(usersMove);
+		clearValidMoves();
+		makeMove(usersMove);
+	}
+
+	private void makeMove(Move move) {
+
+		SquareGUI fromSquare = chessSquares[move.getFromRow()][move.getFromCol()];
+		SquareGUI toSquare = chessSquares[move.getToRow()][move.getToCol()];
+
+		if (toSquare.getPieceID() != PieceID.NONE) {
+			pieceTaken(toSquare.getPieceID(), toSquare.getPlayer());
 		}
 
-		if (aiResponse.getStatus() == GameStatus.CHECK) {
-			System.out.println("CHECK!");
-		}
-
-		if (aiResponse.getPlayer() == Player.USER) {
-
-			if (aiResponse.getStatus() == GameStatus.CHECKMATE) {
-				Object[] options = { "Yes, please", "Nah, I'm kinda a bitch." };
-				int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, // do not use a
-															// custom
-															// Icon
-						options, // the titles of buttons
-						options[0]); // default button title
-
-				if (n == JOptionPane.YES_OPTION) {
-					game.newGame();
-				} else {
-					System.exit(0);
-				}
-
-			}
-
-			if (aiResponse.getStatus() == GameStatus.STALEMATE) {
-				Object[] options = { "Yes, please", "Nah, maybe later." };
-				int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, // do not use a
-															// custom
-															// Icon
-						options, // the titles of buttons
-						options[0]); // default button title
-
-				if (n == JOptionPane.YES_OPTION) {
-					game.newGame();
-				} else {
-					System.exit(0);
-				}
-
-			}
-
+		if (move.getNote() == MoveNote.CASTLE_FAR || move.getNote() == MoveNote.CASTLE_NEAR || move.getNote() == MoveNote.NEW_QUEEN) {
+			setBoard(adjudicator.getCurrentBoard());
 		} else {
+			toSquare.showChessPiece(fromSquare.getPieceID(), fromSquare.getPlayer());
+			fromSquare.clearChessPiece();
+		}
 
-			if (aiResponse.getStatus() == GameStatus.CHECKMATE) {
-				Object[] options = { "Yeah, why not?", "Nah." };
-				int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, // do not use a
-															// custom
-															// Icon
-						options, // the titles of buttons
-						options[0]); // default button title
+		updateLastMovedSquare();
 
-				if (n == JOptionPane.YES_OPTION) {
-					game.newGame();
-				} else {
-					System.exit(0);
-				}
+		game.setGameSatus(adjudicator.getRoot().getStatus(), adjudicator.getRoot().getPlayer());
 
-			}
+	}
 
-			if (aiResponse.getStatus() == GameStatus.STALEMATE) {
-				Object[] options = { "Yes, please", "Nah, maybe later." };
-				int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, // do not use a
-															// custom
-															// Icon
-						options, // the titles of buttons
-						options[0]); // default button title
-
-				if (n == JOptionPane.YES_OPTION) {
-					game.newGame();
-				} else {
-					System.exit(0);
-				}
-			}
-
+	private void undoUserMove() {
+		if (adjudicator.undo()) {
+			setBoard(adjudicator.getCurrentBoard());
+			attachValidMoves();
+			refreshPiecesTaken();
+			updateLastMovedSquare();
+			game.undoUserMove();
+		} else {
+			System.out.println("Cannot undo move");
 		}
 
 	}
@@ -273,7 +228,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 
-				if (spinBoard) {
+				if (flipBoard) {
 					getRow = 7 - row;
 					getCol = 7 - col;
 				} else {
@@ -283,7 +238,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 				chessSquares[row][col].clearChessPiece();
 
 				if (board.hasPiece(getRow, getCol)) {
-					chessSquares[row][col].setChessPiece(board.getPiece(getRow, getCol));
+					chessSquares[row][col].showChessPiece(board.getPieceID(getRow, getCol), board.getPlayer(getRow, getCol));
 				}
 
 				if (debug) {
@@ -293,25 +248,32 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		}
 
 		this.selectedSquare = null;
+	}
 
-		Piece lastMovedPiece = board.getLastMovedPiece();
+	private void attachValidMoves() {
+		Vector<Move> validMoves = adjudicator.getValidMoves();
 
-		if (lastMovedPiece != null) {
-
-			if (spinBoard) {
-				getRow = 7 - lastMovedPiece.getRow();
-				getCol = 7 - lastMovedPiece.getCol();
-			} else {
-				getRow = lastMovedPiece.getRow();
-				getCol = lastMovedPiece.getCol();
+		Move move;
+		for (int m = 0; m < validMoves.size(); m++) {
+			move = validMoves.elementAt(m);
+			chessSquares[move.getFromRow()][move.getFromCol()].addValidMove(move);
+		}
+		
+		if(selectedSquare!=null){
+			colorValidMoveSquares(selectedSquare,true);
+		}
+	}
+	
+	private void clearValidMoves(){
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				chessSquares[r][c].removeAllValidMoves();
 			}
-
-			chessSquares[getRow][getCol].setLastMoved(true);
 		}
 	}
 
-	private void colorValidMoveSquares(Piece piece, boolean valid) {
-		Vector<Move> validMoves = piece.getValidMoves();
+	private void colorValidMoveSquares(SquareGUI square, boolean valid) {
+		Vector<Move> validMoves = square.getValidMoves();
 		Move move;
 		int getRow;
 		int getCol;
@@ -322,18 +284,18 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 			// because of higher level game situations like the move puts the
 			// king in check.
 			if (move.isValidated()) {
-				if (spinBoard) {
+				if (flipBoard) {
 					getRow = 7 - move.getToRow();
 					getCol = 7 - move.getToCol();
 				} else {
 					getRow = move.getToRow();
 					getCol = move.getToCol();
 				}
-				chessSquares[getRow][getCol].setValidMove(valid);
+				chessSquares[getRow][getCol].showAsValidMove(valid);
 
 				if (debug) {
 					if (valid && move != null) {
-						chessSquares[getRow][getCol].updateDebugInfo(move.getNode().getChosenPathValue() + "");
+						chessSquares[getRow][getCol].updateDebugInfo(game.getMoveChosenPathValue(move) + "");
 					} else {
 						chessSquares[getRow][getCol].updateDebugInfo("");
 					}
@@ -343,18 +305,41 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		}
 	}
 
-	private void aiPieceTaken(PieceID pieceTaken) {
-		System.out.println("Ai loses piece " + pieceTaken.toString());
+	private void pieceTaken(PieceID id, Player player) {
 		JLabel picLabel = new JLabel();
-		picLabel.setIcon(new ImageIcon(this.getChessImage(pieceTaken, Player.AI)));
-		lostAiPiecesPanel.add(picLabel);
+
+		if (player == Player.AI) {
+			System.out.println("Ai loses piece " + id);
+			picLabel.setIcon(new ImageIcon(this.getChessImage(id, Player.AI)));
+			lostAiPiecesPanel.add(picLabel);
+		} else {
+			System.out.println("user loses piece " + id);
+			picLabel.setIcon(new ImageIcon(this.getChessImage(id, Player.USER)));
+			lostUserPiecesPanel.add(picLabel);
+		}
 	}
 
-	private void userPieceTaken(PieceID pieceTaken) {
-		System.out.println("user loses piece " + pieceTaken.toString());
-		JLabel picLabel = new JLabel();
-		picLabel.setIcon(new ImageIcon(this.getChessImage(pieceTaken, Player.USER)));
-		lostUserPiecesPanel.add(picLabel);
+	private void refreshPiecesTaken() {
+		JLabel picLabel;
+
+		clearPiecesTaken();
+
+		Vector<PieceID> takenPieces = adjudicator.getPiecesTaken(Player.USER);
+
+		for (int i = 0; i < takenPieces.size(); i++) {
+			picLabel = new JLabel();
+			picLabel.setIcon(new ImageIcon(this.getChessImage(takenPieces.elementAt(i), Player.USER)));
+			lostUserPiecesPanel.add(picLabel);
+		}
+
+		takenPieces = adjudicator.getPiecesTaken(Player.AI);
+
+		for (int i = 0; i < takenPieces.size(); i++) {
+			picLabel = new JLabel();
+			picLabel.setIcon(new ImageIcon(this.getChessImage(takenPieces.elementAt(i), Player.AI)));
+			lostAiPiecesPanel.add(picLabel);
+		}
+
 	}
 
 	private void clearPiecesTaken() {
@@ -363,58 +348,19 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		lostUserPiecesPanel.removeAll();
 		lostUserPiecesPanel.updateUI();
 	}
-
-	// Debug methods
-	private void buildDebugGUI() {
-		rootGUI = new DefaultMutableTreeNode("Current Board");
-		decisionTreeGUI = new JTree(rootGUI);
-		decisionTreeGUI.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		decisionTreeGUI.addKeyListener(this);
-		decisionTreeGUI.addMouseListener(this);
-		// decisionTreeGUI.setSize(600, 600);
-		treeView = new JScrollPane(decisionTreeGUI);
-		// treeView.setSize(800, 800);
-		debugFrame.add(treeView, BorderLayout.CENTER);
-		// buildDecisionTreeGUI(rootGUI, decisionTreeRoot);
-	}
-
-	public void setRootDecisionTree(DecisionNode decisionTreeRoot) {
-		// showDecisionTreeScores(decisionTreeRoot);
-		rootGUI.removeAllChildren();
-		buildDecisionTreeGUI(rootGUI, decisionTreeRoot);
-		decisionTreeGUI.updateUI();
-	}
-
-	public void showDecisionTreeScores(DecisionNode decisionTreeRoot) {
-		DecisionNode child;
-		int toRow;
-		int toCol;
-
-		child = decisionTreeRoot.getHeadChild();
-		for (int i = 0; i < decisionTreeRoot.getChildrenSize(); i++) {
-			toRow = child.getMove().getToRow();
-			toCol = child.getMove().getToCol();
-			chessSquares[toRow][toCol].updateDebugInfo(child.getChosenPathValue() + "");
-			child = child.getNextSibling();
+	
+	private void updateLastMovedSquare(){
+		if(lastMovedSquare!=null){
+			lastMovedSquare.showAsLastMoved(false);
+			lastMovedSquare = null;
 		}
-	}
-
-	private void buildDecisionTreeGUI(DefaultMutableTreeNode branchGUI, DecisionNode branch) {
-		DefaultMutableTreeNode childGUI;
-		DecisionNode child;
-
-		branchGUI.setUserObject(branch);
-
-		child = branch.getHeadChild();
-		for (int i = 0; i < branch.getChildrenSize(); i++) {
-			childGUI = new DefaultMutableTreeNode(child);
-			branchGUI.add(childGUI);
-
-			if (child.hasChildren()) {
-				buildDecisionTreeGUI(childGUI, child);
-			}
-			child = child.getNextSibling();
+		
+		Move lastMove = adjudicator.getRoot().getMove();
+		if(lastMove!=null){
+			lastMovedSquare = chessSquares[lastMove.getToRow()][lastMove.getToCol()];
+			lastMovedSquare.showAsLastMoved(true);
 		}
+		
 	}
 
 	public JFrame getFrame() {
@@ -423,48 +369,13 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 	// Listener Methods
 
-	public void mouseClicked(MouseEvent arg0) {
-		
-		if (arg0.getComponent() == decisionTreeGUI) {
-
-			if (debug) {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) decisionTreeGUI.getLastSelectedPathComponent();
-
-				if (node == null || !arg0.isShiftDown())
-					// Nothing is selected.
-					return;
-
-				Object nodeInfo = node.getUserObject();
-
-				if (nodeInfo instanceof DecisionNode) {
-					// System.out.println("Mouse Clicked " +
-					// nodeInfo.toString());
-					this.setBoard(((DecisionNode) nodeInfo).getBoard());
-					// showDecisionTreeScores(((DecisionNode) nodeInfo));
-				}
-			}
-		}
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		PiecePositionGUI clickedSquare;
+		SquareGUI clickedSquare;
 		Component c = arg0.getComponent();
 
-		if (c instanceof PiecePositionGUI) {
-			clickedSquare = (PiecePositionGUI) c;
+		if (c instanceof SquareGUI) {
+			clickedSquare = (SquareGUI) c;
 		} else {
 			return;
 		}
@@ -476,62 +387,48 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 		if (selectedSquare == null) {
 			if (clickedSquare.hasPiece()) {
-				// if (clickedSquare.getPiece().getPlayer() == Player.USER) {
 
 				selectedSquare = clickedSquare;
-				selectedSquare.setSelected(true);
+				selectedSquare.showAsSelected(true);
 
-				// selectedSquare.getPiece().generateValidMoves(board);
-				// }
-
-				colorValidMoveSquares(clickedSquare.getPiece(), true);
+				colorValidMoveSquares(clickedSquare, true);
 			}
 
 		} else {
 
 			if (selectedSquare != clickedSquare) {
-				Piece p = selectedSquare.getPiece();
 
-				if (spinBoard) {
-					fromRow = p.getRow();
-					fromCol = p.getCol();
+				if (flipBoard) {
+					fromRow = selectedSquare.getRow();
+					fromCol = selectedSquare.getCol();
 					toRow = 7 - clickedSquare.getRow();
 					toCol = 7 - clickedSquare.getCol();
 				} else {
-					fromRow = p.getRow();
-					fromCol = p.getCol();
+					fromRow = selectedSquare.getRow();
+					fromCol = selectedSquare.getCol();
 					toRow = clickedSquare.getRow();
 					toCol = clickedSquare.getCol();
 				}
 
 				Move m = new Move(fromRow, fromCol, toRow, toCol);
-				Move validMove = p.checkIfValidMove(m);
+				Move validMove = selectedSquare.checkIfValidMove(m);
 				if (validMove != null) {
-					// board.moveChessPiece(validMove);
-					selectedSquare.setSelected(false);
-					// clickedSquare.attachChessPiece(selectedSquare.getPiece());
-					// selectedSquare.clearChessPiece();
+					selectedSquare.showAsSelected(false);
+					colorValidMoveSquares(selectedSquare, false);
+
 					selectedSquare = null;
 
-					if (validMove.getNote() == MoveNote.TAKE_PIECE) {
-						aiPieceTaken(validMove.getPieceTaken());
-					}
-
-					setBoard(validMove.getNode().getBoard());
-					game.userMoved(validMove.getNode());
+					userMoved(validMove);
+					game.userMoved(validMove);
 				} else {
 					if (clickedSquare.hasPiece()) {
-						// if (clickedSquare.getPiece().getPlayer() ==
-						// Player.USER) {
 
-						colorValidMoveSquares(selectedSquare.getPiece(), false);
-						colorValidMoveSquares(clickedSquare.getPiece(), true);
+						colorValidMoveSquares(selectedSquare, false);
+						colorValidMoveSquares(clickedSquare, true);
 
-						selectedSquare.setSelected(false);
+						selectedSquare.showAsSelected(false);
 						selectedSquare = clickedSquare;
-						selectedSquare.setSelected(true);
-						// selectedSquare.getPiece().generateValidMoves(board);
-						// }
+						selectedSquare.showAsSelected(true);
 
 					} else {
 						System.out.println("Invalid move");
@@ -545,65 +442,49 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void keyPressed(KeyEvent arg0) {
-
-	}
-
-	@Override
-	public void keyReleased(KeyEvent arg0) {
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode) decisionTreeGUI.getLastSelectedPathComponent();
-
-		// System.out.println("Key typed");
-		if (node == null)
-			// Nothing is selected.
-			return;
-
-		Object nodeInfo = node.getUserObject();
-
-		if (nodeInfo instanceof DecisionNode) {
-			DecisionNode branch = ((DecisionNode) nodeInfo);
-
-			if (((int) arg0.getKeyChar()) == 10) {
-				System.out.println("Enter pressed on " + nodeInfo.toString());
-				game.growBranch(branch);
-				setRootDecisionTree(rootDecision);
-
-			} else {
-				if (arg0.isShiftDown() && arg0.isActionKey()) {
-					this.setBoard(branch.getBoard());
-					// showDecisionTreeScores(((DecisionNode) nodeInfo));
-				}
-			}
-		}
-	}
-
-	@Override
-	public void keyTyped(KeyEvent arg0) {
-
-	}
-
-	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		System.out.println("Action from " + arg0.getSource().toString());
-		
+
 		if (arg0.getSource() == gameAsBlackMenu) {
 			game.newGame(Player.AI);
 		}
 
-		if (arg0.getSource()  == gameAsWhiteMenu) {
+		if (arg0.getSource() == gameAsWhiteMenu) {
 			game.newGame(Player.USER);
 		}
 
-		if (arg0.getSource()  == undoUserMoveMenu) {
-			game.undoUserMove();
+		if (arg0.getSource() == undoUserMoveMenu) {
+			this.undoUserMove();
 		}
-		
+
+	}
+
+	// unused listener methods
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+	}
+
+	public void mouseClicked(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
 	}
 
 }

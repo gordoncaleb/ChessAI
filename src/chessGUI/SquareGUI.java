@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -16,13 +17,23 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 
+import chessBackend.Move;
+import chessBackend.MoveNote;
+import chessBackend.Player;
 import chessPieces.Piece;
+import chessPieces.PieceID;
 
-public class PiecePositionGUI extends JPanel implements ComponentListener {
-	private Piece piece;
+public class SquareGUI extends JPanel {
+	private static final long serialVersionUID = 1L;
+	
+	private int row;
+	private int col;
+	private PieceID id;
+	private Player player;
+	private Vector<Move> validMoves;
+	
 	private BoardGUI gui;
-	private int[] pos = new int[2];
-
+	
 	// Debug components
 	private JLabel debugLocationLabel;
 	private JLabel debugScoreLabel;
@@ -44,15 +55,19 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 	private Color lastMoved = new Color(255, 0, 0);
 	private Color validMove = new Color(255, 255, 0);
 
-	public PiecePositionGUI(boolean lightSquare, int row, int col, boolean debug) {
+	public SquareGUI(boolean lightSquare, int row, int col, boolean debug) {
 		super(new BorderLayout());
-		this.lightSquare = lightSquare;
-		pos[0] = row;
-		pos[1] = col;
+		
+		validMoves = new Vector<Move>();
+		this.id = id;
+		this.player = player;
+		this.row = row;
+		this.col = col;
 
-		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		this.lightSquare = lightSquare;
 
 		updateBackgroundColor();
+		updateBorderColor();
 
 		picLabel = new JLabel();
 
@@ -84,7 +99,6 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 		imagePane.add(picLabel);
 
 		this.add(imagePane, BorderLayout.PAGE_START);
-		this.addComponentListener(this);
 	}
 
 	public void updateBackgroundColor() {
@@ -134,52 +148,67 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 		}
 	}
 
-	public void setSelected(boolean selected) {
+	public void showAsSelected(boolean selected) {
 		this.selectedSquare = selected;
-		// updateBackgroundColor();
 		updateBorderColor();
 	}
 
-	public void setValidMove(boolean validMoveSquare) {
+	public void showAsValidMove(boolean validMoveSquare) {
 		this.validMoveSquare = validMoveSquare;
-		// updateBackgroundColor();
 		updateBorderColor();
 	}
 
-	public void setLastMoved(boolean lastMovedSquare) {
+	public void showAsLastMoved(boolean lastMovedSquare) {
 		this.lastMovedSquare = lastMovedSquare;
-		// updateBackgroundColor();
+		updateBorderColor();
+	}
+	
+	public void showAsDefault(){
+		this.selectedSquare = false;
+		this.validMoveSquare = false;
+		this.lastMovedSquare = false;
+		
 		updateBorderColor();
 	}
 
-	public void setChessPiece(Piece p) {
+	public void showChessPiece(PieceID id, Player player) {
 
-		this.piece = p;
-		// rawWidth = p.getImage().getWidth();
-		// rawHeight = p.getImage().getHeight();
-		// int newHeight = this.getHeight();
-		// int newWidth =
-		// (int)((double)rawWidth*((double)newHeight/(double)rawHeight));
+		this.id = id;
+		this.player = player;
 
-		Image image = gui.getChessImage(piece.getPieceID(), piece.getPlayer());
+		Image image = gui.getChessImage(id, player);
 		ImageIcon icon = new ImageIcon(image);
 		picLabel.setIcon(icon);
-
-		if(debug)
-			debugPieceValue.setText(piece.getPieceValue()+"");
 			
+	}
+	
+	public void addValidMove(Move move){
+		validMoves.add(move);
+	}
+	
+	public void removeAllValidMoves(){
+		validMoves.removeAllElements();
+	}
+	
+	public Vector<Move> getValidMoves(){
+		return validMoves;
+	}
+	
+	public Move checkIfValidMove(Move newMove) {
+		Move validMove;
+		for (int m = 0; m < validMoves.size(); m++) {
+			validMove = validMoves.elementAt(m);
+			if (validMove.equals(newMove) && validMove.getNote()!=MoveNote.INVALIDATED)
+				return validMove;
+		}
+
+		return null;
 	}
 
 	public void clearChessPiece() {
 
-		this.selectedSquare = false;
-		this.validMoveSquare = false;
-		this.lastMovedSquare = false;
-		// updateBackgroundColor();
-		updateBorderColor();
-
 		picLabel.setIcon(null);
-		this.piece = null;
+		id = PieceID.NONE;
 		
 		if(debug)
 			debugPieceValue.setText("");
@@ -190,56 +219,28 @@ public class PiecePositionGUI extends JPanel implements ComponentListener {
 	}
 
 	public boolean hasPiece() {
-		return piece != null;
+		return id != PieceID.NONE;
 	}
 
-	public Piece getPiece() {
-		return piece;
+	public PieceID getPieceID() {
+		return id;
 	}
 
 	public int getRow() {
-		return pos[0];
+		return row;
 	}
 
 	public int getCol() {
-		return pos[1];
+		return col;
 	}
+	
+	public Player getPlayer(){
+		return player;
+	}
+	
 
 	public void updateDebugInfo(String score) {
 		debugScoreLabel.setText(score + "");
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void componentResized(ComponentEvent arg0) {
-		// if(piece == null)
-		// return;
-		//
-		// int newHeight = this.getHeight();
-		// int newWidth =
-		// (int)((double)rawWidth*((double)newHeight/(double)rawHeight));
-		//
-		// Image image = piece.getImage().getScaledInstance(newWidth, newHeight,
-		// Image.SCALE_SMOOTH);
-		// ImageIcon icon = new ImageIcon(image);
-		// picLabel.setIcon(icon);
-	}
-
-	@Override
-	public void componentShown(ComponentEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
