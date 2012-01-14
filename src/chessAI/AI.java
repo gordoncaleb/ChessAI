@@ -47,8 +47,8 @@ public class AI extends Thread {
 		maxDecisionTreeLevel = 2;
 		maxTwigLevel = 0;
 
-		//processorThreads = new AIProcessor[Runtime.getRuntime().availableProcessors()];
-		 processorThreads = new AIProcessor[1];
+		processorThreads = new AIProcessor[Runtime.getRuntime().availableProcessors()];
+		//processorThreads = new AIProcessor[1];
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel, maxTwigLevel);
 			processorThreads[i].start();

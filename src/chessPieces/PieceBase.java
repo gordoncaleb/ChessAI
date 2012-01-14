@@ -52,7 +52,6 @@ public class PieceBase {
 	public void move(Move newMove) {
 		setPos(newMove.getToRow(), newMove.getToCol());
 		moved = true;
-		// clearValidMoves();
 	}
 
 	public Player getPlayer() {

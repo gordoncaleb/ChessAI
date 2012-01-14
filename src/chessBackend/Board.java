@@ -133,6 +133,10 @@ public class Board {
 		
 	}
 	
+	public void undoMove(Move move, Player player){
+		
+	}
+	
 	public Vector<Move> generateValidMoves(Player player){
 		Vector<Move> validMoves = new Vector<Move>(30);
 		

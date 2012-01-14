@@ -126,7 +126,7 @@ public class AIProcessor extends Thread {
 				// Check to see if the move in question resulted in
 				// the loss of your king. Such a move is invalid because
 				// you can't move into check.
-				if (move.getPieceTaken() == PieceID.KING) {
+				if (move.getPieceTaken().getPieceID() == PieceID.KING) {
 					branch.getMove().setNote(MoveNote.INVALIDATED);
 					return 0;
 				}
@@ -158,7 +158,7 @@ public class AIProcessor extends Thread {
 				}
 
 				// alpha beta pruning
-				if (pruningEnabled) {
+				if (pruningEnabled && branch.getParent() != null) {
 					if (branch.getParent().getHeadChild() != null) {
 						if (branch.getMoveValue() - suggestedPathValue < branch.getParent().getHeadChild().getChosenPathValue()) {
 							pruned = true;
@@ -309,7 +309,7 @@ public class AIProcessor extends Thread {
 			// These global variables get around the fact that this
 			// recursive method id lite weight and has no reference to
 			// parent and grantparent
-			if (move.getPieceTaken() == PieceID.KING) {
+			if (move.getPieceTaken().getPieceID() == PieceID.KING) {
 				if (level == 0) {
 					twigIsInvalid = true;
 				}
@@ -380,7 +380,7 @@ public class AIProcessor extends Thread {
 		moves = board.generateValidMoves(player);
 		for (int m = 0; m < moves.size(); m++) {
 			move = moves.elementAt(m);
-			if (move.getPieceTaken() == PieceID.KING) {
+			if (move.getPieceTaken().getPieceID() == PieceID.KING) {
 				inCheck = true;
 			}
 

@@ -34,11 +34,11 @@ public class Adjudicator {
 				root.addChild(currentNode);
 				root = currentNode;
 
-				if (move.getPieceTaken() != PieceID.NONE) {
+				if (move.getPieceTaken() != null) {
 					if (root.getPlayer() == Player.USER) {
-						userPiecesTaken.add(move.getPieceTaken());
+						userPiecesTaken.add(move.getPieceTaken().getPieceID());
 					} else {
-						aiPiecesTaken.add(move.getPieceTaken());
+						aiPiecesTaken.add(move.getPieceTaken().getPieceID());
 					}
 				}
 
@@ -62,7 +62,7 @@ public class Adjudicator {
 
 		if (parentDecision != null) {
 
-			if (root.getMove().getPieceTaken() != PieceID.NONE) {
+			if (root.getMove().getPieceTaken() != null) {
 				if (root.getPlayer() == Player.AI) {
 					aiPiecesTaken.remove(aiPiecesTaken.lastElement());
 				} else {
@@ -70,7 +70,7 @@ public class Adjudicator {
 				}
 			}
 
-			if (parentDecision.getMove().getPieceTaken() != PieceID.NONE) {
+			if (parentDecision.getMove().getPieceTaken() != null) {
 				if (parentDecision.getPlayer() == Player.AI) {
 					aiPiecesTaken.remove(aiPiecesTaken.lastElement());
 				} else {
@@ -158,7 +158,7 @@ public class Adjudicator {
 				// Check to see if the move in question resulted in
 				// the loss of your king. Such a move is invalid because
 				// you can't move into check.
-				if (move.getPieceTaken() == PieceID.KING) {
+				if (move.getPieceTaken().getPieceID() == PieceID.KING) {
 					branch.getMove().setNote(MoveNote.INVALIDATED);
 					return;
 				}
@@ -237,7 +237,7 @@ public class Adjudicator {
 		moves = board.generateValidMoves(player);
 		for (int m = 0; m < moves.size(); m++) {
 			move = moves.elementAt(m);
-			if (move.getPieceTaken() == PieceID.KING) {
+			if (move.getPieceTaken().getPieceID() == PieceID.KING) {
 				inCheck = true;
 			}
 

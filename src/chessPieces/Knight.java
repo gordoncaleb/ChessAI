@@ -3,7 +3,6 @@ package chessPieces;
 import java.util.Vector;
 
 import chessBackend.Board;
-import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
 
@@ -46,7 +45,8 @@ public class Knight extends PieceBase implements Piece {
 		int bonus;
 		PositionStatus pieceStatus;
 		Player player = this.getPlayer();
-
+		Move move;
+		
 		for (int i = 0; i < 8; i++) {
 			nextRow = currentRow + KNIGHTMOVES[0][i];
 			nextCol = currentCol + KNIGHTMOVES[1][i];
@@ -56,15 +56,15 @@ public class Knight extends PieceBase implements Piece {
 				bonus = PositionBonus.getKnightPositionBonus(currentRow, currentCol, nextRow, nextCol, this.getPlayer());
 
 				if (pieceStatus == PositionStatus.NO_PIECE) {
-					validMoves.add(new Move(currentRow, currentCol, nextRow, nextCol, bonus, MoveNote.NONE));
+					move = new Move(currentRow, currentCol, nextRow, nextCol, bonus);
+					validMoves.add(move);
 				}
 
 				if (pieceStatus == PositionStatus.ENEMY) {
 					Piece piece = board.getPiece(nextRow, nextCol);
 					int pieceValue = piece.getPieceValue();
-					PieceID pieceID = piece.getPieceID();
-					Move move = new Move(currentRow, currentCol, nextRow, nextCol, pieceValue + bonus, MoveNote.TAKE_PIECE);
-					move.setPieceTaken(pieceID);
+					move = new Move(currentRow, currentCol, nextRow, nextCol, pieceValue + bonus);
+					move.setPieceTaken(piece);
 					validMoves.add(move);
 				}
 			}

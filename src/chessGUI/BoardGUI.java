@@ -181,6 +181,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	}
 
 	private void userMoved(Move usersMove) {
+		
 		adjudicator.move(usersMove);
 		clearValidMoves();
 		makeMove(usersMove);

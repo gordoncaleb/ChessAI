@@ -39,6 +39,7 @@ public class King extends PieceBase implements Piece {
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
+		Move move;
 		
 		boolean canCastleFar = board.canCastleFar(player);
 		boolean canCastleNear = board.canCastleNear(player);
@@ -52,15 +53,22 @@ public class King extends PieceBase implements Piece {
 
 				if (canCastleFar || canCastleNear) {
 					// The player loses points for losing the ability to castle
-					validMoves.add(new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE, MoveNote.NONE));
+					move = new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
+					move.setFirstMove(!this.hasMoved());
+					validMoves.add(move);
 				} else {
-					validMoves.add(new Move(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE));
+					move = new Move(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
+					move.setFirstMove(!this.hasMoved());
+					validMoves.add(move);
 				}
 			}
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 				Piece piece = board.getPiece(nextRow, nextCol);
-				validMoves.add(new Move(currentRow, currentCol, nextRow, nextCol, piece.getPieceValue(), piece.getPieceID()));
+				move = new Move(currentRow, currentCol, nextRow, nextCol, piece.getPieceValue());
+				move.setPieceTaken(piece);
+				move.setFirstMove(!this.hasMoved());
+				validMoves.add(move);
 			}
 
 		}

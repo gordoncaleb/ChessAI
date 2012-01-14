@@ -70,10 +70,9 @@ public class Pawn extends PieceBase implements Piece {
 				validMove.setNote(MoveNote.NEW_QUEEN);
 				validMove.setValue(Values.QUEEN_VALUE + piece.getPieceValue());
 			}else{
-				validMove.setNote(MoveNote.TAKE_PIECE);
 				validMove.setValue(piece.getPieceValue());
 			}
-			validMove.setPieceTaken(piece.getPieceID());
+			validMove.setPieceTaken(piece);
 			validMoves.add(validMove);
 		}
 
@@ -84,11 +83,10 @@ public class Pawn extends PieceBase implements Piece {
 				validMove.setNote(MoveNote.NEW_QUEEN);
 				validMove.setValue(Values.QUEEN_VALUE + piece.getPieceValue());
 			}else{
-				validMove.setNote(MoveNote.TAKE_PIECE);
 				validMove.setValue(piece.getPieceValue());
 			}
 			
-			validMove.setPieceTaken(piece.getPieceID());
+			validMove.setPieceTaken(piece);
 			validMoves.add(validMove);
 		}
 		

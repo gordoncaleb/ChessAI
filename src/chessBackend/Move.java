@@ -1,10 +1,11 @@
 package chessBackend;
 
-import chessPieces.PieceID;
+import chessPieces.Piece;
 
 public class Move {
 	private MoveNote note;
-	private PieceID pieceTaken;
+	private Piece pieceTaken;
+	private boolean firstMove;
 	private int value;
 	private int fromRow;
 	private int fromCol;
@@ -17,7 +18,7 @@ public class Move {
 		this.toRow = toRow;
 		this.toCol = toCol;
 		this.note = MoveNote.NONE;
-		this.pieceTaken = PieceID.NONE;
+		this.pieceTaken = null;
 	}
 
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note) {
@@ -27,17 +28,16 @@ public class Move {
 		this.toCol = toCol;
 		this.note = note;
 		this.value = value;
-		this.pieceTaken = PieceID.NONE;
+		this.pieceTaken = null;
 	}
 
-	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, PieceID id) {
+	public Move(int fromRow, int fromCol, int toRow, int toCol, int value) {
 		this.fromRow = fromRow;
 		this.fromCol = fromCol;
 		this.toRow = toRow;
 		this.toCol = toCol;
-		this.note = MoveNote.TAKE_PIECE;
+		this.note = MoveNote.NONE;
 		this.value = value;
-		this.pieceTaken = id;
 	}
 
 	public boolean equals(Move m) {
@@ -103,14 +103,22 @@ public class Move {
 		return note != MoveNote.INVALIDATED;
 	}
 
-	public PieceID getPieceTaken() {
+	public Piece getPieceTaken() {
 		return pieceTaken;
 	}
 
-	public void setPieceTaken(PieceID pieceTaken) {
+	public void setPieceTaken(Piece pieceTaken) {
 		this.pieceTaken = pieceTaken;
 	}
 	
+	public boolean isFirstMove() {
+		return firstMove;
+	}
+
+	public void setFirstMove(boolean firstMove) {
+		this.firstMove = firstMove;
+	}
+
 	public Move reverse(){
 		return new Move(toRow, toCol, fromRow, fromCol);
 	}

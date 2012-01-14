@@ -56,7 +56,9 @@ public class Bishop extends PieceBase implements Piece {
 			
 			if(pieceStatus == PositionStatus.ENEMY){
 				Piece piece = board.getPiece(nextRow, nextCol);
-				validMoves.add(new Move(currentRow, currentCol, nextRow,nextCol,piece.getPieceValue(),piece.getPieceID()));
+				Move move = new Move(currentRow, currentCol, nextRow,nextCol,piece.getPieceValue());
+				move.setPieceTaken(piece);
+				validMoves.add(move);
 			}
 			
 			i=1;
