@@ -118,6 +118,8 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 		adjudicator = new Adjudicator(new Board(), whitePlayer);
 		
+		//adjudicator = new Adjudicator(Board.fromFile("testboard.txt"), whitePlayer);
+		
 		clearPiecesTaken();
 		updateLastMovedSquare();
 		attachValidMoves();

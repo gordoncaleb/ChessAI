@@ -153,10 +153,6 @@ public class AdjudicatorNode {
 
 	public void setStatus(GameStatus status) {
 		this.status = status;
-
-		if (status == GameStatus.CHECK) {
-			board.setInCheck(true);
-		}
 	}
 
 	public String toString() {

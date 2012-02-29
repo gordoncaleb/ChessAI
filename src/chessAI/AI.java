@@ -44,11 +44,12 @@ public class AI extends Thread {
 		moveBook = new MoveBook();
 
 		// Default levels
-		maxDecisionTreeLevel = 2;
-		maxTwigLevel = 0;
+		maxDecisionTreeLevel = 1;
+		maxTwigLevel = 1;
 
-		processorThreads = new AIProcessor[Runtime.getRuntime().availableProcessors()];
-		//processorThreads = new AIProcessor[1];
+		// processorThreads = new
+		// AIProcessor[Runtime.getRuntime().availableProcessors()];
+		processorThreads = new AIProcessor[1];
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel, maxTwigLevel);
 			processorThreads[i].start();
@@ -60,11 +61,12 @@ public class AI extends Thread {
 	@Override
 	public void run() {
 
-		while (!this.isInterrupted()) {
-
-			while (!userMoved && !makeNewGame && !growDecisionBranch && !undoUserMove) {
+		// while (!userMoved && !makeNewGame && !growDecisionBranch &&
+		// !undoUserMove) {
+		while (true) {
+			synchronized (this) {
 				try {
-					Thread.sleep(10);
+					this.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -151,6 +153,7 @@ public class AI extends Thread {
 			// debug print out of decision tree stats. i.e. the tree size and
 			// the values of the move options that the AI has
 			if (debug) {
+				game.setDecisionTreeRoot(rootNode);
 				printRootDebug();
 			}
 
@@ -167,7 +170,9 @@ public class AI extends Thread {
 
 		// rootNode = new DecisionNode(null, new Move(0, 0, 0, 0), new Board(),
 		// firstMove);
-		rootNode = new DecisionNode(null, null, new Board(), firstMove);
+		 rootNode = new DecisionNode(null, null, new Board(), firstMove);
+
+		//rootNode = new DecisionNode(null, null, Board.fromFile("testboard.txt"), firstMove);
 
 		if (firstMove == Player.AI) {
 			moveBook.setInvertedTable(true);
@@ -206,23 +211,31 @@ public class AI extends Thread {
 	 *            decision tree that the user effectively selected.
 	 * @return The new root node, which is the AI response to 'userMove'.
 	 */
-	public void setUserDecision(Move usersMove) {
-		DecisionNode userDecision = getMatchingDecisionNode(usersMove);
+	public synchronized void setUserDecision(Move usersMove) {
+		System.out.println("Setting user decision");
+		this.userDecision = getMatchingDecisionNode(usersMove);
 		userMoved = true;
-		this.userDecision = userDecision;
+		this.notifyAll();
 	}
 
-	public void setMakeNewGame(Player firstMove) {
+	public synchronized void setMakeNewGame(Player firstMove) {
 		this.firstMove = firstMove;
 		makeNewGame = true;
+		this.notifyAll();
 	}
 
-	public void growBranch(DecisionNode branch) {
-		growDecisionBranch = true;
+	public synchronized void growBranch(DecisionNode branch) {
 		branchToGrow = branch;
+		growDecisionBranch = true;
+		this.notifyAll();
 	}
 
-	public void taskDone() {
+	public synchronized void setUndoUserMove() {
+		this.undoUserMove = true;
+		this.notifyAll();
+	}
+
+	public synchronized void taskDone() {
 		taskDone++;
 		System.out.println(taskDone + "/" + taskSize + " done");
 	}
@@ -231,15 +244,7 @@ public class AI extends Thread {
 		taskDone = 0;
 	}
 
-	public void setUndoUserMove() {
-		this.undoUserMove = true;
-	}
-
 	private void delegateProcessors(DecisionNode root) {
-
-		// This clears ai processors status done flags from previous
-		// tasks.
-		clearTaskDone();
 
 		if (!root.hasChildren()) {
 			setProcessorLevels(0, 0, false);
@@ -247,12 +252,17 @@ public class AI extends Thread {
 			setDefaultProcessorLevels();
 		}
 
+		// This clears ai processors status done flags from previous
+		// tasks.
+		clearTaskDone();
+
 		taskSize = root.getChildrenSize();
 		taskLeft = taskSize;
 		nextTask = root.getHeadChild();
 
 		// detach all children and add them back when they have been processed.
 		// This allows pruning at the root level.
+		root.removeAllChildren();
 
 		System.out.println("New task");
 		for (int d = 0; d < processorThreads.length; d++) {
@@ -267,8 +277,6 @@ public class AI extends Thread {
 				e.printStackTrace();
 			}
 		}
-		
-		root.resort();
 
 	}
 
@@ -289,11 +297,14 @@ public class AI extends Thread {
 
 	private void growRoot() {
 		clearTaskDone();
-		taskLeft = 1;
+
+		taskSize = 1;
+		taskLeft = taskSize;
 		nextTask = rootNode;
+
 		processorThreads[0].setNewTask(null);
 
-		while (taskDone == 0) {
+		while (taskDone < taskSize) {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {

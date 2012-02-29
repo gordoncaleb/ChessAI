@@ -7,28 +7,23 @@ import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
 
-public class King extends PieceBase implements Piece {
+public class King extends Piece{
 	private static int[][] KINGMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
 
-	public King(Player player, int xpos, int ypos) {
-		super(player, xpos, ypos);
-		setPieceValue(Values.KING_VALUE);
-	}
-
-	public King(Player player, int row, int col, boolean moved, int value) {
-		super(player, row, col, moved, value);
+	public King(Player player, int row, int col, boolean moved) {
+		super(player, row, col, moved);
 	}
 
 	public PieceID getPieceID() {
 		return PieceID.KING;
 	}
-	
-	public static PieceID getID() {
-		return PieceID.KING;
-	}
 
 	public String getName() {
 		return "King";
+	}
+	
+	public String getStringID(){
+		return "K";
 	}
 
 	public Vector<Move> generateValidMoves(Board board) {
@@ -40,9 +35,6 @@ public class King extends PieceBase implements Piece {
 		int nextCol;
 		PositionStatus pieceStatus;
 		Move move;
-		
-		boolean canCastleFar = board.canCastleFar(player);
-		boolean canCastleNear = board.canCastleNear(player);
 
 		for (int d = 0; d < 8; d++) {
 			nextRow = currentRow + KINGMOVES[0][d];
@@ -51,34 +43,31 @@ public class King extends PieceBase implements Piece {
 
 			if (pieceStatus == PositionStatus.NO_PIECE) {
 
-				if (canCastleFar || canCastleNear) {
+				if (!this.hasMoved() && (!board.farRookHasMoved(player) || !board.nearRookHasMoved(player))) {
 					// The player loses points for losing the ability to castle
 					move = new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
-					move.setFirstMove(!this.hasMoved());
 					validMoves.add(move);
 				} else {
 					move = new Move(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
-					move.setFirstMove(!this.hasMoved());
 					validMoves.add(move);
 				}
 			}
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 				Piece piece = board.getPiece(nextRow, nextCol);
-				move = new Move(currentRow, currentCol, nextRow, nextCol, piece.getPieceValue());
+				move = new Move(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow,nextCol));
 				move.setPieceTaken(piece);
-				move.setFirstMove(!this.hasMoved());
 				validMoves.add(move);
 			}
 
 		}
 
 		//add possible castle move
-		if(canCastleFar && !board.isInCheck()){
+		if(board.canCastleFar(player) && !board.isInCheck()){
 			validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol-2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
 		}
 		
-		if(canCastleNear && !board.isInCheck()){
+		if(board.canCastleNear(player) && !board.isInCheck()){
 			validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol+2, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
 		}
 		
@@ -87,6 +76,6 @@ public class King extends PieceBase implements Piece {
 	}
 
 	public Piece getCopy(Board board) {
-		return new King(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved(), this.getPieceValue());
+		return new King(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }

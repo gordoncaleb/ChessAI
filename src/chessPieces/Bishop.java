@@ -7,28 +7,23 @@ import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
 
-public class Bishop extends PieceBase implements Piece {
+public class Bishop extends Piece{
 	private static int[][] BISHOPMOVES = { { 1, 1, -1, -1 }, { 1, -1, 1, -1 } };
-
-	public Bishop(Player player, int xpos, int ypos) {
-		super(player, xpos, ypos);
-		setPieceValue(Values.BISHOP_VALUE);
-	}
 	
-	public Bishop(Player player, int row, int col, boolean moved, int value) {
-		super(player,row,col,moved,value);
+	public Bishop(Player player, int row, int col, boolean moved) {
+		super(player,row,col,moved);
 	}
 
 	public PieceID getPieceID(){
 		return PieceID.BISHOP;
 	}
 	
-	public static PieceID getID(){
-		return PieceID.BISHOP;
-	}
-	
 	public String getName(){
 		return "Bishop";
+	}
+	
+	public String getStringID(){
+		return "B";
 	}
 	
 	public Vector<Move> generateValidMoves(Board board) {
@@ -56,7 +51,7 @@ public class Bishop extends PieceBase implements Piece {
 			
 			if(pieceStatus == PositionStatus.ENEMY){
 				Piece piece = board.getPiece(nextRow, nextCol);
-				Move move = new Move(currentRow, currentCol, nextRow,nextCol,piece.getPieceValue());
+				Move move = new Move(currentRow, currentCol, nextRow,nextCol,board.getPieceValue(nextRow,nextCol));
 				move.setPieceTaken(piece);
 				validMoves.add(move);
 			}
@@ -69,7 +64,7 @@ public class Bishop extends PieceBase implements Piece {
 	}
 	
 	public Piece getCopy(Board board){
-		return new Bishop(this.getPlayer(),this.getRow(),this.getCol(),this.hasMoved(),this.getPieceValue());
+		return new Bishop(this.getPlayer(),this.getRow(),this.getCol(),this.hasMoved());
 	}
 
 }

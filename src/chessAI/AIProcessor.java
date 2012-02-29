@@ -7,7 +7,6 @@ import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.MoveNote;
 import chessBackend.Player;
-import chessPieces.CastleDetails;
 import chessPieces.PieceID;
 import chessPieces.Values;
 
@@ -26,6 +25,10 @@ public class AIProcessor extends Thread {
 		this.ai = ai;
 		this.maxTreeLevel = maxTreeLevel;
 		this.maxTwigLevel = maxTwigLevel;
+	}
+	
+	public static void main(String[] args){
+		
 	}
 
 	@Override
@@ -57,19 +60,24 @@ public class AIProcessor extends Thread {
 
 	private void executeTask() {
 		DecisionNode task;
+		int ab = Integer.MIN_VALUE;
 
-		while ((task = ai.getNextTask())!=null) {
-
-			// System.out.println("Processing move " +
-			// branchNode.getMove().toString());
-			growDecisionTree(task, 0);	
+		while ((task = ai.getNextTask()) != null) {
 
 			if (rootNode != null) {
-				if (!task.getMove().isValidated()) {
-					rootNode.removeChild(task);
+				if (rootNode.getHeadChild() != null) {
+					ab = rootNode.getHeadChild().getChosenPathValue();
 				}
 			}
-			
+
+			growDecisionTree(task, 0, ab);
+
+			if (rootNode != null) {
+				if (task.getMove().isValidated()) {
+					rootNode.addChild(task);
+				}
+			}
+
 			ai.taskDone();
 
 		}
@@ -84,7 +92,7 @@ public class AIProcessor extends Thread {
 	 *            Level from the rootNode that the branch is at
 	 * @return
 	 */
-	private int growDecisionTree(DecisionNode branch, int level) {
+	private int growDecisionTree(DecisionNode branch, int level, int alphaBeta) {
 
 		// This is the player making the child moves, not the player that made
 		// the branch.
@@ -99,6 +107,7 @@ public class AIProcessor extends Thread {
 
 		int suggestedPathValue;
 		boolean pruned = false;
+		int newAlphaBeta = Integer.MIN_VALUE;
 
 		if (!branch.hasChildren()) {
 
@@ -111,7 +120,9 @@ public class AIProcessor extends Thread {
 			Board newBoard;
 
 			// If board is in check, castleing isn't valid
-			if (isInCheck(nextPlayer, board)) {
+			board.setInCheck(calcInCheck(nextPlayer, board));
+			
+			if (board.isInCheck()) {
 				branch.setStatus(GameStatus.CHECK);
 			}
 
@@ -126,20 +137,27 @@ public class AIProcessor extends Thread {
 				// Check to see if the move in question resulted in
 				// the loss of your king. Such a move is invalid because
 				// you can't move into check.
-				if (move.getPieceTaken().getPieceID() == PieceID.KING) {
-					branch.getMove().setNote(MoveNote.INVALIDATED);
-					return 0;
+				if (move.getPieceTaken() != null) {
+					if (move.getPieceTaken().getPieceID() == PieceID.KING) {
+						branch.getMove().setNote(MoveNote.INVALIDATED);
+						return 0;
+					}
 				}
 
 				newBoard = board.getCopy();
-				newBoard.adjustKnightValue();
 				newBoard.makeMove(move, player);
 				newNode = new DecisionNode(branch, move, newBoard, nextPlayer);
 
 				if (!pruned) {
 					// check to see if you are at the bottom of the branch
 					if (level < maxTreeLevel) {
-						suggestedPathValue = growDecisionTree(newNode, level + 1);
+
+						if (branch.getHeadChild() != null) {
+							newAlphaBeta = branch.getHeadChild().getChosenPathValue();
+						}
+
+						suggestedPathValue = growDecisionTree(newNode, level + 1, newAlphaBeta);
+
 					} else {
 						suggestedPathValue = moveValue - expandTwig(newNode);
 					}
@@ -158,11 +176,9 @@ public class AIProcessor extends Thread {
 				}
 
 				// alpha beta pruning
-				if (pruningEnabled && branch.getParent() != null) {
-					if (branch.getParent().getHeadChild() != null) {
-						if (branch.getMoveValue() - suggestedPathValue < branch.getParent().getHeadChild().getChosenPathValue()) {
-							pruned = true;
-						}
+				if (pruningEnabled) {
+					if (branch.getMoveValue() - suggestedPathValue < alphaBeta) {
+						pruned = true;
 					}
 				}
 
@@ -173,36 +189,48 @@ public class AIProcessor extends Thread {
 			int childrenSize = branch.getChildrenSize();
 			DecisionNode nextChild;
 			DecisionNode currentChild = branch.getHeadChild();
+			branch.removeAllChildren();
 			for (int i = 0; i < childrenSize; i++) {
 
 				// System.out.println(" next child" + i);
 				nextChild = currentChild.getNextSibling();
 
-				// explore down tree
-				suggestedPathValue = growDecisionTree(currentChild, level + 1);
+				if (!pruned && level < maxTreeLevel) {
+					
+					if (branch.getHeadChild() != null) {
+						newAlphaBeta = branch.getHeadChild().getChosenPathValue();
+					}
+					
+					// explore down tree
+					suggestedPathValue = growDecisionTree(currentChild, level + 1, newAlphaBeta);
+
+				} else {
+					suggestedPathValue = currentChild.getMoveValue();
+				}
 
 				// Checks if that move was valid. This invalidated check is used
 				// after every move by the user. It would remove user moves that
 				// put the user in check.
-				if (!currentChild.getMove().isValidated()) {
-					// The child represents an invalid move. i.e moving into
-					// check.
-					branch.removeChild(currentChild);
-				} else {
-					// alpha beta pruning
-					if (pruningEnabled) {
-						if (branch.getParent().getHeadChild() != null) {
-							if (branch.getMoveValue() - suggestedPathValue < branch.getParent().getHeadChild().getChosenPathValue()) {
-								return suggestedPathValue;
-							}
-						}
+				if (currentChild.getMove().isValidated()) {
+					branch.addChild(currentChild);
+				}
+
+				// alpha beta pruning
+				if (pruningEnabled) {
+
+					// if (branch.getMoveValue() - suggestedPathValue <
+					// branch.getParent().getHeadChild().getChosenPathValue())
+					// {
+					if (branch.getMoveValue() - suggestedPathValue < alphaBeta) {
+						pruned = true;
 					}
+
 				}
 
 				currentChild = nextChild;
 			}
 
-			branch.resort();
+			// branch.sort();
 
 		} // end of node already has children code
 
@@ -299,7 +327,7 @@ public class AIProcessor extends Thread {
 		Player nextPlayer = getNextPlayer(player);
 
 		// If board is in check, castleing isn't valid
-		board.setInCheck(isInCheck(getNextPlayer(player), board));
+		board.setInCheck(calcInCheck(getNextPlayer(player), board));
 
 		moves = board.generateValidMoves(player);
 
@@ -309,19 +337,20 @@ public class AIProcessor extends Thread {
 			// These global variables get around the fact that this
 			// recursive method id lite weight and has no reference to
 			// parent and grantparent
-			if (move.getPieceTaken().getPieceID() == PieceID.KING) {
-				if (level == 0) {
-					twigIsInvalid = true;
-				}
+			if (move.getPieceTaken() != null) {
+				if (move.getPieceTaken().getPieceID() == PieceID.KING) {
+					if (level == 0) {
+						twigIsInvalid = true;
+					}
 
-				return Values.KING_VALUE;
+					return Values.KING_VALUE;
+				}
 			}
 
 			moveValue = move.getValue();
 
 			if (level < maxTwigLevel) {
 				newBoard = board.getCopy();
-				newBoard.adjustKnightValue();
 				newBoard.makeMove(move, player);
 
 				suggestedMove = growDecisionTreeLite(newBoard, nextPlayer, moveValue, bestMove, level + 1);
@@ -369,54 +398,32 @@ public class AIProcessor extends Thread {
 	 *            Board being checked for check situation.
 	 * @return Whether or not "player" has put his/her opponent in check
 	 */
-	private boolean isInCheck(Player player, Board board) {
+	private int calcInCheck(Player player, Board board) {
 		int[][] kingLeftRight = { { 7, 3, 7, 5 }, { 0, 3, 0, 5 } };
 		Vector<Move> moves;
 		Move move;
-		boolean inCheck = false;
-		boolean canFar = true;
-		boolean canNear = true;
+		int inCheck = 0;
 
 		moves = board.generateValidMoves(player);
 		for (int m = 0; m < moves.size(); m++) {
 			move = moves.elementAt(m);
-			if (move.getPieceTaken().getPieceID() == PieceID.KING) {
-				inCheck = true;
+
+			if (move.getPieceTaken() != null) {
+				if (move.getPieceTaken().getPieceID() == PieceID.KING) {
+					inCheck = inCheck | 2;
+				}
 			}
 
 			if (move.getToRow() == kingLeftRight[player.ordinal()][0] && move.getToCol() == kingLeftRight[player.ordinal()][1]) {
-				canFar = false;
+				inCheck = inCheck | 4;
 			}
 
 			if (move.getToRow() == kingLeftRight[player.ordinal()][2] && move.getToCol() == kingLeftRight[player.ordinal()][3]) {
-				canNear = false;
+				inCheck = inCheck | 1;
 			}
 		}
-
-		setCastleDetails(board, canFar, canNear, inCheck);
 
 		return inCheck;
-
-	}
-
-	private void setCastleDetails(Board board, boolean canFar, boolean canNear, boolean inCheck) {
-		CastleDetails castleDetails = CastleDetails.NO_CASTLE;
-
-		if (!inCheck) {
-			if (canNear && canFar) {
-				castleDetails = CastleDetails.CASTLE_BOTH;
-			} else {
-				if (canNear) {
-					castleDetails = CastleDetails.CASTLE_NEAR;
-				}
-
-				if (canFar) {
-					castleDetails = CastleDetails.CASTLE_FAR;
-				}
-			}
-		}
-
-		board.setCastleDetails(castleDetails);
 
 	}
 

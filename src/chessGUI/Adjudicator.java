@@ -8,7 +8,6 @@ import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.MoveNote;
 import chessBackend.Player;
-import chessPieces.CastleDetails;
 import chessPieces.PieceID;
 import chessPieces.Values;
 
@@ -113,12 +112,12 @@ public class Adjudicator {
 			return aiPiecesTaken;
 		}
 	}
-	
-	public AdjudicatorNode getRoot(){
+
+	public AdjudicatorNode getRoot() {
 		return root;
 	}
-	
-	public GameStatus getGameStatus(){
+
+	public GameStatus getGameStatus() {
 		return root.getStatus();
 	}
 
@@ -144,7 +143,9 @@ public class Adjudicator {
 			Board newBoard;
 
 			// If board is in check, castleing isn't valid
-			if (isInCheck(nextPlayer, board)) {
+			board.setInCheck(calcInCheck(nextPlayer, board));
+
+			if (board.isInCheck()) {
 				branch.setStatus(GameStatus.CHECK);
 			}
 
@@ -158,9 +159,11 @@ public class Adjudicator {
 				// Check to see if the move in question resulted in
 				// the loss of your king. Such a move is invalid because
 				// you can't move into check.
-				if (move.getPieceTaken().getPieceID() == PieceID.KING) {
-					branch.getMove().setNote(MoveNote.INVALIDATED);
-					return;
+				if (move.getPieceTaken() != null) {
+					if (move.getPieceTaken().getPieceID() == PieceID.KING) {
+						branch.getMove().setNote(MoveNote.INVALIDATED);
+						return;
+					}
 				}
 
 				newBoard = board.getCopy();
@@ -226,54 +229,32 @@ public class Adjudicator {
 	 *            Board being checked for check situation.
 	 * @return Whether or not "player" has put his/her opponent in check
 	 */
-	private boolean isInCheck(Player player, Board board) {
+	private int calcInCheck(Player player, Board board) {
 		int[][] kingLeftRight = { { 7, 3, 7, 5 }, { 0, 3, 0, 5 } };
 		Vector<Move> moves;
 		Move move;
-		boolean inCheck = false;
-		boolean canFar = true;
-		boolean canNear = true;
+		int inCheck = 0;
 
 		moves = board.generateValidMoves(player);
 		for (int m = 0; m < moves.size(); m++) {
 			move = moves.elementAt(m);
-			if (move.getPieceTaken().getPieceID() == PieceID.KING) {
-				inCheck = true;
+
+			if (move.getPieceTaken() != null) {
+				if (move.getPieceTaken().getPieceID() == PieceID.KING) {
+					inCheck = inCheck | 2;
+				}
 			}
 
 			if (move.getToRow() == kingLeftRight[player.ordinal()][0] && move.getToCol() == kingLeftRight[player.ordinal()][1]) {
-				canFar = false;
+				inCheck = inCheck | 4;
 			}
 
 			if (move.getToRow() == kingLeftRight[player.ordinal()][2] && move.getToCol() == kingLeftRight[player.ordinal()][3]) {
-				canNear = false;
+				inCheck = inCheck | 1;
 			}
 		}
-
-		setCastleDetails(board, canFar, canNear, inCheck);
 
 		return inCheck;
-
-	}
-
-	private void setCastleDetails(Board board, boolean canFar, boolean canNear, boolean inCheck) {
-		CastleDetails castleDetails = CastleDetails.NO_CASTLE;
-
-		if (!inCheck) {
-			if (canNear && canFar) {
-				castleDetails = CastleDetails.CASTLE_BOTH;
-			} else {
-				if (canNear) {
-					castleDetails = CastleDetails.CASTLE_NEAR;
-				}
-
-				if (canFar) {
-					castleDetails = CastleDetails.CASTLE_FAR;
-				}
-			}
-		}
-
-		board.setCastleDetails(castleDetails);
 
 	}
 

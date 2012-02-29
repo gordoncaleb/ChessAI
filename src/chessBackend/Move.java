@@ -5,7 +5,6 @@ import chessPieces.Piece;
 public class Move {
 	private MoveNote note;
 	private Piece pieceTaken;
-	private boolean firstMove;
 	private int value;
 	private int fromRow;
 	private int fromCol;
@@ -109,14 +108,6 @@ public class Move {
 
 	public void setPieceTaken(Piece pieceTaken) {
 		this.pieceTaken = pieceTaken;
-	}
-	
-	public boolean isFirstMove() {
-		return firstMove;
-	}
-
-	public void setFirstMove(boolean firstMove) {
-		this.firstMove = firstMove;
 	}
 
 	public Move reverse(){

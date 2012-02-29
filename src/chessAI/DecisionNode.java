@@ -57,7 +57,7 @@ public class DecisionNode {
 		System.out.println("Changed Values");
 		root.printChildrenValues();
 
-		root.resort();
+		root.sort();
 
 		System.out.println("Resorted Values");
 		root.printChildrenValues();
@@ -80,7 +80,7 @@ public class DecisionNode {
 
 	}
 
-	public void resort() {
+	public void sort() {
 		DecisionNode currentChild = headChild;
 		DecisionNode nextChild;
 		DecisionNode misplacedChild;
@@ -281,10 +281,6 @@ public class DecisionNode {
 
 	public void setStatus(GameStatus status) {
 		this.status = status;
-
-		if (status == GameStatus.CHECK) {
-			board.setInCheck(true);
-		}
 	}
 
 	public String toString() {

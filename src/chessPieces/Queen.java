@@ -7,28 +7,23 @@ import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
 
-public class Queen extends PieceBase implements Piece {
+public class Queen extends Piece{
 	private static int[][] QUEENMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
 
-	public Queen(Player player, int xpos, int ypos) {
-		super(player, xpos, ypos);
-		setPieceValue(Values.QUEEN_VALUE);
-	}
-
-	public Queen(Player player, int row, int col, boolean moved, int value) {
-		super(player, row, col, moved, value);
+	public Queen(Player player, int row, int col, boolean moved) {
+		super(player, row, col, moved);
 	}
 
 	public PieceID getPieceID() {
 		return PieceID.QUEEN;
 	}
-	
-	public static PieceID getID() {
-		return PieceID.QUEEN;
-	}
 
 	public String getName() {
 		return "Queen";
+	}
+	
+	public String getStringID(){
+		return "Q";
 	}
 
 	public Vector<Move> generateValidMoves(Board board) {
@@ -56,7 +51,7 @@ public class Queen extends PieceBase implements Piece {
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 				Piece piece = board.getPiece(nextRow, nextCol);
-				Move move = new Move(currentRow, currentCol, nextRow, nextCol,piece.getPieceValue());
+				Move move = new Move(currentRow, currentCol, nextRow, nextCol,board.getPieceValue(nextRow,nextCol));
 				move.setPieceTaken(piece);
 				validMoves.add(move);
 			}
@@ -69,6 +64,6 @@ public class Queen extends PieceBase implements Piece {
 	}
 
 	public Piece getCopy(Board board) {
-		return new Queen(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved(), this.getPieceValue());
+		return new Queen(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }

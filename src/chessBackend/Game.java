@@ -12,7 +12,7 @@ import chessGUI.DecisionTreeGUI;
 import chessGUI.MoveBookGUI;
 
 public class Game {
-	public static String VERSION = "0.2.122011";
+	public static String VERSION = "0.2.021812";
 
 	private BoardGUI gui;
 	private AI ai;
@@ -67,7 +67,9 @@ public class Game {
 	}
 
 	public void userMoved(Move usersMove) {
+		System.out.println("User Moved");
 		ai.setUserDecision(usersMove);
+		System.out.println("AI notified");
 	}
 	
 	public void setGameSatus(GameStatus status, Player causedStatus){

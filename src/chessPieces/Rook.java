@@ -6,31 +6,23 @@ import chessBackend.Board;
 import chessBackend.Player;
 import chessBackend.Move;
 
-public class Rook extends PieceBase implements Piece {
+public class Rook extends Piece{
 	private static int[][] ROOKMOVES = { { 1, -1, 0, 0 }, { 0, 0, 1, -1 } };
-	boolean rightRook;
 
-	public Rook(Player player, int row, int col, boolean rightRook) {
-		super(player, row, col);
-		setPieceValue(Values.ROOK_VALUE);
-		this.rightRook = rightRook;
-	}
-
-	public Rook(Player player, int row, int col, boolean moved, int value, boolean rightRook) {
-		super(player, row, col, moved, value);
-		this.rightRook = rightRook;
+	public Rook(Player player, int row, int col, boolean moved) {
+		super(player, row, col, moved);
 	}
 
 	public PieceID getPieceID() {
 		return PieceID.ROOK;
 	}
 
-	public static PieceID getID() {
-		return PieceID.ROOK;
-	}
-
 	public String getName() {
 		return "Rook";
+	}
+	
+	public String getStringID(){
+		return "R";
 	}
 
 	public Vector<Move> generateValidMoves(Board board) {
@@ -51,13 +43,12 @@ public class Rook extends PieceBase implements Piece {
 
 			while (pieceStatus == PositionStatus.NO_PIECE) {
 
-				if (rightRook && board.canCastleNear(player) || !rightRook && board.canCastleFar(player)) {
+				if (!this.hasMoved() && !board.kingHasMoved(player)) {
 					move = new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
 				} else {
 					move = new Move(currentRow, currentCol, nextRow, nextCol);
 				}
 
-				move.setFirstMove(!this.hasMoved());
 				validMoves.add(move);
 
 				i++;
@@ -70,11 +61,10 @@ public class Rook extends PieceBase implements Piece {
 				Piece piece = board.getPiece(nextRow, nextCol);
 				move = new Move(currentRow, currentCol, nextRow, nextCol);
 				move.setPieceTaken(piece);
-				move.setFirstMove(!this.hasMoved());
-				if (rightRook && board.canCastleNear(player) || !rightRook && board.canCastleFar(player)) {
-					move.setValue(piece.getPieceValue() + Values.CASTLE_ABILITY_LOST_VALUE);
+				if (!this.hasMoved() && !board.kingHasMoved(player)) {
+					move.setValue(board.getPieceValue(nextRow,nextCol) + Values.CASTLE_ABILITY_LOST_VALUE);
 				} else {
-					move.setValue(piece.getPieceValue());
+					move.setValue(board.getPieceValue(nextRow,nextCol));
 				}
 				validMoves.add(move);
 			}
@@ -87,6 +77,6 @@ public class Rook extends PieceBase implements Piece {
 	}
 
 	public Piece getCopy(Board board) {
-		return new Rook(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved(), this.getPieceValue(), rightRook);
+		return new Rook(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }

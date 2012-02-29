@@ -7,28 +7,22 @@ import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
 
-public class Pawn extends PieceBase implements Piece {
+public class Pawn extends Piece {
 
-	public Pawn(Player player, int xpos, int ypos) {
-		super(player, xpos, ypos);
-		this.setPieceValue(Values.PAWN_VALUE);
-	}
-
-	public Pawn(Player player, int row, int col, boolean moved, int value) {
-		super(player, row, col, moved, value);
+	public Pawn(Player player, int row, int col, boolean moved) {
+		super(player, row, col, moved);
 	}
 
 	public PieceID getPieceID() {
 		return PieceID.PAWN;
 	}
-	
-	public String getName(){
+
+	public String getName() {
 		return "Pawn";
 	}
-	
-	public void updateValue() {
-		int bonus = PositionBonus.getPawnPositionBonus(this.getRow(), this.getCol(), this.getPlayer());
-		setPieceValue(Values.PAWN_VALUE + bonus);
+
+	public String getStringID() {
+		return "P";
 	}
 
 	public Vector<Move> generateValidMoves(Board board) {
@@ -48,17 +42,16 @@ public class Pawn extends PieceBase implements Piece {
 
 		if (board.checkPiece(currentRow + dir, currentCol, player) == PositionStatus.NO_PIECE) {
 			bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + dir, currentCol, this.getPlayer());
-			validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol,bonus,MoveNote.NONE);
-			if((currentRow + dir) == 0 || (currentRow + dir) == 7){
+			validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol, bonus, MoveNote.NONE);
+			if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
 				validMove.setNote(MoveNote.NEW_QUEEN);
 				validMove.setValue(Values.QUEEN_VALUE);
 			}
 			validMoves.add(validMove);
-			
 
-			if (!this.hasMoved() && board.checkPiece(currentRow + 2*dir, currentCol, player) == PositionStatus.NO_PIECE) {
+			if (!this.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == PositionStatus.NO_PIECE) {
 				bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, this.getPlayer());
-				validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol,bonus,MoveNote.NONE));
+				validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol, bonus, MoveNote.NONE));
 			}
 
 		}
@@ -66,11 +59,11 @@ public class Pawn extends PieceBase implements Piece {
 		if (board.checkPiece(currentRow + dir, currentCol - 1, player) == PositionStatus.ENEMY) {
 			Piece piece = board.getPiece(currentRow + dir, currentCol - 1);
 			validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol - 1);
-			if((currentRow + dir) == 0 || (currentRow + dir) == 7){
+			if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
 				validMove.setNote(MoveNote.NEW_QUEEN);
-				validMove.setValue(Values.QUEEN_VALUE + piece.getPieceValue());
-			}else{
-				validMove.setValue(piece.getPieceValue());
+				validMove.setValue(Values.QUEEN_VALUE + board.getPieceValue(currentRow + dir, currentCol - 1));
+			} else {
+				validMove.setValue(board.getPieceValue(currentRow + dir, currentCol - 1));
 			}
 			validMove.setPieceTaken(piece);
 			validMoves.add(validMove);
@@ -79,23 +72,23 @@ public class Pawn extends PieceBase implements Piece {
 		if (board.checkPiece(currentRow + dir, currentCol + 1, player) == PositionStatus.ENEMY) {
 			Piece piece = board.getPiece(currentRow + dir, currentCol + 1);
 			validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol + 1);
-			if((currentRow + dir) == 0 || (currentRow + dir) == 7){
+			if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
 				validMove.setNote(MoveNote.NEW_QUEEN);
-				validMove.setValue(Values.QUEEN_VALUE + piece.getPieceValue());
-			}else{
-				validMove.setValue(piece.getPieceValue());
+				validMove.setValue(Values.QUEEN_VALUE + board.getPieceValue(currentRow + dir, currentCol + 1));
+			} else {
+				validMove.setValue(board.getPieceValue(currentRow + dir, currentCol + 1));
 			}
-			
+
 			validMove.setPieceTaken(piece);
 			validMoves.add(validMove);
 		}
-		
+
 		return validMoves;
 
 	}
 
 	public Piece getCopy(Board board) {
-		return new Pawn(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved(), this.getPieceValue());
+		return new Pawn(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 
 }
