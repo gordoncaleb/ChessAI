@@ -116,10 +116,12 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	public void newGame(Player whitePlayer) {
 		this.whitePlayer = whitePlayer;
 
-		adjudicator = new Adjudicator(new Board(), whitePlayer);
-		
-		//adjudicator = new Adjudicator(Board.fromFile("testboard.txt"), whitePlayer);
-		
+		if (debug) {
+			adjudicator = new Adjudicator(Board.fromFile("testboard.txt"), whitePlayer);
+		} else {
+			adjudicator = new Adjudicator(new Board(), whitePlayer);
+		}
+
 		clearPiecesTaken();
 		updateLastMovedSquare();
 		attachValidMoves();
@@ -183,7 +185,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	}
 
 	private void userMoved(Move usersMove) {
-		
+
 		adjudicator.move(usersMove);
 		clearValidMoves();
 		makeMove(usersMove);
@@ -261,13 +263,13 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 			move = validMoves.elementAt(m);
 			chessSquares[move.getFromRow()][move.getFromCol()].addValidMove(move);
 		}
-		
-		if(selectedSquare!=null){
-			colorValidMoveSquares(selectedSquare,true);
+
+		if (selectedSquare != null) {
+			colorValidMoveSquares(selectedSquare, true);
 		}
 	}
-	
-	private void clearValidMoves(){
+
+	private void clearValidMoves() {
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
 				chessSquares[r][c].removeAllValidMoves();
@@ -351,19 +353,19 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		lostUserPiecesPanel.removeAll();
 		lostUserPiecesPanel.updateUI();
 	}
-	
-	private void updateLastMovedSquare(){
-		if(lastMovedSquare!=null){
+
+	private void updateLastMovedSquare() {
+		if (lastMovedSquare != null) {
 			lastMovedSquare.showAsLastMoved(false);
 			lastMovedSquare = null;
 		}
-		
+
 		Move lastMove = adjudicator.getRoot().getMove();
-		if(lastMove!=null){
+		if (lastMove != null) {
 			lastMovedSquare = chessSquares[lastMove.getToRow()][lastMove.getToCol()];
 			lastMovedSquare.showAsLastMoved(true);
 		}
-		
+
 	}
 
 	public JFrame getFrame() {

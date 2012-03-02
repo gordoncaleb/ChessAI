@@ -46,6 +46,10 @@ public abstract class Piece {
 	public boolean hasMoved() {
 		return moved;
 	}
+	
+	public void setMoved(boolean moved){
+		this.moved = moved;
+	}
 
 	public String toString() {
 		String moved;

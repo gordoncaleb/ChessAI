@@ -21,7 +21,7 @@ public class Game {
 
 	public Game() {
 
-		boolean debug = false;
+		boolean debug = true;
 		boolean learn = false;
 
 		ai = new AI(this, debug);

@@ -4,10 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -15,12 +12,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 
 import chessBackend.Move;
-import chessBackend.MoveNote;
 import chessBackend.Player;
-import chessPieces.Piece;
 import chessPieces.PieceID;
 
 public class SquareGUI extends JPanel {
@@ -59,8 +53,6 @@ public class SquareGUI extends JPanel {
 		super(new BorderLayout());
 		
 		validMoves = new Vector<Move>();
-		this.id = id;
-		this.player = player;
 		this.row = row;
 		this.col = col;
 
@@ -199,7 +191,7 @@ public class SquareGUI extends JPanel {
 		Move validMove;
 		for (int m = 0; m < validMoves.size(); m++) {
 			validMove = validMoves.elementAt(m);
-			if (validMove.equals(newMove) && validMove.getNote()!=MoveNote.INVALIDATED)
+			if (validMove.equals(newMove) && validMove.isValidated())
 				return validMove;
 		}
 

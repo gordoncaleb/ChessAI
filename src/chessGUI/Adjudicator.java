@@ -143,7 +143,7 @@ public class Adjudicator {
 			Board newBoard;
 
 			// If board is in check, castleing isn't valid
-			board.setInCheck(calcInCheck(nextPlayer, board));
+			board.setInCheckDetails(calcInCheck(nextPlayer, board));
 
 			if (board.isInCheck()) {
 				branch.setStatus(GameStatus.CHECK);
@@ -161,7 +161,7 @@ public class Adjudicator {
 				// you can't move into check.
 				if (move.getPieceTaken() != null) {
 					if (move.getPieceTaken().getPieceID() == PieceID.KING) {
-						branch.getMove().setNote(MoveNote.INVALIDATED);
+						branch.getMove().invalidate();
 						return;
 					}
 				}

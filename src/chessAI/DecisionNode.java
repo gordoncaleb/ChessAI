@@ -5,6 +5,7 @@ import chessBackend.GameStatus;
 import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
+import chessPieces.Values;
 
 public class DecisionNode {
 
@@ -36,7 +37,7 @@ public class DecisionNode {
 	private GameStatus status;
 
 	public static void main(String[] args) {
-		int[] nums = {3, 7, 6, 5, 8, 3, 1, 2 };
+		int[] nums = { 3, 7, 6, 5, 8, 3, 1, 2 };
 		DecisionNode root = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE), null, null);
 		DecisionNode child;
 		for (int i = 0; i < nums.length; i++) {
@@ -86,26 +87,26 @@ public class DecisionNode {
 		DecisionNode misplacedChild;
 		DecisionNode properSibling;
 
-		for (int c = 0; c < childrenSize-1; c++) {
+		for (int c = 0; c < childrenSize - 1; c++) {
 			nextChild = currentChild.getNextSibling();
 
-			if (currentChild.getChosenPathValue() < nextChild.getChosenPathValue()) {
+			if (currentChild.getChosenPathValue(0) < nextChild.getChosenPathValue(0)) {
 				misplacedChild = nextChild;
 				properSibling = currentChild;
-				while (misplacedChild.getChosenPathValue() > properSibling.getChosenPathValue() && properSibling != headChild) {
+				while (misplacedChild.getChosenPathValue(0) > properSibling.getChosenPathValue(0) && properSibling != headChild) {
 					properSibling = properSibling.getPreviousSibling();
 				}
 
 				removeChild(misplacedChild);
 
 				if (properSibling == headChild) {
-					if(misplacedChild.getChosenPathValue() > headChild.getChosenPathValue()){
+					if (misplacedChild.getChosenPathValue(0) > headChild.getChosenPathValue(0)) {
 						insertChild(misplacedChild, headChild.getPreviousSibling(), headChild);
 						headChild = misplacedChild;
-					}else{
+					} else {
 						insertChild(misplacedChild, headChild, headChild.getNextSibling());
 					}
-				}else{
+				} else {
 					insertChild(misplacedChild, properSibling, properSibling.getNextSibling());
 				}
 
@@ -135,15 +136,16 @@ public class DecisionNode {
 			int childrenSize = this.getChildrenSize();
 			int childNum = 0;
 			DecisionNode currentChild = headChild;
-
-			while (newChild.getChosenPathValue() < currentChild.getChosenPathValue() && childNum < childrenSize) {
+			int newChildChosenPathValue = newChild.getChosenPathValue(0);
+			
+			while (newChildChosenPathValue < currentChild.getChosenPathValue(0) && childNum < childrenSize) {
 				currentChild = currentChild.getNextSibling();
 				childNum++;
 			}
 
-			if (newChild.getChosenPathValue() >= currentChild.getChosenPathValue()) {
+			if (newChildChosenPathValue >= currentChild.getChosenPathValue(0)) {
 
-				while (newChild.getChosenPathValue() == currentChild.getChosenPathValue() && Math.random() > 0.5) {
+				while (newChildChosenPathValue == currentChild.getChosenPathValue(0) && Math.random() > 0.5) {
 					currentChild = currentChild.getNextSibling();
 					childNum++;
 				}
@@ -246,12 +248,24 @@ public class DecisionNode {
 			return 0;
 	}
 
-	public int getChosenPathValue() {
+	public int getChosenPathValue(int depth) {
+		int value;
+
 		if (childrenSize != 0) {
-			return this.getMoveValue() - headChild.getChosenPathValue();
+			value = this.getMoveValue() - headChild.getChosenPathValue(depth +1);
 		} else {
-			return chosenPathValue;
+			value = chosenPathValue;
 		}
+
+		if (status == GameStatus.CHECKMATE) {
+			value = Values.CHECKMATE_MOVE - Values.CHECKMATE_DEPTH_INC * depth;
+		}
+		
+		if(status == GameStatus.STALEMATE){
+			value = -Values.STALEMATE_MOVE;
+		}
+
+		return value;
 	}
 
 	public void setChosenPathValue(int chosenPathValue) {
@@ -261,8 +275,8 @@ public class DecisionNode {
 	public Board getBoard() {
 		return board;
 	}
-	
-	public void setBoard(Board board){
+
+	public void setBoard(Board board) {
 		this.board = board;
 	}
 
@@ -292,7 +306,7 @@ public class DecisionNode {
 
 		if (move != null)
 			return move.toString() + " Status =" + getStatus().name() + " Move Value =" + this.getMoveValue() + " Chosen Path Value ="
-					+ this.getChosenPathValue() + " Chosen: " + chosen;
+					+ this.getChosenPathValue(0) + " Chosen: " + chosen;
 		else
 			return "Board Start";
 	}
@@ -300,7 +314,7 @@ public class DecisionNode {
 	public void printChildrenValues() {
 		DecisionNode currentChild = headChild;
 		for (int c = 0; c < childrenSize; c++) {
-			System.out.print(currentChild.getChosenPathValue() + ",");
+			System.out.print(currentChild.getChosenPathValue(0) + ",");
 			currentChild = currentChild.getNextSibling();
 		}
 

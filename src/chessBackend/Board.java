@@ -16,9 +16,6 @@ import chessPieces.Rook;
 
 public class Board {
 	private Piece[][] board;
-//	private boolean inCheck;
-//	private boolean noCheckNear;
-//	private boolean noCheckFar;
 	private int inCheck;
 	private Vector<Piece> aiPieces;
 	private Vector<Piece> userPieces;
@@ -92,43 +89,131 @@ public class Board {
 
 	}
 
-	public void makeMove(Move move, Player player) {
+	public boolean makeMove(Move move, Player player) {
+		boolean success;
 
-		if (hasPiece(move.getToRow(), move.getToCol())) {
-			if (board[move.getToRow()][move.getToCol()].getPlayer() == Player.USER) {
-				userPieces.remove(board[move.getToRow()][move.getToCol()]);
-			} else {
-				aiPieces.remove(board[move.getToRow()][move.getToCol()]);
+		try {
+			if (hasPiece(move.getToRow(), move.getToCol())) {
+				if (board[move.getToRow()][move.getToCol()].getPlayer() == Player.USER) {
+					userPieces.remove(board[move.getToRow()][move.getToCol()]);
+				} else {
+					aiPieces.remove(board[move.getToRow()][move.getToCol()]);
+				}
 			}
-		}
 
-		board[move.getFromRow()][move.getFromCol()].move(move);
-		board[move.getToRow()][move.getToCol()] = board[move.getFromRow()][move.getFromCol()];
-		board[move.getFromRow()][move.getFromCol()] = null;
+			board[move.getFromRow()][move.getFromCol()].move(move);
+			board[move.getToRow()][move.getToCol()] = board[move.getFromRow()][move.getFromCol()];
+			board[move.getFromRow()][move.getFromCol()] = null;
 
-		if (move.getNote() == MoveNote.NEW_QUEEN) {
-			board[move.getToRow()][move.getToCol()] = new Queen(player, move.getToRow(), move.getToCol(), false);
-		}
+			if (move.getNote() == MoveNote.NEW_QUEEN) {
 
-		if (move.getNote() == MoveNote.CASTLE_NEAR) {
-			if (player == Player.AI) {
-				makeMove(new Move(0, 7, 0, 5), player);
-			} else {
-				makeMove(new Move(7, 7, 7, 5), player);
+				if (player == Player.USER) {
+					userPieces.remove(board[move.getToRow()][move.getToCol()]);
+				} else {
+					aiPieces.remove(board[move.getToRow()][move.getToCol()]);
+				}
+
+				board[move.getToRow()][move.getToCol()] = new Queen(player, move.getToRow(), move.getToCol(), false);
+
+				if (player == Player.USER) {
+					userPieces.addElement(board[move.getToRow()][move.getToCol()]);
+				} else {
+					aiPieces.addElement(board[move.getToRow()][move.getToCol()]);
+				}
 			}
+
+			if (move.getNote() == MoveNote.CASTLE_NEAR) {
+				if (player == Player.AI) {
+					makeMove(new Move(0, 7, 0, 5), player);
+				} else {
+					makeMove(new Move(7, 7, 7, 5), player);
+				}
+			}
+
+			if (move.getNote() == MoveNote.CASTLE_FAR) {
+				if (player == Player.AI) {
+					makeMove(new Move(0, 0, 0, 3), player);
+				} else {
+					makeMove(new Move(7, 0, 7, 3), player);
+				}
+			}
+
+			success = true;
+
+		} catch (Exception e) {
+			System.out.println("Error: " + move.toString() + " for player: " + player + " invalid \n" + this.toString());
+			System.out.println(e.toString());
+			success = false;
 		}
 
-		if (move.getNote() == MoveNote.CASTLE_FAR) {
-			if (player == Player.AI) {
-				makeMove(new Move(0, 0, 0, 3), player);
-			} else {
-				makeMove(new Move(7, 0, 7, 3), player);
-			}
-		}
+		return success;
 
 	}
 
-	public void undoMove(Move move, Player player) {
+	public boolean undoMove(Move move, Player player) {
+		boolean success;
+
+		try {
+
+			board[move.getToRow()][move.getToCol()].move(move.reverse());
+			board[move.getFromRow()][move.getFromCol()] = board[move.getToRow()][move.getToCol()];
+			board[move.getToRow()][move.getToCol()] = null;
+
+			if (move.getPieceTaken() != null) {
+				board[move.getToRow()][move.getToCol()] = move.getPieceTaken();
+
+				if (move.getPieceTaken().getPlayer() == Player.USER) {
+					userPieces.addElement(board[move.getToRow()][move.getToCol()]);
+				} else {
+					aiPieces.addElement(board[move.getToRow()][move.getToCol()]);
+				}
+
+			}
+
+			if (move.getNote() == MoveNote.NEW_QUEEN) {
+
+				if (player == Player.USER) {
+					userPieces.remove(board[move.getFromRow()][move.getFromCol()]);
+				} else {
+					aiPieces.remove(board[move.getFromRow()][move.getFromCol()]);
+				}
+
+				board[move.getFromRow()][move.getFromCol()] = new Pawn(player, move.getFromRow(), move.getFromCol(), true);
+
+				if (player == Player.USER) {
+					userPieces.addElement(board[move.getFromRow()][move.getFromCol()]);
+				} else {
+					aiPieces.addElement(board[move.getFromRow()][move.getFromCol()]);
+				}
+			}
+
+			if (move.getNote() == MoveNote.CASTLE_NEAR) {
+				if (player == Player.AI) {
+					undoMove(new Move(0, 7, 0, 5), player);
+				} else {
+					undoMove(new Move(7, 7, 7, 5), player);
+				}
+			}
+
+			if (move.getNote() == MoveNote.CASTLE_FAR) {
+				if (player == Player.AI) {
+					undoMove(new Move(0, 0, 0, 3), player);
+				} else {
+					undoMove(new Move(7, 0, 7, 3), player);
+				}
+			}
+
+			board[move.getFromRow()][move.getFromCol()].setMoved(move.hadMoved());
+
+			success = true;
+
+		} catch (Exception e) {
+			System.out.println("Error: undo " + move.toString() + " for player: " + player + " invalid \n" + this.toString());
+			System.out.println(e.toString());
+			success = false;
+		}
+
+		return success;
 
 	}
 
@@ -137,9 +222,13 @@ public class Board {
 
 		Vector<Piece> pieces = getPlayerPieces(player);
 		Vector<Move> moves;
+		Move move;
 		for (int p = 0; p < pieces.size(); p++) {
 			moves = pieces.elementAt(p).generateValidMoves(this);
 			for (int m = 0; m < moves.size(); m++) {
+				move = moves.elementAt(m);
+
+				move.setHadMoved(hasMoved(move.getFromRow(), move.getFromCol()));
 				addSortValidMove(validMoves, moves.elementAt(m));
 				// validMoves.add(moves.elementAt(m));
 			}
@@ -221,13 +310,13 @@ public class Board {
 	}
 
 	public Player getPlayer(int row, int col) {
-		if(board[row][col] != null){
-			return board[row][col].getPlayer(); 
-		}else{
+		if (board[row][col] != null) {
+			return board[row][col].getPlayer();
+		} else {
 			System.out.println("Error: requested player on null piece");
 			return null;
 		}
-		
+
 	}
 
 	public boolean hasPiece(int row, int col) {
@@ -249,11 +338,11 @@ public class Board {
 			return aiPieces;
 		}
 	}
-	
+
 	public boolean isInCheckFar() {
 		return ((inCheck & 4) != 0);
 	}
-	
+
 	public boolean isInCheckNear() {
 		return ((inCheck & 1) != 0);
 	}
@@ -261,8 +350,8 @@ public class Board {
 	public boolean isInCheck() {
 		return ((inCheck & 2) != 0);
 	}
-	
-	public void setInCheck(int inCheck){
+
+	public void setInCheckDetails(int inCheck) {
 		this.inCheck = inCheck;
 	}
 
@@ -379,11 +468,21 @@ public class Board {
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 				if (board[row][col] != null) {
-					stringBoard += board[row][col].toString();
+					stringBoard += board[row][col].toString() + ",";
+
+					if (board[row][col].getRow() != row && board[row][col].getCol() != col) {
+						System.out.println("board coord mismatch " + row + " " + col);
+					}
+
+					if (!aiPieces.contains(board[row][col]) && !userPieces.contains(board[row][col])) {
+						System.out.println(row + "," + col + " piece not found in vectors");
+					}
+
 				} else {
 					stringBoard += "E0,";
 				}
 			}
+			stringBoard += "\n";
 		}
 
 		return stringBoard;

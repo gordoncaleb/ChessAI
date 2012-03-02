@@ -5,6 +5,8 @@ import chessPieces.Piece;
 public class Move {
 	private MoveNote note;
 	private Piece pieceTaken;
+	private boolean hadMoved;
+	private boolean validated;
 	private int value;
 	private int fromRow;
 	private int fromCol;
@@ -18,6 +20,8 @@ public class Move {
 		this.toCol = toCol;
 		this.note = MoveNote.NONE;
 		this.pieceTaken = null;
+		this.hadMoved = false;
+		this.validated = true;
 	}
 
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note) {
@@ -28,6 +32,8 @@ public class Move {
 		this.note = note;
 		this.value = value;
 		this.pieceTaken = null;
+		this.hadMoved = false;
+		this.validated = true;
 	}
 
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value) {
@@ -37,6 +43,8 @@ public class Move {
 		this.toCol = toCol;
 		this.note = MoveNote.NONE;
 		this.value = value;
+		this.hadMoved = false;
+		this.validated = true;
 	}
 
 	public boolean equals(Move m) {
@@ -97,9 +105,13 @@ public class Move {
 	public void setValue(int value) {
 		this.value = value;
 	}
+	
+	public void invalidate(){
+		this.validated = false;
+	}
 
 	public boolean isValidated() {
-		return note != MoveNote.INVALIDATED;
+		return validated;
 	}
 
 	public Piece getPieceTaken() {
@@ -108,6 +120,14 @@ public class Move {
 
 	public void setPieceTaken(Piece pieceTaken) {
 		this.pieceTaken = pieceTaken;
+	}
+
+	public boolean hadMoved() {
+		return hadMoved;
+	}
+
+	public void setHadMoved(boolean hadMoved) {
+		this.hadMoved = hadMoved;
 	}
 
 	public Move reverse(){

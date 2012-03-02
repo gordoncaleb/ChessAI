@@ -13,6 +13,7 @@ public class Values {
 	public static final int KNIGHT_ENDGAME_INC = 6;
 	public static final int CHECKMATE_MOVE = 2*KING_VALUE;
 	public static final int STALEMATE_MOVE = KING_VALUE;
+	public static final int CHECKMATE_DEPTH_INC = 10000;
 	
 	public static final int getPieceValue(PieceID id){
 		int value;

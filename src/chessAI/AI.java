@@ -44,7 +44,7 @@ public class AI extends Thread {
 		moveBook = new MoveBook();
 
 		// Default levels
-		maxDecisionTreeLevel = 1;
+		maxDecisionTreeLevel = 3;
 		maxTwigLevel = 1;
 
 		// processorThreads = new
@@ -108,6 +108,8 @@ public class AI extends Thread {
 		setRootNode(userDecision);
 		moveBook.moved(userDecision.getMove());
 
+		System.out.println(rootNode.getBoard().toString());
+
 		moveAI();
 
 		moveBook.moved(rootNode.getMove());
@@ -161,6 +163,8 @@ public class AI extends Thread {
 			// on the user's move
 			setRootNode(aiDecision);
 
+			System.out.println(rootNode.getBoard().toString());
+
 			System.out.println("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
 
 		}
@@ -170,10 +174,15 @@ public class AI extends Thread {
 
 		// rootNode = new DecisionNode(null, new Move(0, 0, 0, 0), new Board(),
 		// firstMove);
-		 rootNode = new DecisionNode(null, null, new Board(), firstMove);
 
-		//rootNode = new DecisionNode(null, null, Board.fromFile("testboard.txt"), firstMove);
+		if (debug) {
+			rootNode = new DecisionNode(null, null, Board.fromFile("testboard.txt"), firstMove);
 
+		} else {
+			rootNode = new DecisionNode(null, null, new Board(), firstMove);
+		}
+
+		
 		if (firstMove == Player.AI) {
 			moveBook.setInvertedTable(true);
 		} else {
@@ -198,6 +207,7 @@ public class AI extends Thread {
 
 		if (debug) {
 			printRootDebug();
+			System.out.println(rootNode.getBoard().toString());
 		}
 
 	}
@@ -317,6 +327,10 @@ public class AI extends Thread {
 
 		if (rootNode.getParent() != null) {
 			if (rootNode.getParent().getParent() != null) {
+
+				rootNode.getBoard().undoMove(rootNode.getMove(), rootNode.getPlayer());
+				rootNode.getBoard().undoMove(rootNode.getParent().getMove(), rootNode.getParent().getPlayer());
+
 				DecisionNode oldRootNode = rootNode.getParent().getParent();
 				rootNode = oldRootNode;
 				rootNode.removeAllChildren();
@@ -342,6 +356,8 @@ public class AI extends Thread {
 	}
 
 	private void setRootNode(DecisionNode newRootNode) {
+
+		rootNode.getBoard().makeMove(newRootNode.getMove(), rootNode.getPlayer());
 
 		this.rootNode.removeAllChildren();
 		this.rootNode.addChild(newRootNode);
@@ -410,9 +426,9 @@ public class AI extends Thread {
 	 */
 	public void growDecisionBranch(DecisionNode branch) {
 
-		int previousSuggestedPathValue = branch.getChosenPathValue();
+		int previousSuggestedPathValue = branch.getChosenPathValue(0);
 		delegateProcessors(branch);
-		int suggestedPathValue = branch.getChosenPathValue();
+		int suggestedPathValue = branch.getChosenPathValue(0);
 
 		// After thinking further down this path, the path value has changed.
 		// Any parents or grandparents need to be notified.
@@ -516,11 +532,11 @@ public class AI extends Thread {
 			System.out.println(childNum[i] + " at level " + i);
 		}
 
-		System.out.println("AI chose move worth " + rootNode.getChosenPathValue());
+		System.out.println("AI chose move worth " + rootNode.getChosenPathValue(0));
 	}
 
 	public int getMoveChosenPathValue(Move m) {
-		return getMatchingDecisionNode(m).getChosenPathValue();
+		return getMatchingDecisionNode(m).getChosenPathValue(0);
 	}
 
 }
