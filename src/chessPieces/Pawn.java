@@ -25,19 +25,24 @@ public class Pawn extends Piece {
 		return "P";
 	}
 
-	public Vector<Move> generateValidMoves(Board board) {
+	public Vector<Move> generateValidMoves(Board board, Move lastMoveMade) {
 		Vector<Move> validMoves = new Vector<Move>();
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();
 		Player player = this.getPlayer();
 		int dir;
+		int fifthRank;
 		int bonus;
 		Move validMove;
 
+		int[] lr = { 1, -1 };
+
 		if (player == Player.USER) {
 			dir = -1;
+			fifthRank = 3;
 		} else {
 			dir = 1;
+			fifthRank = 4;
 		}
 
 		if (board.checkPiece(currentRow + dir, currentCol, player) == PositionStatus.NO_PIECE) {
@@ -56,31 +61,36 @@ public class Pawn extends Piece {
 
 		}
 
-		if (board.checkPiece(currentRow + dir, currentCol - 1, player) == PositionStatus.ENEMY) {
-			Piece piece = board.getPiece(currentRow + dir, currentCol - 1);
-			validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol - 1);
-			if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-				validMove.setNote(MoveNote.NEW_QUEEN);
-				validMove.setValue(Values.QUEEN_VALUE + board.getPieceValue(currentRow + dir, currentCol - 1));
-			} else {
-				validMove.setValue(board.getPieceValue(currentRow + dir, currentCol - 1));
+		//Check left and right attack angles
+		for (int i = 0; i < lr.length; i++) {
+			if (board.checkPiece(currentRow + dir, currentCol + lr[i], player) == PositionStatus.ENEMY) {
+				validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol + lr[i]);
+				if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
+					validMove.setNote(MoveNote.NEW_QUEEN);
+					validMove.setValue(Values.QUEEN_VALUE + board.getPieceValue(currentRow + dir, currentCol + lr[i]));
+				} else {
+					validMove.setValue(board.getPieceValue(currentRow + dir, currentCol + lr[i]));
+				}
+
+				validMove.setPieceTaken(board.getPiece(currentRow + dir, currentCol + lr[i]));
+				validMoves.add(validMove);
 			}
-			validMove.setPieceTaken(piece);
-			validMoves.add(validMove);
 		}
 
-		if (board.checkPiece(currentRow + dir, currentCol + 1, player) == PositionStatus.ENEMY) {
-			Piece piece = board.getPiece(currentRow + dir, currentCol + 1);
-			validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol + 1);
-			if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-				validMove.setNote(MoveNote.NEW_QUEEN);
-				validMove.setValue(Values.QUEEN_VALUE + board.getPieceValue(currentRow + dir, currentCol + 1));
-			} else {
-				validMove.setValue(board.getPieceValue(currentRow + dir, currentCol + 1));
+		//Check left and right en passant rule
+		if (currentRow == fifthRank && lastMoveMade != null) {
+			for (int i = 0; i < lr.length; i++) {
+				if (board.checkPiece(fifthRank, currentCol + lr[i], player) == PositionStatus.ENEMY) {
+					if (lastMoveMade.equals(fifthRank + 2 * dir, currentCol + lr[i], fifthRank, currentCol + lr[i]) && !lastMoveMade.hadMoved()) {
+						validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol + lr[i]);
+						validMove.setValue(board.getPieceValue(fifthRank, currentCol + lr[i]));
+						validMove.setPieceTaken(board.getPiece(fifthRank, currentCol + lr[i]));
+						validMove.setNote(MoveNote.ENPASSANT);
+						validMoves.add(validMove);
+						
+					}
+				}
 			}
-
-			validMove.setPieceTaken(piece);
-			validMoves.add(validMove);
 		}
 
 		return validMoves;

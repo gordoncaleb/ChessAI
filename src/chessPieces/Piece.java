@@ -46,8 +46,8 @@ public abstract class Piece {
 	public boolean hasMoved() {
 		return moved;
 	}
-	
-	public void setMoved(boolean moved){
+
+	public void setMoved(boolean moved) {
 		this.moved = moved;
 	}
 
@@ -109,9 +109,22 @@ public abstract class Piece {
 			piece = new Pawn(player, row, col, hasMoved);
 			break;
 		}
-		
+
 		return piece;
 
+	}
+
+	public boolean equals(Piece piece) {
+
+		if (piece == null) {
+			return false;
+		}
+
+		if (piece.getRow() == row && piece.getCol() == col && piece.getPlayer() == player && piece.getPieceID() == this.getPieceID()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public abstract String getStringID();
@@ -120,7 +133,7 @@ public abstract class Piece {
 
 	public abstract String getName();
 
-	public abstract Vector<Move> generateValidMoves(Board board);
+	public abstract Vector<Move> generateValidMoves(Board board, Move lastMoveMade);
 
 	public abstract Piece getCopy(Board board);
 

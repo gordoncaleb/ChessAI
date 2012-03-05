@@ -26,7 +26,7 @@ public class Bishop extends Piece{
 		return "B";
 	}
 	
-	public Vector<Move> generateValidMoves(Board board) {
+	public Vector<Move> generateValidMoves(Board board, Move lastMoveMade) {
 		Vector<Move> validMoves = new Vector<Move>();
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();

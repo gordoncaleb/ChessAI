@@ -8,6 +8,7 @@ import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.MoveNote;
 import chessBackend.Player;
+import chessPieces.Piece;
 import chessPieces.PieceID;
 import chessPieces.Values;
 
@@ -31,16 +32,19 @@ public class Adjudicator {
 			if (move.equals(currentNode.getMove())) {
 				root.removeAllChildren();
 				root.addChild(currentNode);
+				root.getBoard().makeMove(currentNode.getMove(), root.getPlayer());
+				
 				root = currentNode;
 
-				if (move.getPieceTaken() != null) {
+				if (currentNode.getMove().getPieceTaken() != null) {
 					if (root.getPlayer() == Player.USER) {
-						userPiecesTaken.add(move.getPieceTaken().getPieceID());
+						userPiecesTaken.add(currentNode.getMove().getPieceTaken().getPieceID());
 					} else {
-						aiPiecesTaken.add(move.getPieceTaken().getPieceID());
+						aiPiecesTaken.add(currentNode.getMove().getPieceTaken().getPieceID());
 					}
 				}
 
+				
 				extendTree(root, 0);
 				return true;
 			}
@@ -53,38 +57,27 @@ public class Adjudicator {
 
 	public boolean undo() {
 
-		if (root.getPlayer() != Player.USER) {
-			return false;
-		}
+		if (root.getParent() != null) {
+			if (root.getParent().getParent() != null) {
 
-		AdjudicatorNode parentDecision = root.getParent();
+				root.getBoard().undoMove(root.getMove(), root.getParent().getPlayer(),null);
+				root.getBoard().undoMove(root.getParent().getMove(), root.getPlayer(),null);
 
-		if (parentDecision != null) {
+				AdjudicatorNode oldRootNode = root.getParent().getParent();
+				root = oldRootNode;
+				root.removeAllChildren();
 
-			if (root.getMove().getPieceTaken() != null) {
-				if (root.getPlayer() == Player.AI) {
-					aiPiecesTaken.remove(aiPiecesTaken.lastElement());
-				} else {
-					userPiecesTaken.remove(userPiecesTaken.lastElement());
-				}
+				// reinit tree
+				extendTree(root,0);
+
+			} else {
+				return false;
 			}
-
-			if (parentDecision.getMove().getPieceTaken() != null) {
-				if (parentDecision.getPlayer() == Player.AI) {
-					aiPiecesTaken.remove(aiPiecesTaken.lastElement());
-				} else {
-					userPiecesTaken.remove(userPiecesTaken.lastElement());
-				}
-			}
-
-			root = root.getParent().getParent();
-			root.removeAllChildren();
-			extendTree(root, 0);
-
-			return true;
 		} else {
 			return false;
 		}
+
+		return true;
 
 	}
 
@@ -140,9 +133,9 @@ public class Adjudicator {
 			Vector<Move> moves;
 			Move move;
 			AdjudicatorNode newNode;
-			Board newBoard;
 
 			// If board is in check, castleing isn't valid
+			board.clearBoardState();
 			board.setInCheckDetails(calcInCheck(nextPlayer, board));
 
 			if (board.isInCheck()) {
@@ -150,7 +143,7 @@ public class Adjudicator {
 			}
 
 			// check all moves of all pieces
-			moves = board.generateValidMoves(player);
+			moves = board.generateValidMoves(player, branch.getMove());
 
 			for (int m = 0; m < moves.size(); m++) {
 
@@ -159,20 +152,18 @@ public class Adjudicator {
 				// Check to see if the move in question resulted in
 				// the loss of your king. Such a move is invalid because
 				// you can't move into check.
-				if (move.getPieceTaken() != null) {
-					if (move.getPieceTaken().getPieceID() == PieceID.KING) {
-						branch.getMove().invalidate();
-						return;
-					}
+				if (move.isKingTaken()) {
+					branch.getMove().invalidate();
+					return;
 				}
 
-				newBoard = board.getCopy();
-				newBoard.makeMove(move, player);
-				newNode = new AdjudicatorNode(branch, move, newBoard, nextPlayer);
+				newNode = new AdjudicatorNode(branch, move, board, nextPlayer);
 
 				// check to see if you are at the bottom of the branch
 				if (ply < 1) {
+					Piece queenedPawn = board.makeMove(move, player);
 					extendTree(newNode, ply + 1);
+					board.undoMove(move, player, queenedPawn);
 				}
 
 				// Check if the newNode move was invalidated
@@ -191,7 +182,9 @@ public class Adjudicator {
 			for (int i = 0; i < childrenSize; i++) {
 
 				if (ply < 1) {
+					Piece queenedPawn = board.makeMove(currentChild.getMove(), player);
 					extendTree(currentChild, ply + 1);
+					board.undoMove(currentChild.getMove(), player, queenedPawn);
 				}
 				// Checks if that move was valid. This invalidated check is used
 				// after every move by the user. It would remove user moves that
@@ -203,7 +196,7 @@ public class Adjudicator {
 				}
 
 				currentChild = currentChild.getNextSibling();
-				;
+
 			}
 
 		} // end of node already has children code
@@ -235,7 +228,7 @@ public class Adjudicator {
 		Move move;
 		int inCheck = 0;
 
-		moves = board.generateValidMoves(player);
+		moves = board.generateValidMoves(player, null);
 		for (int m = 0; m < moves.size(); m++) {
 			move = moves.elementAt(m);
 

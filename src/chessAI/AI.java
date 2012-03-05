@@ -18,7 +18,7 @@ public class AI extends Thread {
 	private int maxTwigLevel;
 	private int maxDecisionTreeLevel;
 
-	private int[] childNum = new int[10];
+	private int[] childNum = new int[20];
 
 	private boolean userMoved;
 	private DecisionNode userDecision;
@@ -44,8 +44,8 @@ public class AI extends Thread {
 		moveBook = new MoveBook();
 
 		// Default levels
-		maxDecisionTreeLevel = 3;
-		maxTwigLevel = 1;
+		maxDecisionTreeLevel = 2;
+		maxTwigLevel = 0;
 
 		// processorThreads = new
 		// AIProcessor[Runtime.getRuntime().availableProcessors()];
@@ -83,7 +83,7 @@ public class AI extends Thread {
 			}
 
 			if (growDecisionBranch) {
-				growDecisionBranch(branchToGrow);
+				//growDecisionBranch(branchToGrow);
 				growDecisionBranch = false;
 			}
 
@@ -328,8 +328,8 @@ public class AI extends Thread {
 		if (rootNode.getParent() != null) {
 			if (rootNode.getParent().getParent() != null) {
 
-				rootNode.getBoard().undoMove(rootNode.getMove(), rootNode.getPlayer());
-				rootNode.getBoard().undoMove(rootNode.getParent().getMove(), rootNode.getParent().getPlayer());
+				rootNode.getBoard().undoMove(rootNode.getMove(), rootNode.getParent().getPlayer(),null);
+				rootNode.getBoard().undoMove(rootNode.getParent().getMove(), rootNode.getPlayer(),null);
 
 				DecisionNode oldRootNode = rootNode.getParent().getParent();
 				rootNode = oldRootNode;
@@ -415,73 +415,73 @@ public class AI extends Thread {
 		return moveBook;
 	}
 
-	/**
-	 * This method can grow a branch in the decision tree such that 'branch'
-	 * will have new children or grandchildren and after the branch is grown
-	 * further, the parents of the branch will be notified of their child's new
-	 * value if it changed.
-	 * 
-	 * @param branch
-	 *            The branch to grow.
-	 */
-	public void growDecisionBranch(DecisionNode branch) {
-
-		int previousSuggestedPathValue = branch.getChosenPathValue(0);
-		delegateProcessors(branch);
-		int suggestedPathValue = branch.getChosenPathValue(0);
-
-		// After thinking further down this path, the path value has changed.
-		// Any parents or grandparents need to be notified.
-		if (previousSuggestedPathValue != suggestedPathValue) {
-			System.out.println("updating parents");
-			updateParents(branch);
-		}
-	}
-
-	/**
-	 * This function assumes that a child of some node has changed it's
-	 * 'chosenPathValue' and therefore needs to have it's parent resort so that
-	 * the child takes it's new place amongst its siblings. All children are
-	 * sorted based on their 'chosenPathValue'.
-	 * 
-	 * @param child
-	 *            The node that has had it's 'chosenPathValue' change.
-	 */
-	private void updateParents(DecisionNode child) {
-		DecisionNode parent = child.getParent();
-		if (parent != null) {
-			parent.removeChild(child);
-			parent.addChild(child);
-			updateParents(parent);
-		}
-	}
-
-	/**
-	 * This function builds 'numOfBesstDecisions' of all children of 'rootNode'.
-	 * It's used to dig deeper on the 'numOfBestDecisions' of the possible AI
-	 * response to all possible user moves.
-	 * 
-	 * @param rootNode
-	 *            The game root node. It's children are all possible user moves,
-	 *            and grandchildren are possible AI responses.
-	 * @param numOfBestDecisions
-	 *            The number of AI responses to dig deeper on.
-	 */
-	private void expandGoodDecisions(DecisionNode rootNode, int numOfBestDecisions) {
-		int childrenSize = rootNode.getChildrenSize();
-		int grandChildrenSize;
-
-		DecisionNode nextChild;
-		DecisionNode currentChild = rootNode.getHeadChild();
-		for (int i = 0; i < childrenSize; i++) {
-
-			System.out.println("expanding " + i);
-			nextChild = currentChild.getNextSibling();
-			growDecisionBranch(currentChild);
-
-			currentChild = nextChild;
-		}
-	}
+//	/**
+//	 * This method can grow a branch in the decision tree such that 'branch'
+//	 * will have new children or grandchildren and after the branch is grown
+//	 * further, the parents of the branch will be notified of their child's new
+//	 * value if it changed.
+//	 * 
+//	 * @param branch
+//	 *            The branch to grow.
+//	 */
+//	public void growDecisionBranch(DecisionNode branch) {
+//
+//		int previousSuggestedPathValue = branch.getChosenPathValue(0);
+//		delegateProcessors(branch);
+//		int suggestedPathValue = branch.getChosenPathValue(0);
+//
+//		// After thinking further down this path, the path value has changed.
+//		// Any parents or grandparents need to be notified.
+//		if (previousSuggestedPathValue != suggestedPathValue) {
+//			System.out.println("updating parents");
+//			updateParents(branch);
+//		}
+//	}
+//
+//	/**
+//	 * This function assumes that a child of some node has changed it's
+//	 * 'chosenPathValue' and therefore needs to have it's parent resort so that
+//	 * the child takes it's new place amongst its siblings. All children are
+//	 * sorted based on their 'chosenPathValue'.
+//	 * 
+//	 * @param child
+//	 *            The node that has had it's 'chosenPathValue' change.
+//	 */
+//	private void updateParents(DecisionNode child) {
+//		DecisionNode parent = child.getParent();
+//		if (parent != null) {
+//			parent.removeChild(child);
+//			parent.addChild(child);
+//			updateParents(parent);
+//		}
+//	}
+//
+//	/**
+//	 * This function builds 'numOfBesstDecisions' of all children of 'rootNode'.
+//	 * It's used to dig deeper on the 'numOfBestDecisions' of the possible AI
+//	 * response to all possible user moves.
+//	 * 
+//	 * @param rootNode
+//	 *            The game root node. It's children are all possible user moves,
+//	 *            and grandchildren are possible AI responses.
+//	 * @param numOfBestDecisions
+//	 *            The number of AI responses to dig deeper on.
+//	 */
+//	private void expandGoodDecisions(DecisionNode rootNode, int numOfBestDecisions) {
+//		int childrenSize = rootNode.getChildrenSize();
+//		int grandChildrenSize;
+//
+//		DecisionNode nextChild;
+//		DecisionNode currentChild = rootNode.getHeadChild();
+//		for (int i = 0; i < childrenSize; i++) {
+//
+//			System.out.println("expanding " + i);
+//			nextChild = currentChild.getNextSibling();
+//			growDecisionBranch(currentChild);
+//
+//			currentChild = nextChild;
+//		}
+//	}
 
 	// Debug methods
 
@@ -508,6 +508,7 @@ public class AI extends Thread {
 
 	private void printChildren(DecisionNode parent) {
 
+		
 		DecisionNode currentChild = parent.getHeadChild();
 		for (int i = 0; i < parent.getChildrenSize(); i++) {
 			System.out.println(currentChild.toString());
@@ -520,19 +521,28 @@ public class AI extends Thread {
 		if (userDecision != null) {
 			printChildren(userDecision);
 		}
-
-		for (int i = 0; i < 10; i++) {
+		
+		for (int i = 0; i < childNum.length; i++) {
 			childNum[i] = 0;
 		}
 
+		System.out.println("Counting Children...");
 		// recursive function counts tree nodes and notes their depth
 		countChildren(rootNode, 0);
 
-		for (int i = 0; i < 10; i++) {
+		int totalChildren = 0;
+		for (int i = 0; i < childNum.length; i++) {
+			totalChildren += childNum[i];
+			
 			System.out.println(childNum[i] + " at level " + i);
+			
+			if(childNum[i] == 0)
+				break;
 		}
+		
+		System.out.println("Total Children = " + totalChildren);
 
-		System.out.println("AI chose move worth " + rootNode.getChosenPathValue(0));
+		System.out.println("User chose move worth " + rootNode.getChosenPathValue(0));
 	}
 
 	public int getMoveChosenPathValue(Move m) {

@@ -122,10 +122,12 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 			adjudicator = new Adjudicator(new Board(), whitePlayer);
 		}
 
+		
 		clearPiecesTaken();
 		updateLastMovedSquare();
 		attachValidMoves();
 		setBoard(adjudicator.getCurrentBoard());
+		colorSquaresDefault();
 	}
 
 	private void buildBoardGUI() {
@@ -196,11 +198,13 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		SquareGUI fromSquare = chessSquares[move.getFromRow()][move.getFromCol()];
 		SquareGUI toSquare = chessSquares[move.getToRow()][move.getToCol()];
 
-		if (toSquare.getPieceID() != PieceID.NONE) {
-			pieceTaken(toSquare.getPieceID(), toSquare.getPlayer());
+		if(move.getPieceTaken()!=null){
+
+			pieceTaken(move.getPieceTaken().getPieceID(), move.getPieceTaken().getPlayer());
+		
 		}
 
-		if (move.getNote() == MoveNote.CASTLE_FAR || move.getNote() == MoveNote.CASTLE_NEAR || move.getNote() == MoveNote.NEW_QUEEN) {
+		if (move.getNote() != MoveNote.NONE) {
 			setBoard(adjudicator.getCurrentBoard());
 		} else {
 			toSquare.showChessPiece(fromSquare.getPieceID(), fromSquare.getPlayer());
@@ -307,6 +311,14 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 				}
 			}
 
+		}
+	}
+	
+	private void colorSquaresDefault(){
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				chessSquares[r][c].showAsDefault();
+			}
 		}
 	}
 

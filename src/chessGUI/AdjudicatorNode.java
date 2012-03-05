@@ -69,22 +69,23 @@ public class AdjudicatorNode {
 		child.setPreviousSibling(previousChild);
 		previousChild.setNextSibling(child);
 		nextChild.setPreviousSibling(child);
-		childrenSize++;
 	}
 
 	public void removeChild(AdjudicatorNode child) {
-		if (childrenSize != 0) {
-			if (child == headChild)
-				headChild = child.getNextSibling();
+		if (childrenSize > 0) {
 
-			child.getPreviousSibling().setNextSibling(child.getNextSibling());
-			child.getNextSibling().setPreviousSibling(child.getPreviousSibling());
+			if (childrenSize == 1) {
+				headChild = null;
+			} else {
+				if (child == headChild)
+					headChild = child.getNextSibling();
 
-		} else {
-			headChild = null;
+				child.getPreviousSibling().setNextSibling(child.getNextSibling());
+				child.getNextSibling().setPreviousSibling(child.getPreviousSibling());
+			}
+
+			childrenSize--;
 		}
-
-		childrenSize--;
 	}
 	
 	public void removeAllChildren(){

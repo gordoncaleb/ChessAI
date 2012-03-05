@@ -16,7 +16,7 @@ import chessPieces.Rook;
 
 public class Board {
 	private Piece[][] board;
-	private int inCheck;
+	private int boardState;
 	private Vector<Piece> aiPieces;
 	private Vector<Piece> userPieces;
 
@@ -89,142 +89,176 @@ public class Board {
 
 	}
 
-	public boolean makeMove(Move move, Player player) {
-		boolean success;
+	public Piece makeMove(Move move, Player player) {
 
-		try {
-			if (hasPiece(move.getToRow(), move.getToCol())) {
-				if (board[move.getToRow()][move.getToCol()].getPlayer() == Player.USER) {
-					userPieces.remove(board[move.getToRow()][move.getToCol()]);
-				} else {
-					aiPieces.remove(board[move.getToRow()][move.getToCol()]);
+		Piece queenedPawn = null;
+
+		Piece pieceTaken = move.getPieceTaken();
+
+		// remove taken piece first
+		if (pieceTaken != null) {
+
+			//piceTaken is old ref, find new ref
+			if (pieceTaken != board[pieceTaken.getRow()][pieceTaken.getCol()]) {
+				pieceTaken = board[move.getToRow()][move.getToCol()];
+				move.setPieceTaken(pieceTaken);
+			}
+
+			//remove pieceTaken from vectors
+			if (pieceTaken.getPlayer() == Player.USER) {
+				if (!userPieces.remove(pieceTaken)) {
+					System.out.println("Piece " + pieceTaken.toString() + " not found");
+				}
+			} else {
+				if (!aiPieces.remove(pieceTaken)) {
+					System.out.println("Piece " + pieceTaken.toString() + " not found");
 				}
 			}
 
+			//remove ref to piecetaken on board
+			board[pieceTaken.getRow()][pieceTaken.getCol()] = null;
+
+		}
+
+		if (move.getNote() != MoveNote.NEW_QUEEN) {
+
+			// tell piece its new position
 			board[move.getFromRow()][move.getFromCol()].move(move);
+			// update board to reflect piece's new position
 			board[move.getToRow()][move.getToCol()] = board[move.getFromRow()][move.getFromCol()];
+			// remove pieces old position
 			board[move.getFromRow()][move.getFromCol()] = null;
 
-			if (move.getNote() == MoveNote.NEW_QUEEN) {
+		} else {
 
-				if (player == Player.USER) {
-					userPieces.remove(board[move.getToRow()][move.getToCol()]);
-				} else {
-					aiPieces.remove(board[move.getToRow()][move.getToCol()]);
-				}
-
-				board[move.getToRow()][move.getToCol()] = new Queen(player, move.getToRow(), move.getToCol(), false);
-
-				if (player == Player.USER) {
-					userPieces.addElement(board[move.getToRow()][move.getToCol()]);
-				} else {
-					aiPieces.addElement(board[move.getToRow()][move.getToCol()]);
-				}
+			// remove pawn from vector
+			if (player == Player.USER) {
+				userPieces.remove(board[move.getFromRow()][move.getFromCol()]);
+			} else {
+				aiPieces.remove(board[move.getFromRow()][move.getFromCol()]);
 			}
 
-			if (move.getNote() == MoveNote.CASTLE_NEAR) {
-				if (player == Player.AI) {
-					makeMove(new Move(0, 7, 0, 5), player);
-				} else {
-					makeMove(new Move(7, 7, 7, 5), player);
-				}
+			// save pawn for undoing later
+			queenedPawn = board[move.getFromRow()][move.getFromCol()];
+			// remove pawn from board
+			board[move.getFromRow()][move.getFromCol()] = null;
+
+			// put queen on board
+			board[move.getToRow()][move.getToCol()] = new Queen(player, move.getToRow(), move.getToCol(), false);
+
+			// add queen to vectors
+			if (player == Player.USER) {
+				userPieces.add(board[move.getToRow()][move.getToCol()]);
+			} else {
+				aiPieces.add(board[move.getToRow()][move.getToCol()]);
 			}
-
-			if (move.getNote() == MoveNote.CASTLE_FAR) {
-				if (player == Player.AI) {
-					makeMove(new Move(0, 0, 0, 3), player);
-				} else {
-					makeMove(new Move(7, 0, 7, 3), player);
-				}
-			}
-
-			success = true;
-
-		} catch (Exception e) {
-			System.out.println("Error: " + move.toString() + " for player: " + player + " invalid \n" + this.toString());
-			System.out.println(e.toString());
-			success = false;
 		}
 
-		return success;
+		if (move.getNote() == MoveNote.CASTLE_NEAR) {
+			if (player == Player.AI) {
+				makeMove(new Move(0, 7, 0, 5), player);
+			} else {
+				makeMove(new Move(7, 7, 7, 5), player);
+			}
+		}
+
+		if (move.getNote() == MoveNote.CASTLE_FAR) {
+			if (player == Player.AI) {
+				makeMove(new Move(0, 0, 0, 3), player);
+			} else {
+				makeMove(new Move(7, 0, 7, 3), player);
+			}
+		}
+		
+//		System.out.println("Did " + move.toString());
+//		System.out.println(this.toString());
+
+		return queenedPawn;
 
 	}
 
-	public boolean undoMove(Move move, Player player) {
-		boolean success;
+	public void undoMove(Move move, Player player, Piece queenedPawn) {
 
-		try {
+		if (move.getNote() != MoveNote.NEW_QUEEN) {
 
+			// tell piece where it was
 			board[move.getToRow()][move.getToCol()].move(move.reverse());
+			// put piece in old position
 			board[move.getFromRow()][move.getFromCol()] = board[move.getToRow()][move.getToCol()];
+			// remove old position
 			board[move.getToRow()][move.getToCol()] = null;
 
-			if (move.getPieceTaken() != null) {
-				board[move.getToRow()][move.getToCol()] = move.getPieceTaken();
+		} else {
 
-				if (move.getPieceTaken().getPlayer() == Player.USER) {
-					userPieces.addElement(board[move.getToRow()][move.getToCol()]);
-				} else {
-					aiPieces.addElement(board[move.getToRow()][move.getToCol()]);
-				}
-
+			// remove queen from vectors
+			if (player == Player.USER) {
+				userPieces.remove(board[move.getToRow()][move.getToCol()]);
+			} else {
+				aiPieces.remove(board[move.getToRow()][move.getToCol()]);
 			}
 
-			if (move.getNote() == MoveNote.NEW_QUEEN) {
+			// remove queen from board
+			board[move.getToRow()][move.getToCol()] = null;
 
-				if (player == Player.USER) {
-					userPieces.remove(board[move.getFromRow()][move.getFromCol()]);
-				} else {
-					aiPieces.remove(board[move.getFromRow()][move.getFromCol()]);
-				}
-
+			// add old pawn to board or create new one
+			if (queenedPawn != null) {
+				board[move.getFromRow()][move.getFromCol()] = queenedPawn;
+			} else {
 				board[move.getFromRow()][move.getFromCol()] = new Pawn(player, move.getFromRow(), move.getFromCol(), true);
-
-				if (player == Player.USER) {
-					userPieces.addElement(board[move.getFromRow()][move.getFromCol()]);
-				} else {
-					aiPieces.addElement(board[move.getFromRow()][move.getFromCol()]);
-				}
 			}
 
-			if (move.getNote() == MoveNote.CASTLE_NEAR) {
-				if (player == Player.AI) {
-					undoMove(new Move(0, 7, 0, 5), player);
-				} else {
-					undoMove(new Move(7, 7, 7, 5), player);
-				}
+			// add old pawn to vectors
+			if (player == Player.USER) {
+				userPieces.add(board[move.getFromRow()][move.getFromCol()]);
+			} else {
+				aiPieces.add(board[move.getFromRow()][move.getFromCol()]);
 			}
-
-			if (move.getNote() == MoveNote.CASTLE_FAR) {
-				if (player == Player.AI) {
-					undoMove(new Move(0, 0, 0, 3), player);
-				} else {
-					undoMove(new Move(7, 0, 7, 3), player);
-				}
-			}
-
-			board[move.getFromRow()][move.getFromCol()].setMoved(move.hadMoved());
-
-			success = true;
-
-		} catch (Exception e) {
-			System.out.println("Error: undo " + move.toString() + " for player: " + player + " invalid \n" + this.toString());
-			System.out.println(e.toString());
-			success = false;
 		}
 
-		return success;
+		// add taken piece back to vectors and board
+		Piece pieceTaken = move.getPieceTaken();
+		if (pieceTaken != null) {
+			board[pieceTaken.getRow()][pieceTaken.getCol()] = pieceTaken;
+
+			if (pieceTaken.getPlayer() == Player.USER) {
+				userPieces.add(pieceTaken);
+			} else {
+				aiPieces.add(pieceTaken);
+			}
+
+		}
+
+		if (move.getNote() == MoveNote.CASTLE_NEAR) {
+			if (player == Player.AI) {
+				undoMove(new Move(0, 7, 0, 5), player, null);
+			} else {
+				undoMove(new Move(7, 7, 7, 5), player, null);
+			}
+		}
+
+		if (move.getNote() == MoveNote.CASTLE_FAR) {
+			if (player == Player.AI) {
+				undoMove(new Move(0, 0, 0, 3), player, null);
+			} else {
+				undoMove(new Move(7, 0, 7, 3), player, null);
+			}
+		}
+
+		board[move.getFromRow()][move.getFromCol()].setMoved(move.hadMoved());
+		
+//		System.out.println("Undid " + move.toString());
+//		System.out.println(this.toString());
 
 	}
 
-	public Vector<Move> generateValidMoves(Player player) {
+	public Vector<Move> generateValidMoves(Player player, Move lastMoveMade) {
 		Vector<Move> validMoves = new Vector<Move>(30);
 
 		Vector<Piece> pieces = getPlayerPieces(player);
 		Vector<Move> moves;
 		Move move;
 		for (int p = 0; p < pieces.size(); p++) {
-			moves = pieces.elementAt(p).generateValidMoves(this);
+			moves = pieces.elementAt(p).generateValidMoves(this, lastMoveMade);
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
 
@@ -339,20 +373,56 @@ public class Board {
 		}
 	}
 
-	public boolean isInCheckFar() {
-		return ((inCheck & 4) != 0);
-	}
-
 	public boolean isInCheckNear() {
-		return ((inCheck & 1) != 0);
+		return ((boardState & 1) != 0);
 	}
 
 	public boolean isInCheck() {
-		return ((inCheck & 2) != 0);
+		return ((boardState & 2) != 0);
+	}
+
+	public boolean isInCheckFar() {
+		return ((boardState & 4) != 0);
+	}
+
+	public boolean isLastMoveInvalid() {
+		return ((boardState & 8) != 0);
+	}
+
+	public boolean isInCheckMate() {
+		return ((boardState & 16) != 0);
+	}
+
+	public boolean isInStaleMate() {
+		return ((boardState & 32) != 0);
+	}
+
+	public void setLastMoveInvalid() {
+		boardState |= 8;
+	}
+
+	public void setIsInCheckMate() {
+		boardState |= 16;
+	}
+
+	public void setIsInStaleMate() {
+		boardState |= 32;
 	}
 
 	public void setInCheckDetails(int inCheck) {
-		this.inCheck = inCheck;
+		this.boardState |= inCheck;
+	}
+
+	public void clearBoardState() {
+		boardState = 0;
+	}
+
+	public int getBoardState() {
+		return boardState;
+	}
+
+	public void setBoardState(int boardState) {
+		this.boardState = boardState;
 	}
 
 	public boolean canCastleFar(Player player) {
@@ -462,6 +532,55 @@ public class Board {
 		return newBoard;
 	}
 
+	public boolean verifyBoard() {
+		int r;
+		int c;
+
+		boolean verified = true;
+
+		for (int i = 0; i < aiPieces.size(); i++) {
+			r = aiPieces.elementAt(i).getRow();
+			c = aiPieces.elementAt(i).getCol();
+
+			if (board[r][c] != aiPieces.elementAt(i)) {
+				System.out.println("Piece " + aiPieces.elementAt(i).toString() + " in ai vector not on board");
+				verified = false;
+			}
+		}
+
+		for (int i = 0; i < userPieces.size(); i++) {
+			r = userPieces.elementAt(i).getRow();
+			c = userPieces.elementAt(i).getCol();
+
+			if (board[r][c] != userPieces.elementAt(i)) {
+				System.out.println("Piece " + userPieces.elementAt(i).toString() + " in user vector not on board");
+				verified = false;
+			}
+		}
+
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				if (board[row][col] != null) {
+
+					if (board[row][col].getRow() != row && board[row][col].getCol() != col) {
+						System.out.println("Board coord mismatch " + row + " " + col);
+						verified = false;
+					}
+
+					if (!aiPieces.contains(board[row][col]) && !userPieces.contains(board[row][col])) {
+						System.out.println(row + "," + col + " piece not found in vectors");
+						verified = false;
+					}
+
+				} else {
+
+				}
+			}
+		}
+
+		return verified;
+	}
+
 	public String toString() {
 		String stringBoard = "";
 
@@ -470,19 +589,15 @@ public class Board {
 				if (board[row][col] != null) {
 					stringBoard += board[row][col].toString() + ",";
 
-					if (board[row][col].getRow() != row && board[row][col].getCol() != col) {
-						System.out.println("board coord mismatch " + row + " " + col);
-					}
-
-					if (!aiPieces.contains(board[row][col]) && !userPieces.contains(board[row][col])) {
-						System.out.println(row + "," + col + " piece not found in vectors");
-					}
-
 				} else {
-					stringBoard += "E0,";
+					stringBoard += "__,";
 				}
 			}
 			stringBoard += "\n";
+		}
+
+		if (!verifyBoard()) {
+			System.out.println("Problem with board");
 		}
 
 		return stringBoard;

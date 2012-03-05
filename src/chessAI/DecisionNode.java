@@ -5,16 +5,16 @@ import chessBackend.GameStatus;
 import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
+import chessPieces.King;
 import chessPieces.Values;
 
 public class DecisionNode {
 
-	// Previous move/board/status information
+	// Previous move/status information
 	private DecisionNode parent;
 
 	// Children which represent all the possible moves of "player
 	private DecisionNode headChild;
-	// private DecisionNode tailChild;
 	private DecisionNode nextSibling;
 	private DecisionNode previousSibling;
 	private int childrenSize;
@@ -37,6 +37,33 @@ public class DecisionNode {
 	private GameStatus status;
 
 	public static void main(String[] args) {
+		for (int i = 0; i < 1; i++) {
+			Runtime.getRuntime().gc();
+		}
+		long heapFreeSize = Runtime.getRuntime().freeMemory();
+
+		DecisionNode test = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.AI, 1, 1, false)), null, null);
+
+		int nodes = 4000000;
+		for (int i = 0; i < nodes; i++) {
+			test.addChild(new DecisionNode(test, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.AI, 1, 1, false)), null, null));
+		}
+
+		for (int i = 0; i < 1; i++) {
+			Runtime.getRuntime().gc();
+		}
+
+		long objectSize = (heapFreeSize - Runtime.getRuntime().freeMemory()) / nodes;
+
+		System.out.println("Max mem = " + Runtime.getRuntime().maxMemory() / (1024 * 1024));
+		System.out.println("used space = " + (Runtime.getRuntime().maxMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024));
+		System.out.println(objectSize);
+
+		System.out.println(4000000 / objectSize + " bytes in 4million objs");
+
+		int childSize = test.childrenSize;
+		System.out.println(childSize + "");
+
 		int[] nums = { 3, 7, 6, 5, 8, 3, 1, 2 };
 		DecisionNode root = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE), null, null);
 		DecisionNode child;
@@ -137,7 +164,7 @@ public class DecisionNode {
 			int childNum = 0;
 			DecisionNode currentChild = headChild;
 			int newChildChosenPathValue = newChild.getChosenPathValue(0);
-			
+
 			while (newChildChosenPathValue < currentChild.getChosenPathValue(0) && childNum < childrenSize) {
 				currentChild = currentChild.getNextSibling();
 				childNum++;
@@ -171,18 +198,20 @@ public class DecisionNode {
 	}
 
 	public void removeChild(DecisionNode child) {
-		if (childrenSize != 0) {
-			if (child == headChild)
-				headChild = child.getNextSibling();
+		if (childrenSize > 0) {
 
-			child.getPreviousSibling().setNextSibling(child.getNextSibling());
-			child.getNextSibling().setPreviousSibling(child.getPreviousSibling());
+			if (childrenSize == 1) {
+				headChild = null;
+			} else {
+				if (child == headChild)
+					headChild = child.getNextSibling();
 
-		} else {
-			headChild = null;
+				child.getPreviousSibling().setNextSibling(child.getNextSibling());
+				child.getNextSibling().setPreviousSibling(child.getPreviousSibling());
+			}
+
+			childrenSize--;
 		}
-
-		childrenSize--;
 	}
 
 	public void removeAllChildren() {
@@ -252,7 +281,7 @@ public class DecisionNode {
 		int value;
 
 		if (childrenSize != 0) {
-			value = this.getMoveValue() - headChild.getChosenPathValue(depth +1);
+			value = this.getMoveValue() - headChild.getChosenPathValue(depth + 1);
 		} else {
 			value = chosenPathValue;
 		}
@@ -260,8 +289,8 @@ public class DecisionNode {
 		if (status == GameStatus.CHECKMATE) {
 			value = Values.CHECKMATE_MOVE - Values.CHECKMATE_DEPTH_INC * depth;
 		}
-		
-		if(status == GameStatus.STALEMATE){
+
+		if (status == GameStatus.STALEMATE) {
 			value = -Values.STALEMATE_MOVE;
 		}
 
@@ -285,7 +314,7 @@ public class DecisionNode {
 	}
 
 	public void finalize() {
-		// System.out.println("Move (" + nodeMove.toString() +
+		// System.out.println("Move (" + this.getMove().toString() +
 		// ") has been destroyed!");
 	}
 
@@ -297,6 +326,34 @@ public class DecisionNode {
 		this.status = status;
 	}
 
+	public boolean hasPieceTaken() {
+		if (move == null) {
+			return false;
+		} else {
+			if (move.getPieceTaken() == null) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+
+	public boolean isEndGame() {
+		if (status == GameStatus.CHECKMATE || status == GameStatus.STALEMATE) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isInCheck() {
+		if (status == GameStatus.CHECK) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public String toString() {
 		boolean chosen;
 		if (parent != null)
@@ -306,7 +363,7 @@ public class DecisionNode {
 
 		if (move != null)
 			return move.toString() + " Status =" + getStatus().name() + " Move Value =" + this.getMoveValue() + " Chosen Path Value ="
-					+ this.getChosenPathValue(0) + " Chosen: " + chosen;
+					+ this.getChosenPathValue(0) + " Chosen: " + chosen + " Player: " + this.getPlayer();
 		else
 			return "Board Start";
 	}
