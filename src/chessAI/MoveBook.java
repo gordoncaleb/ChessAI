@@ -2,10 +2,13 @@ package chessAI;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import chessBackend.Move;
 
@@ -76,7 +79,9 @@ public class MoveBook {
 		MoveBookNode newNode;
 		try {
 
-			DataInputStream din = new DataInputStream(new FileInputStream("opening_book.bin"));
+			URL openingBook = MoveBook.class.getResource("opening_book.bin");
+			
+			DataInputStream din = new DataInputStream(openingBook.openStream());
 
 			boolean fileStarted = false;
 			boolean nextIsSibling = false;

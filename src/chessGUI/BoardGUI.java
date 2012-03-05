@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -122,7 +123,6 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 			adjudicator = new Adjudicator(new Board(), whitePlayer);
 		}
 
-		
 		clearPiecesTaken();
 		updateLastMovedSquare();
 		attachValidMoves();
@@ -148,16 +148,23 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	}
 
 	private void loadChessImages() {
+
 		chessPieceGraphics = new Image[2][6];
 		String pieceNames[] = { "rook", "knight", "bishop", "queen", "king", "pawn" };
-		String imgDir = "img" + File.separator + "pieces2" + File.separator;
+		String imgDir = "img" + "/" + "pieces/"; //+ File.separator;
+
+		URL urlWhite;
+		URL urlBlack;
 
 		for (int i = 0; i < 6; i++) {
 			try {
-				chessPieceGraphics[0][i] = ImageIO.read(new File(imgDir + "black_" + pieceNames[i] + ".png")).getScaledInstance(imageWidth,
-						imageHeight, Image.SCALE_SMOOTH);
-				chessPieceGraphics[1][i] = ImageIO.read(new File(imgDir + "white_" + pieceNames[i] + ".png")).getScaledInstance(imageWidth,
-						imageHeight, Image.SCALE_SMOOTH);
+
+				urlWhite = BoardGUI.class.getResource(imgDir + "white_" + pieceNames[i] + ".png");
+				urlBlack = BoardGUI.class.getResource(imgDir + "black_" + pieceNames[i] + ".png");
+				//System.out.println(urlWhite);
+
+				chessPieceGraphics[0][i] = ImageIO.read(urlBlack).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
+				chessPieceGraphics[1][i] = ImageIO.read(urlWhite).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -198,10 +205,10 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		SquareGUI fromSquare = chessSquares[move.getFromRow()][move.getFromCol()];
 		SquareGUI toSquare = chessSquares[move.getToRow()][move.getToCol()];
 
-		if(move.getPieceTaken()!=null){
+		if (move.getPieceTaken() != null) {
 
 			pieceTaken(move.getPieceTaken().getPieceID(), move.getPieceTaken().getPlayer());
-		
+
 		}
 
 		if (move.getNote() != MoveNote.NONE) {
@@ -313,8 +320,8 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 		}
 	}
-	
-	private void colorSquaresDefault(){
+
+	private void colorSquaresDefault() {
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
 				chessSquares[r][c].showAsDefault();
