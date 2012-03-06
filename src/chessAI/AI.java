@@ -176,10 +176,10 @@ public class AI extends Thread {
 		// firstMove);
 
 		if (debug) {
-			rootNode = new DecisionNode(null, null, Board.fromFile("testboard.txt"), firstMove);
+			rootNode = new DecisionNode(null, null, Board.fromFile("testboard.txt", firstMove));
 
 		} else {
-			rootNode = new DecisionNode(null, null, new Board(), firstMove);
+			rootNode = new DecisionNode(null, null, new Board(firstMove));
 		}
 
 		
@@ -328,8 +328,8 @@ public class AI extends Thread {
 		if (rootNode.getParent() != null) {
 			if (rootNode.getParent().getParent() != null) {
 
-				rootNode.getBoard().undoMove(rootNode.getMove(), rootNode.getParent().getPlayer(),null);
-				rootNode.getBoard().undoMove(rootNode.getParent().getMove(), rootNode.getPlayer(),null);
+				rootNode.getBoard().undoMove();
+				rootNode.getBoard().undoMove();
 
 				DecisionNode oldRootNode = rootNode.getParent().getParent();
 				rootNode = oldRootNode;
@@ -357,7 +357,7 @@ public class AI extends Thread {
 
 	private void setRootNode(DecisionNode newRootNode) {
 
-		rootNode.getBoard().makeMove(newRootNode.getMove(), rootNode.getPlayer());
+		rootNode.getBoard().makeMove(newRootNode.getMove());
 
 		this.rootNode.removeAllChildren();
 		this.rootNode.addChild(newRootNode);

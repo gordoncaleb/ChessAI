@@ -201,7 +201,7 @@ public class SquareGUI extends JPanel {
 	public void clearChessPiece() {
 
 		picLabel.setIcon(null);
-		id = PieceID.NONE;
+		id = null;
 		
 		if(debug)
 			debugPieceValue.setText("");
@@ -212,7 +212,7 @@ public class SquareGUI extends JPanel {
 	}
 
 	public boolean hasPiece() {
-		return id != PieceID.NONE;
+		return id != null;
 	}
 
 	public PieceID getPieceID() {

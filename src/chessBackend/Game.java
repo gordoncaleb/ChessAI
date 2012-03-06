@@ -80,7 +80,7 @@ public class Game {
 		if (causedStatus == Player.USER) {
 
 			if (status == GameStatus.CHECKMATE) {
-				Object[] options = { "Yes, please", "Nah, I'm kinda a bitch." };
+				Object[] options = { "Yes, please", "Nah" };
 				int n = JOptionPane.showOptionDialog(gui.getFrame(), "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
 						JOptionPane.QUESTION_MESSAGE, null, // do not use a
 															// custom

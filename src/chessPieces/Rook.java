@@ -25,7 +25,7 @@ public class Rook extends Piece{
 		return "R";
 	}
 
-	public Vector<Move> generateValidMoves(Board board, Move lastMoveMade) {
+	public Vector<Move> generateValidMoves(Board board) {
 		Vector<Move> validMoves = new Vector<Move>();
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();

@@ -19,16 +19,13 @@ public class AdjudicatorNode {
 	// The board awaiting "player"'s move
 	private Board board;
 
-	// The player whose turn it is now
-	private Player player;
-
 	// The last move made on the attached board.
 	private Move move;
 
 	// Status of the current game state. ie. Check or Checkmate
 	private GameStatus status;
 
-	public AdjudicatorNode(AdjudicatorNode parent, Move move, Board board, Player player) {
+	public AdjudicatorNode(AdjudicatorNode parent, Move move, Board board) {
 		this.parent = parent;
 
 		// Linked List data struct pointers
@@ -39,7 +36,6 @@ public class AdjudicatorNode {
 
 		this.move = move;
 		this.board = board;
-		this.player = player;
 		this.status = GameStatus.IN_PLAY;
 
 	}
@@ -142,10 +138,6 @@ public class AdjudicatorNode {
 
 	public Board getBoard() {
 		return board;
-	}
-
-	public Player getPlayer() {
-		return player;
 	}
 
 	public GameStatus getStatus() {

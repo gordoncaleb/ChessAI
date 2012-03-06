@@ -133,7 +133,7 @@ public abstract class Piece {
 
 	public abstract String getName();
 
-	public abstract Vector<Move> generateValidMoves(Board board, Move lastMoveMade);
+	public abstract Vector<Move> generateValidMoves(Board board);
 
 	public abstract Piece getCopy(Board board);
 

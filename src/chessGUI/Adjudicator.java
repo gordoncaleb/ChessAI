@@ -17,8 +17,8 @@ public class Adjudicator {
 	Vector<PieceID> userPiecesTaken;
 	Vector<PieceID> aiPiecesTaken;
 
-	public Adjudicator(Board board, Player firstPlayer) {
-		root = new AdjudicatorNode(null, null, board, firstPlayer);
+	public Adjudicator(Board board) {
+		root = new AdjudicatorNode(null, null, board);
 		userPiecesTaken = new Vector<PieceID>();
 		aiPiecesTaken = new Vector<PieceID>();
 		extendTree(root, 0);
@@ -32,12 +32,12 @@ public class Adjudicator {
 			if (move.equals(currentNode.getMove())) {
 				root.removeAllChildren();
 				root.addChild(currentNode);
-				root.getBoard().makeMove(currentNode.getMove(), root.getPlayer());
+				root.getBoard().makeMove(currentNode.getMove());
 				
 				root = currentNode;
 
 				if (currentNode.getMove().getPieceTaken() != null) {
-					if (root.getPlayer() == Player.USER) {
+					if (root.getBoard().getPlayer() == Player.USER) {
 						userPiecesTaken.add(currentNode.getMove().getPieceTaken().getPieceID());
 					} else {
 						aiPiecesTaken.add(currentNode.getMove().getPieceTaken().getPieceID());
@@ -60,8 +60,8 @@ public class Adjudicator {
 		if (root.getParent() != null) {
 			if (root.getParent().getParent() != null) {
 
-				root.getBoard().undoMove(root.getMove(), root.getParent().getPlayer(),null);
-				root.getBoard().undoMove(root.getParent().getMove(), root.getPlayer(),null);
+				root.getBoard().undoMove();
+				root.getBoard().undoMove();
 
 				AdjudicatorNode oldRootNode = root.getParent().getParent();
 				root = oldRootNode;
@@ -115,13 +115,6 @@ public class Adjudicator {
 	}
 
 	private void extendTree(AdjudicatorNode branch, int ply) {
-		// This is the player making the child moves, not the player that made
-		// the branch.
-		Player player = branch.getPlayer();
-
-		// This is the player that made the branch as well as the player making
-		// moves on children of branch.
-		Player nextPlayer = getNextPlayer(player);
 
 		// Current state at branch
 		Board board = branch.getBoard();
@@ -136,14 +129,14 @@ public class Adjudicator {
 
 			// If board is in check, castleing isn't valid
 			board.clearBoardState();
-			board.setInCheckDetails(calcInCheck(nextPlayer, board));
+			board.setInCheckDetails(calcInCheck(board));
 
 			if (board.isInCheck()) {
 				branch.setStatus(GameStatus.CHECK);
 			}
 
 			// check all moves of all pieces
-			moves = board.generateValidMoves(player, branch.getMove());
+			moves = board.generateValidMoves();
 
 			for (int m = 0; m < moves.size(); m++) {
 
@@ -157,13 +150,13 @@ public class Adjudicator {
 					return;
 				}
 
-				newNode = new AdjudicatorNode(branch, move, board, nextPlayer);
+				newNode = new AdjudicatorNode(branch, move, board);
 
 				// check to see if you are at the bottom of the branch
 				if (ply < 1) {
-					Piece queenedPawn = board.makeMove(move, player);
+					board.makeMove(move);
 					extendTree(newNode, ply + 1);
-					board.undoMove(move, player, queenedPawn);
+					board.undoMove();
 				}
 
 				// Check if the newNode move was invalidated
@@ -182,9 +175,9 @@ public class Adjudicator {
 			for (int i = 0; i < childrenSize; i++) {
 
 				if (ply < 1) {
-					Piece queenedPawn = board.makeMove(currentChild.getMove(), player);
+					board.makeMove(currentChild.getMove());
 					extendTree(currentChild, ply + 1);
-					board.undoMove(currentChild.getMove(), player, queenedPawn);
+					board.undoMove();
 				}
 				// Checks if that move was valid. This invalidated check is used
 				// after every move by the user. It would remove user moves that
@@ -222,13 +215,15 @@ public class Adjudicator {
 	 *            Board being checked for check situation.
 	 * @return Whether or not "player" has put his/her opponent in check
 	 */
-	private int calcInCheck(Player player, Board board) {
+	private int calcInCheck(Board board) {
 		int[][] kingLeftRight = { { 7, 3, 7, 5 }, { 0, 3, 0, 5 } };
 		Vector<Move> moves;
 		Move move;
 		int inCheck = 0;
+		
+		Player player = board.getNextPlayer();
 
-		moves = board.generateValidMoves(player, null);
+		moves = board.generateValidMoves(player);
 		for (int m = 0; m < moves.size(); m++) {
 			move = moves.elementAt(m);
 
@@ -251,11 +246,4 @@ public class Adjudicator {
 
 	}
 
-	private Player getNextPlayer(Player player) {
-		if (player == Player.USER) {
-			return Player.AI;
-		} else {
-			return Player.USER;
-		}
-	}
 }

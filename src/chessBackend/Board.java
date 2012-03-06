@@ -1,5 +1,6 @@
 package chessBackend;
 
+import java.util.Stack;
 import java.util.Vector;
 
 import chessPieces.Bishop;
@@ -19,15 +20,35 @@ public class Board {
 	private int boardState;
 	private Vector<Piece> aiPieces;
 	private Vector<Piece> userPieces;
+	private Player player;
+	private Stack<Move> moveHistory;
+	private RNGTable rngTable;
+	private Stack<Long> hashCodeHistory;
 
-	public Board(Piece[][] board, Vector<Piece> aiPieces, Vector<Piece> playerPieces) {
+	public Board(Piece[][] board, Vector<Piece> aiPieces, Vector<Piece> playerPieces, Player player, Stack<Move> moveHistory,
+			Stack<Long> hashCodeHistory, RNGTable rngTable) {
+
 		this.board = board;
 		this.aiPieces = aiPieces;
 		this.userPieces = playerPieces;
+		this.moveHistory = moveHistory;
+		this.hashCodeHistory = hashCodeHistory;
+		this.rngTable = rngTable;
+		this.player = player;
+
+		if (hashCodeHistory.empty()) {
+			this.generateHashCode();
+		}
+
 	}
 
-	public Board() {
+	public Board(Player player) {
+		this.moveHistory = new Stack<Move>();
+		this.hashCodeHistory = new Stack<Long>();
+		this.rngTable = new RNGTable();
+		this.player = player;
 		buildBoard();
+		this.generateHashCode();
 	}
 
 	public void buildBoard() {
@@ -89,22 +110,36 @@ public class Board {
 
 	}
 
-	public Piece makeMove(Move move, Player player) {
+	public void makeMove(Move move) {
+		
+		if(board[move.getFromRow()][move.getFromCol()].getPlayer()!=player){
+			System.out.println("Problem with player ref");
+		}
+		
+		makeMove(move, player);
 
-		Piece queenedPawn = null;
+		updateHashCode(move);
+		hashCodeHistory.push(this.getHashCode());
+
+		moveHistory.push(move);
+
+		player = getNextPlayer();
+	}
+
+	private void makeMove(Move move, Player player) {
 
 		Piece pieceTaken = move.getPieceTaken();
 
 		// remove taken piece first
 		if (pieceTaken != null) {
 
-			//piceTaken is old ref, find new ref
+			// piceTaken is old ref, find new ref
 			if (pieceTaken != board[pieceTaken.getRow()][pieceTaken.getCol()]) {
 				pieceTaken = board[move.getToRow()][move.getToCol()];
 				move.setPieceTaken(pieceTaken);
 			}
 
-			//remove pieceTaken from vectors
+			// remove pieceTaken from vectors
 			if (pieceTaken.getPlayer() == Player.USER) {
 				if (!userPieces.remove(pieceTaken)) {
 					System.out.println("Piece " + pieceTaken.toString() + " not found");
@@ -115,7 +150,7 @@ public class Board {
 				}
 			}
 
-			//remove ref to piecetaken on board
+			// remove ref to piecetaken on board
 			board[pieceTaken.getRow()][pieceTaken.getCol()] = null;
 
 		}
@@ -138,8 +173,6 @@ public class Board {
 				aiPieces.remove(board[move.getFromRow()][move.getFromCol()]);
 			}
 
-			// save pawn for undoing later
-			queenedPawn = board[move.getFromRow()][move.getFromCol()];
 			// remove pawn from board
 			board[move.getFromRow()][move.getFromCol()] = null;
 
@@ -169,15 +202,20 @@ public class Board {
 				makeMove(new Move(7, 0, 7, 3), player);
 			}
 		}
-		
-//		System.out.println("Did " + move.toString());
-//		System.out.println(this.toString());
-
-		return queenedPawn;
 
 	}
 
-	public void undoMove(Move move, Player player, Piece queenedPawn) {
+	public void undoMove() {
+
+		player = getNextPlayer();
+
+		undoMove(this.getLastMoveMade(), this.player);
+
+		moveHistory.pop();
+		hashCodeHistory.pop();
+	}
+
+	private void undoMove(Move move, Player player) {
 
 		if (move.getNote() != MoveNote.NEW_QUEEN) {
 
@@ -201,11 +239,8 @@ public class Board {
 			board[move.getToRow()][move.getToCol()] = null;
 
 			// add old pawn to board or create new one
-			if (queenedPawn != null) {
-				board[move.getFromRow()][move.getFromCol()] = queenedPawn;
-			} else {
-				board[move.getFromRow()][move.getFromCol()] = new Pawn(player, move.getFromRow(), move.getFromCol(), true);
-			}
+
+			board[move.getFromRow()][move.getFromCol()] = new Pawn(player, move.getFromRow(), move.getFromCol(), true);
 
 			// add old pawn to vectors
 			if (player == Player.USER) {
@@ -230,35 +265,39 @@ public class Board {
 
 		if (move.getNote() == MoveNote.CASTLE_NEAR) {
 			if (player == Player.AI) {
-				undoMove(new Move(0, 7, 0, 5), player, null);
+				undoMove(new Move(0, 7, 0, 5), player);
 			} else {
-				undoMove(new Move(7, 7, 7, 5), player, null);
+				undoMove(new Move(7, 7, 7, 5), player);
 			}
 		}
 
 		if (move.getNote() == MoveNote.CASTLE_FAR) {
 			if (player == Player.AI) {
-				undoMove(new Move(0, 0, 0, 3), player, null);
+				undoMove(new Move(0, 0, 0, 3), player);
 			} else {
-				undoMove(new Move(7, 0, 7, 3), player, null);
+				undoMove(new Move(7, 0, 7, 3), player);
 			}
 		}
 
 		board[move.getFromRow()][move.getFromCol()].setMoved(move.hadMoved());
-		
-//		System.out.println("Undid " + move.toString());
-//		System.out.println(this.toString());
+
+		// System.out.println("Undid " + move.toString());
+		// System.out.println(this.toString());
 
 	}
 
-	public Vector<Move> generateValidMoves(Player player, Move lastMoveMade) {
+	public Vector<Move> generateValidMoves() {
+		return generateValidMoves(this.player);
+	}
+
+	public Vector<Move> generateValidMoves(Player player) {
 		Vector<Move> validMoves = new Vector<Move>(30);
 
 		Vector<Piece> pieces = getPlayerPieces(player);
 		Vector<Move> moves;
 		Move move;
 		for (int p = 0; p < pieces.size(); p++) {
-			moves = pieces.elementAt(p).generateValidMoves(this, lastMoveMade);
+			moves = pieces.elementAt(p).generateValidMoves(this);
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
 
@@ -296,6 +335,14 @@ public class Board {
 			return PositionStatus.NO_PIECE;
 		}
 
+	}
+
+	public Move getLastMoveMade() {
+		if (!moveHistory.empty()) {
+			return moveHistory.peek();
+		} else {
+			return null;
+		}
 	}
 
 	public int getPieceValue(int row, int col) {
@@ -338,12 +385,12 @@ public class Board {
 		if (board[row][col] != null) {
 			return board[row][col].getPieceID();
 		} else {
-			return PieceID.NONE;
+			return null;
 		}
 
 	}
 
-	public Player getPlayer(int row, int col) {
+	public Player getPiecePlayer(int row, int col) {
 		if (board[row][col] != null) {
 			return board[row][col].getPlayer();
 		} else {
@@ -351,6 +398,18 @@ public class Board {
 			return null;
 		}
 
+	}
+
+	public Player getPlayer() {
+		return player;
+	}
+
+	public Player getNextPlayer() {
+		if (player == Player.AI) {
+			return Player.USER;
+		} else {
+			return Player.AI;
+		}
 	}
 
 	public boolean hasPiece(int row, int col) {
@@ -511,7 +570,8 @@ public class Board {
 		Piece[][] copyBoard = new Piece[8][8];
 		Vector<Piece> copyAiPieces = new Vector<Piece>(16);
 		Vector<Piece> copyPlayerPieces = new Vector<Piece>(16);
-		Board newBoard = new Board(copyBoard, copyAiPieces, copyPlayerPieces);
+		Stack<Move> moveHistory = new Stack<Move>();
+		Stack<Long> hashCodeHistory = new Stack<Long>();
 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
@@ -529,7 +589,34 @@ public class Board {
 			}
 		}
 
-		return newBoard;
+		Stack<Move> tempMoves = new Stack<Move>();
+
+		while (!this.moveHistory.empty()) {
+			tempMoves.push(this.moveHistory.pop());
+		}
+
+		Move m;
+		while (!tempMoves.empty()) {
+			m = tempMoves.pop();
+			this.moveHistory.push(m);
+			moveHistory.push(m);
+		}
+
+		Stack<Long> temp = new Stack<Long>();
+
+		while (!this.hashCodeHistory.empty()) {
+			temp.push(this.hashCodeHistory.pop());
+		}
+
+		Long l;
+		while (!temp.empty()) {
+			l = temp.pop();
+			this.hashCodeHistory.push(l);
+			hashCodeHistory.push(l);
+		}
+
+		return new Board(copyBoard, copyAiPieces, copyPlayerPieces, this.player, moveHistory, hashCodeHistory, this.rngTable);
+
 	}
 
 	public boolean verifyBoard() {
@@ -603,7 +690,7 @@ public class Board {
 		return stringBoard;
 	}
 
-	public static Board fromString(String stringBoard) {
+	public static Board fromString(String stringBoard, Player player) {
 		Piece[][] board = new Piece[8][8];
 		Vector<Piece> aiPieces = new Vector<Piece>();
 		Vector<Piece> userPieces = new Vector<Piece>();
@@ -630,12 +717,46 @@ public class Board {
 			}
 		}
 
-		return new Board(board, aiPieces, userPieces);
+		return new Board(board, aiPieces, userPieces, player, new Stack<Move>(), new Stack<Long>(), new RNGTable());
 	}
 
-	public static Board fromFile(String fileName) {
+	public static Board fromFile(String fileName, Player player) {
 		String stringBoard = ReadWriteTextFile.getContents(fileName);
+		return fromString(stringBoard, player);
+	}
 
-		return fromString(stringBoard);
+	public long generateHashCode() {
+		long hashCode = rngTable.getSideToMoveRandom(player);
+
+		Piece p;
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				p = board[r][c];
+				if (p != null) {
+					hashCode |= rngTable.getPiecePerSquareRandom(p.getPlayer(), p.getPieceID(), r, c);
+				}
+			}
+		}
+
+		hashCode |= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Player.AI), this.nearRookHasMoved(Player.AI), this.kingHasMoved(Player.AI),
+				this.farRookHasMoved(Player.USER), this.nearRookHasMoved(Player.USER), this.kingHasMoved(Player.USER));
+
+		if (this.getLastMoveMade() != null) {
+			if (this.getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
+				hashCode |= rngTable.getEnPassantFile(this.getLastMoveMade().getToCol());
+			}
+		}
+
+		hashCodeHistory.push(new Long(hashCode));
+
+		return hashCode;
+	}
+
+	private void updateHashCode(Move move) {
+
+	}
+
+	public long getHashCode() {
+		return this.hashCodeHistory.peek().longValue();
 	}
 }

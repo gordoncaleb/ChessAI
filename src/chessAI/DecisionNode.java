@@ -22,9 +22,6 @@ public class DecisionNode {
 	// The board awaiting "player"'s move
 	private Board board;
 
-	// The player whose turn it is now
-	private Player player;
-
 	// The last move made on the attached board.
 	private Move move;
 
@@ -42,11 +39,11 @@ public class DecisionNode {
 		}
 		long heapFreeSize = Runtime.getRuntime().freeMemory();
 
-		DecisionNode test = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.AI, 1, 1, false)), null, null);
+		DecisionNode test = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.AI, 1, 1, false)), null);
 
 		int nodes = 4000000;
 		for (int i = 0; i < nodes; i++) {
-			test.addChild(new DecisionNode(test, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.AI, 1, 1, false)), null, null));
+			test.addChild(new DecisionNode(test, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.AI, 1, 1, false)), null));
 		}
 
 		for (int i = 0; i < 1; i++) {
@@ -65,10 +62,10 @@ public class DecisionNode {
 		System.out.println(childSize + "");
 
 		int[] nums = { 3, 7, 6, 5, 8, 3, 1, 2 };
-		DecisionNode root = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE), null, null);
+		DecisionNode root = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE), null);
 		DecisionNode child;
 		for (int i = 0; i < nums.length; i++) {
-			child = new DecisionNode(null, new Move(0, 0, 0, 0, nums[i], MoveNote.NONE), null, null);
+			child = new DecisionNode(null, new Move(0, 0, 0, 0, nums[i], MoveNote.NONE), null);
 			child.setChosenPathValue(nums[i]);
 			root.addChild(child);
 		}
@@ -92,7 +89,7 @@ public class DecisionNode {
 
 	}
 
-	public DecisionNode(DecisionNode parent, Move move, Board board, Player player) {
+	public DecisionNode(DecisionNode parent, Move move, Board board) {
 		this.parent = parent;
 
 		// Linked List data struct pointers
@@ -103,7 +100,6 @@ public class DecisionNode {
 
 		this.move = move;
 		this.board = board;
-		this.player = player;
 		this.status = GameStatus.IN_PLAY;
 
 	}
@@ -309,10 +305,6 @@ public class DecisionNode {
 		this.board = board;
 	}
 
-	public Player getPlayer() {
-		return player;
-	}
-
 	public void finalize() {
 		// System.out.println("Move (" + this.getMove().toString() +
 		// ") has been destroyed!");
@@ -363,7 +355,7 @@ public class DecisionNode {
 
 		if (move != null)
 			return move.toString() + " Status =" + getStatus().name() + " Move Value =" + this.getMoveValue() + " Chosen Path Value ="
-					+ this.getChosenPathValue(0) + " Chosen: " + chosen + " Player: " + this.getPlayer();
+					+ this.getChosenPathValue(0) + " Chosen: " + chosen;
 		else
 			return "Board Start";
 	}

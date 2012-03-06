@@ -22,8 +22,6 @@ public class AIProcessor extends Thread {
 	private boolean pruningEnabled;
 	private AI ai;
 
-	private boolean twigIsInvalid;
-
 	public AIProcessor(AI ai, int maxTreeLevel, int maxTwigLevel) {
 		this.ai = ai;
 		this.maxTreeLevel = maxTreeLevel;
@@ -60,7 +58,6 @@ public class AIProcessor extends Thread {
 	private void executeTask() {
 		DecisionNode task;
 		int ab = Integer.MIN_VALUE;
-		Piece queenedPawn = null;
 
 		while ((task = ai.getNextTask()) != null) {
 
@@ -69,7 +66,7 @@ public class AIProcessor extends Thread {
 					ab = rootNode.getHeadChild().getChosenPathValue(0);
 				}
 
-				queenedPawn = task.getBoard().makeMove(task.getMove(), rootNode.getPlayer());
+				task.getBoard().makeMove(task.getMove());
 			}
 
 			// if (maxTreeLevel >= 1) {
@@ -85,7 +82,7 @@ public class AIProcessor extends Thread {
 
 			if (rootNode != null) {
 
-				task.getBoard().undoMove(task.getMove(), rootNode.getPlayer(), queenedPawn);
+				task.getBoard().undoMove();
 
 				if (task.getMove().isValidated()) {
 					rootNode.addChild(task);
@@ -108,20 +105,11 @@ public class AIProcessor extends Thread {
 	 */
 	private void growDecisionTree(DecisionNode branch, int level, int alphaBeta) {
 
-		// This is the player making the child moves, not the player that made
-		// the branch.
-		Player player = branch.getPlayer();
-
-		// This is the player that made the branch as well as the player making
-		// moves on children of branch.
-		Player nextPlayer = getNextPlayer(player);
-
 		// Current state at branch
 		Board board = branch.getBoard();
 
 		boolean pruned = false;
 		int newAlphaBeta = Integer.MIN_VALUE;
-		Piece queenedPawn;
 
 		if (!branch.hasChildren()) {
 
@@ -129,14 +117,14 @@ public class AIProcessor extends Thread {
 
 			// If board is in check, castleing isn't valid
 			board.clearBoardState();
-			board.setInCheckDetails(calcInCheckDetails(nextPlayer, board));
+			board.setInCheckDetails(calcInCheckDetails(board));
 
 			if (board.isInCheck()) {
 				branch.setStatus(GameStatus.CHECK);
 			}
 
 			// check all moves of all pieces
-			Vector<Move> moves = board.generateValidMoves(player, branch.getMove());
+			Vector<Move> moves = board.generateValidMoves();
 			Move move;
 			DecisionNode newNode;
 
@@ -155,7 +143,7 @@ public class AIProcessor extends Thread {
 					return;
 				}
 
-				newNode = new DecisionNode(branch, move, board, nextPlayer);
+				newNode = new DecisionNode(branch, move, board);
 
 				if (pruned) {
 
@@ -163,7 +151,7 @@ public class AIProcessor extends Thread {
 
 				} else {
 
-					queenedPawn = board.makeMove(move, player);
+					board.makeMove(move);
 
 					if (branch.getHeadChild() != null) {
 						newAlphaBeta = branch.getHeadChild().getChosenPathValue(0);
@@ -179,7 +167,7 @@ public class AIProcessor extends Thread {
 
 					}
 
-					board.undoMove(move, player, queenedPawn);
+					board.undoMove();
 					
 				}
 
@@ -226,12 +214,12 @@ public class AIProcessor extends Thread {
 							newAlphaBeta = branch.getHeadChild().getChosenPathValue(0);
 						}
 
-						queenedPawn = board.makeMove(currentChild.getMove(), player);
+						board.makeMove(currentChild.getMove());
 
 						// explore down tree
 						growDecisionTree(currentChild, level - 1, newAlphaBeta);
 
-						board.undoMove(currentChild.getMove(), player, queenedPawn);
+						board.undoMove();
 
 					}
 				}
@@ -286,7 +274,7 @@ public class AIProcessor extends Thread {
 	 */
 	private void growFrontierTwig(DecisionNode twig, int alphaBeta) {
 
-		int twigsBestPathValue = growDecisionTreeLite(twig.getBoard(), twig.getPlayer(), twig.getMove(), alphaBeta, maxTwigLevel);
+		int twigsBestPathValue = growDecisionTreeLite(twig.getBoard(), twig.getMove(), alphaBeta, maxTwigLevel);
 
 		// int twigSuggestedPathValue = growDecisionTreeLite(twig.getBoard(),
 		// twig.getPlayer(), twig.getMoveValue(),Integer.MIN_VALUE, 0);
@@ -326,22 +314,20 @@ public class AIProcessor extends Thread {
 	 *            'growDecisionTreeLite()'
 	 * @return The value of the best move for 'player' on the 'board'
 	 */
-	private int growDecisionTreeLite(Board board, Player player, Move parentMove, int alphaBeta, int level) {
+	private int growDecisionTreeLite(Board board, Move parentMove, int alphaBeta, int level) {
 		Vector<Move> moves;
 		Move move;
 		boolean hasMove = false;
 		int suggestedPathValue;
 		int tempBoardState;
-		Piece queenedPawn;
 
 		int childsBestPathValue = Integer.MIN_VALUE;
-		Player nextPlayer = getNextPlayer(player);
 
 		board.clearBoardState();
 		// If board is in check, castleing isn't valid
-		board.setInCheckDetails(calcInCheckDetails(nextPlayer, board));
+		board.setInCheckDetails(calcInCheckDetails(board));
 
-		moves = board.generateValidMoves(player, parentMove);
+		moves = board.generateValidMoves();
 
 		for (int m = 0; m < moves.size(); m++) {
 			move = moves.elementAt(m);
@@ -355,11 +341,11 @@ public class AIProcessor extends Thread {
 
 				tempBoardState = board.getBoardState();
 
-				queenedPawn = board.makeMove(move, player);
+				board.makeMove(move);
 
-				suggestedPathValue = growDecisionTreeLite(board, nextPlayer, move, childsBestPathValue, level - 1);
+				suggestedPathValue = growDecisionTreeLite(board, move, childsBestPathValue, level - 1);
 
-				board.undoMove(move, player, null);
+				board.undoMove();
 
 				// This move was invalid. Goto next move and dont update
 				// bestMove or hasMove
@@ -416,13 +402,15 @@ public class AIProcessor extends Thread {
 	 *            Board being checked for check situation.
 	 * @return Whether or not "player" has put his/her opponent in check
 	 */
-	private int calcInCheckDetails(Player player, Board board) {
+	private int calcInCheckDetails(Board board) {
 		int[][] kingLeftRight = { { 7, 3, 7, 5 }, { 0, 3, 0, 5 } };
 		Vector<Move> moves;
 		Move move;
 		int inCheck = 0;
+		
+		Player player = board.getNextPlayer();
 
-		moves = board.generateValidMoves(player, null);
+		moves = board.generateValidMoves(player);
 		for (int m = 0; m < moves.size(); m++) {
 			move = moves.elementAt(m);
 
@@ -443,14 +431,6 @@ public class AIProcessor extends Thread {
 
 		return inCheck;
 
-	}
-
-	private Player getNextPlayer(Player player) {
-		if (player == Player.USER) {
-			return Player.AI;
-		} else {
-			return Player.USER;
-		}
 	}
 
 	public void setMaxTreeLevel(int maxTreeLevel) {

@@ -25,7 +25,7 @@ public class Pawn extends Piece {
 		return "P";
 	}
 
-	public Vector<Move> generateValidMoves(Board board, Move lastMoveMade) {
+	public Vector<Move> generateValidMoves(Board board) {
 		Vector<Move> validMoves = new Vector<Move>();
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();
@@ -56,7 +56,7 @@ public class Pawn extends Piece {
 
 			if (!this.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == PositionStatus.NO_PIECE) {
 				bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, this.getPlayer());
-				validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol, bonus, MoveNote.NONE));
+				validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol, bonus, MoveNote.PAWN_LEAP));
 			}
 
 		}
@@ -78,10 +78,10 @@ public class Pawn extends Piece {
 		}
 
 		//Check left and right en passant rule
-		if (currentRow == fifthRank && lastMoveMade != null) {
+		if (currentRow == fifthRank && board.getLastMoveMade() != null) {
 			for (int i = 0; i < lr.length; i++) {
 				if (board.checkPiece(fifthRank, currentCol + lr[i], player) == PositionStatus.ENEMY) {
-					if (lastMoveMade.equals(fifthRank + 2 * dir, currentCol + lr[i], fifthRank, currentCol + lr[i]) && !lastMoveMade.hadMoved()) {
+					if (board.getLastMoveMade().equals(fifthRank + 2 * dir, currentCol + lr[i], fifthRank, currentCol + lr[i]) && !board.getLastMoveMade().hadMoved()) {
 						validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol + lr[i]);
 						validMove.setValue(board.getPieceValue(fifthRank, currentCol + lr[i]));
 						validMove.setPieceTaken(board.getPiece(fifthRank, currentCol + lr[i]));

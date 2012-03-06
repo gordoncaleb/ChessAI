@@ -118,9 +118,9 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		this.whitePlayer = whitePlayer;
 
 		if (debug) {
-			adjudicator = new Adjudicator(Board.fromFile("testboard.txt"), whitePlayer);
+			adjudicator = new Adjudicator(Board.fromFile("testboard.txt",whitePlayer));
 		} else {
-			adjudicator = new Adjudicator(new Board(), whitePlayer);
+			adjudicator = new Adjudicator(new Board(whitePlayer));
 		}
 
 		clearPiecesTaken();
@@ -220,7 +220,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 		updateLastMovedSquare();
 
-		game.setGameSatus(adjudicator.getRoot().getStatus(), adjudicator.getRoot().getPlayer());
+		game.setGameSatus(adjudicator.getRoot().getStatus(), adjudicator.getRoot().getBoard().getPlayer());
 
 	}
 
@@ -254,7 +254,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 				chessSquares[row][col].clearChessPiece();
 
 				if (board.hasPiece(getRow, getCol)) {
-					chessSquares[row][col].showChessPiece(board.getPieceID(getRow, getCol), board.getPlayer(getRow, getCol));
+					chessSquares[row][col].showChessPiece(board.getPieceID(getRow, getCol), board.getPiecePlayer(getRow, getCol));
 				}
 
 				if (debug) {
