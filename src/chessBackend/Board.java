@@ -119,10 +119,8 @@ public class Board {
 		makeMove(move, player);
 
 		updateHashCode(move);
-		hashCodeHistory.push(this.getHashCode());
 
 		moveHistory.push(move);
-
 		player = getNextPlayer();
 	}
 
@@ -733,17 +731,17 @@ public class Board {
 			for (int c = 0; c < 8; c++) {
 				p = board[r][c];
 				if (p != null) {
-					hashCode |= rngTable.getPiecePerSquareRandom(p.getPlayer(), p.getPieceID(), r, c);
+					hashCode ^= rngTable.getPiecePerSquareRandom(p.getPlayer(), p.getPieceID(), r, c);
 				}
 			}
 		}
 
-		hashCode |= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Player.AI), this.nearRookHasMoved(Player.AI), this.kingHasMoved(Player.AI),
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Player.AI), this.nearRookHasMoved(Player.AI), this.kingHasMoved(Player.AI),
 				this.farRookHasMoved(Player.USER), this.nearRookHasMoved(Player.USER), this.kingHasMoved(Player.USER));
 
 		if (this.getLastMoveMade() != null) {
 			if (this.getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
-				hashCode |= rngTable.getEnPassantFile(this.getLastMoveMade().getToCol());
+				hashCode ^= rngTable.getEnPassantFile(this.getLastMoveMade().getToCol());
 			}
 		}
 
@@ -753,6 +751,17 @@ public class Board {
 	}
 
 	private void updateHashCode(Move move) {
+		
+		//remove old player
+		//add new player
+		
+		//remove old piece per square
+		//add new piece per square
+		
+		//if rook or king moved, update castling rules
+		
+		//if last move made is pawn leap, remove en passant file num
+		//if new move is pawn leap, add en passant file num
 
 	}
 
