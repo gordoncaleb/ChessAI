@@ -9,14 +9,14 @@ public class RNGTable {
 	private static final byte[] seed = { -52, 45, -101, 26, -51, -99, -84, -79 };
 	private Random rng;
 	private long[][][][] piecePerSquare;
-	private long[] sideToMove;
+	private long blackToMove;
 	private long[][][][] castlingRights;
 	private long[] enPassantFile;
 
 	public RNGTable() {
 		rng = new SecureRandom(seed);
 		generatePiecePerSquare();
-		generateSideToMove();
+		generateBlackToMove();
 		generateCastlingRights();
 		generateEnPassantFile();
 	}
@@ -54,16 +54,13 @@ public class RNGTable {
 		return piecePerSquare[player.ordinal()][id.ordinal()][row][col];
 	}
 
-	private void generateSideToMove() {
-		sideToMove = new long[2];
+	private void generateBlackToMove() {
+		blackToMove = randomLong();
 
-		for (int i = 0; i < 2; i++) {
-			sideToMove[i] = randomLong();
-		}
 	}
 
-	public long getSideToMoveRandom(Player player) {
-		return sideToMove[player.ordinal()];
+	public long getBlackToMoveRandom() {
+		return blackToMove;
 	}
 
 	private void generateCastlingRights() {

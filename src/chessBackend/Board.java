@@ -21,8 +21,8 @@ public class Board {
 	private Vector<Piece> aiPieces;
 	private Vector<Piece> userPieces;
 	private Player player;
-	private Stack<Move> moveHistory;
 	private RNGTable rngTable;
+	private Stack<Move> moveHistory;
 	private Stack<Long> hashCodeHistory;
 
 	public Board(Piece[][] board, Vector<Piece> aiPieces, Vector<Piece> playerPieces, Player player, Stack<Move> moveHistory,
@@ -110,18 +110,24 @@ public class Board {
 
 	}
 
-	public void makeMove(Move move) {
-		
-		if(board[move.getFromRow()][move.getFromCol()].getPlayer()!=player){
+	public boolean makeMove(Move move) {
+
+		if (board[move.getFromRow()][move.getFromCol()].getPlayer() != player) {
 			System.out.println("Problem with player ref");
+			return false;
 		}
-		
+
+		// update board to reflect new move
 		makeMove(move, player);
 
-		updateHashCode(move);
-
+		updateHashCode(move, this.getLastMoveMade(), player, getNextPlayer());
 		moveHistory.push(move);
+
+		// move was made, next player's turn
 		player = getNextPlayer();
+
+		return true;
+
 	}
 
 	private void makeMove(Move move, Player player) {
@@ -203,14 +209,22 @@ public class Board {
 
 	}
 
-	public void undoMove() {
+	public boolean undoMove() {
+
+		if (moveHistory.empty()) {
+			return false;
+		}
 
 		player = getNextPlayer();
-
-		undoMove(this.getLastMoveMade(), this.player);
-
+		undoMove(getLastMoveMade(), player);
 		moveHistory.pop();
 		hashCodeHistory.pop();
+
+		if (hashCodeHistory.empty()) {
+			generateHashCode();
+		}
+
+		return true;
 	}
 
 	private void undoMove(Move move, Player player) {
@@ -724,7 +738,11 @@ public class Board {
 	}
 
 	public long generateHashCode() {
-		long hashCode = rngTable.getSideToMoveRandom(player);
+		long hashCode = 0;
+
+		if (player == Player.AI) {
+			hashCode = rngTable.getBlackToMoveRandom();
+		}
 
 		Piece p;
 		for (int r = 0; r < 8; r++) {
@@ -750,18 +768,69 @@ public class Board {
 		return hashCode;
 	}
 
-	private void updateHashCode(Move move) {
-		
-		//remove old player
-		//add new player
-		
-		//remove old piece per square
-		//add new piece per square
-		
-		//if rook or king moved, update castling rules
-		
-		//if last move made is pawn leap, remove en passant file num
-		//if new move is pawn leap, add en passant file num
+	private void updateHashCode(Move newMove, Move lastMove, Player playerBeforeMove, Player playerAfterMove) {
+		// player is set to side who's turn it is after this move.
+		// next player is player who made this move
+
+		long newHashCode = this.getHashCode();
+
+		// either remove black and add white or reverse. Same operation.
+		newHashCode ^= rngTable.getBlackToMoveRandom();
+
+		Piece p = board[newMove.getToRow()][newMove.getToCol()];
+
+		// piece id could have changed after move in the case of NEW_QUEEN
+		PieceID pieceIDBeforeMove;
+		if (newMove.getNote() == MoveNote.NEW_QUEEN) {
+			pieceIDBeforeMove = PieceID.PAWN;
+		} else {
+			pieceIDBeforeMove = p.getPieceID();
+		}
+
+		// remove old hash from where piece was
+		newHashCode ^= rngTable.getPiecePerSquareRandom(p.getPlayer(), pieceIDBeforeMove, newMove.getFromRow(), newMove.getFromCol());
+
+		// remove old hash from piece that was taken, if any
+		Piece pieceTaken = newMove.getPieceTaken();
+		if (pieceTaken != null) {
+			newHashCode ^= rngTable
+					.getPiecePerSquareRandom(pieceTaken.getPlayer(), pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol());
+		}
+
+		// add hash of piece at new location
+		newHashCode ^= rngTable.getPiecePerSquareRandom(p.getPlayer(), p.getPieceID(), newMove.getToRow(), newMove.getToCol());
+
+		// if rook or king moved, update castling rules
+		if (!newMove.hadMoved()) {
+			// check if black king or white king moved
+			if (p.getPieceID() == PieceID.KING) {
+				if (p.getPlayer() == Player.AI) {
+
+				} else {
+
+				}
+			} else {
+
+				// check if near or far rook
+				if (p.getPieceID() == PieceID.ROOK) {
+					
+				}
+			}
+		}
+
+		if (lastMove != null) {
+			// if last move made is pawn leap, remove en passant file num
+			if (lastMove.getNote() == MoveNote.PAWN_LEAP) {
+				newHashCode ^= rngTable.getEnPassantFile(lastMove.getToCol());
+			}
+		}
+
+		// if new move is pawn leap, add en passant file num
+		if (newMove.getNote() == MoveNote.PAWN_LEAP) {
+			newHashCode ^= rngTable.getEnPassantFile(newMove.getToCol());
+		}
+
+		hashCodeHistory.push(new Long(newHashCode));
 
 	}
 

@@ -362,6 +362,8 @@ public class AI extends Thread {
 		this.rootNode.removeAllChildren();
 		this.rootNode.addChild(newRootNode);
 		this.rootNode = newRootNode;
+		
+		System.out.println("Board hash code = " + rootNode.getBoard().getHashCode());
 
 		if (this.rootNode.getStatus() != GameStatus.IN_PLAY) {
 			System.out.println(newRootNode.getStatus().toString());
