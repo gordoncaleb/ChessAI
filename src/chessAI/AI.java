@@ -7,6 +7,9 @@ import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Player;
 import chessBackend.Move;
+import chessIO.FileIO;
+import chessIO.MoveBook;
+import chessIO.XMLParser;
 
 public class AI extends Thread {
 	private boolean debug;
@@ -24,10 +27,7 @@ public class AI extends Thread {
 	private DecisionNode userDecision;
 
 	private boolean makeNewGame;
-	private Player firstMove;
-
-	private boolean growDecisionBranch;
-	private DecisionNode branchToGrow;
+	private Player userSide;
 
 	private boolean undoUserMove;
 
@@ -55,14 +55,14 @@ public class AI extends Thread {
 			processorThreads[i].start();
 		}
 
-		System.out.println(processorThreads.length + " threads created and started.");
+		if (debug) {
+			System.out.println(processorThreads.length + " threads created and started.");
+		}
 	}
 
 	@Override
 	public void run() {
 
-		// while (!userMoved && !makeNewGame && !growDecisionBranch &&
-		// !undoUserMove) {
 		while (true) {
 			synchronized (this) {
 				try {
@@ -80,11 +80,6 @@ public class AI extends Thread {
 			if (makeNewGame) {
 				makeNewGame();
 				makeNewGame = false;
-			}
-
-			if (growDecisionBranch) {
-				//growDecisionBranch(branchToGrow);
-				growDecisionBranch = false;
 			}
 
 			if (undoUserMove) {
@@ -106,13 +101,10 @@ public class AI extends Thread {
 
 		// Set the user's move as the root of the decision tree
 		setRootNode(userDecision);
-		moveBook.moved(userDecision.getMove());
 
 		System.out.println(rootNode.getBoard().toString());
 
 		moveAI();
-
-		moveBook.moved(rootNode.getMove());
 		game.aiMoved(rootNode.getMove());
 
 	}
@@ -131,26 +123,32 @@ public class AI extends Thread {
 
 			time = System.currentTimeMillis();
 
-			if (!moveBook.hasRecommendation()) {
+			Move mb;
+			if ((mb = moveBook.getRecommendation(rootNode.getBoard().getHashCode())) == null) {
 
 				// Split the task of looking at all possible AI moves up amongst
 				// multiple threads. This takes advantage of multicore systems.
 				delegateProcessors(rootNode);
 
-				aiDecision = userDecision.getChosenChild();
+				aiDecision = rootNode.getChosenChild();
 			} else {
 
 				// The AI's decision was decided by the good move database but
 				// the tree has to grow to reflect possible responses by the
 				// user
 
-				System.out.println("Ai moved based on recommendation");
+				if (debug) {
+					System.out.println("Ai moved based on recommendation");
+				}
+
 				setProcessorLevels(2, 0, true);
 				growRoot();
 				setDefaultProcessorLevels();
 
-				aiDecision = getMatchingDecisionNode(moveBook.getRecommendation());
+				aiDecision = getMatchingDecisionNode(mb);
 			}
+
+			System.out.println("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
 
 			// debug print out of decision tree stats. i.e. the tree size and
 			// the values of the move options that the AI has
@@ -163,9 +161,9 @@ public class AI extends Thread {
 			// on the user's move
 			setRootNode(aiDecision);
 
-			System.out.println(rootNode.getBoard().toString());
-
-			System.out.println("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
+			if (debug) {
+				System.out.println(rootNode.getBoard().toString());
+			}
 
 		}
 	}
@@ -176,28 +174,20 @@ public class AI extends Thread {
 		// firstMove);
 
 		if (debug) {
-			rootNode = new DecisionNode(null, null, Board.fromFile("testboard.txt", firstMove));
+			rootNode = new DecisionNode(null, null, XMLParser.XMLToBoard(FileIO.readFile("testboard.xml")));
 
 		} else {
-			rootNode = new DecisionNode(null, null, new Board(firstMove));
+			rootNode = new DecisionNode(null, null, XMLParser.XMLToBoard(FileIO.readFile("default.xml")));
 		}
 
-		
-		if (firstMove == Player.AI) {
-			moveBook.setInvertedTable(true);
-		} else {
-			moveBook.setInvertedTable(false);
-		}
-
-		moveBook.newGame();
 
 		// These two numbers represent how large the initial decision tree is.
-		// In the case that the user is going first it is small, so as to speed
+		// In the case that the user is going first, it is small, so as to speed
 		// up startup times. In the case of the AI is first it is large so that
 		// "thought" is put into the AI's first Move.
-		if (firstMove == Player.AI) {
+		
+		if (userSide != rootNode.getBoard().getPlayer()) {
 			moveAI();
-			moveBook.moved(rootNode.getMove());
 			game.aiMoved(rootNode.getMove());
 		} else {
 			setProcessorLevels(0, 0, false);
@@ -222,21 +212,14 @@ public class AI extends Thread {
 	 * @return The new root node, which is the AI response to 'userMove'.
 	 */
 	public synchronized void setUserDecision(Move usersMove) {
-		System.out.println("Setting user decision");
 		this.userDecision = getMatchingDecisionNode(usersMove);
 		userMoved = true;
 		this.notifyAll();
 	}
 
-	public synchronized void setMakeNewGame(Player firstMove) {
-		this.firstMove = firstMove;
+	public synchronized void setMakeNewGame(Player userSide) {
+		this.userSide = userSide;
 		makeNewGame = true;
-		this.notifyAll();
-	}
-
-	public synchronized void growBranch(DecisionNode branch) {
-		branchToGrow = branch;
-		growDecisionBranch = true;
 		this.notifyAll();
 	}
 
@@ -247,7 +230,9 @@ public class AI extends Thread {
 
 	public synchronized void taskDone() {
 		taskDone++;
-		System.out.println(taskDone + "/" + taskSize + " done");
+		if (debug) {
+			System.out.println(taskDone + "/" + taskSize + " done");
+		}
 	}
 
 	public void clearTaskDone() {
@@ -274,7 +259,10 @@ public class AI extends Thread {
 		// This allows pruning at the root level.
 		root.removeAllChildren();
 
-		System.out.println("New task");
+		if (debug) {
+			System.out.println("New task");
+		}
+
 		for (int d = 0; d < processorThreads.length; d++) {
 			processorThreads[d].setNewTask(root);
 		}
@@ -362,22 +350,16 @@ public class AI extends Thread {
 		this.rootNode.removeAllChildren();
 		this.rootNode.addChild(newRootNode);
 		this.rootNode = newRootNode;
-		
-		System.out.println("Board hash code = " + rootNode.getBoard().getHashCode());
+
+		if (debug) {
+			System.out.println("Board hash code = " + Long.toHexString(rootNode.getBoard().getHashCode()));
+		}
 
 		if (this.rootNode.getStatus() != GameStatus.IN_PLAY) {
 			System.out.println(newRootNode.getStatus().toString());
 		}
 
 		System.gc();
-	}
-
-	private Player getNextPlayer(Player player) {
-		if (player == Player.USER) {
-			return Player.AI;
-		} else {
-			return Player.USER;
-		}
 	}
 
 	private void setProcessorLevels(int maxDecisionTreeLevel, int maxTwigLevel, boolean pruningEnabled) {
@@ -408,82 +390,17 @@ public class AI extends Thread {
 			currentChild = currentChild.getNextSibling();
 		}
 
-		System.out.println("Good move (" + goodMove.toString() + ") not found as possibility");
+		if (debug) {
+			System.out.println("Good move (" + goodMove.toString() + ") not found as possibility");
+		}
+
 		return null;
 
 	}
 
-	public MoveBook getGoodMoveDB() {
+	public MoveBook getMoveBook() {
 		return moveBook;
 	}
-
-//	/**
-//	 * This method can grow a branch in the decision tree such that 'branch'
-//	 * will have new children or grandchildren and after the branch is grown
-//	 * further, the parents of the branch will be notified of their child's new
-//	 * value if it changed.
-//	 * 
-//	 * @param branch
-//	 *            The branch to grow.
-//	 */
-//	public void growDecisionBranch(DecisionNode branch) {
-//
-//		int previousSuggestedPathValue = branch.getChosenPathValue(0);
-//		delegateProcessors(branch);
-//		int suggestedPathValue = branch.getChosenPathValue(0);
-//
-//		// After thinking further down this path, the path value has changed.
-//		// Any parents or grandparents need to be notified.
-//		if (previousSuggestedPathValue != suggestedPathValue) {
-//			System.out.println("updating parents");
-//			updateParents(branch);
-//		}
-//	}
-//
-//	/**
-//	 * This function assumes that a child of some node has changed it's
-//	 * 'chosenPathValue' and therefore needs to have it's parent resort so that
-//	 * the child takes it's new place amongst its siblings. All children are
-//	 * sorted based on their 'chosenPathValue'.
-//	 * 
-//	 * @param child
-//	 *            The node that has had it's 'chosenPathValue' change.
-//	 */
-//	private void updateParents(DecisionNode child) {
-//		DecisionNode parent = child.getParent();
-//		if (parent != null) {
-//			parent.removeChild(child);
-//			parent.addChild(child);
-//			updateParents(parent);
-//		}
-//	}
-//
-//	/**
-//	 * This function builds 'numOfBesstDecisions' of all children of 'rootNode'.
-//	 * It's used to dig deeper on the 'numOfBestDecisions' of the possible AI
-//	 * response to all possible user moves.
-//	 * 
-//	 * @param rootNode
-//	 *            The game root node. It's children are all possible user moves,
-//	 *            and grandchildren are possible AI responses.
-//	 * @param numOfBestDecisions
-//	 *            The number of AI responses to dig deeper on.
-//	 */
-//	private void expandGoodDecisions(DecisionNode rootNode, int numOfBestDecisions) {
-//		int childrenSize = rootNode.getChildrenSize();
-//		int grandChildrenSize;
-//
-//		DecisionNode nextChild;
-//		DecisionNode currentChild = rootNode.getHeadChild();
-//		for (int i = 0; i < childrenSize; i++) {
-//
-//			System.out.println("expanding " + i);
-//			nextChild = currentChild.getNextSibling();
-//			growDecisionBranch(currentChild);
-//
-//			currentChild = nextChild;
-//		}
-//	}
 
 	// Debug methods
 
@@ -510,7 +427,6 @@ public class AI extends Thread {
 
 	private void printChildren(DecisionNode parent) {
 
-		
 		DecisionNode currentChild = parent.getHeadChild();
 		for (int i = 0; i < parent.getChildrenSize(); i++) {
 			System.out.println(currentChild.toString());
@@ -523,7 +439,7 @@ public class AI extends Thread {
 		if (userDecision != null) {
 			printChildren(userDecision);
 		}
-		
+
 		for (int i = 0; i < childNum.length; i++) {
 			childNum[i] = 0;
 		}
@@ -535,16 +451,17 @@ public class AI extends Thread {
 		int totalChildren = 0;
 		for (int i = 0; i < childNum.length; i++) {
 			totalChildren += childNum[i];
-			
+
 			System.out.println(childNum[i] + " at level " + i);
-			
-			if(childNum[i] == 0)
+
+			if (childNum[i] == 0)
 				break;
 		}
-		
+
 		System.out.println("Total Children = " + totalChildren);
 
 		System.out.println("User chose move worth " + rootNode.getChosenPathValue(0));
+
 	}
 
 	public int getMoveChosenPathValue(Move m) {

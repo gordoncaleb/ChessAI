@@ -1,13 +1,13 @@
 package chessAI;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 import chessBackend.Board;
 import chessBackend.GameStatus;
+import chessBackend.BoardHashEntry;
 import chessBackend.Move;
-import chessBackend.MoveNote;
 import chessBackend.Player;
-import chessPieces.Piece;
 import chessPieces.PieceID;
 import chessPieces.Values;
 
@@ -22,10 +22,13 @@ public class AIProcessor extends Thread {
 	private boolean pruningEnabled;
 	private AI ai;
 
+	private Hashtable<Long, BoardHashEntry> hashTable;
+
 	public AIProcessor(AI ai, int maxTreeLevel, int maxTwigLevel) {
 		this.ai = ai;
 		this.maxTreeLevel = maxTreeLevel;
 		this.maxTwigLevel = maxTwigLevel;
+		hashTable = new Hashtable<Long, BoardHashEntry>();
 	}
 
 	@Override
@@ -33,7 +36,7 @@ public class AIProcessor extends Thread {
 
 		while (!isInterrupted()) {
 
-			System.out.println("Processor " + this.getId() + " ready!");
+			//System.out.println("Processor " + this.getId() + " ready!");
 
 			while (!isNewTask) {
 				try {
@@ -46,6 +49,9 @@ public class AIProcessor extends Thread {
 			isNewTask = false;
 
 			executeTask();
+
+			System.out.println("HashTable size = " + hashTable.size());
+			hashTable.clear();
 
 		}
 	}
@@ -84,9 +90,8 @@ public class AIProcessor extends Thread {
 
 				task.getBoard().undoMove();
 
-				if (task.getMove().isValidated()) {
-					rootNode.addChild(task);
-				}
+				rootNode.addChild(task);
+
 			}
 
 			ai.taskDone();
@@ -110,38 +115,25 @@ public class AIProcessor extends Thread {
 
 		boolean pruned = false;
 		int newAlphaBeta = Integer.MIN_VALUE;
+		BoardHashEntry hashOut;
+		boolean skip;
 
 		if (!branch.hasChildren()) {
 
-			// Node was at the bottom of the tree. This "branch" has to grow.
-
-			// If board is in check, castleing isn't valid
-			board.clearBoardState();
-			board.setInCheckDetails(calcInCheckDetails(board));
-
+			// check all moves of all pieces
+			Vector<Move> moves = board.generateValidMoves();
+			
 			if (board.isInCheck()) {
 				branch.setStatus(GameStatus.CHECK);
 			}
-
-			// check all moves of all pieces
-			Vector<Move> moves = board.generateValidMoves();
+			
 			Move move;
 			DecisionNode newNode;
-
 			for (int m = 0; m < moves.size(); m++) {
 
 				move = moves.elementAt(m);
 
-				// Check to see if the move in question resulted in
-				// the loss of your king. Such a move is invalid because
-				// you can't move into check.
-
-				if (move.isKingTaken()) {
-					branch.getMove().invalidate();
-					// System.out.println("Move invalidated " +
-					// branch.getMove().toString());
-					return;
-				}
+				skip = false;
 
 				newNode = new DecisionNode(branch, move, board);
 
@@ -153,35 +145,64 @@ public class AIProcessor extends Thread {
 
 					board.makeMove(move);
 
-					if (branch.getHeadChild() != null) {
-						newAlphaBeta = branch.getHeadChild().getChosenPathValue(0);
+					// use hashtable to see if hashcode has been seen before
+					hashOut = hashTable.get(board.getHashCode());
+
+					if (hashOut != null) {
+
+						// verify boards actually match
+						// if
+						// (board.toString().compareTo(hashOut.getBoardString())
+						// != 0) {
+						// System.out.println("Hash collision!\n" +
+						// board.toString() + "\n!=\n" +
+						// hashOut.getBoardString());
+						// }
+
+						// check to see if depth is sufficient
+						if (hashOut.getLevel() > (level + maxTwigLevel)) {
+							skip = true;
+						}
+					} else {
+						// put temp holder in for any children returning to
+						// parents state
+						// hashTable.put(board.getHashCode(), new
+						// HashTableEntry(level + maxTwigLevel, 0));
 					}
 
-					if (level > 0) {
+					if (!skip) {
+						if (branch.getHeadChild() != null) {
+							newAlphaBeta = branch.getHeadChild().getChosenPathValue(0);
+						}
 
-						growDecisionTree(newNode, level - 1, newAlphaBeta);
+						if (level > 0) {
 
+							growDecisionTree(newNode, level - 1, newAlphaBeta);
+
+						} else {
+
+							growFrontierTwig(newNode, newAlphaBeta);
+
+						}
+
+						// add new entry into hash table
+						hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, newNode.getChosenPathValue(0)));// ,
+																																	// board.toString()));
 					} else {
-
-						growFrontierTwig(newNode, newAlphaBeta);
-
+						newNode.setChosenPathValue(hashOut.getScore());
 					}
 
 					board.undoMove();
-					
+
 				}
 
-				// Check if the newNode move was invalidated
-				if (newNode.getMove().isValidated()) {
-					branch.addChild(newNode);
+				branch.addChild(newNode);
 
-					// alpha beta pruning
-					if (pruningEnabled) {
-						if (branch.getMoveValue() - newNode.getChosenPathValue(0) < alphaBeta) {
-							pruned = true;
-						}
+				// alpha beta pruning
+				if (pruningEnabled) {
+					if (branch.getMoveValue() - newNode.getChosenPathValue(0) < alphaBeta) {
+						pruned = true;
 					}
-
 				}
 
 			}
@@ -219,6 +240,10 @@ public class AIProcessor extends Thread {
 						// explore down tree
 						growDecisionTree(currentChild, level - 1, newAlphaBeta);
 
+						// add new entry into hash table
+						hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, currentChild.getChosenPathValue(0)));// ,
+																																			// board.toString()));
+
 						board.undoMove();
 
 					}
@@ -227,16 +252,13 @@ public class AIProcessor extends Thread {
 				// Checks if that move was valid. This invalidated check is used
 				// after every move by the user. It would remove user moves that
 				// put the user in check.
-				if (currentChild.getMove().isValidated()) {
-					branch.addChild(currentChild);
+				branch.addChild(currentChild);
 
-					// alpha beta pruning
-					if (pruningEnabled) {
+				// alpha beta pruning
+				if (pruningEnabled) {
 
-						if (branch.getMoveValue() - currentChild.getChosenPathValue(0) < alphaBeta) {
-							pruned = true;
-						}
-
+					if (branch.getMoveValue() - currentChild.getChosenPathValue(0) < alphaBeta) {
+						pruned = true;
 					}
 
 				}
@@ -279,10 +301,6 @@ public class AIProcessor extends Thread {
 		// int twigSuggestedPathValue = growDecisionTreeLite(twig.getBoard(),
 		// twig.getPlayer(), twig.getMoveValue(),Integer.MIN_VALUE, 0);
 
-		if (twig.getBoard().isLastMoveInvalid()) {
-			twig.getMove().invalidate();
-		}
-
 		if (twig.getBoard().isInCheck()) {
 			twig.setStatus(GameStatus.CHECK);
 		}
@@ -317,25 +335,20 @@ public class AIProcessor extends Thread {
 	private int growDecisionTreeLite(Board board, Move parentMove, int alphaBeta, int level) {
 		Vector<Move> moves;
 		Move move;
-		boolean hasMove = false;
 		int suggestedPathValue;
 		int tempBoardState;
 
-		int childsBestPathValue = Integer.MIN_VALUE;
+		BoardHashEntry hashOut;
+		boolean skip;
 
-		board.clearBoardState();
-		// If board is in check, castleing isn't valid
-		board.setInCheckDetails(calcInCheckDetails(board));
+		int childsBestPathValue = Integer.MIN_VALUE;
 
 		moves = board.generateValidMoves();
 
 		for (int m = 0; m < moves.size(); m++) {
 			move = moves.elementAt(m);
 
-			if (move.isKingTaken()) {
-				board.setLastMoveInvalid();
-				return 0;
-			}
+			skip = false;
 
 			if ((level > 0 || board.isInCheck() || move.getPieceTaken() != null) && (level > -maxFrontierLevel)) {
 
@@ -343,28 +356,42 @@ public class AIProcessor extends Thread {
 
 				board.makeMove(move);
 
-				suggestedPathValue = growDecisionTreeLite(board, move, childsBestPathValue, level - 1);
+				hashOut = hashTable.get(board.getHashCode());
+
+				if (hashOut != null) {
+
+					// verify boards actually match
+					// if (board.toString().compareTo(hashOut.getBoardString())
+					// != 0) {
+					// System.out.println("Hash collision!\n" + board.toString()
+					// + "\n!=\n" + hashOut.getBoardString());
+					//
+					// }
+
+					if (hashOut.getLevel() > level) {
+						skip = true;
+					}
+				} else {
+					// hashTable.put(board.getHashCode(), new
+					// HashTableEntry(level, 0));
+				}
+
+				if (!skip) {
+					suggestedPathValue = growDecisionTreeLite(board, move, childsBestPathValue, level - 1);
+
+					hashTable.put(board.getHashCode(), new BoardHashEntry(level, suggestedPathValue));// ,
+																										// board.toString()));
+				} else {
+					suggestedPathValue = hashOut.getScore();
+				}
 
 				board.undoMove();
 
-				// This move was invalid. Goto next move and dont update
-				// bestMove or hasMove
-				if (board.isLastMoveInvalid()) {
-					
-					board.setBoardState(tempBoardState);
-					continue;
-					
-				} else {
-					
-					board.setBoardState(tempBoardState);
-					
-				}
+				board.setBoardState(tempBoardState);
 
 			} else {
 				suggestedPathValue = move.getValue();
 			}
-
-			hasMove = true;
 
 			if (suggestedPathValue > childsBestPathValue) {
 				childsBestPathValue = suggestedPathValue;
@@ -378,59 +405,17 @@ public class AIProcessor extends Thread {
 
 		int parentsBestPathValue;
 
-		if (!hasMove) {
-			if (board.isInCheck()) {
-				parentsBestPathValue = Values.CHECKMATE_MOVE - (maxTwigLevel - level + maxTreeLevel) * Values.CHECKMATE_DEPTH_INC;
-				board.setIsInCheckMate();
-			} else {
-				parentsBestPathValue = Values.STALEMATE_MOVE;
-				board.setIsInStaleMate();
-			}
+		if (board.isInCheckMate()) {
+			parentsBestPathValue = Values.CHECKMATE_MOVE - (maxTwigLevel - level + maxTreeLevel) * Values.CHECKMATE_DEPTH_INC;
 		} else {
-			parentsBestPathValue = parentMove.getValue() - childsBestPathValue;
+			if (board.isInStaleMate()) {
+				parentsBestPathValue = Values.STALEMATE_MOVE;
+			} else {
+				parentsBestPathValue = parentMove.getValue() - childsBestPathValue;
+			}
 		}
 
 		return parentsBestPathValue;
-	}
-
-	/**
-	 * 
-	 * @param player
-	 *            The player who is putting the other player in check. Not the
-	 *            player that might be in check, but the other one.
-	 * @param board
-	 *            Board being checked for check situation.
-	 * @return Whether or not "player" has put his/her opponent in check
-	 */
-	private int calcInCheckDetails(Board board) {
-		int[][] kingLeftRight = { { 7, 3, 7, 5 }, { 0, 3, 0, 5 } };
-		Vector<Move> moves;
-		Move move;
-		int inCheck = 0;
-		
-		Player player = board.getNextPlayer();
-
-		moves = board.generateValidMoves(player);
-		for (int m = 0; m < moves.size(); m++) {
-			move = moves.elementAt(m);
-
-			if (move.getPieceTaken() != null) {
-				if (move.getPieceTaken().getPieceID() == PieceID.KING) {
-					inCheck = inCheck | 2;
-				}
-			}
-
-			if (move.getToRow() == kingLeftRight[player.ordinal()][0] && move.getToCol() == kingLeftRight[player.ordinal()][1]) {
-				inCheck = inCheck | 4;
-			}
-
-			if (move.getToRow() == kingLeftRight[player.ordinal()][2] && move.getToCol() == kingLeftRight[player.ordinal()][3]) {
-				inCheck = inCheck | 1;
-			}
-		}
-
-		return inCheck;
-
 	}
 
 	public void setMaxTreeLevel(int maxTreeLevel) {

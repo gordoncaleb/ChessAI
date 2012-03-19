@@ -2,12 +2,13 @@ package chessPieces;
 
 import java.util.Vector;
 
+import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.MoveNote;
 import chessBackend.Player;
 import chessBackend.Move;
 
-public class King extends Piece{
+public class King extends Piece {
 	private static int[][] KINGMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
 
 	public King(Player player, int row, int col, boolean moved) {
@@ -21,12 +22,12 @@ public class King extends Piece{
 	public String getName() {
 		return "King";
 	}
-	
-	public String getStringID(){
+
+	public String getStringID() {
 		return "K";
 	}
 
-	public Vector<Move> generateValidMoves(Board board) {
+	public Vector<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
 		Vector<Move> validMoves = new Vector<Move>();
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();
@@ -43,36 +44,118 @@ public class King extends Piece{
 
 			if (pieceStatus == PositionStatus.NO_PIECE) {
 
-				if (!this.hasMoved() && (!board.farRookHasMoved(player) || !board.nearRookHasMoved(player))) {
-					// The player loses points for losing the ability to castle
-					move = new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
-					validMoves.add(move);
-				} else {
-					move = new Move(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
-					validMoves.add(move);
+				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
+					if (!this.hasMoved() && (!board.farRookHasMoved(player) || !board.nearRookHasMoved(player))) {
+						// The player loses points for losing the ability to
+						// castle
+						move = new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
+						validMoves.add(move);
+					} else {
+						move = new Move(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
+						validMoves.add(move);
+					}
 				}
 			}
 
 			if (pieceStatus == PositionStatus.ENEMY) {
-				Piece piece = board.getPiece(nextRow, nextCol);
-				move = new Move(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow,nextCol));
-				move.setPieceTaken(piece);
-				validMoves.add(move);
+				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
+					move = new Move(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol));
+					move.setPieceTaken(board.getPiece(nextRow, nextCol));
+					validMoves.add(move);
+				}
 			}
 
 		}
 
-		//add possible castle move
-		if(board.canCastleFar(player) && !board.isInCheck()){
-			validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol-2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
+		long allPosBitBoard = posBitBoard[0] | posBitBoard[1];
+
+		// add possible castle move
+		if (canCastleFar(board, player, nullMoveInfo, allPosBitBoard) && !board.isInCheck()) {
+			if (isValidMove(currentRow, currentCol - 2, nullMoveInfo)) {
+				validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol - 2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
+			}
 		}
-		
-		if(board.canCastleNear(player) && !board.isInCheck()){
-			validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol+2, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+
+		if (canCastleNear(board, player, nullMoveInfo, allPosBitBoard) && !board.isInCheck()) {
+			if (isValidMove(currentRow, currentCol + 2, nullMoveInfo)) {
+				validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol + 2, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+			}
 		}
-		
+
 		return validMoves;
 
+	}
+
+	public void getNullMoveInfo(Board board, long[] nullMoveInfo) {
+
+		int currentRow = this.getRow();
+		int currentCol = this.getCol();
+
+		for (int i = 0; i < 8; i++) {
+			nullMoveInfo[0] |= BitBoard.getMask(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i]);
+		}
+
+	}
+
+	public boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
+		long mask = BitBoard.getMask(toRow, toCol);
+
+		if ((mask & (nullMoveInfo[0] | nullMoveInfo[2])) == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean canCastleFar(Board board, Player player, long[] nullMoveInfo, long allPosBitBoard) {
+
+		if (board.kingHasMoved(player) || board.farRookHasMoved(player)) {
+			return false;
+		}
+
+		long posClearMask;
+		long checkFar;
+		if (player == Player.BLACK) {
+			posClearMask = BitBoard.BLACK_CASTLE_FAR;
+			checkFar = BitBoard.BLACK_CHECK_FAR;
+		} else {
+			posClearMask = BitBoard.WHITE_CASTLE_FAR;
+			checkFar = BitBoard.WHITE_CHECK_FAR;
+		}
+
+		if ((posClearMask & allPosBitBoard) == 0) {
+			if ((checkFar & nullMoveInfo[0]) == 0) {
+				return true;
+			}
+		}
+
+		return false;
+
+	}
+
+	public boolean canCastleNear(Board board, Player player, long[] nullMoveInfo, long allPosBitBoard) {
+
+		if (board.kingHasMoved(player) || board.nearRookHasMoved(player)) {
+			return false;
+		}
+
+		long posClearMask;
+		long checkNear;
+		if (player == Player.BLACK) {
+			posClearMask = BitBoard.BLACK_CASTLE_NEAR;
+			checkNear = BitBoard.BLACK_CHECK_NEAR;
+		} else {
+			posClearMask = BitBoard.WHITE_CASTLE_NEAR;
+			checkNear = BitBoard.WHITE_CHECK_NEAR;
+		}
+
+		if ((posClearMask & allPosBitBoard) == 0) {
+			if ((checkNear & nullMoveInfo[0]) == 0) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public Piece getCopy(Board board) {

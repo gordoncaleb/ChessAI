@@ -1,12 +1,9 @@
 package chessBackend;
 
-import java.util.Vector;
-
 import javax.swing.JOptionPane;
 
 import chessAI.AI;
 import chessAI.DecisionNode;
-import chessAI.MoveBook;
 import chessGUI.BoardGUI;
 import chessGUI.DecisionTreeGUI;
 import chessGUI.MoveBookGUI;
@@ -18,6 +15,7 @@ public class Game {
 	private AI ai;
 	private MoveBookGUI goodMoveDBGUI;
 	private DecisionTreeGUI decisionTreeGUI;
+	private Player userSide;
 
 	public Game() {
 
@@ -27,21 +25,20 @@ public class Game {
 		ai = new AI(this, debug);
 		ai.start();
 		gui = new BoardGUI(this, debug);
-		
-		
-		if(learn){
-			goodMoveDBGUI = new MoveBookGUI(ai.getGoodMoveDB());
+
+		if (learn) {
+			goodMoveDBGUI = new MoveBookGUI(ai.getMoveBook());
 		}
-		
-		if(debug){
-			decisionTreeGUI = new DecisionTreeGUI(this,gui);
+
+		if (debug) {
+			decisionTreeGUI = new DecisionTreeGUI(this, gui);
 		}
-		
+
 		newGame();
 	}
 
 	public static void main(String[] args) {
-		
+
 		Game game = new Game();
 	}
 
@@ -52,11 +49,13 @@ public class Game {
 				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
-			gui.newGame(Player.USER);
-			ai.setMakeNewGame(Player.USER);
+			userSide = Player.WHITE;
+			gui.newGame(Player.WHITE);
+			ai.setMakeNewGame(Player.WHITE);
 		} else {
-			gui.newGame(Player.AI);
-			ai.setMakeNewGame(Player.AI);
+			userSide = Player.BLACK;
+			gui.newGame(Player.BLACK);
+			ai.setMakeNewGame(Player.BLACK);
 		}
 
 	}
@@ -67,26 +66,22 @@ public class Game {
 	}
 
 	public void userMoved(Move usersMove) {
-		System.out.println("User Moved");
+		//System.out.println("User Moved");
 		ai.setUserDecision(usersMove);
-		System.out.println("AI notified");
+		//System.out.println("AI notified");
 	}
-	
-	public void setGameSatus(GameStatus status, Player causedStatus){
-		if(status == GameStatus.CHECK){
+
+	public void setGameSatus(GameStatus status, Player playerTurn) {
+		if (status == GameStatus.CHECK) {
 			System.out.println("Check!");
 		}
-		
-		if (causedStatus == Player.USER) {
+
+		if (playerTurn == userSide) {
 
 			if (status == GameStatus.CHECKMATE) {
 				Object[] options = { "Yes, please", "Nah" };
-				int n = JOptionPane.showOptionDialog(gui.getFrame(), "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, // do not use a
-															// custom
-															// Icon
-						options, // the titles of buttons
-						options[0]); // default button title
+				int n = JOptionPane.showOptionDialog(gui.getFrame(), "You just got schooled homie.\nWanna try again?", "Ouch!",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 				if (n == JOptionPane.YES_OPTION) {
 					newGame();
@@ -99,12 +94,7 @@ public class Game {
 			if (status == GameStatus.STALEMATE) {
 				Object[] options = { "Yes, please", "Nah, maybe later." };
 				int n = JOptionPane.showOptionDialog(gui.getFrame(), "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, // do not use a
-															// custom
-															// Icon
-						options, // the titles of buttons
-						options[0]); // default button title
-
+						JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 				if (n == JOptionPane.YES_OPTION) {
 					newGame();
 				} else {
@@ -118,11 +108,7 @@ public class Game {
 			if (status == GameStatus.CHECKMATE) {
 				Object[] options = { "Yeah, why not?", "Nah." };
 				int n = JOptionPane.showOptionDialog(gui.getFrame(), "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, // do not use a
-															// custom
-															// Icon
-						options, // the titles of buttons
-						options[0]); // default button title
+						JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 				if (n == JOptionPane.YES_OPTION) {
 					newGame();
@@ -135,12 +121,7 @@ public class Game {
 			if (status == GameStatus.STALEMATE) {
 				Object[] options = { "Yes, please", "Nah, maybe later." };
 				int n = JOptionPane.showOptionDialog(gui.getFrame(), "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, // do not use a
-															// custom
-															// Icon
-						options, // the titles of buttons
-						options[0]); // default button title
-
+						JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 				if (n == JOptionPane.YES_OPTION) {
 					newGame();
 				} else {
@@ -152,23 +133,19 @@ public class Game {
 	}
 
 	public void aiMoved(Move aisMove) {
-		gui.aiMoved(aisMove);
+		gui.makeMove(aisMove);
 	}
 
 	public void undoUserMove() {
 		ai.setUndoUserMove();
 	}
-	
-	public int getMoveChosenPathValue(Move m){
+
+	public int getMoveChosenPathValue(Move m) {
 		return ai.getMoveChosenPathValue(m);
 	}
-	
-	public void setDecisionTreeRoot(DecisionNode rootDecision){
+
+	public void setDecisionTreeRoot(DecisionNode rootDecision) {
 		decisionTreeGUI.setRootDecisionTree(rootDecision);
-	}
-	
-	public void growBranch(DecisionNode branch) {
-		ai.growBranch(branch);
 	}
 
 }

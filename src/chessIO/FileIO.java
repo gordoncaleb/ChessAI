@@ -1,8 +1,12 @@
-package chessBackend;
+package chessIO;
 
+import java.awt.Image;
 import java.io.*;
+import java.net.URL;
 
-public class ReadWriteTextFile {
+import javax.imageio.ImageIO;
+
+public class FileIO {
 
 	/**
 	 * Fetch the entire contents of a text file, and return it in a String. This
@@ -11,15 +15,17 @@ public class ReadWriteTextFile {
 	 * @param aFile
 	 *            is a file which already exists and can be read.
 	 */
-	public static String getContents(String fileName) {
-		File aFile = new File(fileName);
+	public static String readFile(String fileName) {
+
+		URL fileURL = FileIO.class.getResource("doc/" + fileName);
+
 		// ...checks on aFile are elided
 		StringBuilder contents = new StringBuilder();
 
 		try {
 			// use buffering, reading one line at a time
 			// FileReader always assumes default encoding is OK!
-			BufferedReader input = new BufferedReader(new FileReader(aFile));
+			BufferedReader input = new BufferedReader(new InputStreamReader(fileURL.openStream()));
 			try {
 				String line = null; // not declared within while loop
 				/*
@@ -57,7 +63,7 @@ public class ReadWriteTextFile {
 	 * @throws IOException
 	 *             if problem encountered during write.
 	 */
-	public static void setContents(File aFile, String aContents) throws FileNotFoundException, IOException {
+	public static void writeFile(File aFile, String aContents) throws FileNotFoundException, IOException {
 		if (aFile == null) {
 			throw new IllegalArgumentException("File should not be null.");
 		}
@@ -79,6 +85,21 @@ public class ReadWriteTextFile {
 		} finally {
 			output.close();
 		}
+	}
+
+	public static Image readImage(String fileName) {
+		URL fileURL = FileIO.class.getResource("img/" + fileName);
+
+		Image image = null;
+
+		try {
+			image = ImageIO.read(fileURL);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return image;
+
 	}
 
 }

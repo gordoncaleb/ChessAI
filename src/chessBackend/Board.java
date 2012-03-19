@@ -3,109 +3,48 @@ package chessBackend;
 import java.util.Stack;
 import java.util.Vector;
 
-import chessPieces.Bishop;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 import chessPieces.PositionBonus;
 import chessPieces.Values;
 import chessPieces.PositionStatus;
-import chessPieces.King;
-import chessPieces.Knight;
 import chessPieces.Pawn;
 import chessPieces.Queen;
-import chessPieces.Rook;
 
 public class Board {
 	private Piece[][] board;
 	private int boardState;
-	private Vector<Piece> aiPieces;
-	private Vector<Piece> userPieces;
+	private Vector<Piece> blackPieces;
+	private Vector<Piece> whitePieces;
+	private Piece blackKing;
+	private Piece whiteKing;
 	private Player player;
 	private RNGTable rngTable;
 	private Stack<Move> moveHistory;
+	private long hashCode;
 	private Stack<Long> hashCodeHistory;
+	private long[] nullMoveInfo;
+	private long[] posBitBoard;
 
-	public Board(Piece[][] board, Vector<Piece> aiPieces, Vector<Piece> playerPieces, Player player, Stack<Move> moveHistory,
-			Stack<Long> hashCodeHistory, RNGTable rngTable) {
+	public Board(Piece[][] board, Vector<Piece> blackPieces, Vector<Piece> whitePieces, long[] posBitBoard, Piece blackKing, Piece whiteKing,
+			Player player, Stack<Move> moveHistory, Long hashCode, RNGTable rngTable) {
 
 		this.board = board;
-		this.aiPieces = aiPieces;
-		this.userPieces = playerPieces;
+		this.blackPieces = blackPieces;
+		this.whitePieces = whitePieces;
+		this.blackKing = blackKing;
+		this.whiteKing = whiteKing;
+		this.posBitBoard = posBitBoard;
 		this.moveHistory = moveHistory;
-		this.hashCodeHistory = hashCodeHistory;
+		this.hashCodeHistory = new Stack<Long>();
 		this.rngTable = rngTable;
 		this.player = player;
+		this.nullMoveInfo = new long[3];
 
-		if (hashCodeHistory.empty()) {
-			this.generateHashCode();
-		}
-
-	}
-
-	public Board(Player player) {
-		this.moveHistory = new Stack<Move>();
-		this.hashCodeHistory = new Stack<Long>();
-		this.rngTable = new RNGTable();
-		this.player = player;
-		buildBoard();
-		this.generateHashCode();
-	}
-
-	public void buildBoard() {
-		int rowOne;
-		int rowTwo;
-		Player player;
-
-		// Build AI side of the board
-		player = Player.AI;
-		rowOne = 0;
-		rowTwo = 1;
-
-		aiPieces = new Vector<Piece>();
-		aiPieces.add(new Rook(player, rowOne, 0, false));
-		aiPieces.add(new Knight(player, rowOne, 1, false));
-		aiPieces.add(new Bishop(player, rowOne, 2, false));
-		aiPieces.add(new Queen(player, rowOne, 3, false));
-		aiPieces.add(new King(player, rowOne, 4, false));
-		aiPieces.add(new Bishop(player, rowOne, 5, false));
-		aiPieces.add(new Knight(player, rowOne, 6, false));
-		aiPieces.add(new Rook(player, rowOne, 7, false));
-
-		for (int pawn = 0; pawn < 8; pawn++) {
-			aiPieces.add(new Pawn(player, rowTwo, pawn, false));
-		}
-
-		// Build User side of the board
-		player = Player.USER;
-		rowOne = 7;
-		rowTwo = 6;
-
-		userPieces = new Vector<Piece>();
-		userPieces.add(new Rook(player, rowOne, 0, false));
-		userPieces.add(new Knight(player, rowOne, 1, false));
-		userPieces.add(new Bishop(player, rowOne, 2, false));
-		userPieces.add(new Queen(player, rowOne, 3, false));
-		userPieces.add(new King(player, rowOne, 4, false));
-		userPieces.add(new Bishop(player, rowOne, 5, false));
-		userPieces.add(new Knight(player, rowOne, 6, false));
-		userPieces.add(new Rook(player, rowOne, 7, false));
-
-		for (int pawn = 0; pawn < 8; pawn++) {
-			userPieces.add(new Pawn(player, rowTwo, pawn, false));
-		}
-
-		Piece aiPiece;
-		Piece userPiece;
-		board = new Piece[8][8];
-
-		for (int i = 0; i < userPieces.size(); i++) {
-			userPiece = userPieces.elementAt(i);
-			board[userPiece.getRow()][userPiece.getCol()] = userPiece;
-		}
-
-		for (int i = 0; i < aiPieces.size(); i++) {
-			aiPiece = aiPieces.elementAt(i);
-			board[aiPiece.getRow()][aiPiece.getCol()] = aiPiece;
+		if (hashCode != null) {
+			this.hashCode = hashCode;
+		} else {
+			this.hashCode = generateHashCode();
 		}
 
 	}
@@ -117,10 +56,118 @@ public class Board {
 			return false;
 		}
 
-		// update board to reflect new move
-		makeMove(move, player);
+		// save off hashCode
+		hashCodeHistory.push(new Long(hashCode));
 
-		updateHashCode(move, this.getLastMoveMade(), player, getNextPlayer());
+		// remove previous castle options
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Player.BLACK), this.nearRookHasMoved(Player.BLACK),
+				this.kingHasMoved(Player.BLACK), this.farRookHasMoved(Player.WHITE), this.nearRookHasMoved(Player.WHITE),
+				this.kingHasMoved(Player.WHITE));
+
+		Piece pieceTaken = move.getPieceTaken();
+
+		// remove taken piece first
+		if (pieceTaken != null) {
+
+			// remove bit position from appropriate side
+			posBitBoard[pieceTaken.getPlayer().ordinal()] ^= pieceTaken.getBit();
+
+			// piceTaken is old ref, find new ref
+			if (pieceTaken != board[pieceTaken.getRow()][pieceTaken.getCol()]) {
+				pieceTaken = board[move.getToRow()][move.getToCol()];
+				move.setPieceTaken(pieceTaken);
+			}
+
+			// remove pieceTaken from vectors
+			if (pieceTaken.getPlayer() == Player.WHITE) {
+				if (!whitePieces.remove(pieceTaken)) {
+					System.out.println("Piece " + pieceTaken.toString() + " not found");
+				}
+			} else {
+				if (!blackPieces.remove(pieceTaken)) {
+					System.out.println("Piece " + pieceTaken.toString() + " not found");
+				}
+			}
+
+			// remove ref to piecetaken on board
+			board[pieceTaken.getRow()][pieceTaken.getCol()] = null;
+
+			// remove old hash from piece that was taken, if any
+			hashCode ^= rngTable.getPiecePerSquareRandom(pieceTaken.getPlayer(), pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol());
+
+		}
+
+		if (move.getNote() != MoveNote.NEW_QUEEN) {
+
+			movePiece(move);
+
+		} else {
+
+			// remove old hash from where pawn was
+			hashCode ^= rngTable.getPiecePerSquareRandom(player, PieceID.PAWN, move.getFromRow(), move.getFromCol());
+
+			// remove pawn from vector
+			if (player == Player.WHITE) {
+				whitePieces.remove(board[move.getFromRow()][move.getFromCol()]);
+			} else {
+				blackPieces.remove(board[move.getFromRow()][move.getFromCol()]);
+			}
+
+			// remove pawn from board
+			board[move.getFromRow()][move.getFromCol()] = null;
+
+			// put queen on board
+			board[move.getToRow()][move.getToCol()] = new Queen(player, move.getToRow(), move.getToCol(), false);
+
+			// add hash of piece at new location. Probably a queen.
+			hashCode ^= rngTable.getPiecePerSquareRandom(player, board[move.getToRow()][move.getToCol()].getPieceID(), move.getToRow(),
+					move.getToCol());
+
+			// add queen to vectors
+			if (player == Player.WHITE) {
+				whitePieces.add(board[move.getToRow()][move.getToCol()]);
+			} else {
+				blackPieces.add(board[move.getToRow()][move.getToCol()]);
+			}
+		}
+
+		if (move.getNote() == MoveNote.CASTLE_NEAR) {
+			if (player == Player.BLACK) {
+				movePiece(new Move(0, 7, 0, 5));
+			} else {
+				movePiece(new Move(7, 7, 7, 5));
+			}
+		}
+
+		if (move.getNote() == MoveNote.CASTLE_FAR) {
+			if (player == Player.BLACK) {
+				movePiece(new Move(0, 0, 0, 3));
+			} else {
+				movePiece(new Move(7, 0, 7, 3));
+			}
+		}
+
+		// if last move made is pawn leap, remove en passant file num
+		if (getLastMoveMade() != null) {
+			if (getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
+				hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());
+			}
+		}
+
+		// if new move is pawn leap, add en passant file num
+		if (move.getNote() == MoveNote.PAWN_LEAP) {
+			hashCode ^= rngTable.getEnPassantFile(move.getToCol());
+		}
+
+		// add new castle options
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Player.BLACK), this.nearRookHasMoved(Player.BLACK),
+				this.kingHasMoved(Player.BLACK), this.farRookHasMoved(Player.WHITE), this.nearRookHasMoved(Player.WHITE),
+				this.kingHasMoved(Player.WHITE));
+
+		// either remove black and add white or reverse. Same operation.
+		hashCode ^= rngTable.getBlackToMoveRandom();
+
+		// show that this move is now the last move made
 		moveHistory.push(move);
 
 		// move was made, next player's turn
@@ -130,196 +177,205 @@ public class Board {
 
 	}
 
-	private void makeMove(Move move, Player player) {
+	private void movePiece(Move move) {
+		Piece pieceMoving = board[move.getFromRow()][move.getFromCol()];
 
-		Piece pieceTaken = move.getPieceTaken();
+		// remove bit position from where piece was
+		posBitBoard[pieceMoving.getPlayer().ordinal()] ^= pieceMoving.getBit();
 
-		// remove taken piece first
-		if (pieceTaken != null) {
+		// remove old hash from where piece was
+		hashCode ^= rngTable.getPiecePerSquareRandom(player, pieceMoving.getPieceID(), move.getFromRow(), move.getFromCol());
 
-			// piceTaken is old ref, find new ref
-			if (pieceTaken != board[pieceTaken.getRow()][pieceTaken.getCol()]) {
-				pieceTaken = board[move.getToRow()][move.getToCol()];
-				move.setPieceTaken(pieceTaken);
-			}
+		// tell piece its new position
+		pieceMoving.move(move);
+		// update board to reflect piece's new position
+		board[move.getToRow()][move.getToCol()] = pieceMoving;
+		// remove pieces old position
+		board[move.getFromRow()][move.getFromCol()] = null;
 
-			// remove pieceTaken from vectors
-			if (pieceTaken.getPlayer() == Player.USER) {
-				if (!userPieces.remove(pieceTaken)) {
-					System.out.println("Piece " + pieceTaken.toString() + " not found");
-				}
-			} else {
-				if (!aiPieces.remove(pieceTaken)) {
-					System.out.println("Piece " + pieceTaken.toString() + " not found");
-				}
-			}
+		// add bit position of where piece is now
+		posBitBoard[pieceMoving.getPlayer().ordinal()] |= pieceMoving.getBit();
 
-			// remove ref to piecetaken on board
-			board[pieceTaken.getRow()][pieceTaken.getCol()] = null;
-
-		}
-
-		if (move.getNote() != MoveNote.NEW_QUEEN) {
-
-			// tell piece its new position
-			board[move.getFromRow()][move.getFromCol()].move(move);
-			// update board to reflect piece's new position
-			board[move.getToRow()][move.getToCol()] = board[move.getFromRow()][move.getFromCol()];
-			// remove pieces old position
-			board[move.getFromRow()][move.getFromCol()] = null;
-
-		} else {
-
-			// remove pawn from vector
-			if (player == Player.USER) {
-				userPieces.remove(board[move.getFromRow()][move.getFromCol()]);
-			} else {
-				aiPieces.remove(board[move.getFromRow()][move.getFromCol()]);
-			}
-
-			// remove pawn from board
-			board[move.getFromRow()][move.getFromCol()] = null;
-
-			// put queen on board
-			board[move.getToRow()][move.getToCol()] = new Queen(player, move.getToRow(), move.getToCol(), false);
-
-			// add queen to vectors
-			if (player == Player.USER) {
-				userPieces.add(board[move.getToRow()][move.getToCol()]);
-			} else {
-				aiPieces.add(board[move.getToRow()][move.getToCol()]);
-			}
-		}
-
-		if (move.getNote() == MoveNote.CASTLE_NEAR) {
-			if (player == Player.AI) {
-				makeMove(new Move(0, 7, 0, 5), player);
-			} else {
-				makeMove(new Move(7, 7, 7, 5), player);
-			}
-		}
-
-		if (move.getNote() == MoveNote.CASTLE_FAR) {
-			if (player == Player.AI) {
-				makeMove(new Move(0, 0, 0, 3), player);
-			} else {
-				makeMove(new Move(7, 0, 7, 3), player);
-			}
-		}
-
+		// add hash of piece at new location
+		hashCode ^= rngTable.getPiecePerSquareRandom(player, pieceMoving.getPieceID(), move.getToRow(), move.getToCol());
 	}
 
-	public boolean undoMove() {
+	public Move undoMove() {
 
+		// if no there is no last move then undoMove is impossible
 		if (moveHistory.empty()) {
-			return false;
+			System.out.println("Can not undo move");
+			return null;
 		}
 
+		// retrieve last move made
+		Move lastMove = getLastMoveMade();
+
+		// last move made was made by previous player, which is also the next
+		// player
 		player = getNextPlayer();
-		undoMove(getLastMoveMade(), player);
-		moveHistory.pop();
-		hashCodeHistory.pop();
 
-		if (hashCodeHistory.empty()) {
-			generateHashCode();
-		}
+		if (lastMove.getNote() != MoveNote.NEW_QUEEN) {
 
-		return true;
-	}
-
-	private void undoMove(Move move, Player player) {
-
-		if (move.getNote() != MoveNote.NEW_QUEEN) {
-
-			// tell piece where it was
-			board[move.getToRow()][move.getToCol()].move(move.reverse());
-			// put piece in old position
-			board[move.getFromRow()][move.getFromCol()] = board[move.getToRow()][move.getToCol()];
-			// remove old position
-			board[move.getToRow()][move.getToCol()] = null;
+			undoMovePiece(lastMove);
 
 		} else {
 
 			// remove queen from vectors
-			if (player == Player.USER) {
-				userPieces.remove(board[move.getToRow()][move.getToCol()]);
+			if (player == Player.WHITE) {
+				whitePieces.remove(board[lastMove.getToRow()][lastMove.getToCol()]);
 			} else {
-				aiPieces.remove(board[move.getToRow()][move.getToCol()]);
+				blackPieces.remove(board[lastMove.getToRow()][lastMove.getToCol()]);
 			}
 
 			// remove queen from board
-			board[move.getToRow()][move.getToCol()] = null;
+			board[lastMove.getToRow()][lastMove.getToCol()] = null;
 
-			// add old pawn to board or create new one
+			// add pawn back to board
+			board[lastMove.getFromRow()][lastMove.getFromCol()] = new Pawn(player, lastMove.getFromRow(), lastMove.getFromCol(), true);
 
-			board[move.getFromRow()][move.getFromCol()] = new Pawn(player, move.getFromRow(), move.getFromCol(), true);
-
-			// add old pawn to vectors
-			if (player == Player.USER) {
-				userPieces.add(board[move.getFromRow()][move.getFromCol()]);
+			// add pawn to vectors
+			if (player == Player.WHITE) {
+				whitePieces.add(board[lastMove.getFromRow()][lastMove.getFromCol()]);
 			} else {
-				aiPieces.add(board[move.getFromRow()][move.getFromCol()]);
+				blackPieces.add(board[lastMove.getFromRow()][lastMove.getFromCol()]);
 			}
 		}
 
 		// add taken piece back to vectors and board
-		Piece pieceTaken = move.getPieceTaken();
+		Piece pieceTaken = lastMove.getPieceTaken();
 		if (pieceTaken != null) {
+
+			// add piece taken to position bit board
+			posBitBoard[pieceTaken.getPlayer().ordinal()] |= pieceTaken.getBit();
+
 			board[pieceTaken.getRow()][pieceTaken.getCol()] = pieceTaken;
 
-			if (pieceTaken.getPlayer() == Player.USER) {
-				userPieces.add(pieceTaken);
+			if (pieceTaken.getPlayer() == Player.WHITE) {
+				whitePieces.add(pieceTaken);
 			} else {
-				aiPieces.add(pieceTaken);
+				blackPieces.add(pieceTaken);
 			}
 
 		}
 
-		if (move.getNote() == MoveNote.CASTLE_NEAR) {
-			if (player == Player.AI) {
-				undoMove(new Move(0, 7, 0, 5), player);
+		if (lastMove.getNote() == MoveNote.CASTLE_NEAR) {
+			if (player == Player.BLACK) {
+				undoMovePiece(new Move(0, 7, 0, 5));
 			} else {
-				undoMove(new Move(7, 7, 7, 5), player);
+				undoMovePiece(new Move(7, 7, 7, 5));
 			}
 		}
 
-		if (move.getNote() == MoveNote.CASTLE_FAR) {
-			if (player == Player.AI) {
-				undoMove(new Move(0, 0, 0, 3), player);
+		if (lastMove.getNote() == MoveNote.CASTLE_FAR) {
+			if (player == Player.BLACK) {
+				undoMovePiece(new Move(0, 0, 0, 3));
 			} else {
-				undoMove(new Move(7, 0, 7, 3), player);
+				undoMovePiece(new Move(7, 0, 7, 3));
 			}
 		}
 
+		// move was undone so show move made before that as the last move made
+		moveHistory.pop();
+
+		if (hashCodeHistory.empty()) {
+			// if no hashCode was saved then generate it the hard way
+			hashCode = generateHashCode();
+		} else {
+			// retrieve what the hashCode was before move was made
+			hashCode = hashCodeHistory.pop();
+		}
+
+		return lastMove;
+
+	}
+
+	private void undoMovePiece(Move move) {
+
+		Piece pieceMoving = board[move.getToRow()][move.getToCol()];
+
+		// remove bit position from where piece was
+		posBitBoard[pieceMoving.getPlayer().ordinal()] ^= pieceMoving.getBit();
+
+		// tell piece where it was
+		pieceMoving.move(move.reverse());
+		// put piece in old position
+		board[move.getFromRow()][move.getFromCol()] = pieceMoving;
+		// remove old position
+		board[move.getToRow()][move.getToCol()] = null;
+
+		// show whether piece had moved before this move was made
 		board[move.getFromRow()][move.getFromCol()].setMoved(move.hadMoved());
 
-		// System.out.println("Undid " + move.toString());
-		// System.out.println(this.toString());
+		// add bit position of where piece is now
+		posBitBoard[pieceMoving.getPlayer().ordinal()] |= pieceMoving.getBit();
 
 	}
 
 	public Vector<Move> generateValidMoves() {
-		return generateValidMoves(this.player);
-	}
 
-	public Vector<Move> generateValidMoves(Player player) {
+		// recalculating check info
+		clearBoardState();
+
+		// find in check details. i.e. left and right castle info
+		makeNullMove();
+
+		// System.out.println("Not safe areas");
+		// BitBoard.printBitBoard(nullMoveInfo[0]);
+		//
+		// System.out.println("in check vector");
+		// BitBoard.printBitBoard(nullMoveInfo[1]);
+
 		Vector<Move> validMoves = new Vector<Move>(30);
 
 		Vector<Piece> pieces = getPlayerPieces(player);
+		Piece piece;
 		Vector<Move> moves;
 		Move move;
 		for (int p = 0; p < pieces.size(); p++) {
-			moves = pieces.elementAt(p).generateValidMoves(this);
+			piece = pieces.elementAt(p);
+
+			moves = pieces.elementAt(p).generateValidMoves(this, nullMoveInfo, posBitBoard);
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
 
 				move.setHadMoved(hasMoved(move.getFromRow(), move.getFromCol()));
 				addSortValidMove(validMoves, moves.elementAt(m));
-				// validMoves.add(moves.elementAt(m));
+			}
+
+			piece.clearBlocking();
+
+		}
+
+		if (validMoves.size() == 0) {
+			if (this.isInCheck()) {
+				this.setIsInCheckMate();
+			} else {
+				this.setIsInStaleMate();
 			}
 		}
 
 		return validMoves;
+	}
+
+	public void makeNullMove() {
+		long nullMoveAttacks = 0;
+		long inCheckVector = BitBoard.ALL_ONES;
+		long bitAttackCompliment = 0;
+
+		nullMoveInfo[0] = nullMoveAttacks;
+		nullMoveInfo[1] = inCheckVector;
+		nullMoveInfo[2] = bitAttackCompliment;
+
+		Vector<Piece> pieces = getPlayerPieces(getNextPlayer());
+		for (int p = 0; p < pieces.size(); p++) {
+			pieces.elementAt(p).getNullMoveInfo(this, nullMoveInfo);
+		}
+
+		if ((getPlayerKing().getBit() & nullMoveInfo[0]) != 0) {
+			setInCheck();
+		}
+
 	}
 
 	private void addSortValidMove(Vector<Move> validMoves, Move move) {
@@ -356,6 +412,10 @@ public class Board {
 			return null;
 		}
 	}
+	
+	public Vector<Move> getMoveHistory(){
+		return moveHistory;
+	}
 
 	public int getPieceValue(int row, int col) {
 		int value;
@@ -363,7 +423,8 @@ public class Board {
 
 		switch (board[row][col].getPieceID()) {
 		case KNIGHT:
-			value = this.getKnightValue();
+			int piecesMissing = 32 - (blackPieces.size() + whitePieces.size());
+			value = Values.KNIGHT_VALUE - piecesMissing * Values.KNIGHT_ENDGAME_INC;
 			break;
 		case PAWN:
 			value = Values.PAWN_VALUE + PositionBonus.getPawnPositionBonus(row, col, player);
@@ -417,10 +478,18 @@ public class Board {
 	}
 
 	public Player getNextPlayer() {
-		if (player == Player.AI) {
-			return Player.USER;
+		if (player == Player.BLACK) {
+			return Player.WHITE;
 		} else {
-			return Player.AI;
+			return Player.BLACK;
+		}
+	}
+
+	public Piece getPlayerKing() {
+		if (player == Player.BLACK) {
+			return blackKing;
+		} else {
+			return whiteKing;
 		}
 	}
 
@@ -437,51 +506,35 @@ public class Board {
 	}
 
 	public Vector<Piece> getPlayerPieces(Player player) {
-		if (player == Player.USER) {
-			return userPieces;
+		if (player == Player.WHITE) {
+			return whitePieces;
 		} else {
-			return aiPieces;
+			return blackPieces;
 		}
 	}
 
-	public boolean isInCheckNear() {
+	public boolean isInCheck() {
 		return ((boardState & 1) != 0);
 	}
 
-	public boolean isInCheck() {
+	public boolean isInCheckMate() {
 		return ((boardState & 2) != 0);
 	}
 
-	public boolean isInCheckFar() {
+	public boolean isInStaleMate() {
 		return ((boardState & 4) != 0);
 	}
 
-	public boolean isLastMoveInvalid() {
-		return ((boardState & 8) != 0);
-	}
-
-	public boolean isInCheckMate() {
-		return ((boardState & 16) != 0);
-	}
-
-	public boolean isInStaleMate() {
-		return ((boardState & 32) != 0);
-	}
-
-	public void setLastMoveInvalid() {
-		boardState |= 8;
-	}
-
 	public void setIsInCheckMate() {
-		boardState |= 16;
+		boardState |= 2;
 	}
 
 	public void setIsInStaleMate() {
-		boardState |= 32;
+		boardState |= 4;
 	}
 
-	public void setInCheckDetails(int inCheck) {
-		this.boardState |= inCheck;
+	public void setInCheck() {
+		this.boardState |= 1;
 	}
 
 	public void clearBoardState() {
@@ -496,61 +549,8 @@ public class Board {
 		this.boardState = boardState;
 	}
 
-	public boolean canCastleFar(Player player) {
-
-		if (player == Player.AI) {
-
-			if (!hasMoved(0, 4)) {
-				if (!hasPiece(0, 3) && !hasPiece(0, 2) && !hasPiece(0, 1)) {
-					if (!hasMoved(0, 0) && !isInCheckFar()) {
-						return true;
-					}
-				}
-			}
-
-		} else {
-
-			if (!hasMoved(7, 4)) {
-				if (!hasPiece(7, 3) && !hasPiece(7, 2) && !hasPiece(7, 1)) {
-					if (!hasMoved(7, 0) && !isInCheckFar()) {
-						return true;
-					}
-				}
-			}
-
-		}
-
-		return false;
-
-	}
-
-	public boolean canCastleNear(Player player) {
-
-		if (player == Player.AI) {
-
-			if (!hasMoved(0, 4)) {
-				if (!hasPiece(0, 5) && !hasPiece(0, 6)) {
-					if (!hasMoved(0, 7) && !isInCheckNear()) {
-						return true;
-					}
-				}
-			}
-
-		} else {
-			if (!hasMoved(7, 4)) {
-				if (!hasPiece(7, 5) && !hasPiece(7, 6)) {
-					if (!hasMoved(7, 7) && !isInCheckNear()) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
-
 	public boolean farRookHasMoved(Player player) {
-		if (player == Player.AI) {
+		if (player == Player.BLACK) {
 			return hasMoved(0, 0);
 		} else {
 			return hasMoved(7, 0);
@@ -558,7 +558,7 @@ public class Board {
 	}
 
 	public boolean nearRookHasMoved(Player player) {
-		if (player == Player.AI) {
+		if (player == Player.BLACK) {
 			return hasMoved(0, 7);
 		} else {
 			return hasMoved(7, 7);
@@ -566,24 +566,20 @@ public class Board {
 	}
 
 	public boolean kingHasMoved(Player player) {
-		if (player == Player.AI) {
+		if (player == Player.BLACK) {
 			return hasMoved(0, 4);
 		} else {
 			return hasMoved(7, 4);
 		}
 	}
 
-	public int getKnightValue() {
-		int piecesMissing = 32 - (aiPieces.size() + userPieces.size());
-		return Values.KNIGHT_VALUE - piecesMissing * Values.KNIGHT_ENDGAME_INC;
-	}
-
 	public Board getCopy() {
 		Piece[][] copyBoard = new Piece[8][8];
-		Vector<Piece> copyAiPieces = new Vector<Piece>(16);
-		Vector<Piece> copyPlayerPieces = new Vector<Piece>(16);
-		Stack<Move> moveHistory = new Stack<Move>();
-		Stack<Long> hashCodeHistory = new Stack<Long>();
+		Vector<Piece> copyBlackPieces = new Vector<Piece>(16);
+		Vector<Piece> copyWhitePieces = new Vector<Piece>(16);
+		Piece blackKing = null;
+		Piece whiteKing = null;
+		long[] posBitBoard = this.posBitBoard.clone();
 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
@@ -592,155 +588,89 @@ public class Board {
 
 					copyBoard[row][col] = board[row][col].getCopy(this);
 
-					if (copyBoard[row][col].getPlayer() == Player.AI) {
-						copyAiPieces.add(copyBoard[row][col]);
+					if (copyBoard[row][col].getPlayer() == Player.BLACK) {
+						copyBlackPieces.add(copyBoard[row][col]);
+
+						if (copyBoard[row][col].getPieceID() == PieceID.KING)
+							blackKing = copyBoard[row][col];
+
 					} else {
-						copyPlayerPieces.add(copyBoard[row][col]);
+						copyWhitePieces.add(copyBoard[row][col]);
+
+						if (copyBoard[row][col].getPieceID() == PieceID.KING)
+							whiteKing = copyBoard[row][col];
 					}
 				}
 			}
 		}
 
-		Stack<Move> tempMoves = new Stack<Move>();
+		return new Board(copyBoard, copyBlackPieces, copyWhitePieces, posBitBoard, blackKing, whiteKing, this.player, new Stack<Move>(),
+				this.hashCode, this.rngTable);
 
-		while (!this.moveHistory.empty()) {
-			tempMoves.push(this.moveHistory.pop());
-		}
-
-		Move m;
-		while (!tempMoves.empty()) {
-			m = tempMoves.pop();
-			this.moveHistory.push(m);
-			moveHistory.push(m);
-		}
-
-		Stack<Long> temp = new Stack<Long>();
-
-		while (!this.hashCodeHistory.empty()) {
-			temp.push(this.hashCodeHistory.pop());
-		}
-
-		Long l;
-		while (!temp.empty()) {
-			l = temp.pop();
-			this.hashCodeHistory.push(l);
-			hashCodeHistory.push(l);
-		}
-
-		return new Board(copyBoard, copyAiPieces, copyPlayerPieces, this.player, moveHistory, hashCodeHistory, this.rngTable);
-
-	}
-
-	public boolean verifyBoard() {
-		int r;
-		int c;
-
-		boolean verified = true;
-
-		for (int i = 0; i < aiPieces.size(); i++) {
-			r = aiPieces.elementAt(i).getRow();
-			c = aiPieces.elementAt(i).getCol();
-
-			if (board[r][c] != aiPieces.elementAt(i)) {
-				System.out.println("Piece " + aiPieces.elementAt(i).toString() + " in ai vector not on board");
-				verified = false;
-			}
-		}
-
-		for (int i = 0; i < userPieces.size(); i++) {
-			r = userPieces.elementAt(i).getRow();
-			c = userPieces.elementAt(i).getCol();
-
-			if (board[r][c] != userPieces.elementAt(i)) {
-				System.out.println("Piece " + userPieces.elementAt(i).toString() + " in user vector not on board");
-				verified = false;
-			}
-		}
-
-		for (int row = 0; row < 8; row++) {
-			for (int col = 0; col < 8; col++) {
-				if (board[row][col] != null) {
-
-					if (board[row][col].getRow() != row && board[row][col].getCol() != col) {
-						System.out.println("Board coord mismatch " + row + " " + col);
-						verified = false;
-					}
-
-					if (!aiPieces.contains(board[row][col]) && !userPieces.contains(board[row][col])) {
-						System.out.println(row + "," + col + " piece not found in vectors");
-						verified = false;
-					}
-
-				} else {
-
-				}
-			}
-		}
-
-		return verified;
 	}
 
 	public String toString() {
 		String stringBoard = "";
+		int pieceDetails = 0;
+		Piece p;
 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 				if (board[row][col] != null) {
-					stringBoard += board[row][col].toString() + ",";
+
+					p = board[row][col];
+
+					if (p.hasMoved() && (p.getPieceID() == PieceID.PAWN || p.getPieceID() == PieceID.KING || p.getPieceID() == PieceID.ROOK)) {
+						pieceDetails |= 1;
+					}
+
+					if (p.getPieceID() == PieceID.ROOK && kingHasMoved(p.getPlayer())) {
+						pieceDetails |= 1;
+					}
+
+					if (p.getPieceID() == PieceID.KING && nearRookHasMoved(p.getPlayer()) && farRookHasMoved(p.getPlayer())) {
+						pieceDetails |= 1;
+					}
+
+					if (getLastMoveMade() != null) {
+						if (getLastMoveMade().getToRow() == row && getLastMoveMade().getToCol() == col
+								&& getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
+							pieceDetails |= 2;
+						}
+					}
+
+					stringBoard += board[row][col].toString() + pieceDetails + ",";
+					pieceDetails = 0;
 
 				} else {
 					stringBoard += "__,";
 				}
+
 			}
 			stringBoard += "\n";
-		}
-
-		if (!verifyBoard()) {
-			System.out.println("Problem with board");
 		}
 
 		return stringBoard;
 	}
 
-	public static Board fromString(String stringBoard, Player player) {
-		Piece[][] board = new Piece[8][8];
-		Vector<Piece> aiPieces = new Vector<Piece>();
-		Vector<Piece> userPieces = new Vector<Piece>();
+	public String toXML() {
+		String xmlBoard = "<board>\n";
 
-		String[] stringPieces = stringBoard.split(",");
-		Piece piece;
-		int i = 0;
-		for (int row = 0; row < 8; row++) {
-			for (int col = 0; col < 8; col++) {
+		xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
+		xmlBoard += "<turn>" + player.toString() + "</turn>\n";
 
-				piece = Piece.fromString(stringPieces[i].trim(), row, col);
-
-				board[row][col] = piece;
-
-				if (piece != null) {
-					if (piece.getPlayer() == Player.AI) {
-						aiPieces.add(piece);
-					} else {
-						userPieces.add(piece);
-					}
-				}
-
-				i++;
-			}
+		for (int i = 0; i < moveHistory.size(); i++) {
+			xmlBoard += moveHistory.elementAt(i).toXML();
 		}
 
-		return new Board(board, aiPieces, userPieces, player, new Stack<Move>(), new Stack<Long>(), new RNGTable());
-	}
-
-	public static Board fromFile(String fileName, Player player) {
-		String stringBoard = ReadWriteTextFile.getContents(fileName);
-		return fromString(stringBoard, player);
+		xmlBoard += "</board>";
+		return xmlBoard;
 	}
 
 	public long generateHashCode() {
 		long hashCode = 0;
 
-		if (player == Player.AI) {
+		if (player == Player.BLACK) {
 			hashCode = rngTable.getBlackToMoveRandom();
 		}
 
@@ -754,8 +684,9 @@ public class Board {
 			}
 		}
 
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Player.AI), this.nearRookHasMoved(Player.AI), this.kingHasMoved(Player.AI),
-				this.farRookHasMoved(Player.USER), this.nearRookHasMoved(Player.USER), this.kingHasMoved(Player.USER));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Player.BLACK), this.nearRookHasMoved(Player.BLACK),
+				this.kingHasMoved(Player.BLACK), this.farRookHasMoved(Player.WHITE), this.nearRookHasMoved(Player.WHITE),
+				this.kingHasMoved(Player.WHITE));
 
 		if (this.getLastMoveMade() != null) {
 			if (this.getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
@@ -763,78 +694,11 @@ public class Board {
 			}
 		}
 
-		hashCodeHistory.push(new Long(hashCode));
-
 		return hashCode;
 	}
 
-	private void updateHashCode(Move newMove, Move lastMove, Player playerBeforeMove, Player playerAfterMove) {
-		// player is set to side who's turn it is after this move.
-		// next player is player who made this move
-
-		long newHashCode = this.getHashCode();
-
-		// either remove black and add white or reverse. Same operation.
-		newHashCode ^= rngTable.getBlackToMoveRandom();
-
-		Piece p = board[newMove.getToRow()][newMove.getToCol()];
-
-		// piece id could have changed after move in the case of NEW_QUEEN
-		PieceID pieceIDBeforeMove;
-		if (newMove.getNote() == MoveNote.NEW_QUEEN) {
-			pieceIDBeforeMove = PieceID.PAWN;
-		} else {
-			pieceIDBeforeMove = p.getPieceID();
-		}
-
-		// remove old hash from where piece was
-		newHashCode ^= rngTable.getPiecePerSquareRandom(p.getPlayer(), pieceIDBeforeMove, newMove.getFromRow(), newMove.getFromCol());
-
-		// remove old hash from piece that was taken, if any
-		Piece pieceTaken = newMove.getPieceTaken();
-		if (pieceTaken != null) {
-			newHashCode ^= rngTable
-					.getPiecePerSquareRandom(pieceTaken.getPlayer(), pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol());
-		}
-
-		// add hash of piece at new location
-		newHashCode ^= rngTable.getPiecePerSquareRandom(p.getPlayer(), p.getPieceID(), newMove.getToRow(), newMove.getToCol());
-
-		// if rook or king moved, update castling rules
-		if (!newMove.hadMoved()) {
-			// check if black king or white king moved
-			if (p.getPieceID() == PieceID.KING) {
-				if (p.getPlayer() == Player.AI) {
-
-				} else {
-
-				}
-			} else {
-
-				// check if near or far rook
-				if (p.getPieceID() == PieceID.ROOK) {
-					
-				}
-			}
-		}
-
-		if (lastMove != null) {
-			// if last move made is pawn leap, remove en passant file num
-			if (lastMove.getNote() == MoveNote.PAWN_LEAP) {
-				newHashCode ^= rngTable.getEnPassantFile(lastMove.getToCol());
-			}
-		}
-
-		// if new move is pawn leap, add en passant file num
-		if (newMove.getNote() == MoveNote.PAWN_LEAP) {
-			newHashCode ^= rngTable.getEnPassantFile(newMove.getToCol());
-		}
-
-		hashCodeHistory.push(new Long(newHashCode));
-
-	}
-
 	public long getHashCode() {
-		return this.hashCodeHistory.peek().longValue();
+		return hashCode;
 	}
+
 }

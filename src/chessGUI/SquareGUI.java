@@ -19,21 +19,21 @@ import chessPieces.PieceID;
 
 public class SquareGUI extends JPanel {
 	private static final long serialVersionUID = 1L;
-	
+
 	private int row;
 	private int col;
 	private PieceID id;
 	private Player player;
 	private Vector<Move> validMoves;
-	
+
 	private BoardGUI gui;
-	
+
 	// Debug components
 	private JLabel debugLocationLabel;
 	private JLabel debugScoreLabel;
 	private JLabel debugPieceValue;
 	private boolean debug;
-	
+
 	private JLabel picLabel;
 	private boolean selectedSquare;
 	private boolean lightSquare;
@@ -51,7 +51,7 @@ public class SquareGUI extends JPanel {
 
 	public SquareGUI(boolean lightSquare, int row, int col, boolean debug) {
 		super(new BorderLayout());
-		
+
 		validMoves = new Vector<Move>();
 		this.row = row;
 		this.col = col;
@@ -79,10 +79,10 @@ public class SquareGUI extends JPanel {
 			debugPane.add(debugScoreLabel, BorderLayout.LINE_END);
 			debugPieceValue = new JLabel();
 			debugPieceValue.setFont(new Font("Arial", Font.BOLD, 12));
-			//debugPieceValue.setOpaque(true);
-			//debugPieceValue.setBackground(Color.BLACK);
+			// debugPieceValue.setOpaque(true);
+			// debugPieceValue.setBackground(Color.BLACK);
 			debugPieceValue.setForeground(Color.BLUE);
-			debugPane.add(debugPieceValue,BorderLayout.CENTER);
+			debugPane.add(debugPieceValue, BorderLayout.CENTER);
 			this.add(debugPane, BorderLayout.PAGE_END);
 		}
 
@@ -122,19 +122,19 @@ public class SquareGUI extends JPanel {
 
 		if (validMoveSquare) {
 			this.setBorder(BorderFactory.createLineBorder(validMove));
-			
-			//this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,validMove,Color.black));
+
+			// this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,validMove,Color.black));
 		} else {
 			if (lastMovedSquare) {
 				this.setBorder(BorderFactory.createLineBorder(lastMoved));
-				//this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,lastMoved,Color.black));
+				// this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,lastMoved,Color.black));
 			} else {
 				if (selectedSquare) {
 					this.setBorder(BorderFactory.createLineBorder(Color.black));
 				} else {
-					//this.setBorder(BorderFactory.createLineBorder(Color.black));
+					// this.setBorder(BorderFactory.createLineBorder(Color.black));
 					this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-					//this.setBorder(BorderFactory.createEtchedBorder());
+					// this.setBorder(BorderFactory.createEtchedBorder());
 				}
 			}
 		}
@@ -154,12 +154,12 @@ public class SquareGUI extends JPanel {
 		this.lastMovedSquare = lastMovedSquare;
 		updateBorderColor();
 	}
-	
-	public void showAsDefault(){
+
+	public void showAsDefault() {
 		this.selectedSquare = false;
 		this.validMoveSquare = false;
 		this.lastMovedSquare = false;
-		
+
 		updateBorderColor();
 	}
 
@@ -172,26 +172,26 @@ public class SquareGUI extends JPanel {
 		ImageIcon icon = new ImageIcon(image);
 		picLabel.setIcon(icon);
 		picLabel.updateUI();
-			
+
 	}
-	
-	public void addValidMove(Move move){
+
+	public void addValidMove(Move move) {
 		validMoves.add(move);
 	}
-	
-	public void removeAllValidMoves(){
+
+	public void removeAllValidMoves() {
 		validMoves.removeAllElements();
 	}
-	
-	public Vector<Move> getValidMoves(){
+
+	public Vector<Move> getValidMoves() {
 		return validMoves;
 	}
-	
+
 	public Move checkIfValidMove(Move newMove) {
 		Move validMove;
 		for (int m = 0; m < validMoves.size(); m++) {
 			validMove = validMoves.elementAt(m);
-			if (validMove.equals(newMove) && validMove.isValidated())
+			if (validMove.equals(newMove))
 				return validMove;
 		}
 
@@ -202,8 +202,8 @@ public class SquareGUI extends JPanel {
 
 		picLabel.setIcon(null);
 		id = null;
-		
-		if(debug)
+
+		if (debug)
 			debugPieceValue.setText("");
 	}
 
@@ -226,11 +226,10 @@ public class SquareGUI extends JPanel {
 	public int getCol() {
 		return col;
 	}
-	
-	public Player getPlayer(){
+
+	public Player getPlayer() {
 		return player;
 	}
-	
 
 	public void updateDebugInfo(String score) {
 		debugScoreLabel.setText(score + "");

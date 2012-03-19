@@ -7,7 +7,6 @@ public class Move {
 	private MoveNote note;
 	private Piece pieceTaken;
 	private boolean hadMoved;
-	private boolean validated;
 	private int value;
 	private int fromRow;
 	private int fromCol;
@@ -22,19 +21,6 @@ public class Move {
 		this.note = MoveNote.NONE;
 		this.pieceTaken = null;
 		this.hadMoved = false;
-		this.validated = true;
-	}
-
-	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note) {
-		this.fromRow = fromRow;
-		this.fromCol = fromCol;
-		this.toRow = toRow;
-		this.toCol = toCol;
-		this.note = note;
-		this.value = value;
-		this.pieceTaken = null;
-		this.hadMoved = false;
-		this.validated = true;
 	}
 
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value) {
@@ -45,9 +31,19 @@ public class Move {
 		this.note = MoveNote.NONE;
 		this.value = value;
 		this.hadMoved = false;
-		this.validated = true;
 	}
 	
+	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note) {
+		this.fromRow = fromRow;
+		this.fromCol = fromCol;
+		this.toRow = toRow;
+		this.toCol = toCol;
+		this.note = note;
+		this.value = value;
+		this.pieceTaken = null;
+		this.hadMoved = false;
+	}
+
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken) {
 		this.fromRow = fromRow;
 		this.fromCol = fromCol;
@@ -57,7 +53,17 @@ public class Move {
 		this.value = value;
 		this.pieceTaken = pieceTaken;
 		this.hadMoved = false;
-		this.validated = true;
+	}
+	
+	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {
+		this.fromRow = fromRow;
+		this.fromCol = fromCol;
+		this.toRow = toRow;
+		this.toCol = toCol;
+		this.note = note;
+		this.value = value;
+		this.pieceTaken = pieceTaken;
+		this.hadMoved = hadMoved;
 	}
 
 	public boolean equals(Move m) {
@@ -82,6 +88,25 @@ public class Move {
 			move = "Moving from " + fromRow + "," + fromCol + " to " + toRow + "," + toCol + " Move Note: " + note.toString() + " Value:" + value;
 		}
 		return move;
+	}
+	
+	public String toXML(){
+		String xmlMove = "";
+		
+		xmlMove += "<move>\n";
+
+		xmlMove += "<from>" + getFromRow() + "," + getFromCol() + "</from>\n";
+		xmlMove += "<to>" + getToRow() + "," + getToCol() + "</to>\n";
+		xmlMove += "<had_moved>" + hadMoved() + "</had_moved>\n";
+		xmlMove += "<note>" + note.toString() + "</note>\n";
+
+		if (getPieceTaken() != null) {
+			xmlMove += getPieceTaken().toXML();
+		}
+		
+		xmlMove += "</move>\n";
+		
+		return xmlMove;
 	}
 
 	public void setNote(MoveNote note) {
@@ -130,14 +155,6 @@ public class Move {
 
 	public void setValue(int value) {
 		this.value = value;
-	}
-	
-	public void invalidate(){
-		this.validated = false;
-	}
-
-	public boolean isValidated() {
-		return validated;
 	}
 
 	public Piece getPieceTaken() {

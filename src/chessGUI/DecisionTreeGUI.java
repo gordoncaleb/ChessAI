@@ -88,21 +88,6 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 
 		Object nodeInfo = node.getUserObject();
 
-		if (nodeInfo instanceof DecisionNode) {
-			DecisionNode branch = ((DecisionNode) nodeInfo);
-
-			if (((int) arg0.getKeyChar()) == 10) {
-				System.out.println("Enter pressed on " + nodeInfo.toString());
-				game.growBranch(branch);
-				setRootDecisionTree(rootDecision);
-
-			} else {
-				if (arg0.isShiftDown() && arg0.isActionKey()) {
-					gui.setBoard(branch.getBoard());
-					// showDecisionTreeScores(((DecisionNode) nodeInfo));
-				}
-			}
-		}
 	}
 
 	@Override
@@ -120,43 +105,12 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 
 		Object nodeInfo = node.getUserObject();
 
-		if (nodeInfo instanceof DecisionNode) {
-			DecisionNode branch = ((DecisionNode) nodeInfo);
-
-			if (((int) arg0.getKeyChar()) == 10) {
-				System.out.println("Enter pressed on " + nodeInfo.toString());
-				game.growBranch(branch);
-				setRootDecisionTree(rootDecision);
-
-			} else {
-				if (arg0.isShiftDown() && arg0.isActionKey()) {
-					gui.setBoard(branch.getBoard());
-					// showDecisionTreeScores(((DecisionNode) nodeInfo));
-				}
-			}
-		}
 
 	}
 
 	// Listener Methods
 	public void mouseClicked(MouseEvent arg0) {
 
-		if (arg0.getComponent() == decisionTreeGUI) {
-
-			if (debug) {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) decisionTreeGUI.getLastSelectedPathComponent();
-
-				if (node == null || !arg0.isShiftDown()) {
-					return;
-				}
-
-				Object nodeInfo = node.getUserObject();
-
-				if (nodeInfo instanceof DecisionNode) {
-					gui.setBoard(((DecisionNode) nodeInfo).getBoard());
-				}
-			}
-		}
 	}
 
 	@Override

@@ -18,9 +18,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
 import chessAI.DecisionNode;
-import chessAI.MoveBook;
-import chessAI.MoveBookNode;
 import chessBackend.*;
+import chessIO.FileIO;
+import chessIO.MoveBook;
+import chessIO.MoveBookNode;
+import chessIO.XMLParser;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 
@@ -35,8 +37,8 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 	private JFrame frame;
 	private JPanel boardGUIPanel;
-	private JPanel lostAiPiecesPanel;
-	private JPanel lostUserPiecesPanel;
+	private JPanel lostBlackPiecesPanel;
+	private JPanel lostWhitePiecesPanel;
 
 	private JMenuItem gameAsBlackMenu;
 	private JMenuItem gameAsWhiteMenu;
@@ -47,7 +49,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	private SquareGUI selectedSquare;
 	private SquareGUI lastMovedSquare;
 	private boolean flipBoard;
-	private Player whitePlayer;
+	private Player userSide;
 
 	private Adjudicator adjudicator;
 
@@ -89,15 +91,15 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		boardGUIPanel.setPreferredSize(new Dimension(gameHeight, gameHeight));
 		frame.add(boardGUIPanel, BorderLayout.CENTER);
 
-		lostAiPiecesPanel = new JPanel(new FlowLayout());
-		lostAiPiecesPanel.setBackground(Color.GRAY);
-		lostAiPiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
-		frame.add(lostAiPiecesPanel, BorderLayout.WEST);
+		lostBlackPiecesPanel = new JPanel(new FlowLayout());
+		lostBlackPiecesPanel.setBackground(Color.GRAY);
+		lostBlackPiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
+		frame.add(lostBlackPiecesPanel, BorderLayout.WEST);
 
-		lostUserPiecesPanel = new JPanel(new FlowLayout());
-		lostUserPiecesPanel.setBackground(Color.GRAY);
-		lostUserPiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
-		frame.add(lostUserPiecesPanel, BorderLayout.EAST);
+		lostWhitePiecesPanel = new JPanel(new FlowLayout());
+		lostWhitePiecesPanel.setBackground(Color.GRAY);
+		lostWhitePiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
+		frame.add(lostWhitePiecesPanel, BorderLayout.EAST);
 
 		this.game = game;
 		this.loadChessImages();
@@ -114,20 +116,29 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 	}
 
-	public void newGame(Player whitePlayer) {
-		this.whitePlayer = whitePlayer;
+	public void newGame(Player userSide) {
+		this.userSide = userSide;
 
-		if (debug) {
-			adjudicator = new Adjudicator(Board.fromFile("testboard.txt",whitePlayer));
+		if (userSide == Player.BLACK) {
+			flipBoard = true;
 		} else {
-			adjudicator = new Adjudicator(new Board(whitePlayer));
+			flipBoard = false;
 		}
 
-		clearPiecesTaken();
-		updateLastMovedSquare();
-		attachValidMoves();
-		setBoard(adjudicator.getCurrentBoard());
+		if (debug) {
+			adjudicator = new Adjudicator(XMLParser.XMLToBoard(FileIO.readFile("testboard.xml")));
+		} else {
+			adjudicator = new Adjudicator(XMLParser.XMLToBoard(FileIO.readFile("default.xml")));
+		}
+
+		refreshBoard();
+
 		colorSquaresDefault();
+		clearPiecesTaken();
+		attachValidMoves();
+
+		updateLastMovedSquare();
+
 	}
 
 	private void buildBoardGUI() {
@@ -151,59 +162,32 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 		chessPieceGraphics = new Image[2][6];
 		String pieceNames[] = { "rook", "knight", "bishop", "queen", "king", "pawn" };
-		String imgDir = "img" + "/" + "pieces/"; //+ File.separator;
+		String imgDir = "pieces";
 
-		URL urlWhite;
-		URL urlBlack;
+		String whiteFileName;
+		String blackFileName;
 
 		for (int i = 0; i < 6; i++) {
-			try {
 
-				urlWhite = BoardGUI.class.getResource(imgDir + "white_" + pieceNames[i] + ".png");
-				urlBlack = BoardGUI.class.getResource(imgDir + "black_" + pieceNames[i] + ".png");
-				//System.out.println(urlWhite);
+			whiteFileName = imgDir + "/white_" + pieceNames[i] + ".png";
+			blackFileName = imgDir + "/black_" + pieceNames[i] + ".png";
 
-				chessPieceGraphics[0][i] = ImageIO.read(urlBlack).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
-				chessPieceGraphics[1][i] = ImageIO.read(urlWhite).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			chessPieceGraphics[0][i] = FileIO.readImage(blackFileName).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
+			chessPieceGraphics[1][i] = FileIO.readImage(whiteFileName).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
+
 		}
 	}
 
 	public Image getChessImage(PieceID id, Player player) {
-		int color;
-
-		if (whitePlayer == player) {
-			color = 1;
-		} else {
-			color = 0;
-		}
-
-		return chessPieceGraphics[color][id.ordinal()];
+		return chessPieceGraphics[player.ordinal()][id.ordinal()];
 	}
 
-	public void aiMoved(Move aisMove) {
+	public void makeMove(Move move) {
 
-		adjudicator.move(aisMove);
-		// Update the gui to show move that AI made
-		makeMove(aisMove);
+		adjudicator.move(move);
 
-		attachValidMoves();
-
-	}
-
-	private void userMoved(Move usersMove) {
-
-		adjudicator.move(usersMove);
-		clearValidMoves();
-		makeMove(usersMove);
-	}
-
-	private void makeMove(Move move) {
-
-		SquareGUI fromSquare = chessSquares[move.getFromRow()][move.getFromCol()];
-		SquareGUI toSquare = chessSquares[move.getToRow()][move.getToCol()];
+		SquareGUI fromSquare = getChessSquare(move.getFromRow(),move.getFromCol());
+		SquareGUI toSquare = getChessSquare(move.getToRow(),move.getToCol());
 
 		if (move.getPieceTaken() != null) {
 
@@ -212,7 +196,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 		}
 
 		if (move.getNote() != MoveNote.NONE) {
-			setBoard(adjudicator.getCurrentBoard());
+			refreshBoard();
 		} else {
 			toSquare.showChessPiece(fromSquare.getPieceID(), fromSquare.getPlayer());
 			fromSquare.clearChessPiece();
@@ -220,41 +204,48 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 		updateLastMovedSquare();
 
-		game.setGameSatus(adjudicator.getRoot().getStatus(), adjudicator.getRoot().getBoard().getPlayer());
+		attachValidMoves();
+
+		game.setGameSatus(adjudicator.getGameStatus(), adjudicator.getPlayer());
 
 	}
 
 	private void undoUserMove() {
+
 		if (adjudicator.undo()) {
-			setBoard(adjudicator.getCurrentBoard());
+			// full refresh of board info
+			refreshBoard();
+
+			// reset all squares to default border color
+			colorSquaresDefault();
+
+			// attach the new valid moves to appropriate squares
 			attachValidMoves();
+
+			// update side line view of pieces that have been taken
 			refreshPiecesTaken();
+
+			// show what the last move made was before last two moves were made
 			updateLastMovedSquare();
+
+			// notify game and ai object to undo the last two moves
 			game.undoUserMove();
+
 		} else {
 			System.out.println("Cannot undo move");
 		}
 
 	}
 
-	public void setBoard(Board board) {
-		int getRow;
-		int getCol;
+	public void refreshBoard() {
 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 
-				if (flipBoard) {
-					getRow = 7 - row;
-					getCol = 7 - col;
-				} else {
-					getRow = row;
-					getCol = col;
-				}
-				chessSquares[row][col].clearChessPiece();
+				getChessSquare(row, col).clearChessPiece();
 
-				if (board.hasPiece(getRow, getCol)) {
-					chessSquares[row][col].showChessPiece(board.getPieceID(getRow, getCol), board.getPiecePlayer(getRow, getCol));
+				if (adjudicator.getPieceID(row, col) != null) {
+					getChessSquare(row, col).showChessPiece(adjudicator.getPieceID(row, col), adjudicator.getPiecePlayer(row, col));
 				}
 
 				if (debug) {
@@ -267,12 +258,15 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	}
 
 	private void attachValidMoves() {
+
+		clearValidMoves();
+
 		Vector<Move> validMoves = adjudicator.getValidMoves();
 
 		Move move;
 		for (int m = 0; m < validMoves.size(); m++) {
 			move = validMoves.elementAt(m);
-			chessSquares[move.getFromRow()][move.getFromCol()].addValidMove(move);
+			getChessSquare(move.getFromRow(), move.getFromCol()).addValidMove(move);
 		}
 
 		if (selectedSquare != null) {
@@ -291,30 +285,17 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	private void colorValidMoveSquares(SquareGUI square, boolean valid) {
 		Vector<Move> validMoves = square.getValidMoves();
 		Move move;
-		int getRow;
-		int getCol;
 
 		for (int i = 0; i < validMoves.size(); i++) {
 			move = validMoves.elementAt(i);
-			// Some pieces think they have valid moves but are actually invalid
-			// because of higher level game situations like the move puts the
-			// king in check.
-			if (move.isValidated()) {
-				if (flipBoard) {
-					getRow = 7 - move.getToRow();
-					getCol = 7 - move.getToCol();
-				} else {
-					getRow = move.getToRow();
-					getCol = move.getToCol();
-				}
-				chessSquares[getRow][getCol].showAsValidMove(valid);
 
-				if (debug) {
-					if (valid && move != null) {
-						chessSquares[getRow][getCol].updateDebugInfo(game.getMoveChosenPathValue(move) + "");
-					} else {
-						chessSquares[getRow][getCol].updateDebugInfo("");
-					}
+			getChessSquare(move.getToRow(), move.getToCol()).showAsValidMove(valid);
+
+			if (debug) {
+				if (valid && move != null) {
+					getChessSquare(move.getToRow(), move.getToCol()).updateDebugInfo(game.getMoveChosenPathValue(move) + "");
+				} else {
+					getChessSquare(move.getToRow(), move.getToCol()).updateDebugInfo("");
 				}
 			}
 
@@ -322,6 +303,9 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	}
 
 	private void colorSquaresDefault() {
+
+		selectedSquare = null;
+
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
 				chessSquares[r][c].showAsDefault();
@@ -332,14 +316,14 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	private void pieceTaken(PieceID id, Player player) {
 		JLabel picLabel = new JLabel();
 
-		if (player == Player.AI) {
-			System.out.println("Ai loses piece " + id);
-			picLabel.setIcon(new ImageIcon(this.getChessImage(id, Player.AI)));
-			lostAiPiecesPanel.add(picLabel);
+		if (player == Player.BLACK) {
+			System.out.println("Black loses piece " + id);
+			picLabel.setIcon(new ImageIcon(this.getChessImage(id, Player.BLACK)));
+			lostBlackPiecesPanel.add(picLabel);
 		} else {
-			System.out.println("user loses piece " + id);
-			picLabel.setIcon(new ImageIcon(this.getChessImage(id, Player.USER)));
-			lostUserPiecesPanel.add(picLabel);
+			System.out.println("White loses piece " + id);
+			picLabel.setIcon(new ImageIcon(this.getChessImage(id, Player.WHITE)));
+			lostWhitePiecesPanel.add(picLabel);
 		}
 	}
 
@@ -348,29 +332,29 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 		clearPiecesTaken();
 
-		Vector<PieceID> takenPieces = adjudicator.getPiecesTaken(Player.USER);
+		Vector<Piece> takenPieces = adjudicator.getPiecesTaken(Player.WHITE);
 
 		for (int i = 0; i < takenPieces.size(); i++) {
 			picLabel = new JLabel();
-			picLabel.setIcon(new ImageIcon(this.getChessImage(takenPieces.elementAt(i), Player.USER)));
-			lostUserPiecesPanel.add(picLabel);
+			picLabel.setIcon(new ImageIcon(this.getChessImage(takenPieces.elementAt(i).getPieceID(), Player.WHITE)));
+			lostWhitePiecesPanel.add(picLabel);
 		}
 
-		takenPieces = adjudicator.getPiecesTaken(Player.AI);
+		takenPieces = adjudicator.getPiecesTaken(Player.BLACK);
 
 		for (int i = 0; i < takenPieces.size(); i++) {
 			picLabel = new JLabel();
-			picLabel.setIcon(new ImageIcon(this.getChessImage(takenPieces.elementAt(i), Player.AI)));
-			lostAiPiecesPanel.add(picLabel);
+			picLabel.setIcon(new ImageIcon(this.getChessImage(takenPieces.elementAt(i).getPieceID(), Player.BLACK)));
+			lostBlackPiecesPanel.add(picLabel);
 		}
 
 	}
 
 	private void clearPiecesTaken() {
-		lostAiPiecesPanel.removeAll();
-		lostAiPiecesPanel.updateUI();
-		lostUserPiecesPanel.removeAll();
-		lostUserPiecesPanel.updateUI();
+		lostBlackPiecesPanel.removeAll();
+		lostBlackPiecesPanel.updateUI();
+		lostWhitePiecesPanel.removeAll();
+		lostWhitePiecesPanel.updateUI();
 	}
 
 	private void updateLastMovedSquare() {
@@ -379,11 +363,48 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 			lastMovedSquare = null;
 		}
 
-		Move lastMove = adjudicator.getRoot().getMove();
+		Move lastMove = adjudicator.getLastMoveMade();
 		if (lastMove != null) {
-			lastMovedSquare = chessSquares[lastMove.getToRow()][lastMove.getToCol()];
+			lastMovedSquare = getChessSquare(lastMove.getToRow(), lastMove.getToCol());
 			lastMovedSquare.showAsLastMoved(true);
 		}
+
+	}
+
+	private SquareGUI getChessSquare(int row, int col) {
+		int getRow;
+		int getCol;
+
+		if (flipBoard) {
+			getRow = 7 - row;
+			getCol = 7 - col;
+		} else {
+			getRow = row;
+			getCol = col;
+		}
+
+		return chessSquares[getRow][getCol];
+	}
+
+	private Move getOrientedMove(int fromRow, int fromCol, int toRow, int toCol) {
+		int orienFromRow;
+		int orienFromCol;
+		int orienToRow;
+		int orienToCol;
+
+		if (flipBoard) {
+			orienFromRow = 7 - fromRow;
+			orienFromCol = 7 - fromCol;
+			orienToRow = 7 - toRow;
+			orienToCol = 7 - toCol;
+		} else {
+			orienFromRow = fromRow;
+			orienFromCol = fromCol;
+			orienToRow = toRow;
+			orienToCol = toCol;
+		}
+
+		return new Move(orienFromRow, orienFromCol, orienToRow, orienToCol);
 
 	}
 
@@ -404,10 +425,10 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 			return;
 		}
 
-		int fromRow;
-		int fromCol;
-		int toRow;
-		int toCol;
+		// lock board when it's not the users turn
+		if (userSide != adjudicator.getPlayer()) {
+			return;
+		}
 
 		if (selectedSquare == null) {
 			if (clickedSquare.hasPiece()) {
@@ -422,19 +443,8 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 			if (selectedSquare != clickedSquare) {
 
-				if (flipBoard) {
-					fromRow = selectedSquare.getRow();
-					fromCol = selectedSquare.getCol();
-					toRow = 7 - clickedSquare.getRow();
-					toCol = 7 - clickedSquare.getCol();
-				} else {
-					fromRow = selectedSquare.getRow();
-					fromCol = selectedSquare.getCol();
-					toRow = clickedSquare.getRow();
-					toCol = clickedSquare.getCol();
-				}
+				Move m = getOrientedMove(selectedSquare.getRow(), selectedSquare.getCol(), clickedSquare.getRow(), clickedSquare.getCol());
 
-				Move m = new Move(fromRow, fromCol, toRow, toCol);
 				Move validMove = selectedSquare.checkIfValidMove(m);
 				if (validMove != null) {
 					selectedSquare.showAsSelected(false);
@@ -442,7 +452,7 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 
 					selectedSquare = null;
 
-					userMoved(validMove);
+					makeMove(validMove);
 					game.userMoved(validMove);
 				} else {
 					if (clickedSquare.hasPiece()) {
@@ -469,11 +479,11 @@ public class BoardGUI implements MouseListener, KeyListener, ActionListener {
 	public void actionPerformed(ActionEvent arg0) {
 
 		if (arg0.getSource() == gameAsBlackMenu) {
-			game.newGame(Player.AI);
+			game.newGame(Player.BLACK);
 		}
 
 		if (arg0.getSource() == gameAsWhiteMenu) {
-			game.newGame(Player.USER);
+			game.newGame(Player.WHITE);
 		}
 
 		if (arg0.getSource() == undoUserMoveMenu) {

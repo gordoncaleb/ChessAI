@@ -39,11 +39,11 @@ public class DecisionNode {
 		}
 		long heapFreeSize = Runtime.getRuntime().freeMemory();
 
-		DecisionNode test = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.AI, 1, 1, false)), null);
+		DecisionNode test = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.BLACK, 1, 1, false)), null);
 
 		int nodes = 4000000;
 		for (int i = 0; i < nodes; i++) {
-			test.addChild(new DecisionNode(test, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.AI, 1, 1, false)), null));
+			test.addChild(new DecisionNode(test, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.BLACK, 1, 1, false)), null));
 		}
 
 		for (int i = 0; i < 1; i++) {

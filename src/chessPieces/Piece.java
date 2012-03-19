@@ -2,6 +2,7 @@ package chessPieces;
 
 import java.util.Vector;
 
+import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.Player;
 import chessBackend.Move;
@@ -11,6 +12,7 @@ public abstract class Piece {
 	private int col;
 	private Player player;
 	private boolean moved;
+	private long blockingVector;
 
 	public Piece(Player player, int row, int col, boolean moved) {
 
@@ -18,6 +20,7 @@ public abstract class Piece {
 		this.player = player;
 		this.row = row;
 		this.col = col;
+		this.blockingVector = BitBoard.ALL_ONES;
 
 	}
 
@@ -27,6 +30,10 @@ public abstract class Piece {
 
 	public int getCol() {
 		return col;
+	}
+
+	public long getBit() {
+		return BitBoard.getMask(row, col);
 	}
 
 	public void setPos(int row, int col) {
@@ -51,40 +58,60 @@ public abstract class Piece {
 		this.moved = moved;
 	}
 
+	public void setBlockingVector(long blockingVector) {
+		this.blockingVector = blockingVector;
+	}
+
+	public void clearBlocking() {
+		blockingVector = BitBoard.ALL_ONES;
+	}
+	
+	public long getBlockingVector(){
+		return blockingVector;
+	}
+
 	public String toString() {
-		String moved;
 		String id;
 
-		if (this.hasMoved()) {
-			moved = "1";
-		} else {
-			moved = "0";
-		}
-
-		if (this.getPlayer() == Player.AI) {
+		if (this.getPlayer() == Player.BLACK) {
 			id = this.getStringID();
 		} else {
 			id = this.getStringID().toLowerCase();
 		}
 
-		return id + moved;
+		return id;
+	}
+
+	public String toXML() {
+		String xmlPiece = "";
+
+		xmlPiece += "<piece>\n";
+		xmlPiece += "<id>" + toString() + "</id>\n";
+		xmlPiece += "<has_moved>" + hasMoved() + "</has_moved>\n";
+		xmlPiece += "<position>" + getRow() + "," + getCol() + "</position>\n";
+		xmlPiece += "</piece>\n";
+
+		return xmlPiece;
 	}
 
 	public static Piece fromString(String stringPiece, int row, int col) {
-		boolean hasMoved;
 		Player player;
 		Piece piece = null;
 
-		if (stringPiece.charAt(1) == '1') {
-			hasMoved = true;
-		} else {
-			hasMoved = false;
+		boolean hasMoved = false;
+
+		try {
+			if (Integer.parseInt(stringPiece.substring(1, 2)) % 2 != 0) {
+				hasMoved = true;
+			}
+		} catch (Exception e) {
+
 		}
 
 		if (stringPiece.charAt(0) < 'a') {
-			player = Player.AI;
+			player = Player.BLACK;
 		} else {
-			player = Player.USER;
+			player = Player.WHITE;
 		}
 
 		char type = stringPiece.toLowerCase().charAt(0);
@@ -127,13 +154,25 @@ public abstract class Piece {
 		}
 	}
 
+	public boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
+		long mask = BitBoard.getMask(toRow,toCol);
+		
+		if((mask & nullMoveInfo[1] & blockingVector) != 0){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
 	public abstract String getStringID();
 
 	public abstract PieceID getPieceID();
 
 	public abstract String getName();
 
-	public abstract Vector<Move> generateValidMoves(Board board);
+	public abstract Vector<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard);
+
+	public abstract void getNullMoveInfo(Board board, long[] nullMoveBitBoards);
 
 	public abstract Piece getCopy(Board board);
 

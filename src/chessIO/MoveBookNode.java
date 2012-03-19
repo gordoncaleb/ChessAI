@@ -1,4 +1,4 @@
-package chessAI;
+package chessIO;
 
 import chessBackend.Move;
 

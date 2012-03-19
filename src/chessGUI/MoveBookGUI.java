@@ -19,9 +19,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
 import chessAI.DecisionNode;
-import chessAI.MoveBook;
-import chessAI.MoveBookNode;
 import chessBackend.Move;
+import chessIO.MoveBook;
+import chessIO.MoveBookNode;
 
 public class MoveBookGUI implements KeyListener, MouseListener {
 	private JFrame moveBookGUIFrame;
@@ -159,16 +159,11 @@ public class MoveBookGUI implements KeyListener, MouseListener {
 	}
 
 	private void refreshTree() {
-		setMoveBookRootDecisionTree(moveBook.getMoveBookRootNode());
-		detailsLbl.setText(getTreeDetails());
+
 	}
 
 	private String getTreeDetails() {
-		numTreeNodes = 0;
-		maxDepth = 0;
-		countChildren(moveBook.getMoveBookRootNode(), 0);
-
-		return numTreeNodes + " Nodes in tree. With the deepest being at level " + maxDepth;
+		return "";
 	}
 
 	private void countChildren(MoveBookNode branch, int depth) {

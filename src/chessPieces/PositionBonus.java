@@ -52,7 +52,7 @@ public class PositionBonus {
 
 	public static final int getKnightPositionBonus(int fromRow, int fromCol, int toRow, int toCol, Player player) {
 		int bonus;
-		if (player == Player.AI) {
+		if (player == Player.BLACK) {
 			bonus = knightBonus[toRow][toCol] - knightBonus[fromRow][fromCol];
 		} else {
 			bonus = knightBonus[7 - toRow][toCol] - knightBonus[7 - fromRow][fromCol];
@@ -62,7 +62,7 @@ public class PositionBonus {
 
 	public static final int getKnightPositionBonus(int row, int col, Player player) {
 		int bonus;
-		if (player == Player.AI) {
+		if (player == Player.BLACK) {
 			bonus = knightBonus[row][col];
 		} else {
 			bonus = knightBonus[7 - row][col];
@@ -72,7 +72,7 @@ public class PositionBonus {
 
 	public static final int getPawnPositionBonus(int fromRow, int fromCol, int toRow, int toCol, Player player) {
 		int bonus;
-		if (player == Player.AI) {
+		if (player == Player.BLACK) {
 			bonus = pawnBonus[toRow][toCol] - pawnBonus[fromRow][fromCol];
 		} else {
 			bonus = pawnBonus[7 - toRow][toCol] - pawnBonus[7 - fromRow][fromCol];
@@ -82,7 +82,7 @@ public class PositionBonus {
 
 	public static final int getPawnPositionBonus(int row, int col, Player player) {
 		int bonus;
-		if (player == Player.AI) {
+		if (player == Player.BLACK) {
 			bonus = pawnBonus[row][col];
 		} else {
 			bonus = pawnBonus[7 - row][col];
