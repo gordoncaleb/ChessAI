@@ -5,13 +5,13 @@ import java.util.Vector;
 import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.MoveNote;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.Move;
 
 public class Queen extends Piece {
 	private static int[][] QUEENMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
 
-	public Queen(Player player, int row, int col, boolean moved) {
+	public Queen(Side player, int row, int col, boolean moved) {
 		super(player, row, col, moved);
 	}
 
@@ -31,7 +31,7 @@ public class Queen extends Piece {
 		Vector<Move> validMoves = new Vector<Move>();
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
@@ -81,7 +81,7 @@ public class Queen extends Piece {
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 		
 		long bitPosition = this.getBit();
 
@@ -145,6 +145,6 @@ public class Queen extends Piece {
 	}
 
 	public Piece getCopy(Board board) {
-		return new Queen(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
+		return new Queen(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }

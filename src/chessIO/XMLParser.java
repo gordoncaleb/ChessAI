@@ -21,7 +21,7 @@ import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.Move;
 import chessBackend.MoveNote;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.RNGTable;
 import chessPieces.Piece;
 import chessPieces.PieceID;
@@ -49,7 +49,7 @@ public class XMLParser {
 		long[] posBitBoard = { 0, 0 };
 
 		Stack<Move> moveHistory = new Stack<Move>();
-		Player player;
+		Side player;
 
 		String stringBoard = getCharacterDataFromElement((Element) doc.getElementsByTagName("setup").item(0));
 
@@ -64,9 +64,9 @@ public class XMLParser {
 
 				if (piece != null) {
 
-					posBitBoard[piece.getPlayer().ordinal()] |= BitBoard.getMask(row, col);
+					posBitBoard[piece.getSide().ordinal()] |= BitBoard.getMask(row, col);
 
-					if (piece.getPlayer() == Player.BLACK) {
+					if (piece.getSide() == Side.BLACK) {
 						blackPieces.add(piece);
 
 						if (piece.getPieceID() == PieceID.KING)
@@ -84,10 +84,10 @@ public class XMLParser {
 
 		String turn = getCharacterDataFromElement((Element) doc.getElementsByTagName("turn").item(0));
 
-		if (turn.compareTo(Player.WHITE.toString()) == 0) {
-			player = Player.WHITE;
+		if (turn.compareTo(Side.WHITE.toString()) == 0) {
+			player = Side.WHITE;
 		} else {
-			player = Player.BLACK;
+			player = Side.BLACK;
 		}
 
 		NodeList nodes = doc.getElementsByTagName("move");

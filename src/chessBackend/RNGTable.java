@@ -50,7 +50,7 @@ public class RNGTable {
 		}
 	}
 
-	public long getPiecePerSquareRandom(Player player, PieceID id, int row, int col) {
+	public long getPiecePerSquareRandom(Side player, PieceID id, int row, int col) {
 		return piecePerSquare[player.ordinal()][id.ordinal()][row][col];
 	}
 

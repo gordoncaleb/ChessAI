@@ -4,17 +4,17 @@ import java.util.Vector;
 
 import chessBackend.BitBoard;
 import chessBackend.Board;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.Move;
 
 public abstract class Piece {
 	private int row;
 	private int col;
-	private Player player;
+	private Side player;
 	private boolean moved;
 	private long blockingVector;
 
-	public Piece(Player player, int row, int col, boolean moved) {
+	public Piece(Side player, int row, int col, boolean moved) {
 
 		this.moved = moved;
 		this.player = player;
@@ -46,7 +46,7 @@ public abstract class Piece {
 		moved = true;
 	}
 
-	public Player getPlayer() {
+	public Side getSide() {
 		return player;
 	}
 
@@ -73,7 +73,7 @@ public abstract class Piece {
 	public String toString() {
 		String id;
 
-		if (this.getPlayer() == Player.BLACK) {
+		if (this.getSide() == Side.BLACK) {
 			id = this.getStringID();
 		} else {
 			id = this.getStringID().toLowerCase();
@@ -95,7 +95,7 @@ public abstract class Piece {
 	}
 
 	public static Piece fromString(String stringPiece, int row, int col) {
-		Player player;
+		Side player;
 		Piece piece = null;
 
 		boolean hasMoved = false;
@@ -109,9 +109,9 @@ public abstract class Piece {
 		}
 
 		if (stringPiece.charAt(0) < 'a') {
-			player = Player.BLACK;
+			player = Side.BLACK;
 		} else {
-			player = Player.WHITE;
+			player = Side.WHITE;
 		}
 
 		char type = stringPiece.toLowerCase().charAt(0);
@@ -147,7 +147,7 @@ public abstract class Piece {
 			return false;
 		}
 
-		if (piece.getRow() == row && piece.getCol() == col && piece.getPlayer() == player && piece.getPieceID() == this.getPieceID()) {
+		if (piece.getRow() == row && piece.getCol() == col && piece.getSide() == player && piece.getPieceID() == this.getPieceID()) {
 			return true;
 		} else {
 			return false;

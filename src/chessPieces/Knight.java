@@ -4,13 +4,13 @@ import java.util.Vector;
 
 import chessBackend.BitBoard;
 import chessBackend.Board;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.Move;
 
 public class Knight extends Piece {
 	private static int[][] KNIGHTMOVES = { { 2, 2, -2, -2, 1, -1, 1, -1 }, { 1, -1, 1, -1, 2, 2, -2, -2 } };
 
-	public Knight(Player player, int row, int col, boolean moved) {
+	public Knight(Side player, int row, int col, boolean moved) {
 		super(player, row, col, moved);
 	}
 
@@ -34,7 +34,7 @@ public class Knight extends Piece {
 		int nextCol;
 		int bonus;
 		PositionStatus pieceStatus;
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 		Move move;
 
 		for (int i = 0; i < 8; i++) {
@@ -43,7 +43,7 @@ public class Knight extends Piece {
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
 			if (pieceStatus != PositionStatus.OFF_BOARD) {
-				bonus = PositionBonus.getKnightPositionBonus(currentRow, currentCol, nextRow, nextCol, this.getPlayer());
+				bonus = PositionBonus.getKnightPositionBonus(currentRow, currentCol, nextRow, nextCol, this.getSide());
 
 				if (pieceStatus == PositionStatus.NO_PIECE) {
 					if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
@@ -80,7 +80,7 @@ public class Knight extends Piece {
 			nextRow = currentRow + KNIGHTMOVES[0][i];
 			nextCol = currentCol + KNIGHTMOVES[1][i];
 
-			pieceStatus = board.checkPiece(nextRow, nextCol, getPlayer());
+			pieceStatus = board.checkPiece(nextRow, nextCol, getSide());
 
 			if (pieceStatus != PositionStatus.OFF_BOARD) {
 
@@ -95,6 +95,6 @@ public class Knight extends Piece {
 	}
 
 	public Piece getCopy(Board board) {
-		return new Knight(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
+		return new Knight(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }

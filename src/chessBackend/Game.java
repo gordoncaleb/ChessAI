@@ -1,37 +1,54 @@
 package chessBackend;
 
-import javax.swing.JOptionPane;
+import java.util.Vector;
 
 import chessAI.AI;
 import chessAI.DecisionNode;
-import chessGUI.BoardGUI;
 import chessGUI.DecisionTreeGUI;
-import chessGUI.MoveBookGUI;
+import chessGUI.ObserverGUI;
+import chessGUI.PlayerGUI;
+import chessIO.FileIO;
+import chessIO.XMLParser;
 
 public class Game {
-	public static String VERSION = "0.2.021812";
+	public static String VERSION = "0.3.031912";
 
-	private BoardGUI gui;
-	private AI ai;
-	private MoveBookGUI goodMoveDBGUI;
+	private boolean debug;
+
+	private Board board;
+
 	private DecisionTreeGUI decisionTreeGUI;
-	private Player userSide;
 
-	public Game() {
+	private Player[] players;
+	private Vector<Player> observers;
+	private Side turn;
 
-		boolean debug = false;
-		boolean learn = false;
+	public Game(GameType gameType) {
 
-		ai = new AI(this, debug);
-		ai.start();
-		gui = new BoardGUI(this, debug);
+		debug = false;
 
-		if (learn) {
-			goodMoveDBGUI = new MoveBookGUI(ai.getMoveBook());
+		observers = new Vector<Player>();
+		players = new Player[2];
+
+		switch (gameType) {
+		case GUI_VS_AI:
+			players[0] = new PlayerGUI(this, debug);
+			players[1] = new AI(this, debug);
+			break;
+		case AI_VS_AI:
+			players[0] = new AI(this, debug);
+			players[1] = new AI(this, debug);
+			break;
+		case TWO_GUI:
+			players[0] = new PlayerGUI(this, debug);
+			players[1] = new PlayerGUI(this, debug);
+		case ONE_GUI:
+			players[0] = new PlayerGUI(this, debug);
+			players[1] = null;
 		}
 
 		if (debug) {
-			decisionTreeGUI = new DecisionTreeGUI(this, gui);
+			// decisionTreeGUI = new DecisionTreeGUI(this, players[1]);
 		}
 
 		newGame();
@@ -39,110 +56,69 @@ public class Game {
 
 	public static void main(String[] args) {
 
-		Game game = new Game();
+		Game game = new Game(GameType.GUI_VS_AI);
+		//game.addObserver(new ObserverGUI(game, false));
 	}
 
 	public void newGame() {
 
-		Object[] options = { "White", "Black" };
-		int n = JOptionPane.showOptionDialog(gui.getFrame(), "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
-		if (n == JOptionPane.YES_OPTION) {
-			userSide = Player.WHITE;
-			gui.newGame(Player.WHITE);
-			ai.setMakeNewGame(Player.WHITE);
+		if (debug) {
+			board = XMLParser.XMLToBoard(FileIO.readFile("testboard.xml"));
 		} else {
-			userSide = Player.BLACK;
-			gui.newGame(Player.BLACK);
-			ai.setMakeNewGame(Player.BLACK);
+			board = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 		}
 
-	}
+		turn = board.getTurn();
 
-	public void newGame(Player whitePlayer) {
-		gui.newGame(whitePlayer);
-		ai.setMakeNewGame(whitePlayer);
-	}
-
-	public void userMoved(Move usersMove) {
-		//System.out.println("User Moved");
-		ai.setUserDecision(usersMove);
-		//System.out.println("AI notified");
-	}
-
-	public void setGameSatus(GameStatus status, Player playerTurn) {
-		if (status == GameStatus.CHECK) {
-			System.out.println("Check!");
-		}
-
-		if (playerTurn == userSide) {
-
-			if (status == GameStatus.CHECKMATE) {
-				Object[] options = { "Yes, please", "Nah" };
-				int n = JOptionPane.showOptionDialog(gui.getFrame(), "You just got schooled homie.\nWanna try again?", "Ouch!",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-
-				if (n == JOptionPane.YES_OPTION) {
-					newGame();
-				} else {
-					System.exit(0);
-				}
-
+		Side tempSide;
+		if (players[0] instanceof PlayerGUI) {
+			if (players[1] == null) {
+				tempSide = players[0].newGame(Side.BOTH, board);
+			} else {
+				tempSide = players[0].newGame(null, board);
+				players[1].newGame(tempSide.otherSide(), board.getCopy());
 			}
-
-			if (status == GameStatus.STALEMATE) {
-				Object[] options = { "Yes, please", "Nah, maybe later." };
-				int n = JOptionPane.showOptionDialog(gui.getFrame(), "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-				if (n == JOptionPane.YES_OPTION) {
-					newGame();
-				} else {
-					System.exit(0);
-				}
-
-			}
-
 		} else {
+			players[0].newGame(turn, board);
+			players[1].newGame(turn.otherSide(), board.getCopy());
+		}
 
-			if (status == GameStatus.CHECKMATE) {
-				Object[] options = { "Yeah, why not?", "Nah." };
-				int n = JOptionPane.showOptionDialog(gui.getFrame(), "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+	}
 
-				if (n == JOptionPane.YES_OPTION) {
-					newGame();
-				} else {
-					System.exit(0);
-				}
+	public boolean undoMove(Side side) {
 
-			}
+		return false;
+	}
 
-			if (status == GameStatus.STALEMATE) {
-				Object[] options = { "Yes, please", "Nah, maybe later." };
-				int n = JOptionPane.showOptionDialog(gui.getFrame(), "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-				if (n == JOptionPane.YES_OPTION) {
-					newGame();
-				} else {
-					System.exit(0);
-				}
-			}
+	public synchronized void makeMove(Move move) {
 
+		if (players[0].getSide() != Side.BOTH) {
+			getPlayer(turn.otherSide()).opponentMoved(move);
+		}
+
+		turn = turn.otherSide();
+
+		for (int i = 0; i < observers.size(); i++) {
+			observers.elementAt(i).opponentMoved(move);
 		}
 	}
 
-	public void aiMoved(Move aisMove) {
-		gui.makeMove(aisMove);
+	private Player getPlayer(Side side) {
+		if (players[0].getSide() == side) {
+			return players[0];
+		} else {
+			return players[1];
+		}
 	}
 
-	public void undoUserMove() {
-		ai.setUndoUserMove();
+	public synchronized void addObserver(Player observer) {
+		observer.newGame(Side.NONE, board.getCopy());
+		observers.add(observer);
 	}
 
-	public int getMoveChosenPathValue(Move m) {
-		return ai.getMoveChosenPathValue(m);
-	}
+	// public int getMoveChosenPathValue(Move m) {
+	// return ai.getMoveChosenPathValue(m);
+	// }
 
 	public void setDecisionTreeRoot(DecisionNode rootDecision) {
 		decisionTreeGUI.setRootDecisionTree(rootDecision);

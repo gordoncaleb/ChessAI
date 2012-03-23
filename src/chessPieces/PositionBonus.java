@@ -1,6 +1,6 @@
 package chessPieces;
 
-import chessBackend.Player;
+import chessBackend.Side;
 
 public class PositionBonus {
 	private static int[][] knightBonus = 
@@ -50,9 +50,9 @@ public class PositionBonus {
 	       // a, b,   c,  d,  e,  f,  g, h
 	};
 
-	public static final int getKnightPositionBonus(int fromRow, int fromCol, int toRow, int toCol, Player player) {
+	public static final int getKnightPositionBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
 		int bonus;
-		if (player == Player.BLACK) {
+		if (player == Side.BLACK) {
 			bonus = knightBonus[toRow][toCol] - knightBonus[fromRow][fromCol];
 		} else {
 			bonus = knightBonus[7 - toRow][toCol] - knightBonus[7 - fromRow][fromCol];
@@ -60,9 +60,9 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static final int getKnightPositionBonus(int row, int col, Player player) {
+	public static final int getKnightPositionBonus(int row, int col, Side player) {
 		int bonus;
-		if (player == Player.BLACK) {
+		if (player == Side.BLACK) {
 			bonus = knightBonus[row][col];
 		} else {
 			bonus = knightBonus[7 - row][col];
@@ -70,9 +70,9 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static final int getPawnPositionBonus(int fromRow, int fromCol, int toRow, int toCol, Player player) {
+	public static final int getPawnPositionBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
 		int bonus;
-		if (player == Player.BLACK) {
+		if (player == Side.BLACK) {
 			bonus = pawnBonus[toRow][toCol] - pawnBonus[fromRow][fromCol];
 		} else {
 			bonus = pawnBonus[7 - toRow][toCol] - pawnBonus[7 - fromRow][fromCol];
@@ -80,9 +80,9 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static final int getPawnPositionBonus(int row, int col, Player player) {
+	public static final int getPawnPositionBonus(int row, int col, Side player) {
 		int bonus;
-		if (player == Player.BLACK) {
+		if (player == Side.BLACK) {
 			bonus = pawnBonus[row][col];
 		} else {
 			bonus = pawnBonus[7 - row][col];

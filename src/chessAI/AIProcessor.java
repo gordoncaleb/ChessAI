@@ -7,12 +7,13 @@ import chessBackend.Board;
 import chessBackend.GameStatus;
 import chessBackend.BoardHashEntry;
 import chessBackend.Move;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessPieces.PieceID;
 import chessPieces.Values;
 
 public class AIProcessor extends Thread {
 	private DecisionNode rootNode;
+	private Board board;
 	private boolean isNewTask;
 
 	private int maxTreeLevel;
@@ -36,7 +37,7 @@ public class AIProcessor extends Thread {
 
 		while (!isInterrupted()) {
 
-			//System.out.println("Processor " + this.getId() + " ready!");
+			// System.out.println("Processor " + this.getId() + " ready!");
 
 			while (!isNewTask) {
 				try {
@@ -56,8 +57,9 @@ public class AIProcessor extends Thread {
 		}
 	}
 
-	public void setNewTask(DecisionNode rootNode) {
+	public void setNewTask(DecisionNode rootNode, Board board) {
 		this.rootNode = rootNode;
+		this.board = board;
 		this.isNewTask = true;
 	}
 
@@ -72,7 +74,7 @@ public class AIProcessor extends Thread {
 					ab = rootNode.getHeadChild().getChosenPathValue(0);
 				}
 
-				task.getBoard().makeMove(task.getMove());
+				board.makeMove(task.getMove());
 			}
 
 			// if (maxTreeLevel >= 1) {
@@ -88,7 +90,7 @@ public class AIProcessor extends Thread {
 
 			if (rootNode != null) {
 
-				task.getBoard().undoMove();
+				board.undoMove();
 
 				rootNode.addChild(task);
 
@@ -110,9 +112,6 @@ public class AIProcessor extends Thread {
 	 */
 	private void growDecisionTree(DecisionNode branch, int level, int alphaBeta) {
 
-		// Current state at branch
-		Board board = branch.getBoard();
-
 		boolean pruned = false;
 		int newAlphaBeta = Integer.MIN_VALUE;
 		BoardHashEntry hashOut;
@@ -122,11 +121,11 @@ public class AIProcessor extends Thread {
 
 			// check all moves of all pieces
 			Vector<Move> moves = board.generateValidMoves();
-			
+
 			if (board.isInCheck()) {
 				branch.setStatus(GameStatus.CHECK);
 			}
-			
+
 			Move move;
 			DecisionNode newNode;
 			for (int m = 0; m < moves.size(); m++) {
@@ -135,7 +134,7 @@ public class AIProcessor extends Thread {
 
 				skip = false;
 
-				newNode = new DecisionNode(branch, move, board);
+				newNode = new DecisionNode(branch, move);
 
 				if (pruned) {
 
@@ -296,22 +295,12 @@ public class AIProcessor extends Thread {
 	 */
 	private void growFrontierTwig(DecisionNode twig, int alphaBeta) {
 
-		int twigsBestPathValue = growDecisionTreeLite(twig.getBoard(), twig.getMove(), alphaBeta, maxTwigLevel);
+		int twigsBestPathValue = growDecisionTreeLite(board, twig.getMove(), alphaBeta, maxTwigLevel);
 
 		// int twigSuggestedPathValue = growDecisionTreeLite(twig.getBoard(),
 		// twig.getPlayer(), twig.getMoveValue(),Integer.MIN_VALUE, 0);
 
-		if (twig.getBoard().isInCheck()) {
-			twig.setStatus(GameStatus.CHECK);
-		}
-
-		if (twig.getBoard().isInCheckMate()) {
-			twig.setStatus(GameStatus.CHECKMATE);
-		}
-
-		if (twig.getBoard().isInStaleMate()) {
-			twig.setStatus(GameStatus.STALEMATE);
-		}
+		twig.setStatus(board.getBoardStatus());
 
 		twig.setChosenPathValue(twigsBestPathValue);
 	}
@@ -336,7 +325,7 @@ public class AIProcessor extends Thread {
 		Vector<Move> moves;
 		Move move;
 		int suggestedPathValue;
-		int tempBoardState;
+		GameStatus tempBoardState;
 
 		BoardHashEntry hashOut;
 		boolean skip;
@@ -352,21 +341,13 @@ public class AIProcessor extends Thread {
 
 			if ((level > 0 || board.isInCheck() || move.getPieceTaken() != null) && (level > -maxFrontierLevel)) {
 
-				tempBoardState = board.getBoardState();
+				tempBoardState = board.getBoardStatus();
 
 				board.makeMove(move);
 
 				hashOut = hashTable.get(board.getHashCode());
 
 				if (hashOut != null) {
-
-					// verify boards actually match
-					// if (board.toString().compareTo(hashOut.getBoardString())
-					// != 0) {
-					// System.out.println("Hash collision!\n" + board.toString()
-					// + "\n!=\n" + hashOut.getBoardString());
-					//
-					// }
 
 					if (hashOut.getLevel() > level) {
 						skip = true;
@@ -387,7 +368,7 @@ public class AIProcessor extends Thread {
 
 				board.undoMove();
 
-				board.setBoardState(tempBoardState);
+				board.setBoardStatus(tempBoardState);
 
 			} else {
 				suggestedPathValue = move.getValue();
@@ -428,18 +409,6 @@ public class AIProcessor extends Thread {
 
 	public void setPruningEnabled(boolean pruningEnabled) {
 		this.pruningEnabled = pruningEnabled;
-	}
-
-	private void printMoveStack(DecisionNode node) {
-
-		System.out.println("MOVE STACK");
-
-		DecisionNode ancestor = node;
-
-		while (ancestor != rootNode) {
-			System.out.println(ancestor.getMove().toString());
-			ancestor = ancestor.getParent();
-		}
 	}
 
 }

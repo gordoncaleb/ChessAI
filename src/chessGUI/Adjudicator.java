@@ -5,7 +5,7 @@ import java.util.Vector;
 import chessBackend.Board;
 import chessBackend.GameStatus;
 import chessBackend.Move;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 
@@ -52,16 +52,16 @@ public class Adjudicator {
 		return validMoves;
 	}
 
-	public Player getPlayer() {
-		return board.getPlayer();
+	public Side getTurn() {
+		return board.getTurn();
 	}
 
 	public PieceID getPieceID(int row, int col) {
 		return board.getPieceID(row, col);
 	}
 
-	public Player getPiecePlayer(int row, int col) {
-		return board.getPiecePlayer(row, col);
+	public Side getPiecePlayer(int row, int col) {
+		return board.getPieceSide(row, col);
 	}
 
 	public Move getLastMoveMade() {
@@ -80,8 +80,8 @@ public class Adjudicator {
 		return null;
 	}
 
-	public Vector<Piece> getPiecesTaken(Player player) {
-		if (player == Player.WHITE) {
+	public Vector<Piece> getPiecesTaken(Side player) {
+		if (player == Side.WHITE) {
 			return whitePiecesTaken;
 		} else {
 			return blackPiecesTaken;
@@ -103,7 +103,7 @@ public class Adjudicator {
 
 		if (pieceTaken != null) {
 
-			if (pieceTaken.getPlayer() == Player.BLACK) {
+			if (pieceTaken.getSide() == Side.BLACK) {
 				blackPiecesTaken.add(pieceTaken);
 			} else {
 				whitePiecesTaken.add(pieceTaken);
@@ -117,7 +117,7 @@ public class Adjudicator {
 
 		if (pieceTaken != null) {
 
-			if (pieceTaken.getPlayer() == Player.BLACK) {
+			if (pieceTaken.getSide() == Side.BLACK) {
 				blackPiecesTaken.remove(pieceTaken);
 			} else {
 				whitePiecesTaken.remove(pieceTaken);
@@ -128,19 +128,7 @@ public class Adjudicator {
 
 	public GameStatus getGameStatus() {
 
-		if (board.isInCheckMate()) {
-			return GameStatus.CHECKMATE;
-		}
-		
-		if (board.isInCheck()) {
-			return GameStatus.CHECK;
-		}
-
-		if (board.isInStaleMate()) {
-			return GameStatus.STALEMATE;
-		}
-
-		return GameStatus.IN_PLAY;
+		return board.getBoardStatus();
 
 	}
 

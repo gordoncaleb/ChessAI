@@ -6,28 +6,30 @@ import chessBackend.Board;
 import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.Move;
 import chessIO.FileIO;
 import chessIO.MoveBook;
 import chessIO.XMLParser;
 
-public class AI extends Thread {
+public class AI extends Thread implements Player {
 	private boolean debug;
 
 	private Game game;
 	private MoveBook moveBook;
 	private DecisionNode rootNode;
+	private Board board;
 
 	private int maxTwigLevel;
 	private int maxDecisionTreeLevel;
 
 	private int[] childNum = new int[20];
 
-	private boolean userMoved;
-	private DecisionNode userDecision;
+	private boolean opponentMoved;
+	private DecisionNode opponentsDecision;
 
 	private boolean makeNewGame;
-	private Player userSide;
+	private Side playerSide;
 
 	private boolean undoUserMove;
 
@@ -58,6 +60,8 @@ public class AI extends Thread {
 		if (debug) {
 			System.out.println(processorThreads.length + " threads created and started.");
 		}
+
+		this.start();
 	}
 
 	@Override
@@ -72,19 +76,19 @@ public class AI extends Thread {
 				}
 			}
 
-			if (userMoved) {
+			if (opponentMoved) {
 				userMoved();
-				userMoved = false;
-			}
-
-			if (makeNewGame) {
-				makeNewGame();
-				makeNewGame = false;
+				opponentMoved = false;
 			}
 
 			if (undoUserMove) {
 				undoUserMove();
 				undoUserMove = false;
+			}
+			
+			if (makeNewGame) {
+				makeNewGame();
+				makeNewGame = false;
 			}
 
 		}
@@ -94,18 +98,18 @@ public class AI extends Thread {
 	private void userMoved() {
 
 		if (debug) {
-			if (userDecision == rootNode.getChosenChild()) {
+			if (opponentsDecision == rootNode.getChosenChild()) {
 				System.out.println("AI predicted the users move!!");
 			}
 		}
 
 		// Set the user's move as the root of the decision tree
-		setRootNode(userDecision);
+		setRootNode(opponentsDecision);
 
-		System.out.println(rootNode.getBoard().toString());
+		System.out.println(board.toString());
 
 		moveAI();
-		game.aiMoved(rootNode.getMove());
+		game.makeMove(rootNode.getMove());
 
 	}
 
@@ -124,7 +128,7 @@ public class AI extends Thread {
 			time = System.currentTimeMillis();
 
 			Move mb;
-			if ((mb = moveBook.getRecommendation(rootNode.getBoard().getHashCode())) == null) {
+			if ((mb = moveBook.getRecommendation(board.getHashCode())) == null) {
 
 				// Split the task of looking at all possible AI moves up amongst
 				// multiple threads. This takes advantage of multicore systems.
@@ -162,7 +166,7 @@ public class AI extends Thread {
 			setRootNode(aiDecision);
 
 			if (debug) {
-				System.out.println(rootNode.getBoard().toString());
+				System.out.println(board.toString());
 			}
 
 		}
@@ -170,25 +174,16 @@ public class AI extends Thread {
 
 	public void makeNewGame() {
 
-		// rootNode = new DecisionNode(null, new Move(0, 0, 0, 0), new Board(),
-		// firstMove);
-
-		if (debug) {
-			rootNode = new DecisionNode(null, null, XMLParser.XMLToBoard(FileIO.readFile("testboard.xml")));
-
-		} else {
-			rootNode = new DecisionNode(null, null, XMLParser.XMLToBoard(FileIO.readFile("default.xml")));
-		}
-
+		rootNode = new DecisionNode(null, null);
 
 		// These two numbers represent how large the initial decision tree is.
 		// In the case that the user is going first, it is small, so as to speed
 		// up startup times. In the case of the AI is first it is large so that
 		// "thought" is put into the AI's first Move.
-		
-		if (userSide != rootNode.getBoard().getPlayer()) {
+
+		if (playerSide == board.getTurn()) {
 			moveAI();
-			game.aiMoved(rootNode.getMove());
+			game.makeMove(rootNode.getMove());
 		} else {
 			setProcessorLevels(0, 0, false);
 			growRoot();
@@ -197,7 +192,7 @@ public class AI extends Thread {
 
 		if (debug) {
 			printRootDebug();
-			System.out.println(rootNode.getBoard().toString());
+			System.out.println(board.toString());
 		}
 
 	}
@@ -211,21 +206,30 @@ public class AI extends Thread {
 	 *            decision tree that the user effectively selected.
 	 * @return The new root node, which is the AI response to 'userMove'.
 	 */
-	public synchronized void setUserDecision(Move usersMove) {
-		this.userDecision = getMatchingDecisionNode(usersMove);
-		userMoved = true;
+	public synchronized boolean opponentMoved(Move opponentsMove) {
+		this.opponentsDecision = getMatchingDecisionNode(opponentsMove);
+		opponentMoved = true;
 		this.notifyAll();
+
+		return true;
 	}
 
-	public synchronized void setMakeNewGame(Player userSide) {
-		this.userSide = userSide;
+	public synchronized Side newGame(Side playerSide, Board board) {
+		this.playerSide = playerSide;
+		this.board = board;
 		makeNewGame = true;
 		this.notifyAll();
+		return null;
 	}
 
-	public synchronized void setUndoUserMove() {
+	public synchronized boolean undoMove() {
 		this.undoUserMove = true;
 		this.notifyAll();
+		return true;
+	}
+
+	public Move getRecommendation() {
+		return null;
 	}
 
 	public synchronized void taskDone() {
@@ -264,7 +268,7 @@ public class AI extends Thread {
 		}
 
 		for (int d = 0; d < processorThreads.length; d++) {
-			processorThreads[d].setNewTask(root);
+			processorThreads[d].setNewTask(root, board.getCopy());
 		}
 
 		// Wait for all processors to finish their task
@@ -300,7 +304,7 @@ public class AI extends Thread {
 		taskLeft = taskSize;
 		nextTask = rootNode;
 
-		processorThreads[0].setNewTask(null);
+		processorThreads[0].setNewTask(null, board);
 
 		while (taskDone < taskSize) {
 			try {
@@ -313,30 +317,21 @@ public class AI extends Thread {
 
 	private boolean undoUserMove() {
 
-		if (rootNode.getParent() != null) {
-			if (rootNode.getParent().getParent() != null) {
+		if (board.getMoveHistory().size() > 1) {
 
-				rootNode.getBoard().undoMove();
-				rootNode.getBoard().undoMove();
+			board.undoMove();
+			board.undoMove();
 
-				DecisionNode oldRootNode = rootNode.getParent().getParent();
-				rootNode = oldRootNode;
-				rootNode.removeAllChildren();
+			rootNode = new DecisionNode(null, null);
 
-				// ai thought isnt needed
-				setProcessorLevels(0, 0, false);
+			// ai thought isnt needed
+			setProcessorLevels(0, 0, false);
 
-				// reinit tree
-				growRoot();
+			// reinit tree
+			growRoot();
 
-				// set ai to think after user move
-				setDefaultProcessorLevels();
-
-			} else {
-				return false;
-			}
-		} else {
-			return false;
+			// set ai to think after user move
+			setDefaultProcessorLevels();
 		}
 
 		return true;
@@ -345,21 +340,27 @@ public class AI extends Thread {
 
 	private void setRootNode(DecisionNode newRootNode) {
 
-		rootNode.getBoard().makeMove(newRootNode.getMove());
+		board.makeMove(newRootNode.getMove());
 
-		this.rootNode.removeAllChildren();
-		this.rootNode.addChild(newRootNode);
-		this.rootNode = newRootNode;
+		rootNode = newRootNode;
+
+		rootNode.setParent(null);
+		rootNode.setNextSibling(null);
+		rootNode.setPreviousSibling(null);
 
 		if (debug) {
-			System.out.println("Board hash code = " + Long.toHexString(rootNode.getBoard().getHashCode()));
+			System.out.println("Board hash code = " + Long.toHexString(board.getHashCode()));
 		}
 
-		if (this.rootNode.getStatus() != GameStatus.IN_PLAY) {
-			System.out.println(newRootNode.getStatus().toString());
-		}
+		setGameSatus(rootNode.getStatus(), board.getTurn());
 
 		System.gc();
+	}
+
+	public void setGameSatus(GameStatus status, Side playerTurn) {
+		if (status != GameStatus.IN_PLAY) {
+			System.out.println(rootNode.getStatus().toString());
+		}
 	}
 
 	private void setProcessorLevels(int maxDecisionTreeLevel, int maxTwigLevel, boolean pruningEnabled) {
@@ -436,8 +437,8 @@ public class AI extends Thread {
 	}
 
 	private void printRootDebug() {
-		if (userDecision != null) {
-			printChildren(userDecision);
+		if (opponentsDecision != null) {
+			printChildren(opponentsDecision);
 		}
 
 		for (int i = 0; i < childNum.length; i++) {
@@ -466,6 +467,17 @@ public class AI extends Thread {
 
 	public int getMoveChosenPathValue(Move m) {
 		return getMatchingDecisionNode(m).getChosenPathValue(0);
+	}
+
+	@Override
+	public Side getSide() {
+		return playerSide;
+	}
+
+	@Override
+	public void setSide(Side side) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

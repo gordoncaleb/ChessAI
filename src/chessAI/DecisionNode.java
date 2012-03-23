@@ -3,7 +3,7 @@ package chessAI;
 import chessBackend.Board;
 import chessBackend.GameStatus;
 import chessBackend.MoveNote;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.Move;
 import chessPieces.King;
 import chessPieces.Values;
@@ -18,9 +18,6 @@ public class DecisionNode {
 	private DecisionNode nextSibling;
 	private DecisionNode previousSibling;
 	private int childrenSize;
-
-	// The board awaiting "player"'s move
-	private Board board;
 
 	// The last move made on the attached board.
 	private Move move;
@@ -39,11 +36,11 @@ public class DecisionNode {
 		}
 		long heapFreeSize = Runtime.getRuntime().freeMemory();
 
-		DecisionNode test = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.BLACK, 1, 1, false)), null);
+		DecisionNode test = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Side.BLACK, 1, 1, false)));
 
 		int nodes = 4000000;
 		for (int i = 0; i < nodes; i++) {
-			test.addChild(new DecisionNode(test, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Player.BLACK, 1, 1, false)), null));
+			test.addChild(new DecisionNode(test, new Move(0, 0, 0, 0, 100, MoveNote.NONE, new King(Side.BLACK, 1, 1, false))));
 		}
 
 		for (int i = 0; i < 1; i++) {
@@ -62,10 +59,10 @@ public class DecisionNode {
 		System.out.println(childSize + "");
 
 		int[] nums = { 3, 7, 6, 5, 8, 3, 1, 2 };
-		DecisionNode root = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE), null);
+		DecisionNode root = new DecisionNode(null, new Move(0, 0, 0, 0, 100, MoveNote.NONE));
 		DecisionNode child;
 		for (int i = 0; i < nums.length; i++) {
-			child = new DecisionNode(null, new Move(0, 0, 0, 0, nums[i], MoveNote.NONE), null);
+			child = new DecisionNode(null, new Move(0, 0, 0, 0, nums[i], MoveNote.NONE));
 			child.setChosenPathValue(nums[i]);
 			root.addChild(child);
 		}
@@ -89,7 +86,7 @@ public class DecisionNode {
 
 	}
 
-	public DecisionNode(DecisionNode parent, Move move, Board board) {
+	public DecisionNode(DecisionNode parent, Move move) {
 		this.parent = parent;
 
 		// Linked List data struct pointers
@@ -99,7 +96,6 @@ public class DecisionNode {
 		this.previousSibling = null;
 
 		this.move = move;
-		this.board = board;
 		this.status = GameStatus.IN_PLAY;
 
 	}
@@ -295,14 +291,6 @@ public class DecisionNode {
 
 	public void setChosenPathValue(int chosenPathValue) {
 		this.chosenPathValue = chosenPathValue;
-	}
-
-	public Board getBoard() {
-		return board;
-	}
-
-	public void setBoard(Board board) {
-		this.board = board;
 	}
 
 	public void finalize() {

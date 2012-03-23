@@ -18,10 +18,8 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
-import chessAI.DecisionNode;
 import chessBackend.Move;
 import chessIO.MoveBook;
-import chessIO.MoveBookNode;
 
 public class MoveBookGUI implements KeyListener, MouseListener {
 	private JFrame moveBookGUIFrame;
@@ -29,7 +27,6 @@ public class MoveBookGUI implements KeyListener, MouseListener {
 	private DefaultMutableTreeNode moveBookRootGUI;
 	private MoveBook moveBook;
 
-	private MoveBookNode currentNode;
 
 	private JTextField fromTxt;
 	private JTextField toTxt;
@@ -117,46 +114,6 @@ public class MoveBookGUI implements KeyListener, MouseListener {
 		refreshTree();
 	}
 
-	public void setMoveBookRootDecisionTree(MoveBookNode decisionTreeRoot) {
-		moveBookRootGUI.removeAllChildren();
-		buildMoveBookDecisionTreeGUI(moveBookRootGUI, decisionTreeRoot);
-		moveBookTree.updateUI();
-	}
-
-	private void buildMoveBookDecisionTreeGUI(DefaultMutableTreeNode branchGUI, MoveBookNode branch) {
-		DefaultMutableTreeNode childGUI;
-		MoveBookNode child;
-
-		branchGUI.setUserObject(branch);
-
-		child = branch.getHeadChild();
-		for (int i = 0; i < branch.getChildrenSize(); i++) {
-			childGUI = new DefaultMutableTreeNode(child);
-			branchGUI.add(childGUI);
-
-			if (child.hasChildren()) {
-				buildMoveBookDecisionTreeGUI(childGUI, child);
-			}
-			child = child.getNextSibling();
-		}
-	}
-
-	private void treeClicked() {
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode) moveBookTree.getLastSelectedPathComponent();
-		Object o = node.getUserObject();
-		if (o instanceof MoveBookNode) {
-			if (((MoveBookNode) o).getMove() != null) {
-				currentNode = (MoveBookNode) o;
-				displayInfoInEditPanel();
-			}
-		}
-	}
-
-	private void displayInfoInEditPanel() {
-		fromTxt.setText(currentNode.getMove().getFromRow() + "," + currentNode.getMove().getFromCol());
-		toTxt.setText(currentNode.getMove().getToRow() + "," + currentNode.getMove().getToCol());
-		valueTxt.setText(currentNode.getMoveBookValue() + "");
-	}
 
 	private void refreshTree() {
 
@@ -166,33 +123,6 @@ public class MoveBookGUI implements KeyListener, MouseListener {
 		return "";
 	}
 
-	private void countChildren(MoveBookNode branch, int depth) {
-
-		numTreeNodes++;
-
-		if (depth > maxDepth) {
-			maxDepth = depth;
-		}
-
-		MoveBookNode currentChild = branch.getHeadChild();
-		for (int i = 0; i < branch.getChildrenSize(); i++) {
-			countChildren(currentChild, depth + 1);
-			currentChild = currentChild.getNextSibling();
-		}
-
-	}
-
-	private void saveCurrentNode() {
-		if (currentNode != null) {
-			try {
-				currentNode.setMove(getMoveFromString(fromTxt.getText(),toTxt.getText()));
-				currentNode.setMoveBookValue(getValueFromString(valueTxt.getText()));
-				refreshTree();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
 	
 	private int getValueFromString(String value) throws Exception{
 		return Integer.parseInt(value);
@@ -219,21 +149,6 @@ public class MoveBookGUI implements KeyListener, MouseListener {
 		}
 	}
 
-	private void deleteCurrentNode() {
-		if (currentNode != null) {
-			currentNode.getParent().removeChild(currentNode);
-			currentNode = null;
-			refreshTree();
-		}
-	}
-
-	private void addChildToCurrentNode() {
-		if (currentNode != null) {
-			MoveBookNode newNode = new MoveBookNode(currentNode,new Move(0,0,0,0));
-			currentNode.addChild(newNode);
-			refreshTree();
-		}
-	}
 	
 	private void exportToFile(){
 		moveBook.saveDB();
@@ -260,31 +175,7 @@ public class MoveBookGUI implements KeyListener, MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 
-		Object o = arg0.getComponent();
 
-		if (o == saveButton) {
-			saveCurrentNode();
-		}
-
-		if (o == deleteButton) {
-			deleteCurrentNode();
-		}
-
-		if (o == addChildButton) {
-			addChildToCurrentNode();
-		}
-
-		if (o == refreshButton) {
-			refreshTree();
-		}
-
-		if (o == moveBookTree) {
-			treeClicked();
-		}
-		
-		if(o == exportFileButton){
-			exportToFile();
-		}
 
 	}
 

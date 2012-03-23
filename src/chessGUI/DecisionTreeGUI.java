@@ -18,7 +18,7 @@ import chessBackend.Game;
 public class DecisionTreeGUI implements KeyListener, MouseListener {
 
 	Game game;
-	BoardGUI gui;
+	BoardPanel gui;
 
 	// debug components
 	private boolean debug;
@@ -28,7 +28,7 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 	private JScrollPane treeView;
 	private DecisionNode rootDecision;
 
-	public DecisionTreeGUI(Game game, BoardGUI gui) {
+	public DecisionTreeGUI(Game game, BoardPanel gui) {
 		this.game = game;
 		this.gui = gui;
 

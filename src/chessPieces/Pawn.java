@@ -5,12 +5,12 @@ import java.util.Vector;
 import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.MoveNote;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.Move;
 
 public class Pawn extends Piece {
 
-	public Pawn(Player player, int row, int col, boolean moved) {
+	public Pawn(Side player, int row, int col, boolean moved) {
 		super(player, row, col, moved);
 	}
 
@@ -30,7 +30,7 @@ public class Pawn extends Piece {
 		Vector<Move> validMoves = new Vector<Move>();
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 		int dir;
 		int fifthRank;
 		int bonus;
@@ -38,7 +38,7 @@ public class Pawn extends Piece {
 
 		int[] lr = { 1, -1 };
 
-		if (player == Player.WHITE) {
+		if (player == Side.WHITE) {
 			dir = -1;
 			fifthRank = 3;
 		} else {
@@ -50,7 +50,7 @@ public class Pawn extends Piece {
 
 			if (isValidMove(currentRow + dir, currentCol, nullMoveInfo)) {
 
-				bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + dir, currentCol, this.getPlayer());
+				bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + dir, currentCol, this.getSide());
 				validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol, bonus, MoveNote.NONE);
 				if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
 					validMove.setNote(MoveNote.NEW_QUEEN);
@@ -60,7 +60,7 @@ public class Pawn extends Piece {
 
 				if (!this.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == PositionStatus.NO_PIECE) {
 					if (isValidMove(currentRow + 2 * dir, currentCol, nullMoveInfo)) {
-						bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, this.getPlayer());
+						bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, this.getSide());
 						validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol, bonus, MoveNote.PAWN_LEAP));
 					}
 				}
@@ -121,16 +121,16 @@ public class Pawn extends Piece {
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();
 		int dir;
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 		PositionStatus pieceStatus;
 
-		if (player == Player.WHITE) {
+		if (player == Side.WHITE) {
 			dir = -1;
 		} else {
 			dir = 1;
 		}
 
-		pieceStatus = board.checkPiece(currentRow + dir, currentCol - 1, getPlayer());
+		pieceStatus = board.checkPiece(currentRow + dir, currentCol - 1, getSide());
 		
 		if (pieceStatus != PositionStatus.OFF_BOARD) {
 
@@ -141,7 +141,7 @@ public class Pawn extends Piece {
 			nullMoveInfo[0] |= BitBoard.getMask(currentRow + dir, currentCol - 1);
 		}
 		
-		pieceStatus = board.checkPiece(currentRow + dir, currentCol + 1, getPlayer());
+		pieceStatus = board.checkPiece(currentRow + dir, currentCol + 1, getSide());
 
 		if (pieceStatus != PositionStatus.OFF_BOARD) {
 
@@ -155,7 +155,7 @@ public class Pawn extends Piece {
 	}
 
 	public Piece getCopy(Board board) {
-		return new Pawn(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
+		return new Pawn(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 
 }

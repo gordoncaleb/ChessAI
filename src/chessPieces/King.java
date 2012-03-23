@@ -5,13 +5,13 @@ import java.util.Vector;
 import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.MoveNote;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.Move;
 
 public class King extends Piece {
 	private static int[][] KINGMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
 
-	public King(Player player, int row, int col, boolean moved) {
+	public King(Side player, int row, int col, boolean moved) {
 		super(player, row, col, moved);
 	}
 
@@ -31,7 +31,7 @@ public class King extends Piece {
 		Vector<Move> validMoves = new Vector<Move>();
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
@@ -107,7 +107,7 @@ public class King extends Piece {
 		}
 	}
 
-	public boolean canCastleFar(Board board, Player player, long[] nullMoveInfo, long allPosBitBoard) {
+	public boolean canCastleFar(Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
 
 		if (board.kingHasMoved(player) || board.farRookHasMoved(player)) {
 			return false;
@@ -115,7 +115,7 @@ public class King extends Piece {
 
 		long posClearMask;
 		long checkFar;
-		if (player == Player.BLACK) {
+		if (player == Side.BLACK) {
 			posClearMask = BitBoard.BLACK_CASTLE_FAR;
 			checkFar = BitBoard.BLACK_CHECK_FAR;
 		} else {
@@ -133,7 +133,7 @@ public class King extends Piece {
 
 	}
 
-	public boolean canCastleNear(Board board, Player player, long[] nullMoveInfo, long allPosBitBoard) {
+	public boolean canCastleNear(Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
 
 		if (board.kingHasMoved(player) || board.nearRookHasMoved(player)) {
 			return false;
@@ -141,7 +141,7 @@ public class King extends Piece {
 
 		long posClearMask;
 		long checkNear;
-		if (player == Player.BLACK) {
+		if (player == Side.BLACK) {
 			posClearMask = BitBoard.BLACK_CASTLE_NEAR;
 			checkNear = BitBoard.BLACK_CHECK_NEAR;
 		} else {
@@ -159,6 +159,6 @@ public class King extends Piece {
 	}
 
 	public Piece getCopy(Board board) {
-		return new King(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
+		return new King(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }

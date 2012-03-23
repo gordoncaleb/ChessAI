@@ -5,13 +5,13 @@ import java.util.Vector;
 import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.MoveNote;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.Move;
 
 public class Bishop extends Piece {
 	private static int[][] BISHOPMOVES = { { 1, 1, -1, -1 }, { 1, -1, 1, -1 } };
 
-	public Bishop(Player player, int row, int col, boolean moved) {
+	public Bishop(Side player, int row, int col, boolean moved) {
 		super(player, row, col, moved);
 	}
 
@@ -34,7 +34,7 @@ public class Bishop extends Piece {
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 
 		int i = 1;
 		for (int d = 0; d < 4; d++) {
@@ -81,7 +81,7 @@ public class Bishop extends Piece {
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 		
 		long bitPosition = this.getBit();
 
@@ -144,7 +144,7 @@ public class Bishop extends Piece {
 	}
 
 	public Piece getCopy(Board board) {
-		return new Bishop(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
+		return new Bishop(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 
 }

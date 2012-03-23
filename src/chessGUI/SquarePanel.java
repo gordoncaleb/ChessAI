@@ -14,19 +14,19 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 import chessBackend.Move;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessPieces.PieceID;
 
-public class SquareGUI extends JPanel {
+public class SquarePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private int row;
 	private int col;
 	private PieceID id;
-	private Player player;
+	private Side player;
 	private Vector<Move> validMoves;
 
-	private BoardGUI gui;
+	private BoardPanel gui;
 
 	// Debug components
 	private JLabel debugLocationLabel;
@@ -49,7 +49,7 @@ public class SquareGUI extends JPanel {
 	private Color lastMoved = new Color(255, 0, 0);
 	private Color validMove = new Color(255, 255, 0);
 
-	public SquareGUI(boolean lightSquare, int row, int col, boolean debug) {
+	public SquarePanel(boolean lightSquare, int row, int col, boolean debug) {
 		super(new BorderLayout());
 
 		validMoves = new Vector<Move>();
@@ -163,8 +163,12 @@ public class SquareGUI extends JPanel {
 		updateBorderColor();
 	}
 
-	public void showChessPiece(PieceID id, Player player) {
+	public void showChessPiece(PieceID id, Side player) {
 
+		if(this.id == id && this.player == player){
+			return;
+		}
+		
 		this.id = id;
 		this.player = player;
 
@@ -207,7 +211,7 @@ public class SquareGUI extends JPanel {
 			debugPieceValue.setText("");
 	}
 
-	public void setGUI(BoardGUI gui) {
+	public void setGUI(BoardPanel gui) {
 		this.gui = gui;
 	}
 
@@ -227,7 +231,7 @@ public class SquareGUI extends JPanel {
 		return col;
 	}
 
-	public Player getPlayer() {
+	public Side getPlayer() {
 		return player;
 	}
 

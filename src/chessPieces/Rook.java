@@ -4,13 +4,13 @@ import java.util.Vector;
 
 import chessBackend.BitBoard;
 import chessBackend.Board;
-import chessBackend.Player;
+import chessBackend.Side;
 import chessBackend.Move;
 
 public class Rook extends Piece {
 	private static int[][] ROOKMOVES = { { 1, -1, 0, 0 }, { 0, 0, 1, -1 } };
 
-	public Rook(Player player, int row, int col, boolean moved) {
+	public Rook(Side player, int row, int col, boolean moved) {
 		super(player, row, col, moved);
 	}
 
@@ -30,7 +30,7 @@ public class Rook extends Piece {
 		Vector<Move> validMoves = new Vector<Move>();
 		int currentRow = this.getRow();
 		int currentCol = this.getCol();
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
@@ -96,7 +96,7 @@ public class Rook extends Piece {
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
-		Player player = this.getPlayer();
+		Side player = this.getSide();
 		
 		long bitPosition = this.getBit();
 
@@ -159,6 +159,6 @@ public class Rook extends Piece {
 	}
 
 	public Piece getCopy(Board board) {
-		return new Rook(this.getPlayer(), this.getRow(), this.getCol(), this.hasMoved());
+		return new Rook(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }
