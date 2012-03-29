@@ -182,7 +182,7 @@ public class XMLParser {
 			is.setCharacterStream(new StringReader(xml));
 			doc = db.parse(is);
 
-		} catch (ParserConfigurationException | SAXException | IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
