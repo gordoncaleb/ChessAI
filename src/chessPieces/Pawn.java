@@ -84,7 +84,7 @@ public class Pawn extends Piece {
 						validMove.setValue(board.getPieceValue(currentRow + dir, currentCol + lr[i]));
 					}
 
-					validMove.setPieceTaken(board.getPiece(currentRow + dir, currentCol + lr[i]));
+					validMove.setPieceTaken(board.getPiece(currentRow + dir, currentCol + lr[i]).getCopy());
 					validMoves.add(validMove);
 				}
 
@@ -154,7 +154,7 @@ public class Pawn extends Piece {
 
 	}
 
-	public Piece getCopy(Board board) {
+	public Piece getCopy() {
 		return new Pawn(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 

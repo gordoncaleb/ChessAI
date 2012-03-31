@@ -170,5 +170,9 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public boolean isMyTurn(){
+		return boardPanel.isMyTurn();
+	}
 
 }

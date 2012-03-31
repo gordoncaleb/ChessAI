@@ -195,7 +195,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	}
 
-	public void refreshBoard() {
+	private void refreshBoard() {
 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
@@ -276,20 +276,6 @@ public class BoardPanel extends JPanel implements MouseListener {
 		}
 	}
 
-	private void pieceTaken(PieceID id, Side player) {
-		JLabel picLabel = new JLabel();
-
-		if (player == Side.BLACK) {
-			System.out.println("Black loses piece " + id);
-			picLabel.setIcon(new ImageIcon(this.getChessImage(id, Side.BLACK)));
-			lostBlackPiecesPanel.add(picLabel);
-		} else {
-			System.out.println("White loses piece " + id);
-			picLabel.setIcon(new ImageIcon(this.getChessImage(id, Side.WHITE)));
-			lostWhitePiecesPanel.add(picLabel);
-		}
-	}
-
 	private void refreshPiecesTaken() {
 		JLabel picLabel;
 
@@ -347,6 +333,10 @@ public class BoardPanel extends JPanel implements MouseListener {
 		}
 
 		return chessSquares[getRow][getCol];
+	}
+	
+	public boolean isMyTurn(){
+		return (userSide==adjudicator.getTurn());
 	}
 
 	private Move getOrientedMove(int fromRow, int fromCol, int toRow, int toCol) {

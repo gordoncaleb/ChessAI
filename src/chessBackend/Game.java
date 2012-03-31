@@ -22,10 +22,14 @@ public class Game {
 	private Player[] players;
 	private Vector<Player> observers;
 	private Side turn;
+	private boolean paused;
+	private Move pausedMove;
 
 	public Game(GameType gameType) {
 
-		debug = false;
+		debug = true;
+		
+		paused = false;
 
 		observers = new Vector<Player>();
 		players = new Player[2];
@@ -56,14 +60,14 @@ public class Game {
 
 	public static void main(String[] args) {
 
-		Game game = new Game(GameType.GUI_VS_AI);
-		//game.addObserver(new ObserverGUI(game, false));
+		Game game = new Game(GameType.AI_VS_AI);
+		game.addObserver(new ObserverGUI(game, false));
 	}
 
 	public void newGame() {
 
 		if (debug) {
-			board = XMLParser.XMLToBoard(FileIO.readFile("testboard.xml"));
+			board = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 		} else {
 			board = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 		}
@@ -82,6 +86,13 @@ public class Game {
 			players[0].newGame(turn, board);
 			players[1].newGame(turn.otherSide(), board.getCopy());
 		}
+		
+		for (int i = 0; i < observers.size(); i++) {
+			observers.elementAt(i).newGame(Side.NONE, board.getCopy());
+		}
+		
+		paused = false;
+		pausedMove = null;
 
 	}
 
@@ -91,6 +102,11 @@ public class Game {
 	}
 
 	public synchronized void makeMove(Move move) {
+		
+		if(paused){
+			pausedMove = move;
+			return;
+		}
 
 		if (players[0].getSide() != Side.BOTH) {
 			getPlayer(turn.otherSide()).opponentMoved(move);
@@ -101,6 +117,16 @@ public class Game {
 		for (int i = 0; i < observers.size(); i++) {
 			observers.elementAt(i).opponentMoved(move);
 		}
+	}
+	
+	public synchronized void pause(){
+		paused = !paused;
+		
+		if(pausedMove!=null){
+			makeMove(pausedMove);
+			pausedMove = null;
+		}
+		
 	}
 
 	private Player getPlayer(Side side) {
@@ -121,7 +147,7 @@ public class Game {
 	// }
 
 	public void setDecisionTreeRoot(DecisionNode rootDecision) {
-		decisionTreeGUI.setRootDecisionTree(rootDecision);
+		//decisionTreeGUI.setRootDecisionTree(rootDecision);
 	}
 
 }

@@ -56,7 +56,7 @@ public class Knight extends Piece {
 					if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
 						int pieceValue = board.getPieceValue(nextRow, nextCol);
 						move = new Move(currentRow, currentCol, nextRow, nextCol, pieceValue + bonus);
-						move.setPieceTaken(board.getPiece(nextRow, nextCol));
+						move.setPieceTaken(board.getPiece(nextRow, nextCol).getCopy());
 						validMoves.add(move);
 					}
 				}
@@ -94,7 +94,7 @@ public class Knight extends Piece {
 
 	}
 
-	public Piece getCopy(Board board) {
+	public Piece getCopy() {
 		return new Knight(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }

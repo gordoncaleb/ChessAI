@@ -9,5 +9,7 @@ public interface Player {
 	
 	public Side getSide();
 	public void setSide(Side side);
+	
+	public boolean isMyTurn();
 
 }
