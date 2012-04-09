@@ -22,12 +22,12 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	private Game game;
 	private Side playerSide;
+	private boolean paused;
 
 	public ObserverGUI(Game game, boolean debug) {
 		this.game = game;
-
 		
-		frame = new JFrame("Oh,Word? " + Game.VERSION);
+		frame = new JFrame(getFrameTitle());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		
@@ -90,7 +90,11 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public void setSide(Side side) {
-		
+	}
+	
+	public void setGame(Game game){
+		this.game = game;
+		paused = game.isPaused();
 	}
 	
 	public boolean isMyTurn(){
@@ -131,6 +135,20 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void pause() {
+		paused = !paused;
+		frame.setTitle(getFrameTitle());
+	}
+	
+	private String getFrameTitle(){
+		if(paused){
+			return "Oh,Word? Observer" + Game.VERSION + " (**PAUSED**)";
+		}else{
+			return "Oh,Word? Observer" + Game.VERSION;
+		}
 	}
 
 }

@@ -25,6 +25,9 @@ public class AI extends Thread implements Player {
 
 	private boolean undoMove;
 
+	private boolean paused;
+	private Object processing;
+
 	private Side playerSide;
 
 	private int taskDone;
@@ -36,6 +39,8 @@ public class AI extends Thread implements Player {
 	public AI(Game game, boolean debug) {
 		this.debug = debug;
 		this.game = game;
+		paused = game.isPaused();
+		processing = new Object();
 
 		moveBook = new MoveBook();
 
@@ -64,22 +69,25 @@ public class AI extends Thread implements Player {
 		while (true) {
 			synchronized (this) {
 				try {
+
 					this.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			}
 
-			if (opponentMoved) {
-				if (moveAI()) {
-					game.makeMove(rootNode.getMove());
+				if (!paused) {
+					if (opponentMoved) {
+						if (moveAI()) {
+							game.makeMove(rootNode.getMove(), this.playerSide);
+						}
+						opponentMoved = false;
+					}
 				}
-				opponentMoved = false;
-			}
 
-			if (undoMove) {
-				undoToOpponentsMove();
-				undoMove = false;
+				if (undoMove) {
+					undoToOpponentsMove();
+					undoMove = false;
+				}
 			}
 
 		}
@@ -87,6 +95,9 @@ public class AI extends Thread implements Player {
 	}
 
 	public synchronized Side newGame(Side playerSide, Board board) {
+
+		opponentMoved = false;
+		undoMove = false;
 
 		this.playerSide = playerSide;
 
@@ -203,10 +214,10 @@ public class AI extends Thread implements Player {
 			processorThreads[d].setNewTask();
 		}
 
-		// Wait for all processors to finish their task
-		while (taskDone < taskSize) {
+		synchronized (processing) {
+			// Wait for all processors to finish their task
 			try {
-				Thread.sleep(10);
+				processing.wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -214,26 +225,36 @@ public class AI extends Thread implements Player {
 
 	}
 
-	public synchronized void taskDone() {
-		taskDone++;
-		if (debug) {
-			System.out.println(taskDone + "/" + taskSize + " done");
+	public void taskDone() {
+		
+		synchronized (processing) {
+			taskDone++;
+			if (debug) {
+				System.out.println(taskDone + "/" + taskSize + " done");
+			}
+
+			if (taskDone >= taskSize) {
+				processing.notifyAll();
+			}
 		}
 	}
 
-	public synchronized DecisionNode getNextTask() {
+	public DecisionNode getNextTask() {
 
-		DecisionNode task;
+		synchronized (processing) {
 
-		if (taskLeft == 0) {
-			task = null;
-		} else {
-			task = nextTask;
-			taskLeft--;
-			nextTask = nextTask.getNextSibling();
+			DecisionNode task;
+
+			if (taskLeft == 0) {
+				task = null;
+			} else {
+				task = nextTask;
+				taskLeft--;
+				nextTask = nextTask.getNextSibling();
+			}
+
+			return task;
 		}
-
-		return task;
 	}
 
 	public void clearTaskDone() {
@@ -247,7 +268,11 @@ public class AI extends Thread implements Player {
 
 			for (int i = 0; i < processorThreads.length; i++) {
 				processorThreads[i].getBoard().undoMove();
-				processorThreads[i].getBoard().undoMove();
+
+				if (!paused && isMyTurn()) {
+					processorThreads[i].getBoard().undoMove();
+				}
+
 				processorThreads[i].setRootNode(rootNode);
 			}
 
@@ -266,6 +291,11 @@ public class AI extends Thread implements Player {
 		} else {
 			return false;
 		}
+	}
+
+	public synchronized void pause() {
+		paused = !paused;
+		notifyAll();
 	}
 
 	public Move getRecommendation() {
@@ -407,6 +437,11 @@ public class AI extends Thread implements Player {
 
 	public int getMoveChosenPathValue(Move m) {
 		return getMatchingDecisionNode(m).getChosenPathValue(0);
+	}
+
+	@Override
+	public void setGame(Game game) {
+		this.game = game;
 	}
 
 }

@@ -7,8 +7,6 @@ import chessBackend.Board;
 import chessBackend.GameStatus;
 import chessBackend.BoardHashEntry;
 import chessBackend.Move;
-import chessBackend.Side;
-import chessPieces.PieceID;
 import chessPieces.Values;
 
 public class AIProcessor extends Thread {
@@ -18,9 +16,13 @@ public class AIProcessor extends Thread {
 
 	private int maxTreeLevel;
 	private int maxTwigLevel;
+	private boolean twigGrowthEnabled;
+
 	private int maxFrontierLevel = 2;
 
 	private boolean pruningEnabled;
+	private int aspirationWindowSize;
+	
 	private AI ai;
 
 	private Hashtable<Long, BoardHashEntry> hashTable;
@@ -30,6 +32,9 @@ public class AIProcessor extends Thread {
 		this.maxTreeLevel = maxTreeLevel;
 		this.maxTwigLevel = maxTwigLevel;
 		pruningEnabled = true;
+		twigGrowthEnabled = true;
+		aspirationWindowSize = 10;
+		
 		hashTable = new Hashtable<Long, BoardHashEntry>();
 	}
 
@@ -201,7 +206,11 @@ public class AIProcessor extends Thread {
 
 						} else {
 
-							growFrontierTwig(newNode, newAlphaBeta);
+							if (twigGrowthEnabled) {
+								growFrontierTwig(newNode, newAlphaBeta);
+							} else {
+								newNode.setChosenPathValue(move.getValue());
+							}
 
 						}
 
@@ -220,7 +229,7 @@ public class AIProcessor extends Thread {
 
 				// alpha beta pruning
 				if (pruningEnabled) {
-					if (branch.getMoveValue() - newNode.getChosenPathValue(0) < alphaBeta) {
+					if (branch.getMoveValue() - newNode.getChosenPathValue(0) < alphaBeta + aspirationWindowSize) {
 						pruned = true;
 					}
 				}
@@ -268,7 +277,7 @@ public class AIProcessor extends Thread {
 				// alpha beta pruning
 				if (pruningEnabled) {
 
-					if (branch.getMoveValue() - currentChild.getChosenPathValue(0) < alphaBeta) {
+					if (branch.getMoveValue() - currentChild.getChosenPathValue(0) < alphaBeta + aspirationWindowSize) {
 						pruned = true;
 					}
 
@@ -384,7 +393,7 @@ public class AIProcessor extends Thread {
 				childsBestPathValue = suggestedPathValue;
 			}
 
-			if (parentMove.getValue() - childsBestPathValue < alphaBeta) {
+			if (parentMove.getValue() - childsBestPathValue < alphaBeta + aspirationWindowSize) {
 				break;
 			}
 

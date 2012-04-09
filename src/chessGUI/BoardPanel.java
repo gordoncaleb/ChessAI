@@ -61,6 +61,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		squaresGUIPanel.setBackground(Color.GRAY);
 		squaresGUIPanel.setPreferredSize(new Dimension(gameHeight, gameHeight));
 		buildSquaresGUI();
+		
 		this.add(squaresGUIPanel, BorderLayout.CENTER);
 
 		lostWhitePiecesPanel = new JPanel(new FlowLayout());
@@ -138,6 +139,10 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		if (adjudicator.move(move)) {
 			refreshBoard();
+			
+			if(move.getPieceTaken()!=null){
+				refreshPiecesTaken();
+			}
 
 			updateLastMovedSquare();
 

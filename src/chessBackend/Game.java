@@ -23,12 +23,11 @@ public class Game {
 	private Vector<Player> observers;
 	private Side turn;
 	private boolean paused;
-	private Move pausedMove;
 
 	public Game(GameType gameType) {
 
 		debug = true;
-		
+
 		paused = false;
 
 		observers = new Vector<Player>();
@@ -48,7 +47,7 @@ public class Game {
 			players[1] = new PlayerGUI(this, debug);
 		case ONE_GUI:
 			players[0] = new PlayerGUI(this, debug);
-			players[1] = null;
+			players[1] = players[0];
 		}
 
 		if (debug) {
@@ -60,8 +59,10 @@ public class Game {
 
 	public static void main(String[] args) {
 
+		Player observer = new ObserverGUI(null, false);
+
 		Game game = new Game(GameType.AI_VS_AI);
-		game.addObserver(new ObserverGUI(game, false));
+		game.addObserver(observer);
 	}
 
 	public void newGame() {
@@ -74,10 +75,14 @@ public class Game {
 
 		turn = board.getTurn();
 
+		for (int i = 0; i < observers.size(); i++) {
+			observers.elementAt(i).newGame(Side.NONE, board.getCopy());
+		}
+
 		Side tempSide;
 		if (players[0] instanceof PlayerGUI) {
-			if (players[1] == null) {
-				tempSide = players[0].newGame(Side.BOTH, board);
+			if (players[1] == players[0]) {
+				players[0].newGame(Side.BOTH, board);
 			} else {
 				tempSide = players[0].newGame(null, board);
 				players[1].newGame(tempSide.otherSide(), board.getCopy());
@@ -86,47 +91,33 @@ public class Game {
 			players[0].newGame(turn, board);
 			players[1].newGame(turn.otherSide(), board.getCopy());
 		}
-		
-		for (int i = 0; i < observers.size(); i++) {
-			observers.elementAt(i).newGame(Side.NONE, board.getCopy());
-		}
-		
-		paused = false;
-		pausedMove = null;
+
 
 	}
 
 	public boolean undoMove(Side side) {
 
-		return false;
+		boolean success = false;
+
+		success = getPlayer(side.otherSide()).undoMove();
+
+		return success;
 	}
 
-	public synchronized void makeMove(Move move) {
-		
-		if(paused){
-			pausedMove = move;
+	public synchronized void makeMove(Move move, Side side) {
+
+		// ignore move if made by wrong side
+		if (side != turn) {
 			return;
 		}
 
-		if (players[0].getSide() != Side.BOTH) {
-			getPlayer(turn.otherSide()).opponentMoved(move);
-		}
+		getPlayer(side.otherSide()).opponentMoved(move);
 
 		turn = turn.otherSide();
 
 		for (int i = 0; i < observers.size(); i++) {
 			observers.elementAt(i).opponentMoved(move);
 		}
-	}
-	
-	public synchronized void pause(){
-		paused = !paused;
-		
-		if(pausedMove!=null){
-			makeMove(pausedMove);
-			pausedMove = null;
-		}
-		
 	}
 
 	private Player getPlayer(Side side) {
@@ -137,8 +128,22 @@ public class Game {
 		}
 	}
 
+	public synchronized void pause() {
+		
+		paused = !paused;
+		
+		players[0].pause();
+		players[1].pause();
+		
+		for (int i = 0; i < observers.size(); i++) {
+			observers.elementAt(i).pause();
+		}
+		
+	}
+
 	public synchronized void addObserver(Player observer) {
 		observer.newGame(Side.NONE, board.getCopy());
+		observer.setGame(this);
 		observers.add(observer);
 	}
 
@@ -147,7 +152,11 @@ public class Game {
 	// }
 
 	public void setDecisionTreeRoot(DecisionNode rootDecision) {
-		//decisionTreeGUI.setRootDecisionTree(rootDecision);
+		// decisionTreeGUI.setRootDecisionTree(rootDecision);
+	}
+	
+	public boolean isPaused(){
+		return paused;
 	}
 
 }

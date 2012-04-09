@@ -78,7 +78,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 				this.playerSide = Side.BLACK;
 			}
 
-		}else{
+		} else {
 			this.playerSide = playerSide;
 		}
 
@@ -87,8 +87,8 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 		return this.playerSide;
 
 	}
-	
-	public void gameOverLose(){
+
+	public void gameOverLose() {
 		Object[] options = { "Yes, please", "Nah" };
 		int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -98,9 +98,10 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 		} else {
 			System.exit(0);
 		}
-		
+
 	}
-	public void gameOverWin(){
+
+	public void gameOverWin() {
 		Object[] options = { "Yeah, why not?", "Nah." };
 		int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -110,9 +111,10 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 		} else {
 			System.exit(0);
 		}
-		
+
 	}
-	public void gameOverStaleMate(){
+
+	public void gameOverStaleMate() {
 		Object[] options = { "Yes, please", "Nah, maybe later." };
 		int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
@@ -122,10 +124,10 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 			System.exit(0);
 		}
 	}
-	
+
 	@Override
 	public void makeMove(Move move) {
-		game.makeMove(move);
+		game.makeMove(move, this.playerSide);
 	}
 
 	@Override
@@ -135,7 +137,6 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 
 	@Override
 	public boolean undoMove() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -167,12 +168,21 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 
 	@Override
 	public void setSide(Side side) {
-		// TODO Auto-generated method stub
-		
+		playerSide = side;
 	}
-	
-	public boolean isMyTurn(){
+
+	public boolean isMyTurn() {
 		return boardPanel.isMyTurn();
+	}
+
+	@Override
+	public void setGame(Game game) {
+		this.game = game;
+	}
+
+	@Override
+	public void pause() {
+		
 	}
 
 }
