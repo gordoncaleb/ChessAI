@@ -174,6 +174,6 @@ public abstract class Piece {
 
 	public abstract void getNullMoveInfo(Board board, long[] nullMoveBitBoards);
 
-	public abstract Piece getCopy(Board board);
+	public abstract Piece getCopy();
 
 }

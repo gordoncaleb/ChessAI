@@ -73,6 +73,11 @@ public class Board {
 
 			// piceTaken is old ref, find new ref
 			if (pieceTaken != board[pieceTaken.getRow()][pieceTaken.getCol()]) {
+
+				if (board[move.getToRow()][move.getToCol()] == null) {
+					System.out.println("What?");
+				}
+
 				pieceTaken = board[move.getToRow()][move.getToCol()];
 				move.setPieceTaken(pieceTaken);
 			}
@@ -512,6 +517,10 @@ public class Board {
 		return (boardStatus == GameStatus.STALEMATE);
 	}
 
+	public boolean isGameOver() {
+		return (isInCheckMate() || isInStaleMate());
+	}
+
 	public void clearBoardStatus() {
 		boardStatus = GameStatus.IN_PLAY;
 	}
@@ -561,7 +570,7 @@ public class Board {
 
 				if (board[row][col] != null) {
 
-					copyBoard[row][col] = board[row][col].getCopy(this);
+					copyBoard[row][col] = board[row][col].getCopy();
 
 					if (copyBoard[row][col].getSide() == Side.BLACK) {
 						copyBlackPieces.add(copyBoard[row][col]);

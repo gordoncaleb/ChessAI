@@ -29,6 +29,7 @@ public class AIProcessor extends Thread {
 		this.ai = ai;
 		this.maxTreeLevel = maxTreeLevel;
 		this.maxTwigLevel = maxTwigLevel;
+		pruningEnabled = true;
 		hashTable = new Hashtable<Long, BoardHashEntry>();
 	}
 
@@ -57,10 +58,34 @@ public class AIProcessor extends Thread {
 		}
 	}
 
-	public void setNewTask(DecisionNode rootNode, Board board) {
-		this.rootNode = rootNode;
-		this.board = board;
+	public void setNewTask() {
 		this.isNewTask = true;
+	}
+
+	public void setBoard(Board board) {
+		this.board = board;
+	}
+
+	public Board getBoard() {
+		return board;
+	}
+
+	public void setRootNode(DecisionNode rootNode) {
+
+		if (rootNode.getMove() != null) {
+			board.makeMove(rootNode.getMove());
+		}
+
+		this.rootNode = rootNode;
+
+		// if game isnt over make sure tree root shows what next valid moves are
+		if (!rootNode.hasChildren() && !board.isGameOver()) {
+			Vector<Move> moves = board.generateValidMoves();
+			for (int m = 0; m < moves.size(); m++) {
+				rootNode.addChild(new DecisionNode(rootNode, moves.elementAt(m)));
+			}
+		}
+
 	}
 
 	private void executeTask() {
@@ -69,13 +94,11 @@ public class AIProcessor extends Thread {
 
 		while ((task = ai.getNextTask()) != null) {
 
-			if (rootNode != null) {
-				if (rootNode.getHeadChild() != null) {
-					ab = rootNode.getHeadChild().getChosenPathValue(0);
-				}
-
-				board.makeMove(task.getMove());
+			if (rootNode.getHeadChild() != null) {
+				ab = rootNode.getHeadChild().getChosenPathValue(0);
 			}
+
+			board.makeMove(task.getMove());
 
 			// if (maxTreeLevel >= 1) {
 			// for (int level = 1; level <= maxTreeLevel; level++) {
@@ -88,13 +111,9 @@ public class AIProcessor extends Thread {
 
 			growDecisionTree(task, maxTreeLevel, ab);
 
-			if (rootNode != null) {
+			board.undoMove();
 
-				board.undoMove();
-
-				rootNode.addChild(task);
-
-			}
+			rootNode.addChild(task);
 
 			ai.taskDone();
 
@@ -122,8 +141,10 @@ public class AIProcessor extends Thread {
 			// check all moves of all pieces
 			Vector<Move> moves = board.generateValidMoves();
 
-			if (board.isInCheck()) {
-				branch.setStatus(GameStatus.CHECK);
+			branch.setStatus(board.getBoardStatus());
+
+			if (branch.isGameOver()) {
+				return;
 			}
 
 			Move move;
@@ -208,10 +229,6 @@ public class AIProcessor extends Thread {
 
 		} else {
 
-			if (branch.isEndGame()) {
-				return;
-			}
-
 			// Node has already been created and has children
 			int childrenSize = branch.getChildrenSize();
 			DecisionNode nextChild;
@@ -248,11 +265,6 @@ public class AIProcessor extends Thread {
 					}
 				}
 
-				// Checks if that move was valid. This invalidated check is used
-				// after every move by the user. It would remove user moves that
-				// put the user in check.
-				branch.addChild(currentChild);
-
 				// alpha beta pruning
 				if (pruningEnabled) {
 
@@ -262,21 +274,15 @@ public class AIProcessor extends Thread {
 
 				}
 
+				// Checks if that move was valid. This invalidated check is used
+				// after every move by the user. It would remove user moves that
+				// put the user in check.
+				branch.addChild(currentChild);
+
 				currentChild = nextChild;
 			}
 
 		} // end of node already has children code
-
-		// game is over at this point
-		if (!branch.hasChildren()) {
-
-			if (branch.getStatus() == GameStatus.CHECK) {
-				branch.setStatus(GameStatus.CHECKMATE);
-			} else {
-				branch.setStatus(GameStatus.STALEMATE);
-				branch.setChosenPathValue(Values.STALEMATE_MOVE);
-			}
-		}
 
 	}
 

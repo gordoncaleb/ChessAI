@@ -66,7 +66,7 @@ public class Rook extends Piece {
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
 					move = new Move(currentRow, currentCol, nextRow, nextCol);
-					move.setPieceTaken(board.getPiece(nextRow, nextCol));
+					move.setPieceTaken(board.getPiece(nextRow, nextCol).getCopy());
 
 					if (!this.hasMoved() && !board.kingHasMoved(player)) {
 						move.setValue(board.getPieceValue(nextRow, nextCol) + Values.CASTLE_ABILITY_LOST_VALUE);
@@ -158,7 +158,7 @@ public class Rook extends Piece {
 
 	}
 
-	public Piece getCopy(Board board) {
+	public Piece getCopy() {
 		return new Rook(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }

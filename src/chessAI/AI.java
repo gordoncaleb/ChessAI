@@ -1,16 +1,12 @@
 package chessAI;
 
-import java.util.Vector;
-
 import chessBackend.Board;
 import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Player;
 import chessBackend.Side;
 import chessBackend.Move;
-import chessIO.FileIO;
 import chessIO.MoveBook;
-import chessIO.XMLParser;
 
 public class AI extends Thread implements Player {
 	private boolean debug;
@@ -18,7 +14,6 @@ public class AI extends Thread implements Player {
 	private Game game;
 	private MoveBook moveBook;
 	private DecisionNode rootNode;
-	private Board board;
 
 	private int maxTwigLevel;
 	private int maxDecisionTreeLevel;
@@ -28,10 +23,9 @@ public class AI extends Thread implements Player {
 	private boolean opponentMoved;
 	private DecisionNode opponentsDecision;
 
-	private boolean makeNewGame;
-	private Side playerSide;
+	private boolean undoMove;
 
-	private boolean undoUserMove;
+	private Side playerSide;
 
 	private int taskDone;
 	private int taskLeft;
@@ -77,123 +71,43 @@ public class AI extends Thread implements Player {
 			}
 
 			if (opponentMoved) {
-				userMoved();
+				if (moveAI()) {
+					game.makeMove(rootNode.getMove());
+				}
 				opponentMoved = false;
 			}
 
-			if (undoUserMove) {
-				undoUserMove();
-				undoUserMove = false;
-			}
-			
-			if (makeNewGame) {
-				makeNewGame();
-				makeNewGame = false;
+			if (undoMove) {
+				undoToOpponentsMove();
+				undoMove = false;
 			}
 
 		}
 
 	}
 
-	private void userMoved() {
+	public synchronized Side newGame(Side playerSide, Board board) {
 
-		if (debug) {
-			if (opponentsDecision == rootNode.getChosenChild()) {
-				System.out.println("AI predicted the users move!!");
-			}
-		}
-
-		// Set the user's move as the root of the decision tree
-		setRootNode(opponentsDecision);
-
-		System.out.println(board.toString());
-
-		moveAI();
-		game.makeMove(rootNode.getMove());
-
-	}
-
-	/**
-	 * At this point the root should be the user's move. This method finds the
-	 * best response for the AI.
-	 */
-	private void moveAI() {
-
-		// Game Over?
-		if (rootNode.getStatus() != GameStatus.CHECKMATE && rootNode.getStatus() != GameStatus.STALEMATE) {
-
-			long time = 0;
-			DecisionNode aiDecision;
-
-			time = System.currentTimeMillis();
-
-			Move mb;
-			if ((mb = moveBook.getRecommendation(board.getHashCode())) == null) {
-
-				// Split the task of looking at all possible AI moves up amongst
-				// multiple threads. This takes advantage of multicore systems.
-				delegateProcessors(rootNode);
-
-				aiDecision = rootNode.getChosenChild();
-			} else {
-
-				// The AI's decision was decided by the good move database but
-				// the tree has to grow to reflect possible responses by the
-				// user
-
-				if (debug) {
-					System.out.println("Ai moved based on recommendation");
-				}
-
-				setProcessorLevels(2, 0, true);
-				growRoot();
-				setDefaultProcessorLevels();
-
-				aiDecision = getMatchingDecisionNode(mb);
-			}
-
-			System.out.println("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
-
-			// debug print out of decision tree stats. i.e. the tree size and
-			// the values of the move options that the AI has
-			if (debug) {
-				game.setDecisionTreeRoot(rootNode);
-				printRootDebug();
-			}
-
-			// The users decision's chosen child represents the best move based
-			// on the user's move
-			setRootNode(aiDecision);
-
-			if (debug) {
-				System.out.println(board.toString());
-			}
-
-		}
-	}
-
-	public void makeNewGame() {
+		this.playerSide = playerSide;
 
 		rootNode = new DecisionNode(null, null);
 
-		// These two numbers represent how large the initial decision tree is.
-		// In the case that the user is going first, it is small, so as to speed
-		// up startup times. In the case of the AI is first it is large so that
-		// "thought" is put into the AI's first Move.
-
-		if (playerSide == board.getTurn()) {
-			moveAI();
-			game.makeMove(rootNode.getMove());
-		} else {
-			setProcessorLevels(0, 0, false);
-			growRoot();
-			setDefaultProcessorLevels();
+		for (int i = 0; i < processorThreads.length; i++) {
+			processorThreads[i].setBoard(board.getCopy());
+			processorThreads[i].setRootNode(rootNode);
 		}
 
 		if (debug) {
 			printRootDebug();
-			System.out.println(board.toString());
+			System.out.println(getBoard().toString());
 		}
+
+		if (isMyTurn()) {
+			opponentMoved = true;
+			notifyAll();
+		}
+
+		return null;
 
 	}
 
@@ -207,49 +121,67 @@ public class AI extends Thread implements Player {
 	 * @return The new root node, which is the AI response to 'userMove'.
 	 */
 	public synchronized boolean opponentMoved(Move opponentsMove) {
-		this.opponentsDecision = getMatchingDecisionNode(opponentsMove);
+		setRootNode(getMatchingDecisionNode(opponentsMove));
 		opponentMoved = true;
-		this.notifyAll();
+		notifyAll();
 
 		return true;
 	}
 
-	public synchronized Side newGame(Side playerSide, Board board) {
-		this.playerSide = playerSide;
-		this.board = board;
-		makeNewGame = true;
-		this.notifyAll();
-		return null;
-	}
+	/**
+	 * At this point the root should be the user's move. This method finds the
+	 * best response for the AI.
+	 */
+	private boolean moveAI() {
 
-	public synchronized boolean undoMove() {
-		this.undoUserMove = true;
-		this.notifyAll();
-		return true;
-	}
-
-	public Move getRecommendation() {
-		return null;
-	}
-
-	public synchronized void taskDone() {
-		taskDone++;
-		if (debug) {
-			System.out.println(taskDone + "/" + taskSize + " done");
+		// Game Over?
+		if (rootNode.isGameOver()) {
+			return false;
 		}
-	}
 
-	public void clearTaskDone() {
-		taskDone = 0;
+		long time = 0;
+		DecisionNode aiDecision;
+
+		time = System.currentTimeMillis();
+
+		Move mb;
+		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == null) {
+
+			// Split the task of looking at all possible AI moves up amongst
+			// multiple threads. This takes advantage of multicore systems.
+			delegateProcessors(rootNode);
+
+			aiDecision = rootNode.getChosenChild();
+		} else {
+
+			if (debug) {
+				System.out.println("Ai moved based on recommendation");
+			}
+
+			aiDecision = getMatchingDecisionNode(mb);
+		}
+
+		System.out.println("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
+
+		// debug print out of decision tree stats. i.e. the tree size and
+		// the values of the move options that the AI has
+		if (debug) {
+			game.setDecisionTreeRoot(rootNode);
+			printRootDebug();
+		}
+
+		// The users decision's chosen child represents the best move based
+		// on the user's move
+		setRootNode(aiDecision);
+
+		if (debug) {
+			System.out.println(getBoard().toString());
+		}
+
+		return true;
 	}
 
 	private void delegateProcessors(DecisionNode root) {
-
-		if (!root.hasChildren()) {
-			setProcessorLevels(0, 0, false);
-			growRoot();
-			setDefaultProcessorLevels();
-		}
 
 		// This clears ai processors status done flags from previous
 		// tasks.
@@ -268,7 +200,7 @@ public class AI extends Thread implements Player {
 		}
 
 		for (int d = 0; d < processorThreads.length; d++) {
-			processorThreads[d].setNewTask(root, board.getCopy());
+			processorThreads[d].setNewTask();
 		}
 
 		// Wait for all processors to finish their task
@@ -280,6 +212,13 @@ public class AI extends Thread implements Player {
 			}
 		}
 
+	}
+
+	public synchronized void taskDone() {
+		taskDone++;
+		if (debug) {
+			System.out.println(taskDone + "/" + taskSize + " done");
+		}
 	}
 
 	public synchronized DecisionNode getNextTask() {
@@ -297,50 +236,48 @@ public class AI extends Thread implements Player {
 		return task;
 	}
 
-	private void growRoot() {
-		clearTaskDone();
-
-		taskSize = 1;
-		taskLeft = taskSize;
-		nextTask = rootNode;
-
-		processorThreads[0].setNewTask(null, board);
-
-		while (taskDone < taskSize) {
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+	public void clearTaskDone() {
+		taskDone = 0;
 	}
 
-	private boolean undoUserMove() {
-
-		if (board.getMoveHistory().size() > 1) {
-
-			board.undoMove();
-			board.undoMove();
+	private void undoToOpponentsMove() {
+		if (canUndo()) {
 
 			rootNode = new DecisionNode(null, null);
 
-			// ai thought isnt needed
-			setProcessorLevels(0, 0, false);
+			for (int i = 0; i < processorThreads.length; i++) {
+				processorThreads[i].getBoard().undoMove();
+				processorThreads[i].getBoard().undoMove();
+				processorThreads[i].setRootNode(rootNode);
+			}
 
-			// reinit tree
-			growRoot();
-
-			// set ai to think after user move
-			setDefaultProcessorLevels();
 		}
+	}
 
-		return true;
+	public synchronized boolean undoMove() {
+		undoMove = true;
+		notifyAll();
+		return canUndo();
+	}
 
+	private boolean canUndo() {
+		if ((isMyTurn() && (getBoard().getMoveHistory().size() > 0)) || (getBoard().getMoveHistory().size() > 1)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public Move getRecommendation() {
+		return null;
 	}
 
 	private void setRootNode(DecisionNode newRootNode) {
 
-		board.makeMove(newRootNode.getMove());
+		// tell threads about new root node
+		for (int i = 0; i < processorThreads.length; i++) {
+			processorThreads[i].setRootNode(newRootNode);
+		}
 
 		rootNode = newRootNode;
 
@@ -349,10 +286,10 @@ public class AI extends Thread implements Player {
 		rootNode.setPreviousSibling(null);
 
 		if (debug) {
-			System.out.println("Board hash code = " + Long.toHexString(board.getHashCode()));
+			System.out.println("Board hash code = " + Long.toHexString(getBoard().getHashCode()));
 		}
 
-		setGameSatus(rootNode.getStatus(), board.getTurn());
+		setGameSatus(rootNode.getStatus(), getBoard().getTurn());
 
 		System.gc();
 	}
@@ -363,20 +300,23 @@ public class AI extends Thread implements Player {
 		}
 	}
 
-	private void setProcessorLevels(int maxDecisionTreeLevel, int maxTwigLevel, boolean pruningEnabled) {
-		for (int i = 0; i < processorThreads.length; i++) {
-			processorThreads[i].setMaxTreeLevel(maxDecisionTreeLevel);
-			processorThreads[i].setMaxTwigLevel(maxTwigLevel);
-			processorThreads[i].setPruningEnabled(pruningEnabled);
-		}
+	@Override
+	public Side getSide() {
+		return playerSide;
 	}
 
-	private void setDefaultProcessorLevels() {
-		for (int i = 0; i < processorThreads.length; i++) {
-			processorThreads[i].setMaxTreeLevel(maxDecisionTreeLevel);
-			processorThreads[i].setMaxTwigLevel(maxTwigLevel);
-			processorThreads[i].setPruningEnabled(true);
-		}
+	@Override
+	public void setSide(Side side) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private Board getBoard() {
+		return processorThreads[0].getBoard();
+	}
+
+	public boolean isMyTurn() {
+		return (playerSide == getBoard().getTurn());
 	}
 
 	private DecisionNode getMatchingDecisionNode(Move goodMove) {
@@ -461,23 +401,12 @@ public class AI extends Thread implements Player {
 
 		System.out.println("Total Children = " + totalChildren);
 
-		System.out.println("User chose move worth " + rootNode.getChosenPathValue(0));
+		System.out.println(playerSide.otherSide() + " chose move worth " + rootNode.getChosenPathValue(0));
 
 	}
 
 	public int getMoveChosenPathValue(Move m) {
 		return getMatchingDecisionNode(m).getChosenPathValue(0);
-	}
-
-	@Override
-	public Side getSide() {
-		return playerSide;
-	}
-
-	@Override
-	public void setSide(Side side) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

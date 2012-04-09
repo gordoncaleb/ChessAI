@@ -58,7 +58,7 @@ public class Queen extends Piece {
 			if (pieceStatus == PositionStatus.ENEMY) {
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
 					Move move = new Move(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol));
-					move.setPieceTaken(board.getPiece(nextRow, nextCol));
+					move.setPieceTaken(board.getPiece(nextRow, nextCol).getCopy());
 					validMoves.add(move);
 				}
 			}
@@ -144,7 +144,7 @@ public class Queen extends Piece {
 
 	}
 
-	public Piece getCopy(Board board) {
+	public Piece getCopy() {
 		return new Queen(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
 	}
 }

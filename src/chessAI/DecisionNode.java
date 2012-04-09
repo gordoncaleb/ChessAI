@@ -318,7 +318,7 @@ public class DecisionNode {
 		}
 	}
 
-	public boolean isEndGame() {
+	public boolean isGameOver() {
 		if (status == GameStatus.CHECKMATE || status == GameStatus.STALEMATE) {
 			return true;
 		} else {
