@@ -1,6 +1,6 @@
 package chessIO;
 
-import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 
@@ -87,10 +87,10 @@ public class FileIO {
 		}
 	}
 
-	public static Image readImage(String fileName) {
+	public static BufferedImage readImage(String fileName) {
 		URL fileURL = FileIO.class.getResource("img/" + fileName);
 
-		Image image = null;
+		BufferedImage image = null;
 
 		try {
 			image = ImageIO.read(fileURL);

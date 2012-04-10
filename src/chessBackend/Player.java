@@ -2,8 +2,8 @@ package chessBackend;
 
 public interface Player {
 	
-	public boolean opponentMoved(Move opponentsMove);
-	public boolean undoMove();
+	public boolean moveMade(Move move);
+	public Move undoMove();
 	public Side newGame(Side playerSide, Board board);
 	public void setGame(Game game);
 	public Move getRecommendation();

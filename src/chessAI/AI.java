@@ -20,7 +20,7 @@ public class AI extends Thread implements Player {
 
 	private int[] childNum = new int[20];
 
-	private boolean opponentMoved;
+	private boolean makeMove;
 	private DecisionNode opponentsDecision;
 
 	private boolean undoMove;
@@ -65,6 +65,7 @@ public class AI extends Thread implements Player {
 
 	@Override
 	public void run() {
+		DecisionNode aiDecision;
 
 		while (true) {
 			synchronized (this) {
@@ -75,19 +76,25 @@ public class AI extends Thread implements Player {
 					e.printStackTrace();
 				}
 
-				if (!paused) {
-					if (opponentMoved) {
-						if (moveAI()) {
-							game.makeMove(rootNode.getMove(), this.playerSide);
-						}
-						opponentMoved = false;
-					}
+				if (undoMove) {
+
+					undoMoveOnSubThreads();
+					undoMove = false;
+
 				}
 
-				if (undoMove) {
-					undoToOpponentsMove();
-					undoMove = false;
+				if (makeMove && !paused) {
+
+					aiDecision = getAIDecision();
+
+					if (aiDecision != null && !undoMove) {
+						setRootNode(aiDecision);
+						game.makeMove(aiDecision.getMove(), this);
+					}
+
+					makeMove = false;
 				}
+
 			}
 
 		}
@@ -96,7 +103,7 @@ public class AI extends Thread implements Player {
 
 	public synchronized Side newGame(Side playerSide, Board board) {
 
-		opponentMoved = false;
+		makeMove = false;
 		undoMove = false;
 
 		this.playerSide = playerSide;
@@ -114,7 +121,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (isMyTurn()) {
-			opponentMoved = true;
+			makeMove = true;
 			notifyAll();
 		}
 
@@ -122,32 +129,38 @@ public class AI extends Thread implements Player {
 
 	}
 
-	/**
-	 * This method notifies the AI that the user has moved and also tells gives
-	 * it the move that the user made.
-	 * 
-	 * @param usersDecision
-	 *            The users move. This has a reference to the position on the
-	 *            decision tree that the user effectively selected.
-	 * @return The new root node, which is the AI response to 'userMove'.
-	 */
-	public synchronized boolean opponentMoved(Move opponentsMove) {
-		setRootNode(getMatchingDecisionNode(opponentsMove));
-		opponentMoved = true;
-		notifyAll();
+	public synchronized boolean moveMade(Move move) {
 
-		return true;
+		DecisionNode decision = getMatchingDecisionNode(move);
+
+		if (decision != null) {
+
+			setRootNode(decision);
+
+			if (isMyTurn()) {
+				makeMove = true;
+				notifyAll();
+			} else {
+				makeMove = false;
+			}
+
+			return true;
+
+		} else {
+			return false;
+		}
+
 	}
 
 	/**
 	 * At this point the root should be the user's move. This method finds the
 	 * best response for the AI.
 	 */
-	private boolean moveAI() {
+	private DecisionNode getAIDecision() {
 
 		// Game Over?
 		if (rootNode.isGameOver()) {
-			return false;
+			return null;
 		}
 
 		long time = 0;
@@ -183,13 +196,13 @@ public class AI extends Thread implements Player {
 
 		// The users decision's chosen child represents the best move based
 		// on the user's move
-		setRootNode(aiDecision);
+		// setRootNode(aiDecision);
 
 		if (debug) {
 			System.out.println(getBoard().toString());
 		}
 
-		return true;
+		return aiDecision;
 	}
 
 	private void delegateProcessors(DecisionNode root) {
@@ -210,11 +223,13 @@ public class AI extends Thread implements Player {
 			System.out.println("New task");
 		}
 
-		for (int d = 0; d < processorThreads.length; d++) {
-			processorThreads[d].setNewTask();
-		}
-
 		synchronized (processing) {
+			
+			//wake all threads up
+			for (int d = 0; d < processorThreads.length; d++) {
+				processorThreads[d].setNewTask();
+			}
+			
 			// Wait for all processors to finish their task
 			try {
 				processing.wait();
@@ -226,7 +241,7 @@ public class AI extends Thread implements Player {
 	}
 
 	public void taskDone() {
-		
+
 		synchronized (processing) {
 			taskDone++;
 			if (debug) {
@@ -258,39 +273,51 @@ public class AI extends Thread implements Player {
 	}
 
 	public void clearTaskDone() {
-		taskDone = 0;
+		
+		synchronized (processing) {
+			taskDone = 0;
+		}
+		
 	}
 
-	private void undoToOpponentsMove() {
+	private void undoMoveOnSubThreads() {
 		if (canUndo()) {
 
 			rootNode = new DecisionNode(null, null);
 
 			for (int i = 0; i < processorThreads.length; i++) {
 				processorThreads[i].getBoard().undoMove();
-
-				if (!paused && isMyTurn()) {
-					processorThreads[i].getBoard().undoMove();
-				}
-
 				processorThreads[i].setRootNode(rootNode);
+			}
+
+			if (isMyTurn()) {
+				makeMove = true;
+			} else {
+				makeMove = false;
 			}
 
 		}
 	}
 
-	public synchronized boolean undoMove() {
-		undoMove = true;
-		notifyAll();
-		return canUndo();
+	public Move undoMove() {
+		if (canUndo()) {
+			undoMove = true;
+
+			synchronized (this) {
+				notifyAll();
+			}
+
+			return getBoard().getLastMoveMade();
+
+		} else {
+
+			return null;
+
+		}
 	}
 
 	private boolean canUndo() {
-		if ((isMyTurn() && (getBoard().getMoveHistory().size() > 0)) || (getBoard().getMoveHistory().size() > 1)) {
-			return true;
-		} else {
-			return false;
-		}
+		return (getBoard().getMoveHistory().size() > 0);
 	}
 
 	public synchronized void pause() {
@@ -407,9 +434,6 @@ public class AI extends Thread implements Player {
 	}
 
 	private void printRootDebug() {
-		if (opponentsDecision != null) {
-			printChildren(opponentsDecision);
-		}
 
 		for (int i = 0; i < childNum.length; i++) {
 			childNum[i] = 0;

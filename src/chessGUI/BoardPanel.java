@@ -3,6 +3,7 @@ package chessGUI;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -28,6 +29,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	private SquarePanel[][] chessSquares;
 	private Image[][] chessPieceGraphics;
+	private ImageIcon[][] chessPieceIcons;
 	private SquarePanel selectedSquare;
 	private SquarePanel lastMovedSquare;
 	private boolean flipBoard;
@@ -61,7 +63,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		squaresGUIPanel.setBackground(Color.GRAY);
 		squaresGUIPanel.setPreferredSize(new Dimension(gameHeight, gameHeight));
 		buildSquaresGUI();
-		
+
 		this.add(squaresGUIPanel, BorderLayout.CENTER);
 
 		lostWhitePiecesPanel = new JPanel(new FlowLayout());
@@ -114,6 +116,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 	private void loadChessImages() {
 
 		chessPieceGraphics = new Image[2][6];
+		chessPieceIcons = new ImageIcon[2][6];
 		String pieceNames[] = { "rook", "knight", "bishop", "queen", "king", "pawn" };
 		String imgDir = "pieces";
 
@@ -128,6 +131,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 			chessPieceGraphics[0][i] = FileIO.readImage(blackFileName).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
 			chessPieceGraphics[1][i] = FileIO.readImage(whiteFileName).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
 
+			chessPieceIcons[0][i] = new ImageIcon(chessPieceGraphics[0][i]);
+			chessPieceIcons[1][i] = new ImageIcon(chessPieceGraphics[1][i]);
 		}
 	}
 
@@ -135,13 +140,17 @@ public class BoardPanel extends JPanel implements MouseListener {
 		return chessPieceGraphics[player.ordinal()][id.ordinal()];
 	}
 
+	public ImageIcon getChessIcon(PieceID id, Side player) {
+		return chessPieceIcons[player.ordinal()][id.ordinal()];
+	}
+
 	public boolean makeMove(Move move) {
 
 		if (adjudicator.move(move)) {
 			refreshBoard();
-			
-			if(move.getPieceTaken()!=null){
-				refreshPiecesTaken();
+
+			if (move.getPieceTaken() != null) {
+				takePiece(move.getPieceTaken());
 			}
 
 			updateLastMovedSquare();
@@ -176,9 +185,12 @@ public class BoardPanel extends JPanel implements MouseListener {
 		}
 	}
 
-	public void undoUserMove() {
+	public Move undoMove() {
+		Move undoneMove = null;
 
-		if (adjudicator.undo()) {
+		if (adjudicator.canUndo()) {
+
+			undoneMove = adjudicator.undo();
 			// full refresh of board info
 			refreshBoard();
 
@@ -189,7 +201,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 			attachValidMoves();
 
 			// update side line view of pieces that have been taken
-			refreshPiecesTaken();
+			if (undoneMove.getPieceTaken() != null) {
+				refreshPiecesTaken();
+			}
 
 			// show what the last move made was before last two moves were made
 			updateLastMovedSquare();
@@ -198,6 +212,38 @@ public class BoardPanel extends JPanel implements MouseListener {
 			System.out.println("Cannot undo move");
 		}
 
+		return undoneMove;
+
+	}
+
+	public boolean canUndo() {
+		return adjudicator.canUndo();
+	}
+
+	public Move redoMove() {
+		Move redoneMove = null;
+
+		if (adjudicator.canRedo()) {
+			redoneMove = adjudicator.redo();
+
+			refreshBoard();
+
+			if (redoneMove.getPieceTaken() != null) {
+				takePiece(redoneMove.getPieceTaken());
+			}
+
+			updateLastMovedSquare();
+
+			attachValidMoves();
+
+			setGameSatus(adjudicator.getGameStatus(), adjudicator.getTurn());
+		}
+
+		return redoneMove;
+	}
+
+	public boolean canRedo() {
+		return adjudicator.canRedo();
 	}
 
 	private void refreshBoard() {
@@ -281,6 +327,17 @@ public class BoardPanel extends JPanel implements MouseListener {
 		}
 	}
 
+	private void takePiece(Piece pieceTaken) {
+		JLabel picLabel = new JLabel();
+		picLabel.setIcon(this.getChessIcon(pieceTaken.getPieceID(), pieceTaken.getSide()));
+
+		if (pieceTaken.getSide() == Side.WHITE) {
+			lostWhitePiecesPanel.add(picLabel);
+		} else {
+			lostBlackPiecesPanel.add(picLabel);
+		}
+	}
+
 	private void refreshPiecesTaken() {
 		JLabel picLabel;
 
@@ -290,7 +347,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		for (int i = 0; i < takenPieces.size(); i++) {
 			picLabel = new JLabel();
-			picLabel.setIcon(new ImageIcon(this.getChessImage(takenPieces.elementAt(i).getPieceID(), Side.WHITE)));
+			picLabel.setIcon(this.getChessIcon(takenPieces.elementAt(i).getPieceID(), Side.WHITE));
 			lostWhitePiecesPanel.add(picLabel);
 		}
 
@@ -298,7 +355,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		for (int i = 0; i < takenPieces.size(); i++) {
 			picLabel = new JLabel();
-			picLabel.setIcon(new ImageIcon(this.getChessImage(takenPieces.elementAt(i).getPieceID(), Side.BLACK)));
+			picLabel.setIcon(this.getChessIcon(takenPieces.elementAt(i).getPieceID(), Side.BLACK));
 			lostBlackPiecesPanel.add(picLabel);
 		}
 
@@ -339,9 +396,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		return chessSquares[getRow][getCol];
 	}
-	
-	public boolean isMyTurn(){
-		return (userSide==adjudicator.getTurn());
+
+	public boolean isMyTurn() {
+		return (userSide == adjudicator.getTurn());
 	}
 
 	private Move getOrientedMove(int fromRow, int fromCol, int toRow, int toCol) {

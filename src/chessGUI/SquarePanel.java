@@ -172,9 +172,9 @@ public class SquarePanel extends JPanel {
 		this.id = id;
 		this.player = player;
 
-		Image image = gui.getChessImage(id, player);
-		ImageIcon icon = new ImageIcon(image);
-		picLabel.setIcon(icon);
+		//Image image = gui.getChessImage(id, player);
+		//ImageIcon icon = new ImageIcon(image);
+		picLabel.setIcon(gui.getChessIcon(id, player));
 		picLabel.updateUI();
 
 	}

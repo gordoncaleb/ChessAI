@@ -1,5 +1,6 @@
 package chessGUI;
 
+import java.util.Stack;
 import java.util.Vector;
 
 import chessBackend.Board;
@@ -10,21 +11,26 @@ import chessPieces.Piece;
 import chessPieces.PieceID;
 
 public class Adjudicator {
-	Vector<Piece> whitePiecesTaken;
-	Vector<Piece> blackPiecesTaken;
-	Vector<Move> validMoves;
-	Board board;
+	private Vector<Piece> whitePiecesTaken;
+	private Vector<Piece> blackPiecesTaken;
+	private Vector<Move> validMoves;
+	private Stack<Move> undoneMoves;
+	private Board board;
 
 	public Adjudicator(Board board) {
 		whitePiecesTaken = new Vector<Piece>();
 		blackPiecesTaken = new Vector<Piece>();
+		undoneMoves = new Stack<Move>();
 		this.board = board;
 		loadPiecesTaken();
 	}
 
 	public boolean move(Move move) {
+
+		undoneMoves.clear();
+
 		Move matchingMove = getMatchingMove(move);
-		
+
 		if (board.makeMove(matchingMove)) {
 			takePiece(matchingMove.getPieceTaken());
 			return true;
@@ -34,16 +40,35 @@ public class Adjudicator {
 
 	}
 
-	public boolean undo() {
+	public Move undo() {
+		Move lastMove = null;
 
-		if (board.getMoveHistory().size() > 1) {
-			replacePiece(board.undoMove().getPieceTaken());
-			replacePiece(board.undoMove().getPieceTaken());
-			return true;
-		} else {
-			return false;
+		if (canUndo()) {
+			lastMove = board.undoMove();
+			replacePiece(lastMove.getPieceTaken());
+			undoneMoves.push(lastMove);
 		}
 
+		return lastMove;
+
+	}
+
+	public boolean canUndo() {
+		return (board.getMoveHistory().size() > 0);
+	}
+
+	public Move redo() {
+		Move lastMoveUndone = null;
+
+		if (canRedo()) {
+			lastMoveUndone = undoneMoves.pop();
+			board.makeMove(lastMoveUndone);
+		}
+		return lastMoveUndone;
+	}
+
+	public boolean canRedo() {
+		return (undoneMoves.size() > 0);
 	}
 
 	public Vector<Move> getValidMoves() {
@@ -71,11 +96,11 @@ public class Adjudicator {
 	private Move getMatchingMove(Move move) {
 
 		for (int i = 0; i < validMoves.size(); i++) {
-			if(validMoves.elementAt(i).equals(move)){
+			if (validMoves.elementAt(i).equals(move)) {
 				return validMoves.elementAt(i);
 			}
 		}
-		
+
 		System.out.println("ERROR: Adjudicator says move is invalid");
 		return null;
 	}

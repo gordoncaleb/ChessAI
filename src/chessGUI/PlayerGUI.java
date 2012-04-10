@@ -127,17 +127,17 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 
 	@Override
 	public void makeMove(Move move) {
-		game.makeMove(move, this.playerSide);
+		game.makeMove(move,this);
 	}
 
 	@Override
-	public synchronized boolean opponentMoved(Move opponentsMove) {
-		return boardPanel.makeMove(opponentsMove);
+	public synchronized boolean moveMade(Move move) {
+		return boardPanel.makeMove(move);
 	}
 
 	@Override
-	public boolean undoMove() {
-		return false;
+	public Move undoMove() {
+		return boardPanel.undoMove();
 	}
 
 	@Override
@@ -152,7 +152,8 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 		}
 
 		if (arg0.getSource() == undoUserMoveMenu) {
-			game.undoMove(playerSide);
+			boardPanel.undoMove();
+			game.undoMove(this);
 		}
 
 		if (arg0.getSource() == switchSidesMenu) {

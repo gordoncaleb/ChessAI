@@ -65,7 +65,7 @@ public class Game {
 		game.addObserver(observer);
 	}
 
-	public void newGame() {
+	public synchronized void newGame() {
 
 		if (debug) {
 			board = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
@@ -92,53 +92,58 @@ public class Game {
 			players[1].newGame(turn.otherSide(), board.getCopy());
 		}
 
-
 	}
 
-	public boolean undoMove(Side side) {
+	public synchronized boolean undoMove(Player mover) {
 
-		boolean success = false;
-
-		success = getPlayer(side.otherSide()).undoMove();
-
-		return success;
-	}
-
-	public synchronized void makeMove(Move move, Side side) {
-
-		// ignore move if made by wrong side
-		if (side != turn) {
-			return;
+		for (int i = 0; i < players.length; i++) {
+			if (players[i] != mover) {
+				players[i].undoMove();
+			}
 		}
-
-		getPlayer(side.otherSide()).opponentMoved(move);
-
-		turn = turn.otherSide();
 
 		for (int i = 0; i < observers.size(); i++) {
-			observers.elementAt(i).opponentMoved(move);
+			if (observers.elementAt(i) != mover) {
+				observers.elementAt(i).undoMove();
+			}
 		}
+
+		return true;
 	}
 
-	private Player getPlayer(Side side) {
-		if (players[0].getSide() == side) {
-			return players[0];
-		} else {
-			return players[1];
+	public synchronized boolean makeMove(Move move, Player mover) {
+
+		for (int i = 0; i < players.length; i++) {
+			if (players[i] != mover) {
+				players[i].moveMade(move);
+			}
 		}
+
+		for (int i = 0; i < observers.size(); i++) {
+			if (observers.elementAt(i) != mover) {
+				observers.elementAt(i).moveMade(move);
+			}
+		}
+
+		return true;
 	}
 
-	public synchronized void pause() {
-		
+	public void pause(Player pauser) {
+
 		paused = !paused;
-		
-		players[0].pause();
-		players[1].pause();
-		
-		for (int i = 0; i < observers.size(); i++) {
-			observers.elementAt(i).pause();
+
+		for (int i = 0; i < players.length; i++) {
+			if (players[i] != pauser) {
+				players[i].pause();
+			}
 		}
-		
+
+		for (int i = 0; i < observers.size(); i++) {
+			if (observers.elementAt(i) != pauser) {
+				observers.elementAt(i).pause();
+			}
+		}
+
 	}
 
 	public synchronized void addObserver(Player observer) {
@@ -154,8 +159,8 @@ public class Game {
 	public void setDecisionTreeRoot(DecisionNode rootDecision) {
 		// decisionTreeGUI.setRootDecisionTree(rootDecision);
 	}
-	
-	public boolean isPaused(){
+
+	public boolean isPaused() {
 		return paused;
 	}
 

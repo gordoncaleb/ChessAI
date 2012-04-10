@@ -22,7 +22,7 @@ public class AIProcessor extends Thread {
 
 	private boolean pruningEnabled;
 	private int aspirationWindowSize;
-	
+
 	private AI ai;
 
 	private Hashtable<Long, BoardHashEntry> hashTable;
@@ -34,40 +34,37 @@ public class AIProcessor extends Thread {
 		pruningEnabled = true;
 		twigGrowthEnabled = true;
 		aspirationWindowSize = 10;
-		
+
 		hashTable = new Hashtable<Long, BoardHashEntry>();
 	}
 
 	@Override
 	public void run() {
 
-		while (!isInterrupted()) {
+		while (true) {
 
-			// System.out.println("Processor " + this.getId() + " ready!");
-
-			while (!isNewTask) {
+			synchronized (this) {
 				try {
-					Thread.sleep(1);
+					this.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+
+				executeTask();
+
+				System.out.println("HashTable size = " + hashTable.size());
+				hashTable.clear();
 			}
 
-			isNewTask = false;
-
-			executeTask();
-
-			System.out.println("HashTable size = " + hashTable.size());
-			hashTable.clear();
-
 		}
+
 	}
 
-	public void setNewTask() {
-		this.isNewTask = true;
+	public synchronized void setNewTask() {
+		this.notifyAll();
 	}
 
-	public void setBoard(Board board) {
+	public synchronized void setBoard(Board board) {
 		this.board = board;
 	}
 
@@ -75,7 +72,7 @@ public class AIProcessor extends Thread {
 		return board;
 	}
 
-	public void setRootNode(DecisionNode rootNode) {
+	public synchronized void setRootNode(DecisionNode rootNode) {
 
 		if (rootNode.getMove() != null) {
 			board.makeMove(rootNode.getMove());
@@ -84,7 +81,7 @@ public class AIProcessor extends Thread {
 		this.rootNode = rootNode;
 
 		// if game isnt over make sure tree root shows what next valid moves are
-		if (!rootNode.hasChildren() && !board.isGameOver()) {
+		if (!rootNode.hasChildren() && !rootNode.isGameOver()) {
 			Vector<Move> moves = board.generateValidMoves();
 			for (int m = 0; m < moves.size(); m++) {
 				rootNode.addChild(new DecisionNode(rootNode, moves.elementAt(m)));
@@ -414,15 +411,15 @@ public class AIProcessor extends Thread {
 		return parentsBestPathValue;
 	}
 
-	public void setMaxTreeLevel(int maxTreeLevel) {
+	public synchronized void setMaxTreeLevel(int maxTreeLevel) {
 		this.maxTreeLevel = maxTreeLevel;
 	}
 
-	public void setMaxTwigLevel(int maxTwigLevel) {
+	public synchronized void setMaxTwigLevel(int maxTwigLevel) {
 		this.maxTwigLevel = maxTwigLevel;
 	}
 
-	public void setPruningEnabled(boolean pruningEnabled) {
+	public synchronized void setPruningEnabled(boolean pruningEnabled) {
 		this.pruningEnabled = pruningEnabled;
 	}
 
