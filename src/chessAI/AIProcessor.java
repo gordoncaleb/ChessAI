@@ -23,6 +23,8 @@ public class AIProcessor extends Thread {
 	private boolean pruningEnabled;
 	private int aspirationWindowSize;
 
+	private boolean threadActive;
+
 	private AI ai;
 
 	private Hashtable<Long, BoardHashEntry> hashTable;
@@ -35,13 +37,15 @@ public class AIProcessor extends Thread {
 		twigGrowthEnabled = true;
 		aspirationWindowSize = 10;
 
+		threadActive = true;
+
 		hashTable = new Hashtable<Long, BoardHashEntry>();
 	}
 
 	@Override
 	public void run() {
 
-		while (true) {
+		while (threadActive) {
 
 			synchronized (this) {
 				try {
@@ -50,14 +54,21 @@ public class AIProcessor extends Thread {
 					e.printStackTrace();
 				}
 
-				executeTask();
+				if (threadActive) {
+					executeTask();
 
-				System.out.println("HashTable size = " + hashTable.size());
-				hashTable.clear();
+					System.out.println("HashTable size = " + hashTable.size());
+					hashTable.clear();
+				}
 			}
 
 		}
 
+	}
+
+	public synchronized void killThread() {
+		threadActive = false;
+		this.notifyAll();
 	}
 
 	public synchronized void setNewTask() {
@@ -308,10 +319,7 @@ public class AIProcessor extends Thread {
 	private void growFrontierTwig(DecisionNode twig, int alphaBeta) {
 
 		int twigsBestPathValue = growDecisionTreeLite(board, twig.getMove(), alphaBeta, maxTwigLevel);
-
-		// int twigSuggestedPathValue = growDecisionTreeLite(twig.getBoard(),
-		// twig.getPlayer(), twig.getMoveValue(),Integer.MIN_VALUE, 0);
-
+		
 		twig.setStatus(board.getBoardStatus());
 
 		twig.setChosenPathValue(twigsBestPathValue);

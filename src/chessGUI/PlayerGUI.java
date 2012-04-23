@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 
 import chessBackend.Board;
 import chessBackend.Game;
+import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.Side;
@@ -68,8 +69,10 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 		if (playerSide == null) {
 
 			Object[] options = { "White", "Black" };
-			int n = JOptionPane.showOptionDialog(frame, "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION,
-					JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+			int n = JOptionPane.showOptionDialog(frame,
+					"Wanna play as black or white?", "New Game",
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+					null, options, options[0]);
 
 			if (n == JOptionPane.YES_OPTION) {
 				this.playerSide = Side.WHITE;
@@ -88,13 +91,19 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 
 	}
 
+	public synchronized void endGame() {
+
+	}
+
 	public void gameOverLose() {
 		Object[] options = { "Yes, please", "Nah" };
-		int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame,
+				"You just got schooled homie.\nWanna try again?", "Ouch!",
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
-			game.newGame();
+			game.newGame(false);
 		} else {
 			System.exit(0);
 		}
@@ -103,11 +112,13 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 
 	public void gameOverWin() {
 		Object[] options = { "Yeah, why not?", "Nah." };
-		int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame,
+				"Nicely done boss.\nWanna rematch?", "Ouch!",
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
-			game.newGame();
+			game.newGame(false);
 		} else {
 			System.exit(0);
 		}
@@ -116,10 +127,12 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 
 	public void gameOverStaleMate() {
 		Object[] options = { "Yes, please", "Nah, maybe later." };
-		int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame,
+				"Stalemate...hmmm close call.\nWanna try again?", "",
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				options, options[0]);
 		if (n == JOptionPane.YES_OPTION) {
-			game.newGame();
+			game.newGame(false);
 		} else {
 			System.exit(0);
 		}
@@ -127,7 +140,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 
 	@Override
 	public void makeMove(Move move) {
-		game.makeMove(move,this);
+		game.makeMove(move, this);
 	}
 
 	@Override
@@ -148,7 +161,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == newGameMenu) {
-			game.newGame();
+			game.newGame(false);
 		}
 
 		if (arg0.getSource() == undoUserMoveMenu) {
@@ -183,7 +196,16 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 
 	@Override
 	public void pause() {
-		
+
+	}
+
+	public Board getBoard() {
+		return boardPanel.getBoard();
+	}
+
+	@Override
+	public GameStatus getGameStatus() {
+		return boardPanel.getBoard().getBoardStatus();
 	}
 
 }

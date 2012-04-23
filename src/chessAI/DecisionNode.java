@@ -92,8 +92,8 @@ public class DecisionNode {
 		// Linked List data struct pointers
 		this.headChild = null;
 		this.childrenSize = 0;
-		this.nextSibling = null;
-		this.previousSibling = null;
+		this.nextSibling = this;
+		this.previousSibling = this;
 
 		this.move = move;
 		this.status = GameStatus.IN_PLAY;
@@ -319,7 +319,7 @@ public class DecisionNode {
 	}
 
 	public boolean isGameOver() {
-		if (status == GameStatus.CHECKMATE || status == GameStatus.STALEMATE) {
+		if (status == GameStatus.CHECKMATE || status == GameStatus.STALEMATE || status == GameStatus.DRAW) {
 			return true;
 		} else {
 			return false;

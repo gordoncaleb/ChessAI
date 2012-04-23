@@ -400,6 +400,10 @@ public class BoardPanel extends JPanel implements MouseListener {
 	public boolean isMyTurn() {
 		return (userSide == adjudicator.getTurn());
 	}
+	
+	public Board getBoard(){
+		return adjudicator.getBoard();
+	}
 
 	private Move getOrientedMove(int fromRow, int fromCol, int toRow, int toCol) {
 		int orienFromRow;

@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import chessBackend.Board;
 import chessBackend.Game;
+import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.Side;
@@ -63,12 +64,17 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	}
 
-	public synchronized Side newGame(Side playerSide, Board board) {
+	public Side newGame(Side playerSide, Board board) {
 
-		boardPanel.newGame(this.playerSide, board);
+		this.playerSide = playerSide;
+		boardPanel.newGame(playerSide, board);
 
-		return this.playerSide;
+		return playerSide;
 
+	}
+	
+	public synchronized void endGame(){
+		
 	}
 
 	public void gameOverLose() {
@@ -85,7 +91,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public synchronized boolean moveMade(Move opponentsMove) {
+	public boolean moveMade(Move opponentsMove) {
 		return boardPanel.makeMove(opponentsMove);
 	}
 
@@ -122,7 +128,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		if (arg0.getSource() == resetButton) {
-			game.newGame();
+			game.newGame(false);
 		}
 
 		if (arg0.getSource() == pauseButton) {
@@ -196,6 +202,15 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		} else {
 			return "Oh,Word? Observer" + Game.VERSION;
 		}
+	}
+	
+	public Board getBoard(){
+		return boardPanel.getBoard();
+	}
+
+	@Override
+	public GameStatus getGameStatus() {
+		return boardPanel.getBoard().getBoardStatus();
 	}
 
 }

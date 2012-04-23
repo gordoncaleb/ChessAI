@@ -1,12 +1,9 @@
-package chessGUI;
+package chessBackend;
 
+import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
 
-import chessBackend.Board;
-import chessBackend.GameStatus;
-import chessBackend.Move;
-import chessBackend.Side;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 
@@ -15,6 +12,7 @@ public class Adjudicator {
 	private Vector<Piece> blackPiecesTaken;
 	private Vector<Move> validMoves;
 	private Stack<Move> undoneMoves;
+	private Hashtable<Long, Integer> boardStateCount;
 	private Board board;
 
 	public Adjudicator(Board board) {
@@ -22,6 +20,7 @@ public class Adjudicator {
 		blackPiecesTaken = new Vector<Piece>();
 		undoneMoves = new Stack<Move>();
 		this.board = board;
+		boardStateCount = new Hashtable<Long, Integer>();
 		loadPiecesTaken();
 	}
 
@@ -33,6 +32,7 @@ public class Adjudicator {
 
 		if (board.makeMove(matchingMove)) {
 			takePiece(matchingMove.getPieceTaken());
+
 			return true;
 		} else {
 			return false;
@@ -155,6 +155,27 @@ public class Adjudicator {
 
 		return board.getBoardStatus();
 
+	}
+
+	public boolean isGameOver() {
+
+		return board.isGameOver();
+	}
+
+	public Side getWinner() {
+		if (board.isGameOver()) {
+			if (board.isDraw() || board.isInStaleMate()) {
+				return Side.NONE;
+			} else {
+				return board.getTurn().otherSide();
+			}
+		} else {
+			return null;
+		}
+	}
+
+	public Board getBoard() {
+		return board;
 	}
 
 }
