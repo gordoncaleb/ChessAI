@@ -738,7 +738,7 @@ public class Board {
 
 		int count = 0;
 
-		for (int i = 0; i < hashCodeHistory.size(); i++) {
+		for (int i = hashCodeHistory.size()-1; i >= 0; i--) {
 			if (hashCode == hashCodeHistory.elementAt(i)) {
 				count++;
 			}

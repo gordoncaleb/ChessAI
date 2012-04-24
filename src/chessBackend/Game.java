@@ -1,5 +1,6 @@
 package chessBackend;
 
+import java.util.Hashtable;
 import java.util.Vector;
 
 import chessAI.AI;
@@ -19,7 +20,7 @@ public class Game {
 
 	private DecisionTreeGUI decisionTreeGUI;
 
-	private Player[] players;
+	private Hashtable<Side, Player> players;
 	private Vector<Player> observers;
 	private Side turn;
 	private boolean paused;
@@ -28,50 +29,48 @@ public class Game {
 
 	private Boolean gameActive;
 
-	public Game(GameType gameType) {
+	// public Game(GameType gameType) {
+	//
+	// debug = true;
+	//
+	// paused = false;
+	//
+	// observers = new Vector<Player>();
+	// players = new Player[2];
+	//
+	// switch (gameType) {
+	// case GUI_VS_AI:
+	// players[0] = new PlayerGUI(this, debug);
+	// players[1] = new AI(this, debug);
+	// break;
+	// case AI_VS_AI:
+	// players[0] = new AI(this, debug);
+	// players[1] = new AI(this, debug);
+	// break;
+	// case TWO_GUI:
+	// players[0] = new PlayerGUI(this, debug);
+	// players[1] = new PlayerGUI(this, debug);
+	// case ONE_GUI:
+	// players[0] = new PlayerGUI(this, debug);
+	// players[1] = players[0];
+	// }
+	//
+	// if (debug) {
+	// // decisionTreeGUI = new DecisionTreeGUI(this, players[1]);
+	// }
+	//
+	// gameActive = new Boolean(true);
+	//
+	// }
 
-		debug = true;
-
-		paused = false;
-
-		observers = new Vector<Player>();
-		players = new Player[2];
-
-		switch (gameType) {
-		case GUI_VS_AI:
-			players[0] = new PlayerGUI(this, debug);
-			players[1] = new AI(this, debug);
-			break;
-		case AI_VS_AI:
-			players[0] = new AI(this, debug);
-			players[1] = new AI(this, debug);
-			break;
-		case TWO_GUI:
-			players[0] = new PlayerGUI(this, debug);
-			players[1] = new PlayerGUI(this, debug);
-		case ONE_GUI:
-			players[0] = new PlayerGUI(this, debug);
-			players[1] = players[0];
-		}
-
-		if (debug) {
-			// decisionTreeGUI = new DecisionTreeGUI(this, players[1]);
-		}
-
-		gameActive = new Boolean(true);
-
-	}
-
-	public Game(Player playerOne, Player playerTwo) {
+	public Game(Hashtable<Side, Player> players) {
 
 		paused = false;
 		debug = false;
 
-		players = new Player[2];
-		observers = new Vector<Player>();
+		this.observers = new Vector<Player>();
 
-		players[0] = playerOne;
-		players[1] = playerTwo;
+		this.players = players;
 
 		gameActive = new Boolean(true);
 
@@ -94,17 +93,26 @@ public class Game {
 
 		// Game game = new Game(GameType.AI_VS_AI);
 
-		for (int i = 0; i < 1000; i++) {
-			Player playerOne = new AI(null, debug);
-			Player playerTwo = new AI(null, debug);
+		Player playerOne = new AI(null, debug);
+		Player playerTwo = new AI(null, debug);
 
-			game = new Game(playerOne, playerTwo);
+		Board defaultBoard = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 
-			playerOne.setGame(game);
-			playerTwo.setGame(game);
-			game.addObserver(observer);
+		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
 
-			results = game.newGame(true);
+		players.put(Side.WHITE, playerOne);
+		players.put(Side.BLACK, playerTwo);
+
+
+		game = new Game(players);
+
+		playerOne.setGame(game);
+		playerTwo.setGame(game);
+		game.addObserver(observer);
+
+		for (int i = 0; i < 10; i++) {
+
+			results = game.newGame(defaultBoard, true);
 
 			if (results.getWinner() == Side.WHITE) {
 				whiteWins++;
@@ -119,54 +127,38 @@ public class Game {
 					draws++;
 				}
 			}
-			
-			System.out.println("Game " + i + " over");
-			
-			System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: " + draws);
 
 		}
-		
-		System.out.println("Tourney over. Results: ");
 
-		System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: " + draws);
+		System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
+				+ draws);
 	}
 
-	public GameResults newGame(boolean block) {
+	public GameResults newGame(Board board, boolean block) {
 
-		synchronized (this) {
-
-			if (debug) {
-				board = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
-			} else {
-				board = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
-			}
-
-			turn = board.getTurn();
-
-			adjudicator = new Adjudicator(board.getCopy());
-
-			adjudicator.getValidMoves();
-
-			clock = new GameClock("White", "Black", 0, 0, turn);
-
-			for (int i = 0; i < observers.size(); i++) {
-				observers.elementAt(i).newGame(Side.NONE, board.getCopy());
-			}
-
-			Side tempSide;
-			if (players[0] instanceof PlayerGUI) {
-				if (players[1] == players[0]) {
-					players[0].newGame(Side.BOTH, board);
-				} else {
-					tempSide = players[0].newGame(null, board);
-					players[1].newGame(tempSide.otherSide(), board.getCopy());
-				}
-			} else {
-				players[0].newGame(turn, board);
-				players[1].newGame(turn.otherSide(), board.getCopy());
-			}
-
+		if (board == null) {
+			board = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 		}
+
+		turn = board.getTurn();
+
+		adjudicator = new Adjudicator(board.getCopy());
+		adjudicator.getValidMoves();
+
+		clock = new GameClock("White", "Black", 0, 0, turn);
+
+		for (int i = 0; i < observers.size(); i++) {
+			observers.elementAt(i).newGame(board.getCopy());
+		}
+
+		if (players.get(Side.BOTH) == null) {
+			players.get(Side.WHITE).newGame(board.getCopy());
+			players.get(Side.BLACK).newGame(board.getCopy());
+		} else {
+			players.get(Side.BOTH).newGame(board.getCopy());
+		}
+
+		players.get(turn).makeMove();
 
 		if (block) {
 
@@ -178,64 +170,35 @@ public class Game {
 				}
 			}
 
-			return new GameResults(adjudicator.getWinner(), 0, clock.getTime(adjudicator.getWinner()), clock.getTime(adjudicator.getWinner().otherSide()));
+			return new GameResults(adjudicator.getWinner(), 0, clock.getTime(adjudicator.getWinner()), clock.getTime(adjudicator.getWinner()
+					.otherSide()));
 		}
 
 		return null;
 
 	}
 
-	public synchronized boolean undoMove(Player mover) {
+	public synchronized boolean undoMove() {
 
-		for (int i = 0; i < players.length; i++) {
-			if (players[i] != mover) {
-				players[i].undoMove();
-			}
+		if (players.get(Side.BOTH) == null) {
+			players.get(Side.WHITE).undoMove();
+			players.get(Side.BLACK).undoMove();
+		} else {
+			players.get(Side.BOTH).undoMove();
 		}
 
 		for (int i = 0; i < observers.size(); i++) {
-			if (observers.elementAt(i) != mover) {
-				observers.elementAt(i).undoMove();
-			}
+			observers.elementAt(i).undoMove();
 		}
 
 		return true;
 	}
 
-	public synchronized boolean makeMove(Move move, Player mover) {
+	public synchronized boolean makeMove(Move move) {
 
 		if (clock.hit()) {
 			System.out.println("Game Over " + turn.otherSide() + " wins by time!");
-			//adjudicator.getBoard().setBoardStatus(GameStatus.TIMES_UP);
-
-			synchronized (gameActive) {
-				gameActive.notifyAll(); 
-			}
-
-			return false;
-		}
-
-		turn = turn.otherSide();
-
-		for (int i = 0; i < observers.size(); i++) {
-			if (observers.elementAt(i) != mover) {
-				observers.elementAt(i).moveMade(move);
-			}
-		}
-
-		for (int i = 0; i < players.length; i++) {
-			if (players[i] != mover) {
-				players[i].moveMade(move);
-			}
-		}
-
-		adjudicator.move(move);
-		adjudicator.getValidMoves();
-
-		if (adjudicator.isGameOver()) {
-
-			players[0].endGame();
-			players[1].endGame();
+			// adjudicator.getBoard().setBoardStatus(GameStatus.TIMES_UP);
 
 			synchronized (gameActive) {
 				gameActive.notifyAll();
@@ -244,23 +207,57 @@ public class Game {
 			return false;
 		}
 
-		return true;
-	}
+		turn = turn.otherSide();
 
-	public void pause(Player pauser) {
+		adjudicator.move(move);
+		adjudicator.getValidMoves();
 
-		paused = !paused;
-
-		for (int i = 0; i < players.length; i++) {
-			if (players[i] != pauser) {
-				players[i].pause();
-			}
+		if (adjudicator.isGameOver()) {
+			System.out.println("Game over");
 		}
 
 		for (int i = 0; i < observers.size(); i++) {
-			if (observers.elementAt(i) != pauser) {
-				observers.elementAt(i).pause();
+			observers.elementAt(i).moveMade(move, adjudicator.isGameOver());
+		}
+
+		if (players.get(Side.BOTH) == null) {
+			players.get(Side.WHITE).moveMade(move, adjudicator.isGameOver());
+			players.get(Side.BLACK).moveMade(move, adjudicator.isGameOver());
+		} else {
+			players.get(Side.BOTH).moveMade(move, adjudicator.isGameOver());
+		}
+
+		if (adjudicator.isGameOver()) {
+
+			synchronized (gameActive) {
+				gameActive.notifyAll();
 			}
+
+			return false;
+		}
+
+		if (players.get(Side.BOTH) == null) {
+			players.get(turn).makeMove();
+		} else {
+			players.get(Side.BOTH).makeMove();
+		}
+
+		return true;
+	}
+
+	public void pause() {
+
+		paused = !paused;
+
+		if (players.get(Side.BOTH) == null) {
+			players.get(Side.WHITE).pause();
+			players.get(Side.BLACK).pause();
+		} else {
+			players.get(Side.BOTH).pause();
+		}
+
+		for (int i = 0; i < observers.size(); i++) {
+			observers.elementAt(i).pause();
 		}
 
 	}

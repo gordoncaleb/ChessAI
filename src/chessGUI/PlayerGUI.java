@@ -26,7 +26,6 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	private BoardPanel boardPanel;
 
 	private Game game;
-	private Side playerSide;
 
 	public PlayerGUI(Game game, boolean debug) {
 		this.game = game;
@@ -63,36 +62,29 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 		frame.pack();
 
 	}
+	
+	public Side optionForSide(){
+		
+		Side playerSide;
+		
+		Object[] options = { "White", "Black" };
+		int n = JOptionPane.showOptionDialog(frame,
+				"Wanna play as black or white?", "New Game",
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+				null, options, options[0]);
 
-	public synchronized Side newGame(Side playerSide, Board board) {
-
-		if (playerSide == null) {
-
-			Object[] options = { "White", "Black" };
-			int n = JOptionPane.showOptionDialog(frame,
-					"Wanna play as black or white?", "New Game",
-					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-					null, options, options[0]);
-
-			if (n == JOptionPane.YES_OPTION) {
-				this.playerSide = Side.WHITE;
-
-			} else {
-				this.playerSide = Side.BLACK;
-			}
+		if (n == JOptionPane.YES_OPTION) {
+			playerSide = Side.WHITE;
 
 		} else {
-			this.playerSide = playerSide;
+			playerSide = Side.BLACK;
 		}
-
-		boardPanel.newGame(this.playerSide, board);
-
-		return this.playerSide;
-
+		
+		return playerSide;
 	}
 
-	public synchronized void endGame() {
-
+	public synchronized void newGame(Board board) {
+		boardPanel.newGame(board);
 	}
 
 	public void gameOverLose() {
@@ -103,7 +95,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 				options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
-			game.newGame(false);
+			game.newGame(null,false);
 		} else {
 			System.exit(0);
 		}
@@ -118,7 +110,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 				options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
-			game.newGame(false);
+			game.newGame(null,false);
 		} else {
 			System.exit(0);
 		}
@@ -132,7 +124,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 				options, options[0]);
 		if (n == JOptionPane.YES_OPTION) {
-			game.newGame(false);
+			game.newGame(null,false);
 		} else {
 			System.exit(0);
 		}
@@ -140,12 +132,16 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 
 	@Override
 	public void makeMove(Move move) {
-		game.makeMove(move, this);
+		game.makeMove(move);
 	}
 
 	@Override
-	public synchronized boolean moveMade(Move move) {
+	public synchronized boolean moveMade(Move move,boolean gameOver) {
 		return boardPanel.makeMove(move);
+	}
+	
+	public synchronized void getMove(){
+		
 	}
 
 	@Override
@@ -154,39 +150,28 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	}
 
 	@Override
-	public Move getRecommendation() {
-		return null;
+	public void makeRecommendation() {
+	}
+	
+	public void makeMove(){
+		boardPanel.makeMove();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		if (arg0.getSource() == newGameMenu) {
-			game.newGame(false);
+			game.newGame(null,false);
 		}
 
 		if (arg0.getSource() == undoUserMoveMenu) {
-			boardPanel.undoMove();
-			game.undoMove(this);
+			//boardPanel.undoMove();
+			game.undoMove();
 		}
 
 		if (arg0.getSource() == switchSidesMenu) {
 
 		}
 
-	}
-
-	@Override
-	public Side getSide() {
-		return playerSide;
-	}
-
-	@Override
-	public void setSide(Side side) {
-		playerSide = side;
-	}
-
-	public boolean isMyTurn() {
-		return boardPanel.isMyTurn();
 	}
 
 	@Override
