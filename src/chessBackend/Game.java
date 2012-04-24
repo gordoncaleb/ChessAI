@@ -94,7 +94,7 @@ public class Game {
 
 		// Game game = new Game(GameType.AI_VS_AI);
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 1000; i++) {
 			Player playerOne = new AI(null, debug);
 			Player playerTwo = new AI(null, debug);
 
@@ -119,8 +119,14 @@ public class Game {
 					draws++;
 				}
 			}
+			
+			System.out.println("Game " + i + " over");
+			
+			System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: " + draws);
 
 		}
+		
+		System.out.println("Tourney over. Results: ");
 
 		System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: " + draws);
 	}
