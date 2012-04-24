@@ -25,7 +25,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	private JButton redoButton;
 
 	private Game game;
-	private Side playerSide;
+	private int gameNum;
 	private boolean paused;
 
 	public ObserverGUI(Game game, boolean debug) {
@@ -56,6 +56,8 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		// frame.setSize(gameWidth, gameHeight);
 		frame.setResizable(false);
 		frame.setVisible(true);
+		
+		gameNum = 0;
 
 		boardPanel = new BoardPanel(this, debug);
 		frame.add(boardPanel, BorderLayout.CENTER);
@@ -64,16 +66,13 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	}
 
-	public Side newGame(Side playerSide, Board board) {
-
-		this.playerSide = playerSide;
-		boardPanel.newGame(playerSide, board);
-
-		return playerSide;
-
+	public void newGame(Board board) {
+		gameNum++;
+		frame.setTitle(getFrameTitle() + " Game Number #"  + gameNum);
+		boardPanel.newGame(board);
 	}
 	
-	public synchronized void endGame(){
+	public synchronized void stop(){
 		
 	}
 
@@ -91,7 +90,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public boolean moveMade(Move opponentsMove) {
+	public boolean moveMade(Move opponentsMove, boolean gameOver) {
 		return boardPanel.makeMove(opponentsMove);
 	}
 
@@ -101,17 +100,12 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public Move getRecommendation() {
-		return null;
-	}
+	public void makeRecommendation() {
 
-	@Override
-	public Side getSide() {
-		return playerSide;
 	}
-
-	@Override
-	public void setSide(Side side) {
+	
+	public void makeMove(){
+		
 	}
 
 	public void setGame(Game game) {
@@ -121,31 +115,27 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		redoButton.setEnabled(paused);
 	}
 
-	public boolean isMyTurn() {
-		return boardPanel.isMyTurn();
-	}
-
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		if (arg0.getSource() == resetButton) {
-			game.newGame(false);
+			game.newGame(null,false);
 		}
 
 		if (arg0.getSource() == pauseButton) {
 			this.pause();
-			game.pause(this);
+			game.pause();
 		}
 
 		if (arg0.getSource() == undoButton) {
 			if (boardPanel.canUndo() && paused) {
-				boardPanel.undoMove();
-				game.undoMove(this);
+				//boardPanel.undoMove();
+				game.undoMove();
 			}
 		}
 
 		if (arg0.getSource() == redoButton) {
 			if (boardPanel.canRedo() && paused) {
-				game.makeMove(boardPanel.redoMove(), this);
+				game.makeMove(boardPanel.redoMove());
 			}
 		}
 

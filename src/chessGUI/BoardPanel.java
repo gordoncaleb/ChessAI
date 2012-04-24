@@ -32,8 +32,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 	private ImageIcon[][] chessPieceIcons;
 	private SquarePanel selectedSquare;
 	private SquarePanel lastMovedSquare;
+
 	private boolean flipBoard;
-	private Side userSide;
+	private boolean makeMove;
 
 	private Adjudicator adjudicator;
 
@@ -75,14 +76,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	}
 
-	public void newGame(Side userSide, Board board) {
-		this.userSide = userSide;
-
-		if (userSide == Side.BLACK) {
-			flipBoard = true;
-		} else {
-			flipBoard = false;
-		}
+	public void newGame(Board board) {
 
 		adjudicator = new Adjudicator(board);
 
@@ -93,6 +87,15 @@ public class BoardPanel extends JPanel implements MouseListener {
 		attachValidMoves();
 
 		updateLastMovedSquare();
+
+	}
+
+	private void setFlipBoard(boolean flipBoard) {
+
+		if (this.flipBoard != flipBoard) {
+			this.flipBoard = flipBoard;
+			refreshBoard();
+		}
 
 	}
 
@@ -173,15 +176,10 @@ public class BoardPanel extends JPanel implements MouseListener {
 		}
 
 		if (status == GameStatus.CHECKMATE) {
-			if (playerTurn == userSide) {
-				boardGUI.gameOverWin();
-			} else {
-				boardGUI.gameOverLose();
-			}
 		}
 
 		if (status == GameStatus.STALEMATE) {
-			boardGUI.gameOverStaleMate();
+
 		}
 	}
 
@@ -246,7 +244,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		return adjudicator.canRedo();
 	}
 
-	private void refreshBoard() {
+	public void refreshBoard() {
 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
@@ -397,11 +395,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		return chessSquares[getRow][getCol];
 	}
 
-	public boolean isMyTurn() {
-		return (userSide == adjudicator.getTurn());
-	}
-	
-	public Board getBoard(){
+	public Board getBoard() {
 		return adjudicator.getBoard();
 	}
 
@@ -427,6 +421,12 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	}
 
+	public void makeMove() {
+		this.makeMove = true;
+		
+		//setFlipBoard(adjudicator.getTurn() == Side.BLACK);
+	}
+
 	// Listener Methods
 
 	@Override
@@ -441,7 +441,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		}
 
 		// lock board when it's not the users turn
-		if (userSide != adjudicator.getTurn() && userSide != Side.BOTH) {
+		if (!makeMove) {
 			return;
 		}
 
@@ -467,8 +467,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 					selectedSquare = null;
 
-					makeMove(validMove);
+					// makeMove(validMove);
 					boardGUI.makeMove(validMove);
+					makeMove = false;
 				} else {
 					if (clickedSquare.hasPiece()) {
 

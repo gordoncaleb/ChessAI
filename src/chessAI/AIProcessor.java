@@ -45,9 +45,9 @@ public class AIProcessor extends Thread {
 	@Override
 	public void run() {
 
-		while (threadActive) {
+		synchronized (this) {
+			while (threadActive) {
 
-			synchronized (this) {
 				try {
 					this.wait();
 				} catch (InterruptedException e) {
@@ -60,13 +60,14 @@ public class AIProcessor extends Thread {
 					System.out.println("HashTable size = " + hashTable.size());
 					hashTable.clear();
 				}
+
 			}
 
 		}
 
 	}
 
-	public synchronized void killThread() {
+	public synchronized void terminate() {
 		threadActive = false;
 		this.notifyAll();
 	}
@@ -319,7 +320,7 @@ public class AIProcessor extends Thread {
 	private void growFrontierTwig(DecisionNode twig, int alphaBeta) {
 
 		int twigsBestPathValue = growDecisionTreeLite(board, twig.getMove(), alphaBeta, maxTwigLevel);
-		
+
 		twig.setStatus(board.getBoardStatus());
 
 		twig.setChosenPathValue(twigsBestPathValue);

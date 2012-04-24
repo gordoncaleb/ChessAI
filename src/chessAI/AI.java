@@ -1,5 +1,7 @@
 package chessAI;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import chessBackend.Board;
 import chessBackend.Game;
 import chessBackend.GameStatus;
@@ -21,16 +23,16 @@ public class AI extends Thread implements Player {
 	private int[] childNum = new int[20];
 
 	private boolean makeMove;
-	private DecisionNode opponentsDecision;
-
-	private boolean undoMove;
-
+	private AtomicBoolean undoMove;
 	private boolean paused;
+
+	private Board newBoard;
+
 	private Object processing;
 
-	private boolean active;
+	private boolean procing;
 
-	private Side playerSide;
+	private boolean active;
 
 	private int taskDone;
 	private int taskLeft;
@@ -41,8 +43,9 @@ public class AI extends Thread implements Player {
 	public AI(Game game, boolean debug) {
 		this.debug = debug;
 		this.game = game;
-		paused = false;
 		processing = new Object();
+
+		undoMove = new AtomicBoolean();
 
 		moveBook = new MoveBook();
 
@@ -54,14 +57,12 @@ public class AI extends Thread implements Player {
 		// AIProcessor[Runtime.getRuntime().availableProcessors()];
 		processorThreads = new AIProcessor[1];
 		for (int i = 0; i < processorThreads.length; i++) {
-			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel,
-					maxTwigLevel);
+			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel, maxTwigLevel);
 			processorThreads[i].start();
 		}
 
 		if (debug) {
-			System.out.println(processorThreads.length
-					+ " threads created and started.");
+			System.out.println(processorThreads.length + " threads created and started.");
 		}
 
 		active = true;
@@ -73,29 +74,27 @@ public class AI extends Thread implements Player {
 	public void run() {
 		DecisionNode aiDecision;
 
-		while (active) {
-			synchronized (this) {
-				try {
+		synchronized (this) {
+			while (active) {
 
+				try {
 					this.wait();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 
-				if (undoMove) {
-
+				if (undoMove.get()) {
 					undoMoveOnSubThreads();
-					undoMove = false;
-
+					undoMove.set(false);
 				}
 
 				if (makeMove && !paused) {
 
 					aiDecision = getAIDecision();
 
-					if (aiDecision != null && !undoMove) {
-						setRootNode(aiDecision);
-						game.makeMove(aiDecision.getMove(), this);
+					if (aiDecision != null && !undoMove.get()) {
+						// setRootNode(aiDecision);
+						game.makeMove(aiDecision.getMove());
 					}
 
 					makeMove = false;
@@ -104,27 +103,29 @@ public class AI extends Thread implements Player {
 			}
 
 		}
-		
+
 		for (int i = 0; i < processorThreads.length; i++) {
-			processorThreads[i].killThread();
+			processorThreads[i].terminate();
 		}
 
 	}
 
-	public void endGame() {
+	public synchronized void terminate() {
 		active = false;
+		notifyAll();
 
-		synchronized (this) {
-			notifyAll();
-		}
 	}
 
-	public synchronized Side newGame(Side playerSide, Board board) {
+	public synchronized void newGame(Board board) {
 
-		makeMove = false;
-		undoMove = false;
-
-		this.playerSide = playerSide;
+		try {
+			if (procing) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		rootNode = new DecisionNode(null, null);
 
@@ -138,48 +139,32 @@ public class AI extends Thread implements Player {
 			System.out.println(getBoard().toString());
 		}
 
-		if (isMyTurn()) {
-			makeMove = true;
-			notifyAll();
-		}
-
-		return null;
+		makeMove = false;
+		undoMove.set(false);
 
 	}
 
-	public synchronized boolean moveMade(Move move) {
-
-		DecisionNode decision = getMatchingDecisionNode(move);
-
-		if (decision != null) {
-
-			setRootNode(decision);
-			
-			System.out.println(this + " Game status =" + rootNode.getStatus());
-
-			if (isMyTurn()) {
-				makeMove = true;
-				notifyAll();
-			} else {
-				makeMove = false;
-			}
-
-			return true;
-
-		} else {
-			return false;
-		}
-
+	public synchronized void makeMove() {
+		makeMove = true;
+		notifyAll();
 	}
 
 	public synchronized void pause() {
+		try {
+			if (procing) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		paused = !paused;
 		notifyAll();
 	}
 
 	public Move undoMove() {
 		if (canUndo()) {
-			undoMove = true;
+			undoMove.set(true);
 
 			synchronized (this) {
 				notifyAll();
@@ -194,9 +179,31 @@ public class AI extends Thread implements Player {
 		}
 	}
 
-	@Override
-	public void setSide(Side side) {
-		// TODO Auto-generated method stub
+	/**
+	 * Blocks until move has been made
+	 */
+	public synchronized boolean moveMade(Move move, boolean gameOver) {
+
+		try {
+			if (procing) {
+				throw new Exception();
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		DecisionNode decision = getMatchingDecisionNode(move);
+
+		if (decision != null) {
+
+			setRootNode(decision);
+
+			return true;
+
+		} else {
+			return false;
+		}
 
 	}
 
@@ -233,8 +240,7 @@ public class AI extends Thread implements Player {
 			aiDecision = getMatchingDecisionNode(mb);
 		}
 
-		System.out.println("Ai took " + (System.currentTimeMillis() - time)
-				+ "ms to move.");
+		System.out.println("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
 
 		// debug print out of decision tree stats. i.e. the tree size and
 		// the values of the move options that the AI has
@@ -262,13 +268,13 @@ public class AI extends Thread implements Player {
 
 		taskSize = root.getChildrenSize();
 		taskLeft = taskSize;
-		
-		if(taskLeft == 0){
-			
+
+		if (taskLeft == 0) {
+
 			System.out.println(this + " didnt see end of game");
 			return;
 		}
-		
+
 		nextTask = root.getHeadChild();
 
 		// detach all children and add them back when they have been processed.
@@ -288,7 +294,9 @@ public class AI extends Thread implements Player {
 
 			// Wait for all processors to finish their task
 			try {
+				procing = true;
 				processing.wait();
+				procing = false;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -323,7 +331,7 @@ public class AI extends Thread implements Player {
 				taskLeft--;
 				nextTask = nextTask.getNextSibling();
 			}
-			
+
 			System.out.println(this + " " + taskLeft);
 
 			if (task == null && taskLeft != 0) {
@@ -348,14 +356,10 @@ public class AI extends Thread implements Player {
 			rootNode = new DecisionNode(null, null);
 
 			for (int i = 0; i < processorThreads.length; i++) {
-				processorThreads[i].getBoard().undoMove();
-				processorThreads[i].setRootNode(rootNode);
-			}
-
-			if (isMyTurn()) {
-				makeMove = true;
-			} else {
-				makeMove = false;
+				synchronized (processorThreads[i]) {
+					processorThreads[i].getBoard().undoMove();
+					processorThreads[i].setRootNode(rootNode);
+				}
 			}
 
 		}
@@ -365,8 +369,7 @@ public class AI extends Thread implements Player {
 		return (getBoard().getMoveHistory().size() > 0);
 	}
 
-	public Move getRecommendation() {
-		return null;
+	public void makeRecommendation() {
 	}
 
 	private void setRootNode(DecisionNode newRootNode) {
@@ -383,8 +386,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (debug) {
-			System.out.println("Board hash code = "
-					+ Long.toHexString(getBoard().getHashCode()));
+			System.out.println("Board hash code = " + Long.toHexString(getBoard().getHashCode()));
 		}
 
 		setGameSatus(rootNode.getStatus(), getBoard().getTurn());
@@ -407,17 +409,8 @@ public class AI extends Thread implements Player {
 		return rootNode.getStatus();
 	}
 
-	@Override
-	public Side getSide() {
-		return playerSide;
-	}
-
 	public Board getBoard() {
 		return processorThreads[0].getBoard();
-	}
-
-	public boolean isMyTurn() {
-		return (playerSide == getBoard().getTurn());
 	}
 
 	private DecisionNode getMatchingDecisionNode(Move goodMove) {
@@ -433,8 +426,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (debug) {
-			System.out.println("Good move (" + goodMove.toString()
-					+ ") not found as possibility");
+			System.out.println("Good move (" + goodMove.toString() + ") not found as possibility");
 		}
 
 		return null;
@@ -500,8 +492,8 @@ public class AI extends Thread implements Player {
 
 		System.out.println("Total Children = " + totalChildren);
 
-		System.out.println(playerSide.otherSide() + " chose move worth "
-				+ rootNode.getChosenPathValue(0));
+		// System.out.println(playerSide.otherSide() + " chose move worth " +
+		// rootNode.getChosenPathValue(0));
 
 	}
 
