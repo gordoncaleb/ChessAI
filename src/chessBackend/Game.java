@@ -5,13 +5,15 @@ import java.util.Vector;
 
 import chessAI.AI;
 import chessAI.DecisionNode;
+import chessEthernet.EthernetPlayerClient;
+import chessEthernet.EthernetPlayerServer;
 import chessGUI.DecisionTreeGUI;
 import chessGUI.ObserverGUI;
 import chessGUI.PlayerGUI;
 import chessIO.FileIO;
 import chessIO.XMLParser;
 
-public class Game {
+public class Game implements PlayerContainer {
 	public static String VERSION = "0.3.031912";
 
 	private boolean debug;
@@ -78,7 +80,7 @@ public class Game {
 
 	public static void main(String[] args) {
 
-		boolean debug = false;
+		boolean debug = true;
 		Game game;
 		GameResults results;
 
@@ -96,6 +98,8 @@ public class Game {
 		Player playerOne = new AI(null, debug);
 		Player playerTwo = new AI(null, debug);
 
+		//EthernetPlayerClient client = new EthernetPlayerClient();
+
 		Board defaultBoard = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 
 		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
@@ -103,14 +107,14 @@ public class Game {
 		players.put(Side.WHITE, playerOne);
 		players.put(Side.BLACK, playerTwo);
 
-
 		game = new Game(players);
 
 		playerOne.setGame(game);
 		playerTwo.setGame(game);
+		//client.setGame(game);
 		game.addObserver(observer);
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10; i++) {
 
 			results = game.newGame(defaultBoard, true);
 
@@ -127,11 +131,12 @@ public class Game {
 					draws++;
 				}
 			}
+			
+			System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
+					+ draws);
 
 		}
-
-		System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
-				+ draws);
+		
 	}
 
 	public GameResults newGame(Board board, boolean block) {

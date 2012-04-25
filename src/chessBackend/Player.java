@@ -5,7 +5,7 @@ public interface Player {
 	public Move undoMove();
 	
 	public void newGame(Board board);
-	public void setGame(Game game);
+	public void setGame(PlayerContainer game);
 	
 	public void makeMove();
 	public void makeRecommendation();

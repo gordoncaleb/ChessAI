@@ -93,10 +93,10 @@ public class AIProcessor extends Thread {
 		this.rootNode = rootNode;
 
 		// if game isnt over make sure tree root shows what next valid moves are
-		if (!rootNode.hasChildren() && !rootNode.isGameOver()) {
+		if (!this.rootNode.hasChildren() && !this.rootNode.isGameOver()) {
 			Vector<Move> moves = board.generateValidMoves();
 			for (int m = 0; m < moves.size(); m++) {
-				rootNode.addChild(new DecisionNode(rootNode, moves.elementAt(m)));
+				this.rootNode.addChild(new DecisionNode(this.rootNode, moves.elementAt(m)));
 			}
 		}
 
