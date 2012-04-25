@@ -78,7 +78,7 @@ public class Game {
 
 	public static void main(String[] args) {
 
-		boolean debug = true;
+		boolean debug = false;
 		Game game;
 		GameResults results;
 
@@ -110,7 +110,7 @@ public class Game {
 		playerTwo.setGame(game);
 		game.addObserver(observer);
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 100; i++) {
 
 			results = game.newGame(defaultBoard, true);
 

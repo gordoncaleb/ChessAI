@@ -26,11 +26,7 @@ public class AI extends Thread implements Player {
 	private AtomicBoolean undoMove;
 	private boolean paused;
 
-	private Board newBoard;
-
 	private Object processing;
-
-	private boolean procing;
 
 	private boolean active;
 
@@ -118,15 +114,6 @@ public class AI extends Thread implements Player {
 
 	public synchronized void newGame(Board board) {
 
-		try {
-			if (procing) {
-				throw new Exception();
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		rootNode = new DecisionNode(null, null);
 
 		for (int i = 0; i < processorThreads.length; i++) {
@@ -150,14 +137,6 @@ public class AI extends Thread implements Player {
 	}
 
 	public synchronized void pause() {
-		try {
-			if (procing) {
-				throw new Exception();
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		paused = !paused;
 		notifyAll();
 	}
@@ -183,15 +162,6 @@ public class AI extends Thread implements Player {
 	 * Blocks until move has been made
 	 */
 	public synchronized boolean moveMade(Move move, boolean gameOver) {
-
-		try {
-			if (procing) {
-				throw new Exception();
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 		DecisionNode decision = getMatchingDecisionNode(move);
 
@@ -294,9 +264,7 @@ public class AI extends Thread implements Player {
 
 			// Wait for all processors to finish their task
 			try {
-				procing = true;
 				processing.wait();
-				procing = false;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -330,12 +298,6 @@ public class AI extends Thread implements Player {
 				task = nextTask;
 				taskLeft--;
 				nextTask = nextTask.getNextSibling();
-			}
-
-			System.out.println(this + " " + taskLeft);
-
-			if (task == null && taskLeft != 0) {
-				System.out.println("Next task was null but taskleft wasnt 0");
 			}
 
 			return task;
