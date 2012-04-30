@@ -109,9 +109,9 @@ public class XMLParser {
 	public static Move XMLToMove(String xmlMove) {
 		Document doc = XMLParser.getDocument(xmlMove);
 
-		System.out.println(xmlMove);
+		System.out.println("XML of move: \n" + xmlMove);
 
-		return null;
+		return buildMove((Element) doc.getElementsByTagName("move").item(0));
 	}
 
 	private static Move buildMove(Element moveElement) {

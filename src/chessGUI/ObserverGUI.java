@@ -13,6 +13,7 @@ import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
+import chessBackend.PlayerContainer;
 import chessBackend.Side;
 
 public class ObserverGUI implements Player, BoardGUI, MouseListener {
@@ -24,11 +25,11 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	private JButton undoButton;
 	private JButton redoButton;
 
-	private Game game;
+	private PlayerContainer game;
 	private int gameNum;
 	private boolean paused;
 
-	public ObserverGUI(Game game, boolean debug) {
+	public ObserverGUI(PlayerContainer game, boolean debug) {
 		this.game = game;
 
 		frame = new JFrame(getFrameTitle());
@@ -108,7 +109,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		
 	}
 
-	public void setGame(Game game) {
+	public void setGame(PlayerContainer game) {
 		this.game = game;
 		paused = game.isPaused();
 		undoButton.setEnabled(paused);

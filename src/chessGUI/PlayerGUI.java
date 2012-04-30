@@ -16,6 +16,7 @@ import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
+import chessBackend.PlayerContainer;
 import chessBackend.Side;
 
 public class PlayerGUI implements Player, BoardGUI, ActionListener {
@@ -25,9 +26,9 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	private JMenuItem switchSidesMenu;
 	private BoardPanel boardPanel;
 
-	private Game game;
+	private PlayerContainer game;
 
-	public PlayerGUI(Game game, boolean debug) {
+	public PlayerGUI(PlayerContainer game, boolean debug) {
 		this.game = game;
 
 		frame = new JFrame("Oh,Word? " + Game.VERSION);
@@ -175,7 +176,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	}
 
 	@Override
-	public void setGame(Game game) {
+	public void setGame(PlayerContainer game) {
 		this.game = game;
 	}
 

@@ -6,6 +6,7 @@ import chessBackend.Board;
 import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Player;
+import chessBackend.PlayerContainer;
 import chessBackend.Side;
 import chessBackend.Move;
 import chessIO.FileIO;
@@ -14,7 +15,7 @@ import chessIO.MoveBook;
 public class AI extends Thread implements Player {
 	private boolean debug;
 
-	private Game game;
+	private PlayerContainer game;
 	private MoveBook moveBook;
 	private DecisionNode rootNode;
 
@@ -37,7 +38,7 @@ public class AI extends Thread implements Player {
 	private DecisionNode nextTask;
 	private AIProcessor[] processorThreads;
 
-	public AI(Game game, boolean debug) {
+	public AI(PlayerContainer game, boolean debug) {
 		this.debug = debug;
 		this.game = game;
 		processing = new Object();
@@ -216,7 +217,7 @@ public class AI extends Thread implements Player {
 		// debug print out of decision tree stats. i.e. the tree size and
 		// the values of the move options that the AI has
 		if (debug) {
-			game.setDecisionTreeRoot(rootNode);
+			//game.setDecisionTreeRoot(rootNode);
 			printRootDebug();
 		}
 
@@ -358,7 +359,7 @@ public class AI extends Thread implements Player {
 	}
 
 	@Override
-	public void setGame(Game game) {
+	public void setGame(PlayerContainer game) {
 		this.game = game;
 	}
 
