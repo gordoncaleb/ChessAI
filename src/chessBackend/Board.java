@@ -4,6 +4,7 @@ import java.util.Stack;
 import java.util.Vector;
 
 import chessIO.FileIO;
+import chessIO.XMLParser;
 import chessPieces.*;
 
 public class Board {
@@ -21,7 +22,8 @@ public class Board {
 	private long[] nullMoveInfo;
 	private long[] posBitBoard;
 
-	public Board(Piece[][] board, Vector<Piece> blackPieces, Vector<Piece> whitePieces, long[] posBitBoard, Piece blackKing, Piece whiteKing, Side turn, Stack<Move> moveHistory, Long hashCode, RNGTable rngTable) {
+	public Board(Piece[][] board, Vector<Piece> blackPieces, Vector<Piece> whitePieces, long[] posBitBoard, Piece blackKing, Piece whiteKing,
+			Side turn, Stack<Move> moveHistory, Long hashCode, RNGTable rngTable) {
 
 		this.board = board;
 		this.blackPieces = blackPieces;
@@ -54,8 +56,8 @@ public class Board {
 		hashCodeHistory.push(new Long(hashCode));
 
 		// remove previous castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE),
-				this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
+				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		Piece pieceTaken = move.getPieceTaken();
 
@@ -121,7 +123,8 @@ public class Board {
 			posBitBoard[turn.ordinal()] |= board[move.getToRow()][move.getToCol()].getBit();
 
 			// add hash of piece at new location. Probably a queen.
-			hashCode ^= rngTable.getPiecePerSquareRandom(turn, board[move.getToRow()][move.getToCol()].getPieceID(), move.getToRow(), move.getToCol());
+			hashCode ^= rngTable
+					.getPiecePerSquareRandom(turn, board[move.getToRow()][move.getToCol()].getPieceID(), move.getToRow(), move.getToCol());
 
 			// add queen to vectors
 			if (turn == Side.WHITE) {
@@ -160,8 +163,8 @@ public class Board {
 		}
 
 		// add new castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE),
-				this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
+				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		// either remove black and add white or reverse. Same operation.
 		hashCode ^= rngTable.getBlackToMoveRandom();
@@ -657,7 +660,8 @@ public class Board {
 			}
 		}
 
-		return new Board(copyBoard, copyBlackPieces, copyWhitePieces, posBitBoard, blackKing, whiteKing, this.turn, new Stack<Move>(), this.hashCode, this.rngTable);
+		return new Board(copyBoard, copyBlackPieces, copyWhitePieces, posBitBoard, blackKing, whiteKing, this.turn, new Stack<Move>(), this.hashCode,
+				this.rngTable);
 
 	}
 
@@ -685,7 +689,8 @@ public class Board {
 					}
 
 					if (getLastMoveMade() != null) {
-						if (getLastMoveMade().getToRow() == row && getLastMoveMade().getToCol() == col && getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
+						if (getLastMoveMade().getToRow() == row && getLastMoveMade().getToCol() == col
+								&& getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
 							pieceDetails |= 2;
 						}
 					}
@@ -704,14 +709,16 @@ public class Board {
 		return stringBoard;
 	}
 
-	public String toXML() {
+	public String toXML(boolean includeHistory) {
 		String xmlBoard = "<board>\n";
 
 		xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
 		xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
 
-		for (int i = 0; i < moveHistory.size(); i++) {
-			xmlBoard += moveHistory.elementAt(i).toXML();
+		if (includeHistory) {
+			for (int i = 0; i < moveHistory.size(); i++) {
+				xmlBoard += moveHistory.elementAt(i).toXML();
+			}
 		}
 
 		xmlBoard += "</board>";
@@ -735,8 +742,8 @@ public class Board {
 			}
 		}
 
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE),
-				this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
+				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		if (this.getLastMoveMade() != null) {
 			if (this.getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
@@ -749,6 +756,16 @@ public class Board {
 
 	public long getHashCode() {
 		return hashCode;
+	}
+
+	public static Long getHashCode(String xmlBoard) {
+		Board board = XMLParser.XMLToBoard(xmlBoard);
+
+		if (board != null) {
+			return board.getHashCode();
+		} else {
+			return null;
+		}
 	}
 
 	private boolean drawByThreeRule() {
@@ -777,13 +794,15 @@ public class Board {
 			sufficient = false;
 
 			for (int i = 0; i < whitePieces.size(); i++) {
-				if ((whitePieces.elementAt(i) instanceof Pawn) || (whitePieces.elementAt(i) instanceof Queen) || (whitePieces.elementAt(i) instanceof Rook)) {
+				if ((whitePieces.elementAt(i) instanceof Pawn) || (whitePieces.elementAt(i) instanceof Queen)
+						|| (whitePieces.elementAt(i) instanceof Rook)) {
 					sufficient = true;
 				}
 			}
 
 			for (int i = 0; i < blackPieces.size(); i++) {
-				if ((blackPieces.elementAt(i) instanceof Pawn) || (blackPieces.elementAt(i) instanceof Queen) || (blackPieces.elementAt(i) instanceof Rook)) {
+				if ((blackPieces.elementAt(i) instanceof Pawn) || (blackPieces.elementAt(i) instanceof Queen)
+						|| (blackPieces.elementAt(i) instanceof Rook)) {
 					sufficient = true;
 				}
 			}

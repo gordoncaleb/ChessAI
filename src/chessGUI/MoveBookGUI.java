@@ -151,7 +151,7 @@ public class MoveBookGUI implements KeyListener, MouseListener {
 
 	
 	private void exportToFile(){
-		moveBook.saveDB();
+		moveBook.saveMoveBook();
 	}
 
 	@Override

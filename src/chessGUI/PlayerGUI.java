@@ -137,8 +137,8 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	}
 
 	@Override
-	public synchronized boolean moveMade(Move move,boolean gameOver) {
-		return boardPanel.makeMove(move);
+	public synchronized boolean moveMade(Move move) {
+		return boardPanel.moveMade(move);
 	}
 	
 	public synchronized void getMove(){

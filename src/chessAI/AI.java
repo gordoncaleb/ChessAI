@@ -163,7 +163,7 @@ public class AI extends Thread implements Player {
 	/**
 	 * Blocks until move has been made
 	 */
-	public synchronized boolean moveMade(Move move, boolean gameOver) {
+	public synchronized boolean moveMade(Move move) {
 
 		DecisionNode decision = getMatchingDecisionNode(move);
 

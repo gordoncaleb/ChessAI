@@ -147,7 +147,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 		return chessPieceIcons[player.ordinal()][id.ordinal()];
 	}
 
-	public boolean makeMove(Move move) {
+	public boolean moveMade(Move move) {
 
 		if (adjudicator.move(move)) {
 			refreshBoard();
@@ -167,6 +167,12 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		return true;
 
+	}
+
+	public void makeMove() {
+		this.makeMove = true;
+		System.out.println("Your turn!");
+		//setFlipBoard(adjudicator.getTurn() == Side.BLACK);
 	}
 
 	public void setGameSatus(GameStatus status, Side playerTurn) {
@@ -421,11 +427,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	}
 
-	public void makeMove() {
-		this.makeMove = true;
-		
-		//setFlipBoard(adjudicator.getTurn() == Side.BLACK);
-	}
+	
 
 	// Listener Methods
 
@@ -442,6 +444,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		// lock board when it's not the users turn
 		if (!makeMove) {
+			
+			System.out.println("Not your turn!");
 			return;
 		}
 
@@ -468,8 +472,10 @@ public class BoardPanel extends JPanel implements MouseListener {
 					selectedSquare = null;
 
 					// makeMove(validMove);
-					boardGUI.makeMove(validMove);
 					makeMove = false;
+					
+					boardGUI.makeMove(validMove);
+					
 				} else {
 					if (clickedSquare.hasPiece()) {
 

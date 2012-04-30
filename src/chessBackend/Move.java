@@ -32,7 +32,7 @@ public class Move {
 		this.value = value;
 		this.hadMoved = false;
 	}
-	
+
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note) {
 		this.fromRow = fromRow;
 		this.fromCol = fromCol;
@@ -54,7 +54,7 @@ public class Move {
 		this.pieceTaken = pieceTaken;
 		this.hadMoved = false;
 	}
-	
+
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {
 		this.fromRow = fromRow;
 		this.fromCol = fromCol;
@@ -72,8 +72,8 @@ public class Move {
 		else
 			return false;
 	}
-	
-	public boolean equals(int fromRow, int fromCol, int toRow, int toCol){
+
+	public boolean equals(int fromRow, int fromCol, int toRow, int toCol) {
 		if (toRow == this.toRow && toCol == this.toCol && this.fromRow == fromRow && this.fromCol == fromCol)
 			return true;
 		else
@@ -82,30 +82,37 @@ public class Move {
 
 	public String toString() {
 		String move;
-		if(pieceTaken!=null){
-			move = "Moving from " + fromRow + "," + fromCol + " to " + toRow + "," + toCol + " Move Note: " + note.toString() + " Value:" + value + " PieceTaken: " + pieceTaken.toString();
-		}else{
+		if (pieceTaken != null) {
+			move = "Moving from " + fromRow + "," + fromCol + " to " + toRow + "," + toCol + " Move Note: " + note.toString() + " Value:" + value
+					+ " PieceTaken: " + pieceTaken.toString();
+		} else {
 			move = "Moving from " + fromRow + "," + fromCol + " to " + toRow + "," + toCol + " Move Note: " + note.toString() + " Value:" + value;
 		}
 		return move;
 	}
-	
-	public String toXML(){
+
+	public String toXML() {
 		String xmlMove = "";
-		
+
 		xmlMove += "<move>\n";
 
 		xmlMove += "<from>" + getFromRow() + "," + getFromCol() + "</from>\n";
 		xmlMove += "<to>" + getToRow() + "," + getToCol() + "</to>\n";
-		xmlMove += "<had_moved>" + hadMoved() + "</had_moved>\n";
-		xmlMove += "<note>" + note.toString() + "</note>\n";
+
+		if (hadMoved()) {
+			xmlMove += "<had_moved>" + hadMoved() + "</had_moved>\n";
+		}
+
+		if (note != MoveNote.NONE) {
+			xmlMove += "<note>" + note.toString() + "</note>\n";
+		}
 
 		if (getPieceTaken() != null) {
 			xmlMove += getPieceTaken().toXML();
 		}
-		
+
 		xmlMove += "</move>\n";
-		
+
 		return xmlMove;
 	}
 
@@ -172,20 +179,20 @@ public class Move {
 	public void setHadMoved(boolean hadMoved) {
 		this.hadMoved = hadMoved;
 	}
-	
-	public boolean isKingTaken(){
-		if(pieceTaken!=null){
-			if(pieceTaken.getPieceID() == PieceID.KING){
+
+	public boolean isKingTaken() {
+		if (pieceTaken != null) {
+			if (pieceTaken.getPieceID() == PieceID.KING) {
 				return true;
-			}else{
+			} else {
 				return false;
 			}
-		}else{
+		} else {
 			return false;
 		}
 	}
 
-	public Move reverse(){
+	public Move reverse() {
 		return new Move(toRow, toCol, fromRow, fromCol);
 	}
 

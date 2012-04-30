@@ -2,6 +2,7 @@ package chessIO;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -102,19 +103,18 @@ public class XMLParser {
 			return null;
 		}
 
-		return new Board(board, blackPieces, whitePieces, posBitBoard, blackKing, whiteKing, player, moveHistory, null,
-				new RNGTable());
+		return new Board(board, blackPieces, whitePieces, posBitBoard, blackKing, whiteKing, player, moveHistory, null, new RNGTable());
 	}
 
 	public static Move XMLToMove(String xmlMove) {
 		Document doc = XMLParser.getDocument(xmlMove);
 
-		System.out.println("XML of move: \n" + xmlMove);
-
 		return buildMove((Element) doc.getElementsByTagName("move").item(0));
 	}
 
 	private static Move buildMove(Element moveElement) {
+
+		NodeList nodes;
 
 		String[] from = getCharacterDataFromElement((Element) moveElement.getElementsByTagName("from").item(0)).split(",");
 		String[] to = getCharacterDataFromElement((Element) moveElement.getElementsByTagName("to").item(0)).split(",");
@@ -124,18 +124,28 @@ public class XMLParser {
 		int toRow = Integer.parseInt(to[0].trim());
 		int toCol = Integer.parseInt(to[1].trim());
 
-		String stringHadMoved = getCharacterDataFromElement((Element) moveElement.getElementsByTagName("had_moved").item(0));
-		boolean hadMoved;
-		if (stringHadMoved.compareTo("true") == 0) {
-			hadMoved = true;
-		} else {
-			hadMoved = false;
+		nodes = moveElement.getElementsByTagName("had_moved");
+		boolean hadMoved = false;
+
+		if (nodes.getLength() != 0) {
+			String stringHadMoved = getCharacterDataFromElement((Element) nodes.item(0));
+
+			if (stringHadMoved.compareTo("true") == 0) {
+				hadMoved = true;
+			}
+
 		}
 
-		String stringMoveNote = getCharacterDataFromElement((Element) moveElement.getElementsByTagName("note").item(0));
-		MoveNote moveNote = MoveNote.valueOf(stringMoveNote);
+		nodes = moveElement.getElementsByTagName("note");
+		MoveNote moveNote;
 
-		NodeList nodes = moveElement.getElementsByTagName("piece");
+		if (nodes.getLength() != 0) {
+			moveNote = MoveNote.valueOf(getCharacterDataFromElement((Element) nodes.item(0)));
+		} else {
+			moveNote = MoveNote.NONE;
+		}
+
+		nodes = moveElement.getElementsByTagName("piece");
 
 		Piece pieceTaken = null;
 
@@ -149,7 +159,7 @@ public class XMLParser {
 	public static Piece XMLToPiece(String xmlPiece) {
 		Document doc = XMLParser.getDocument(xmlPiece);
 
-		return null;
+		return buildPiece((Element) doc.getElementsByTagName("piece").item(0));
 	}
 
 	public static Piece buildPiece(Element pieceElement) {
@@ -169,6 +179,102 @@ public class XMLParser {
 		int col = Integer.parseInt(position[1].trim());
 
 		return Piece.fromString(id, row, col);
+	}
+
+	public static Hashtable<Long, Vector<Move>> XMLToMoveBook(String xmlMoveBook) {
+		Document doc = XMLParser.getDocument(xmlMoveBook);
+
+		Hashtable<Long, Vector<Move>> moveBook = new Hashtable<Long, Vector<Move>>();
+		Long hashcode = null;
+		Vector<Move> moves;
+
+		NodeList nodes = doc.getElementsByTagName("entry");
+
+		NodeList state;
+		NodeList response;
+		NodeList moveNodes;
+		for (int i = 0; i < nodes.getLength(); i++) {
+
+			state = ((Element) nodes.item(i)).getElementsByTagName("state");
+			hashcode = XMLToHashcode(getCharacterDataFromElement((Element) state.item(0)));
+
+			if (hashcode == null) {
+				hashcode = Board.getHashCode(getCharacterDataFromElement((Element) state.item(0)));
+				if (hashcode == null) {
+					System.out.println("Error parsing move book");
+					continue;
+				}
+			}
+
+			response = ((Element) nodes.item(i)).getElementsByTagName("response");
+
+			moveNodes = ((Element) response.item(i)).getElementsByTagName("move");
+			moves = new Vector<Move>(moveNodes.getLength());
+			for (int m = 0; m < moveNodes.getLength(); m++) {
+				moves.add(buildMove((Element) moveNodes.item(m)));
+			}
+
+			if (moves.size() > 0) {
+				Vector<Move> oldMoves = moveBook.get(hashcode);
+				if (oldMoves != null) {
+					moves.addAll(oldMoves);
+				}
+
+				moveBook.put(hashcode, moves);
+			}
+		}
+
+		return moveBook;
+	}
+
+	public static Hashtable<String, Vector<Move>> XMLToVerboseMoveBook(String xmlVerboseMoveBook) {
+		Document doc = XMLParser.getDocument(xmlVerboseMoveBook);
+
+		Hashtable<String, Vector<Move>> moveBook = new Hashtable<String, Vector<Move>>();
+		String stringState = null;
+		Vector<Move> moves;
+
+		NodeList main = doc.getElementsByTagName("moveBook");
+
+		NodeList entries = ((Element)main.item(0)).getElementsByTagName("entry");
+
+		NodeList state;
+		NodeList response;
+		NodeList moveNodes;
+		for (int i = 0; i < entries.getLength(); i++) {
+
+			state = ((Element) entries.item(i)).getElementsByTagName("state");
+			stringState = getCharacterDataFromElement((Element) state.item(0));
+
+			response = ((Element) entries.item(i)).getElementsByTagName("response");
+
+			moveNodes = ((Element) response.item(i)).getElementsByTagName("move");
+			moves = new Vector<Move>(moveNodes.getLength());
+			for (int m = 0; m < moveNodes.getLength(); m++) {
+				moves.add(buildMove((Element) moveNodes.item(m)));
+			}
+
+			if (moves.size() > 0) {
+				moveBook.put(stringState, moves);
+			}
+		}
+
+		return moveBook;
+	}
+
+	public static Long XMLToHashcode(String xmlHashcode) {
+		Document doc = XMLParser.getDocument(xmlHashcode);
+
+		Long hashcode = null;
+		NodeList nodes = doc.getElementsByTagName("hashcode");
+
+		if (nodes.getLength() != 0) {
+			String stringHashcode = getCharacterDataFromElement((Element) nodes.item(0));
+			hashcode = Long.parseLong(stringHashcode, 16);
+		}
+
+		return hashcode;
+
 	}
 
 	private static Document getDocument(String xml) {

@@ -135,7 +135,7 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 
 	@Override
 	public void newGame(Board board) {
-		sendMessage(board.toXML());
+		sendMessage(board.toXML(true));
 	}
 
 	@Override
@@ -156,7 +156,7 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 	}
 
 	@Override
-	public boolean moveMade(Move move, boolean gameOver) {
+	public boolean moveMade(Move move) {
 		sendMessage(move.toXML());
 		// TODO Auto-generated method stub
 		return false;

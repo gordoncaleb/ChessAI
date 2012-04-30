@@ -11,7 +11,7 @@ public interface Player {
 	public void makeRecommendation();
 	
 	//blocks until move on players board is made
-	public boolean moveMade(Move move, boolean gameOver);
+	public boolean moveMade(Move move);
 	
 	public void pause();
 	

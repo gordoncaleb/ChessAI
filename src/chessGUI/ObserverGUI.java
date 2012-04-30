@@ -91,8 +91,8 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public boolean moveMade(Move opponentsMove, boolean gameOver) {
-		return boardPanel.makeMove(opponentsMove);
+	public boolean moveMade(Move opponentsMove) {
+		return boardPanel.moveMade(opponentsMove);
 	}
 
 	@Override

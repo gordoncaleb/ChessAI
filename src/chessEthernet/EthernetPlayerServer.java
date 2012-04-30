@@ -120,7 +120,7 @@ public class EthernetPlayerServer extends Thread implements EthernetMsgRxer, Pla
 
 			break;
 		case "<move>":
-			player.moveMade(XMLParser.XMLToMove(message), false);
+			player.moveMade(XMLParser.XMLToMove(message));
 			break;
 		case "<undoMove>":
 			player.undoMove();
@@ -147,7 +147,7 @@ public class EthernetPlayerServer extends Thread implements EthernetMsgRxer, Pla
 	public GameResults newGame(Board board, boolean block) {
 
 		if (board != null) {
-			sendMessage(board.toXML());
+			sendMessage(board.toXML(true));
 		} else {
 			sendMessage("<newGame>");
 		}
