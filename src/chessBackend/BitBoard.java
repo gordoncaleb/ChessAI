@@ -14,7 +14,7 @@ public class BitBoard {
 
 	public static void main(String args[]) {
 		long base = 1;
-		long temp = (base << 5);
+		long temp = WHITE_CHECK_FAR;
 
 		System.out.println(Long.toHexString(temp));
 		printBitBoard(temp);
@@ -44,7 +44,7 @@ public class BitBoard {
 			bitBoardString += "\n";
 		}
 
-		System.out.println(bitBoardString);
+		//System.out.println(bitBoardString);
 
 		return bitBoardString;
 	}

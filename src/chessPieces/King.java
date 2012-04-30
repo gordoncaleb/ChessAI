@@ -7,6 +7,7 @@ import chessBackend.Board;
 import chessBackend.MoveNote;
 import chessBackend.Side;
 import chessBackend.Move;
+import chessIO.FileIO;
 
 public class King extends Piece {
 	private static int[][] KINGMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
@@ -73,12 +74,14 @@ public class King extends Piece {
 		if (canCastleFar(board, player, nullMoveInfo, allPosBitBoard) && !board.isInCheck()) {
 			if (isValidMove(currentRow, currentCol - 2, nullMoveInfo)) {
 				validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol - 2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
+			}else{
 			}
 		}
 
 		if (canCastleNear(board, player, nullMoveInfo, allPosBitBoard) && !board.isInCheck()) {
 			if (isValidMove(currentRow, currentCol + 2, nullMoveInfo)) {
 				validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol + 2, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+			}else{
 			}
 		}
 

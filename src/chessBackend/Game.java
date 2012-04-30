@@ -78,7 +78,7 @@ public class Game {
 
 	public static void main(String[] args) {
 
-		boolean debug = false;
+		boolean debug = true;
 		Game game;
 		GameResults results;
 
@@ -88,6 +88,8 @@ public class Game {
 
 		long whiteTime = 0;
 		long blackTime = 0;
+		
+		FileIO.initLog();
 
 		Player observer = new ObserverGUI(null, false);
 
@@ -110,7 +112,7 @@ public class Game {
 		playerTwo.setGame(game);
 		game.addObserver(observer);
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 1000; i++) {
 
 			results = game.newGame(defaultBoard, true);
 
@@ -127,11 +129,13 @@ public class Game {
 					draws++;
 				}
 			}
+			
+			System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
+					+ draws);
 
 		}
 
-		System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
-				+ draws);
+		System.out.println("Tournament done");
 	}
 
 	public GameResults newGame(Board board, boolean block) {

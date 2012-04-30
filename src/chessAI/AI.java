@@ -8,6 +8,7 @@ import chessBackend.GameStatus;
 import chessBackend.Player;
 import chessBackend.Side;
 import chessBackend.Move;
+import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
@@ -58,7 +59,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (debug) {
-			System.out.println(processorThreads.length + " threads created and started.");
+			FileIO.log(processorThreads.length + " threads created and started.");
 		}
 
 		active = true;
@@ -204,7 +205,7 @@ public class AI extends Thread implements Player {
 		} else {
 
 			if (debug) {
-				System.out.println("Ai moved based on recommendation");
+				FileIO.log("Ai moved based on recommendation");
 			}
 
 			aiDecision = getMatchingDecisionNode(mb);
@@ -224,7 +225,7 @@ public class AI extends Thread implements Player {
 		// setRootNode(aiDecision);
 
 		if (debug) {
-			System.out.println(getBoard().toString());
+			FileIO.log(getBoard().toString());
 		}
 
 		return aiDecision;
@@ -241,7 +242,7 @@ public class AI extends Thread implements Player {
 
 		if (taskLeft == 0) {
 
-			System.out.println(this + " didnt see end of game");
+			FileIO.log(this + " didnt see end of game");
 			return;
 		}
 
@@ -277,7 +278,7 @@ public class AI extends Thread implements Player {
 		synchronized (processing) {
 			taskDone++;
 			if (debug) {
-				System.out.println(this + " " + taskDone + "/" + taskSize + " done");
+				FileIO.log(this + " " + taskDone + "/" + taskSize + " done");
 			}
 
 			if (taskDone >= taskSize) {
@@ -348,7 +349,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (debug) {
-			System.out.println("Board hash code = " + Long.toHexString(getBoard().getHashCode()));
+			FileIO.log("Board hash code = " + Long.toHexString(getBoard().getHashCode()));
 		}
 
 		setGameSatus(rootNode.getStatus(), getBoard().getTurn());
@@ -363,7 +364,7 @@ public class AI extends Thread implements Player {
 
 	public void setGameSatus(GameStatus status, Side playerTurn) {
 		if (status != GameStatus.IN_PLAY) {
-			System.out.println(rootNode.getStatus().toString());
+			FileIO.log(rootNode.getStatus().toString());
 		}
 	}
 
@@ -388,7 +389,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (debug) {
-			System.out.println("Good move (" + goodMove.toString() + ") not found as possibility");
+			FileIO.log("Good move (" + goodMove.toString() + ") not found as possibility");
 		}
 
 		return null;
@@ -426,7 +427,7 @@ public class AI extends Thread implements Player {
 
 		DecisionNode currentChild = parent.getHeadChild();
 		for (int i = 0; i < parent.getChildrenSize(); i++) {
-			System.out.println(currentChild.toString());
+			FileIO.log(currentChild.toString());
 			currentChild = currentChild.getNextSibling();
 		}
 
@@ -438,7 +439,7 @@ public class AI extends Thread implements Player {
 			childNum[i] = 0;
 		}
 
-		System.out.println("Counting Children...");
+		FileIO.log("Counting Children...");
 		// recursive function counts tree nodes and notes their depth
 		countChildren(rootNode, 0);
 
@@ -446,13 +447,13 @@ public class AI extends Thread implements Player {
 		for (int i = 0; i < childNum.length; i++) {
 			totalChildren += childNum[i];
 
-			System.out.println(childNum[i] + " at level " + i);
+			FileIO.log(childNum[i] + " at level " + i);
 
 			if (childNum[i] == 0)
 				break;
 		}
 
-		System.out.println("Total Children = " + totalChildren);
+		FileIO.log("Total Children = " + totalChildren);
 
 		// System.out.println(playerSide.otherSide() + " chose move worth " +
 		// rootNode.getChosenPathValue(0));

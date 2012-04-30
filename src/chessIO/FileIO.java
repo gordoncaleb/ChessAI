@@ -63,27 +63,36 @@ public class FileIO {
 	 * @throws IOException
 	 *             if problem encountered during write.
 	 */
-	public static void writeFile(File aFile, String aContents) throws FileNotFoundException, IOException {
+	public static void writeFile(File aFile, String aContents, boolean append) throws FileNotFoundException, IOException {
 		if (aFile == null) {
 			throw new IllegalArgumentException("File should not be null.");
 		}
 		if (!aFile.exists()) {
-			throw new FileNotFoundException("File does not exist: " + aFile);
+			//throw new FileNotFoundException("File does not exist: " + aFile);
 		}
 		if (!aFile.isFile()) {
-			throw new IllegalArgumentException("Should not be a directory: " + aFile);
+			//throw new IllegalArgumentException("Should not be a directory: " + aFile);
 		}
 		if (!aFile.canWrite()) {
-			throw new IllegalArgumentException("File cannot be written: " + aFile);
+			//throw new IllegalArgumentException("File cannot be written: " + aFile);
 		}
 
 		// use buffering
-		Writer output = new BufferedWriter(new FileWriter(aFile));
+		Writer output = new BufferedWriter(new FileWriter(aFile,append));
 		try {
 			// FileWriter always assumes default encoding is OK!
 			output.write(aContents);
 		} finally {
 			output.close();
+		}
+	}
+	
+	public static void initLog(){
+
+		try {
+			writeFile(new File("log.txt"),"Log File Start:\n", false);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -100,6 +109,16 @@ public class FileIO {
 
 		return image;
 
+	}
+
+	public static void log(String msg) {
+
+		System.out.println(msg);
+		try {
+			writeFile(new File("log.txt"), msg + "\n", true);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
