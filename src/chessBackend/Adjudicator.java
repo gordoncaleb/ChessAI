@@ -12,7 +12,6 @@ public class Adjudicator {
 	private Vector<Piece> blackPiecesTaken;
 	private Vector<Move> validMoves;
 	private Stack<Move> undoneMoves;
-	private Hashtable<Long, Integer> boardStateCount;
 	private Board board;
 
 	public Adjudicator(Board board) {
@@ -20,7 +19,6 @@ public class Adjudicator {
 		blackPiecesTaken = new Vector<Piece>();
 		undoneMoves = new Stack<Move>();
 		this.board = board;
-		boardStateCount = new Hashtable<Long, Integer>();
 		loadPiecesTaken();
 	}
 

@@ -175,17 +175,6 @@ public class Board {
 		// move was made, next player's turn
 		turn = turn.otherSide();
 
-		if (!checkPosBitBoard()) {
-
-			FileIO.log("White posbitboard");
-			FileIO.log(BitBoard.printBitBoard(posBitBoard[Side.WHITE.ordinal()]));
-
-			FileIO.log("Black posbitboard");
-			FileIO.log(BitBoard.printBitBoard(posBitBoard[Side.BLACK.ordinal()]));
-
-			FileIO.log("posBitBoard Error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		}
-
 		return true;
 
 	}
@@ -303,17 +292,6 @@ public class Board {
 		} else {
 			// retrieve what the hashCode was before move was made
 			hashCode = hashCodeHistory.pop();
-		}
-
-		if (!checkPosBitBoard()) {
-
-			FileIO.log("White posbitboard");
-			FileIO.log(BitBoard.printBitBoard(posBitBoard[Side.WHITE.ordinal()]));
-
-			FileIO.log("Black posbitboard");
-			FileIO.log(BitBoard.printBitBoard(posBitBoard[Side.BLACK.ordinal()]));
-
-			FileIO.log("posBitBoard Error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
 
 		return lastMove;

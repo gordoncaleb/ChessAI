@@ -12,7 +12,7 @@ import chessGUI.PlayerGUI;
 import chessIO.FileIO;
 import chessIO.XMLParser;
 
-public class Game implements PlayerContainer{
+public class Game implements PlayerContainer {
 	public static String VERSION = "0.3.031912";
 
 	private boolean debug;
@@ -76,21 +76,21 @@ public class Game implements PlayerContainer{
 		gameActive = new Boolean(true);
 
 	}
+
+	 public static void main(String[] args) {
 	
-	public static void main(String[] args){
-		
-		Hashtable<Side,Player> players = new Hashtable<Side,Player>();
-		
-		MoveBookBuilderGUI mbBuilder = new MoveBookBuilderGUI(null);
-		
-		players.put(Side.BOTH, mbBuilder);
-		
-		Game game = new Game(players);
-		
-		mbBuilder.setGame(game);
-		
-		game.newGame(getDefaultBoard(), false);
-	}
+	 Hashtable<Side, Player> players = new Hashtable<Side, Player>();
+	
+	 MoveBookBuilderGUI mbBuilder = new MoveBookBuilderGUI(null);
+	
+	 players.put(Side.BOTH, mbBuilder);
+	
+	 Game game = new Game(players);
+	
+	 mbBuilder.setGame(game);
+	
+	 game.newGame(getDefaultBoard(), false);
+	 }
 
 //	public static void main(String[] args) {
 //
@@ -104,7 +104,7 @@ public class Game implements PlayerContainer{
 //
 //		long whiteTime = 0;
 //		long blackTime = 0;
-//		
+//
 //		FileIO.initLog();
 //
 //		Player observer = new ObserverGUI(null, false);
@@ -121,14 +121,13 @@ public class Game implements PlayerContainer{
 //		players.put(Side.WHITE, playerOne);
 //		players.put(Side.BLACK, playerTwo);
 //
-//
 //		game = new Game(players);
 //
 //		playerOne.setGame(game);
 //		playerTwo.setGame(game);
 //		game.addObserver(observer);
 //
-//		for (int i = 0; i < 1000; i++) {
+//		for (int i = 0; i < 1; i++) {
 //
 //			results = game.newGame(defaultBoard, true);
 //
@@ -145,7 +144,7 @@ public class Game implements PlayerContainer{
 //					draws++;
 //				}
 //			}
-//			
+//
 //			System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
 //					+ draws);
 //
@@ -180,7 +179,6 @@ public class Game implements PlayerContainer{
 			players.get(Side.BOTH).makeMove();
 		}
 
-
 		if (block) {
 
 			synchronized (gameActive) {
@@ -201,18 +199,28 @@ public class Game implements PlayerContainer{
 
 	public synchronized boolean undoMove() {
 
-		if (players.get(Side.BOTH) == null) {
-			players.get(Side.WHITE).undoMove();
-			players.get(Side.BLACK).undoMove();
+		if (adjudicator.canUndo()) {
+			adjudicator.undo();
+			adjudicator.getValidMoves();
+
+			if (players.get(Side.BOTH) == null) {
+				players.get(Side.WHITE).undoMove();
+				players.get(Side.BLACK).undoMove();
+			} else {
+				players.get(Side.BOTH).undoMove();
+			}
+
+			for (int i = 0; i < observers.size(); i++) {
+				observers.elementAt(i).undoMove();
+			}
+
+			turn = turn.otherSide();
+
+			return true;
+
 		} else {
-			players.get(Side.BOTH).undoMove();
+			return false;
 		}
-
-		for (int i = 0; i < observers.size(); i++) {
-			observers.elementAt(i).undoMove();
-		}
-
-		return true;
 	}
 
 	public synchronized boolean makeMove(Move move) {
@@ -300,8 +308,8 @@ public class Game implements PlayerContainer{
 	public boolean isPaused() {
 		return paused;
 	}
-	
-	public static Board getDefaultBoard(){
+
+	public static Board getDefaultBoard() {
 		return XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 	}
 

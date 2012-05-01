@@ -46,6 +46,7 @@ public class AI extends Thread implements Player {
 		undoMove = new AtomicBoolean();
 
 		moveBook = new MoveBook();
+		moveBook.loadMoveBook();
 
 		// Default levels
 		maxDecisionTreeLevel = 2;

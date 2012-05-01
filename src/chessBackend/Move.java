@@ -66,6 +66,14 @@ public class Move {
 		this.hadMoved = hadMoved;
 	}
 
+	public boolean equals(Object moveObject) {
+		if (moveObject instanceof Move) {
+			return equals((Move) moveObject);
+		} else {
+			return false;
+		}
+	}
+
 	public boolean equals(Move m) {
 		if (m.toRow == this.toRow && m.toCol == this.toCol && this.fromRow == m.fromRow && this.fromCol == m.fromCol)
 			return true;

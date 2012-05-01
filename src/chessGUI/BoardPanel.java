@@ -1,6 +1,8 @@
 package chessGUI;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -13,7 +15,7 @@ import chessIO.FileIO;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 
-public class BoardPanel extends JPanel implements MouseListener {
+public class BoardPanel extends JPanel implements MouseListener, ActionListener {
 
 	private BoardGUI boardGUI;
 
@@ -35,6 +37,10 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	private boolean flipBoard;
 	private boolean makeMove;
+
+	private int highLightCount;
+	private Move highLightMove;
+	private Timer highLightTimer;
 
 	private Adjudicator adjudicator;
 
@@ -74,6 +80,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		this.setBackground(Color.GRAY);
 
+		highLightTimer = new Timer(200, this);
+
 	}
 
 	public void newGame(Board board) {
@@ -95,7 +103,18 @@ public class BoardPanel extends JPanel implements MouseListener {
 		if (this.flipBoard != flipBoard) {
 			this.flipBoard = flipBoard;
 			refreshBoard();
+
+			updateLastMovedSquare();
+
+			attachValidMoves();
 		}
+
+	}
+
+	public void highlightMove(Move move) {
+		highLightCount = 5;
+		highLightMove = move;
+		highLightTimer.start();
 
 	}
 
@@ -171,8 +190,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	public void makeMove() {
 		this.makeMove = true;
-		System.out.println("Your turn!");
-		//setFlipBoard(adjudicator.getTurn() == Side.BLACK);
+		// setFlipBoard(adjudicator.getTurn() == Side.BLACK);
 	}
 
 	public void setGameSatus(GameStatus status, Side playerTurn) {
@@ -251,6 +269,8 @@ public class BoardPanel extends JPanel implements MouseListener {
 	}
 
 	public void refreshBoard() {
+		
+		highLightCount = 0;
 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
@@ -427,8 +447,6 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 	}
 
-	
-
 	// Listener Methods
 
 	@Override
@@ -444,7 +462,7 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 		// lock board when it's not the users turn
 		if (!makeMove) {
-			
+
 			System.out.println("Not your turn!");
 			return;
 		}
@@ -473,9 +491,9 @@ public class BoardPanel extends JPanel implements MouseListener {
 
 					// makeMove(validMove);
 					makeMove = false;
-					
+
 					boardGUI.makeMove(validMove);
-					
+
 				} else {
 					if (clickedSquare.hasPiece()) {
 
@@ -514,4 +532,26 @@ public class BoardPanel extends JPanel implements MouseListener {
 	public void mouseExited(MouseEvent arg0) {
 	}
 
+	@Override
+	public void actionPerformed(ActionEvent e) {
+
+		if (e.getSource() == highLightTimer) {
+			if (highLightCount > 0) {
+				if (highLightCount % 2 == 0) {
+					getChessSquare(highLightMove.getToRow(),highLightMove.getToCol()).showAsHighLighted(false);
+					getChessSquare(highLightMove.getFromRow(),highLightMove.getFromCol()).showAsHighLighted(true);
+				}else{
+					getChessSquare(highLightMove.getToRow(),highLightMove.getToCol()).showAsHighLighted(true);
+					getChessSquare(highLightMove.getFromRow(),highLightMove.getFromCol()).showAsHighLighted(false);
+				}
+			} else {
+				highLightTimer.stop();
+				getChessSquare(highLightMove.getToRow(),highLightMove.getToCol()).showAsHighLighted(false);
+				getChessSquare(highLightMove.getFromRow(),highLightMove.getFromCol()).showAsHighLighted(false);
+			}
+			
+			highLightCount--;
+		}
+
+	}
 }

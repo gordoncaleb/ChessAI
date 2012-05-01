@@ -39,12 +39,15 @@ public class SquarePanel extends JPanel {
 	private boolean lightSquare;
 	private boolean lastMovedSquare;
 	private boolean validMoveSquare;
+	private boolean highLightedSquare;
 
 	private Color dark = new Color(181, 136, 99);
 	private Color light = new Color(240, 217, 181);
 
 	private Color darkSelected = new Color(50, 50, 50);
 	private Color lightSelected = new Color(230, 230, 230);
+	
+	private JPanel imagePane;
 
 	private Color lastMoved = new Color(255, 0, 0);
 	private Color validMove = new Color(255, 255, 0);
@@ -58,8 +61,7 @@ public class SquarePanel extends JPanel {
 
 		this.lightSquare = lightSquare;
 
-		updateBackgroundColor();
-		updateBorderColor();
+		
 
 		picLabel = new JLabel();
 
@@ -86,58 +88,63 @@ public class SquarePanel extends JPanel {
 			this.add(debugPane, BorderLayout.PAGE_END);
 		}
 
-		JPanel imagePane = new JPanel(new FlowLayout());
+		imagePane = new JPanel(new FlowLayout());
 		imagePane.setBackground(this.getBackground());
 		imagePane.add(picLabel);
+		
+		updateBackgroundColor();
+		updateBorderColor();
 
 		this.add(imagePane, BorderLayout.PAGE_START);
 	}
 
 	public void updateBackgroundColor() {
 
-		if (validMoveSquare) {
-			this.setBackground(validMove);
+		if (highLightedSquare) {
+			this.setBackground(Color.YELLOW);
 		} else {
-			if (lastMovedSquare) {
-				this.setBackground(lastMoved);
+			if (lightSquare) {
+				this.setBackground(light);
 			} else {
-				if (selectedSquare) {
-					if (lightSquare) {
-						this.setBackground(lightSelected);
-					} else {
-						this.setBackground(darkSelected);
-					}
+				this.setBackground(dark);
+			}
+		}
+		
+		imagePane.setBackground(this.getBackground());
+
+	}
+
+	public void updateBorderColor() {
+
+		if (highLightedSquare) {
+			//this.setBorder(BorderFactory.createLineBorder(Color.ORANGE));
+			this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		} else {
+			if (validMoveSquare) {
+				this.setBorder(BorderFactory.createLineBorder(validMove));
+
+				// this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,validMove,Color.black));
+			} else {
+				if (lastMovedSquare) {
+					this.setBorder(BorderFactory.createLineBorder(lastMoved));
+					// this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,lastMoved,Color.black));
 				} else {
-					if (lightSquare) {
-						this.setBackground(light);
+					if (selectedSquare) {
+						this.setBorder(BorderFactory.createLineBorder(Color.black));
 					} else {
-						this.setBackground(dark);
+						// this.setBorder(BorderFactory.createLineBorder(Color.black));
+						this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+						// this.setBorder(BorderFactory.createEtchedBorder());
 					}
 				}
 			}
 		}
 	}
 
-	public void updateBorderColor() {
-
-		if (validMoveSquare) {
-			this.setBorder(BorderFactory.createLineBorder(validMove));
-
-			// this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,validMove,Color.black));
-		} else {
-			if (lastMovedSquare) {
-				this.setBorder(BorderFactory.createLineBorder(lastMoved));
-				// this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,lastMoved,Color.black));
-			} else {
-				if (selectedSquare) {
-					this.setBorder(BorderFactory.createLineBorder(Color.black));
-				} else {
-					// this.setBorder(BorderFactory.createLineBorder(Color.black));
-					this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-					// this.setBorder(BorderFactory.createEtchedBorder());
-				}
-			}
-		}
+	public void showAsHighLighted(boolean highLightedSquare) {
+		this.highLightedSquare = highLightedSquare;
+		updateBackgroundColor();
+		updateBorderColor();
 	}
 
 	public void showAsSelected(boolean selected) {
@@ -165,15 +172,15 @@ public class SquarePanel extends JPanel {
 
 	public void showChessPiece(PieceID id, Side player) {
 
-		if(this.id == id && this.player == player){
+		if (this.id == id && this.player == player) {
 			return;
 		}
-		
+
 		this.id = id;
 		this.player = player;
 
-		//Image image = gui.getChessImage(id, player);
-		//ImageIcon icon = new ImageIcon(image);
+		// Image image = gui.getChessImage(id, player);
+		// ImageIcon icon = new ImageIcon(image);
 		picLabel.setIcon(gui.getChessIcon(id, player));
 		picLabel.updateUI();
 
