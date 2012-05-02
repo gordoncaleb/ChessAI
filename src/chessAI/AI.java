@@ -37,6 +37,8 @@ public class AI extends Thread implements Player {
 	private int taskSize;
 	private DecisionNode nextTask;
 	private AIProcessor[] processorThreads;
+	
+	private boolean useBook;
 
 	public AI(PlayerContainer game, boolean debug) {
 		this.debug = debug;
@@ -197,7 +199,7 @@ public class AI extends Thread implements Player {
 		time = System.currentTimeMillis();
 
 		Move mb;
-		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == null) {
+		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == null || !useBook) {
 
 			// Split the task of looking at all possible AI moves up amongst
 			// multiple threads. This takes advantage of multicore systems.
@@ -464,6 +466,10 @@ public class AI extends Thread implements Player {
 
 	public int getMoveChosenPathValue(Move m) {
 		return getMatchingDecisionNode(m).getChosenPathValue(0);
+	}
+	
+	public void setUseBook(boolean useBook){
+		this.useBook = useBook;
 	}
 
 }

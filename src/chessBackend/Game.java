@@ -77,81 +77,83 @@ public class Game implements PlayerContainer {
 
 	}
 
-	 public static void main(String[] args) {
-	
-	 Hashtable<Side, Player> players = new Hashtable<Side, Player>();
-	
-	 MoveBookBuilderGUI mbBuilder = new MoveBookBuilderGUI(null);
-	
-	 players.put(Side.BOTH, mbBuilder);
-	
-	 Game game = new Game(players);
-	
-	 mbBuilder.setGame(game);
-	
-	 game.newGame(getDefaultBoard(), false);
-	 }
+//	 public static void main(String[] args) {
+//	
+//	 Hashtable<Side, Player> players = new Hashtable<Side, Player>();
+//	
+//	 MoveBookBuilderGUI mbBuilder = new MoveBookBuilderGUI(null);
+//	
+//	 players.put(Side.BOTH, mbBuilder);
+//	
+//	 Game game = new Game(players);
+//	
+//	 mbBuilder.setGame(game);
+//	
+//	 game.newGame(getDefaultBoard(), false);
+//	 }
 
-//	public static void main(String[] args) {
-//
-//		boolean debug = true;
-//		Game game;
-//		GameResults results;
-//
-//		int whiteWins = 0;
-//		int blackWins = 0;
-//		int draws = 0;
-//
-//		long whiteTime = 0;
-//		long blackTime = 0;
-//
-//		FileIO.initLog();
-//
-//		Player observer = new ObserverGUI(null, false);
-//
-//		// Game game = new Game(GameType.AI_VS_AI);
-//
-//		Player playerOne = new AI(null, debug);
-//		Player playerTwo = new AI(null, debug);
-//
-//		Board defaultBoard = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
-//
-//		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
-//
-//		players.put(Side.WHITE, playerOne);
-//		players.put(Side.BLACK, playerTwo);
-//
-//		game = new Game(players);
-//
-//		playerOne.setGame(game);
-//		playerTwo.setGame(game);
-//		game.addObserver(observer);
-//
-//		for (int i = 0; i < 1; i++) {
-//
-//			results = game.newGame(defaultBoard, true);
-//
-//			if (results.getWinner() == Side.WHITE) {
-//				whiteWins++;
-//				whiteTime += results.getWinnerTime();
-//				blackTime += results.getLoserTime();
-//			} else {
-//				if (results.getWinner() == Side.BLACK) {
-//					blackWins++;
-//					blackTime += results.getWinnerTime();
-//					whiteTime += results.getLoserTime();
-//				} else {
-//					draws++;
-//				}
-//			}
-//
-//			System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
-//					+ draws);
-//
-//		}
-//
-//		System.out.println("Tournament done");
-//	}
+	public static void main(String[] args) {
+
+		boolean debug = true;
+		Game game;
+		GameResults results;
+
+		int whiteWins = 0;
+		int blackWins = 0;
+		int draws = 0;
+
+		long whiteTime = 0;
+		long blackTime = 0;
+
+		FileIO.initLog();
+
+		Player observer = new ObserverGUI(null, false);
+
+		// Game game = new Game(GameType.AI_VS_AI);
+
+		Player playerOne = new AI(null, debug);
+		Player playerTwo = new AI(null, debug);
+		
+		((AI)playerOne).setUseBook(true);
+
+		Board defaultBoard = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
+
+		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
+
+		players.put(Side.WHITE, playerOne);
+		players.put(Side.BLACK, playerTwo);
+
+		game = new Game(players);
+
+		playerOne.setGame(game);
+		playerTwo.setGame(game);
+		game.addObserver(observer);
+
+		for (int i = 0; i < 1000; i++) {
+
+			results = game.newGame(defaultBoard, true);
+
+			if (results.getWinner() == Side.WHITE) {
+				whiteWins++;
+				whiteTime += results.getWinnerTime();
+				blackTime += results.getLoserTime();
+			} else {
+				if (results.getWinner() == Side.BLACK) {
+					blackWins++;
+					blackTime += results.getWinnerTime();
+					whiteTime += results.getLoserTime();
+				} else {
+					draws++;
+				}
+			}
+
+			System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
+					+ draws);
+
+		}
+
+		System.out.println("Tournament done");
+	}
 
 	public GameResults newGame(Board board, boolean block) {
 
