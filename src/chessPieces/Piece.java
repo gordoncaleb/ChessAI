@@ -140,6 +140,33 @@ public abstract class Piece {
 		return piece;
 
 	}
+	
+	public static Piece createPiece(PieceID id, Side player, int row, int col, boolean hasMoved){
+		Piece piece = null;
+		
+		switch (id) {
+		case ROOK:
+			piece = new Rook(player, row, col, hasMoved);
+			break;
+		case KNIGHT:
+			piece = new Knight(player, row, col, hasMoved);
+			break;
+		case BISHOP:
+			piece = new Bishop(player, row, col, hasMoved);
+			break;
+		case QUEEN:
+			piece = new Queen(player, row, col, hasMoved);
+			break;
+		case KING:
+			piece = new King(player, row, col, hasMoved);
+			break;
+		case PAWN:
+			piece = new Pawn(player, row, col, hasMoved);
+			break;
+		}
+		
+		return piece;
+	}
 
 	public boolean equals(Piece piece) {
 

@@ -5,13 +5,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 import java.util.Vector;
 
 import javax.swing.*;
 
 import chessBackend.*;
-import chessIO.FileIO;
+import chessIO.ChessImages;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 
@@ -30,13 +29,14 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private JPanel lostWhitePiecesPanel;
 
 	private SquarePanel[][] chessSquares;
-	private Image[][] chessPieceGraphics;
-	private ImageIcon[][] chessPieceIcons;
-	private SquarePanel selectedSquare;
+	private PieceGUI selectedComponent;
 	private SquarePanel lastMovedSquare;
 
 	private boolean flipBoard;
 	private boolean makeMove;
+
+	private boolean freelyMove;
+	private Board freelyMoveBoard;
 
 	private int highLightCount;
 	private Move highLightMove;
@@ -56,14 +56,13 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		gameHeight = (int) ((double) screenSize.height * 0.8);
 		imageHeight = (int) ((double) gameHeight * 0.10);
 		imageWidth = (int) ((double) imageHeight * 0.6);
-		sidebarWidth = 2 * (int) ((double) imageWidth * 1.1);
+		sidebarWidth = 2 * (int) ((double) imageWidth * 1.15);
 		gameWidth = 2 * sidebarWidth + gameHeight;
-
-		this.loadChessImages();
 
 		lostBlackPiecesPanel = new JPanel(new FlowLayout());
 		lostBlackPiecesPanel.setBackground(Color.GRAY);
 		lostBlackPiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
+		lostBlackPiecesPanel.addMouseListener(this);
 		this.add(lostBlackPiecesPanel, BorderLayout.WEST);
 
 		squaresGUIPanel = new JPanel(new GridLayout(8, 8));
@@ -76,6 +75,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		lostWhitePiecesPanel = new JPanel(new FlowLayout());
 		lostWhitePiecesPanel.setBackground(Color.GRAY);
 		lostWhitePiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
+		lostWhitePiecesPanel.addMouseListener(this);
 		this.add(lostWhitePiecesPanel, BorderLayout.EAST);
 
 		this.setBackground(Color.GRAY);
@@ -118,6 +118,79 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	}
 
+	public void setFreelyMove(boolean freelyMove) {
+
+		if (this.freelyMove && !freelyMove) {
+			// new game with freely moved setup
+			refreshBoard();
+
+			attachValidMoves();
+		}
+
+		this.freelyMove = freelyMove;
+
+		if (freelyMove) {
+			colorSquaresDefault();
+		}
+	}
+
+	public boolean isFreelyMove() {
+		return freelyMove;
+	}
+
+	private void freeMove(PieceGUI fromComponent, Component toComponent) {
+
+		// normal square to square move
+		if (fromComponent instanceof SquarePanel && toComponent instanceof SquarePanel) {
+
+			SquarePanel fromSqr = (SquarePanel) fromComponent;
+			SquarePanel toSqr = (SquarePanel) toComponent;
+
+			if (toSqr.getPieceID() != null) {
+				takePiece(toSqr.getPieceID(), toSqr.getPlayer());
+			}
+
+			toSqr.showChessPiece(fromSqr.getPieceID(), fromSqr.getPlayer());
+
+			fromSqr.clearChessPiece();
+			
+			Piece piece = adjudicator.getPiece(fromSqr.getRow(), fromSqr.getCol());
+			adjudicator.placePiece(piece, toSqr.getRow(), toSqr.getCol());
+		}
+
+		// moving piece from board to side lines
+		if (fromComponent instanceof SquarePanel && !(toComponent instanceof SquarePanel)) {
+			SquarePanel fromSqr = (SquarePanel) fromComponent;
+
+			takePiece(fromSqr.getPieceID(), fromSqr.getPlayer());
+
+			fromSqr.clearChessPiece();
+			
+			Piece piece = adjudicator.getPiece(fromSqr.getRow(), fromSqr.getCol());
+			adjudicator.placePiece(piece, -1, -1);
+		}
+
+		// moving piece from side lines to board
+		if (fromComponent instanceof JPieceTakenLabel && toComponent instanceof SquarePanel) {
+			SquarePanel toSqr = (SquarePanel) toComponent;
+			JPieceTakenLabel fromLbl = (JPieceTakenLabel) fromComponent;
+			
+			if (toSqr.getPieceID() != null) {
+				takePiece(toSqr.getPieceID(), toSqr.getPlayer());
+			}
+
+			toSqr.showChessPiece(fromLbl.getPieceID(), fromLbl.getPlayer());
+
+			fromLbl.getParent().remove(fromLbl);
+			lostWhitePiecesPanel.updateUI();
+			lostBlackPiecesPanel.updateUI();
+			
+			Piece piece = Piece.createPiece(fromLbl.getPieceID(), fromLbl.getPlayer(), -1, -1, false);
+			adjudicator.placePiece(piece, toSqr.getRow(), toSqr.getCol());
+		}
+
+	}
+
 	private void buildSquaresGUI() {
 		chessSquares = new SquarePanel[8][8];
 
@@ -125,7 +198,6 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 				square = new SquarePanel(col % 2 == row % 2, row, col, debug);
-				square.setGUI(this);
 				square.addMouseListener(this);
 
 				chessSquares[row][col] = square;
@@ -135,44 +207,13 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	}
 
-	private void loadChessImages() {
-
-		chessPieceGraphics = new Image[2][6];
-		chessPieceIcons = new ImageIcon[2][6];
-		String pieceNames[] = { "rook", "knight", "bishop", "queen", "king", "pawn" };
-		String imgDir = "pieces";
-
-		String whiteFileName;
-		String blackFileName;
-
-		for (int i = 0; i < 6; i++) {
-
-			whiteFileName = imgDir + "/white_" + pieceNames[i] + ".png";
-			blackFileName = imgDir + "/black_" + pieceNames[i] + ".png";
-
-			chessPieceGraphics[0][i] = FileIO.readImage(blackFileName).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
-			chessPieceGraphics[1][i] = FileIO.readImage(whiteFileName).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
-
-			chessPieceIcons[0][i] = new ImageIcon(chessPieceGraphics[0][i]);
-			chessPieceIcons[1][i] = new ImageIcon(chessPieceGraphics[1][i]);
-		}
-	}
-
-	public Image getChessImage(PieceID id, Side player) {
-		return chessPieceGraphics[player.ordinal()][id.ordinal()];
-	}
-
-	public ImageIcon getChessIcon(PieceID id, Side player) {
-		return chessPieceIcons[player.ordinal()][id.ordinal()];
-	}
-
 	public boolean moveMade(Move move) {
 
 		if (adjudicator.move(move)) {
 			refreshBoard();
 
 			if (move.getPieceTaken() != null) {
-				takePiece(move.getPieceTaken());
+				takePiece(move.getPieceTaken().getPieceID(), move.getPieceTaken().getSide());
 			}
 
 			updateLastMovedSquare();
@@ -251,7 +292,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			refreshBoard();
 
 			if (redoneMove.getPieceTaken() != null) {
-				takePiece(redoneMove.getPieceTaken());
+				takePiece(redoneMove.getPieceTaken().getPieceID(), redoneMove.getPieceTaken().getSide());
 			}
 
 			updateLastMovedSquare();
@@ -269,7 +310,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	}
 
 	public void refreshBoard() {
-		
+
 		highLightCount = 0;
 
 		for (int row = 0; row < 8; row++) {
@@ -289,7 +330,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			}
 		}
 
-		this.selectedSquare = null;
+		this.selectedComponent = null;
 	}
 
 	private void attachValidMoves() {
@@ -304,8 +345,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			getChessSquare(move.getFromRow(), move.getFromCol()).addValidMove(move);
 		}
 
-		if (selectedSquare != null) {
-			colorValidMoveSquares(selectedSquare, true);
+		if (selectedComponent instanceof SquarePanel) {
+			colorValidMoveSquares((SquarePanel) selectedComponent, true);
 		}
 	}
 
@@ -342,7 +383,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	private void colorSquaresDefault() {
 
-		selectedSquare = null;
+		selectedComponent = null;
 
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
@@ -351,11 +392,11 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		}
 	}
 
-	private void takePiece(Piece pieceTaken) {
-		JLabel picLabel = new JLabel();
-		picLabel.setIcon(this.getChessIcon(pieceTaken.getPieceID(), pieceTaken.getSide()));
+	private void takePiece(PieceID pieceTakenID, Side pieceTakenSide) {
+		JPieceTakenLabel picLabel = new JPieceTakenLabel(pieceTakenID, pieceTakenSide);
+		picLabel.addMouseListener(this);
 
-		if (pieceTaken.getSide() == Side.WHITE) {
+		if (pieceTakenSide == Side.WHITE) {
 			lostWhitePiecesPanel.add(picLabel);
 		} else {
 			lostBlackPiecesPanel.add(picLabel);
@@ -363,23 +404,23 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	}
 
 	private void refreshPiecesTaken() {
-		JLabel picLabel;
+		JPieceTakenLabel picLabel;
 
 		clearPiecesTaken();
 
 		Vector<Piece> takenPieces = adjudicator.getPiecesTaken(Side.WHITE);
 
 		for (int i = 0; i < takenPieces.size(); i++) {
-			picLabel = new JLabel();
-			picLabel.setIcon(this.getChessIcon(takenPieces.elementAt(i).getPieceID(), Side.WHITE));
+			picLabel = new JPieceTakenLabel(takenPieces.elementAt(i).getPieceID(), takenPieces.elementAt(i).getSide());
+			picLabel.addMouseListener(this);
 			lostWhitePiecesPanel.add(picLabel);
 		}
 
 		takenPieces = adjudicator.getPiecesTaken(Side.BLACK);
 
 		for (int i = 0; i < takenPieces.size(); i++) {
-			picLabel = new JLabel();
-			picLabel.setIcon(this.getChessIcon(takenPieces.elementAt(i).getPieceID(), Side.BLACK));
+			picLabel = new JPieceTakenLabel(takenPieces.elementAt(i).getPieceID(), takenPieces.elementAt(i).getSide());
+			picLabel.addMouseListener(this);
 			lostBlackPiecesPanel.add(picLabel);
 		}
 
@@ -451,65 +492,109 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		SquarePanel clickedSquare;
+		SquarePanel clickedSquare = null;
+		JPieceTakenLabel takenClicked = null;
 		Component c = arg0.getComponent();
 
 		if (c instanceof SquarePanel) {
 			clickedSquare = (SquarePanel) c;
 		} else {
-			return;
+			if (c instanceof JPieceTakenLabel) {
+				takenClicked = (JPieceTakenLabel) c;
+			}
 		}
 
 		// lock board when it's not the users turn
 		if (!makeMove) {
-
 			System.out.println("Not your turn!");
 			return;
 		}
 
-		if (selectedSquare == null) {
-			if (clickedSquare.hasPiece()) {
+		if (clickedSquare != null) {
 
-				selectedSquare = clickedSquare;
-				selectedSquare.showAsSelected(true);
+			if (selectedComponent == null) {
+				if (clickedSquare.hasPiece()) {
 
-				colorValidMoveSquares(clickedSquare, true);
-			}
+					selectedComponent = clickedSquare;
+					selectedComponent.showAsSelected(true);
 
-		} else {
-
-			if (selectedSquare != clickedSquare) {
-
-				Move m = getOrientedMove(selectedSquare.getRow(), selectedSquare.getCol(), clickedSquare.getRow(), clickedSquare.getCol());
-
-				Move validMove = selectedSquare.checkIfValidMove(m);
-				if (validMove != null) {
-					selectedSquare.showAsSelected(false);
-					colorValidMoveSquares(selectedSquare, false);
-
-					selectedSquare = null;
-
-					// makeMove(validMove);
-					makeMove = false;
-
-					boardGUI.makeMove(validMove);
-
-				} else {
-					if (clickedSquare.hasPiece()) {
-
-						colorValidMoveSquares(selectedSquare, false);
+					if (!freelyMove) {
 						colorValidMoveSquares(clickedSquare, true);
-
-						selectedSquare.showAsSelected(false);
-						selectedSquare = clickedSquare;
-						selectedSquare.showAsSelected(true);
-
-					} else {
-						System.out.println("Invalid move");
 					}
 				}
+
 			} else {
 
+				if (selectedComponent != clickedSquare && selectedComponent instanceof SquarePanel) {
+					// square selected and square clicked
+
+					SquarePanel selectedSquare = (SquarePanel) selectedComponent;
+
+					if (!freelyMove) {
+						Move m = getOrientedMove(selectedSquare.getRow(), selectedSquare.getCol(), clickedSquare.getRow(), clickedSquare.getCol());
+
+						Move validMove = selectedSquare.checkIfValidMove(m);
+						if (validMove != null) {
+							selectedSquare.showAsSelected(false);
+							colorValidMoveSquares(selectedSquare, false);
+
+							selectedComponent = null;
+
+							// makeMove(validMove);
+							makeMove = false;
+
+							boardGUI.makeMove(validMove);
+
+						} else {
+							if (clickedSquare.hasPiece()) {
+
+								colorValidMoveSquares((SquarePanel) selectedComponent, false);
+								colorValidMoveSquares(clickedSquare, true);
+
+								((SquarePanel) selectedComponent).showAsSelected(false);
+								selectedComponent = clickedSquare;
+								((SquarePanel) selectedComponent).showAsSelected(true);
+
+							} else {
+								System.out.println("Invalid move");
+							}
+						}
+					} else {
+						// freely moving from square to square
+						freeMove(selectedSquare, clickedSquare);
+						selectedComponent.showAsSelected(false);
+						selectedComponent = null;
+					}
+
+				}
+
+			}
+
+			// moving piece from side lines to board
+			if (selectedComponent instanceof JPieceTakenLabel) {
+				freeMove(selectedComponent, clickedSquare);
+				selectedComponent.showAsSelected(false);
+				selectedComponent = null;
+			}
+		}
+
+		if (freelyMove) {
+			// selecting side line piece for moving to board
+			if (takenClicked != null) {
+
+				if (selectedComponent != null) {
+					selectedComponent.showAsSelected(false);
+				}
+
+				selectedComponent = takenClicked;
+				selectedComponent.showAsSelected(true);
+			}
+
+			// moving from board to side lines
+			if (takenClicked == null && clickedSquare == null && selectedComponent instanceof SquarePanel) {
+				freeMove(selectedComponent, c);
+				selectedComponent.showAsSelected(false);
+				selectedComponent = null;
 			}
 		}
 
@@ -538,18 +623,18 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		if (e.getSource() == highLightTimer) {
 			if (highLightCount > 0) {
 				if (highLightCount % 2 == 0) {
-					getChessSquare(highLightMove.getToRow(),highLightMove.getToCol()).showAsHighLighted(false);
-					getChessSquare(highLightMove.getFromRow(),highLightMove.getFromCol()).showAsHighLighted(true);
-				}else{
-					getChessSquare(highLightMove.getToRow(),highLightMove.getToCol()).showAsHighLighted(true);
-					getChessSquare(highLightMove.getFromRow(),highLightMove.getFromCol()).showAsHighLighted(false);
+					getChessSquare(highLightMove.getToRow(), highLightMove.getToCol()).showAsHighLighted(false);
+					getChessSquare(highLightMove.getFromRow(), highLightMove.getFromCol()).showAsHighLighted(true);
+				} else {
+					getChessSquare(highLightMove.getToRow(), highLightMove.getToCol()).showAsHighLighted(true);
+					getChessSquare(highLightMove.getFromRow(), highLightMove.getFromCol()).showAsHighLighted(false);
 				}
 			} else {
 				highLightTimer.stop();
-				getChessSquare(highLightMove.getToRow(),highLightMove.getToCol()).showAsHighLighted(false);
-				getChessSquare(highLightMove.getFromRow(),highLightMove.getFromCol()).showAsHighLighted(false);
+				getChessSquare(highLightMove.getToRow(), highLightMove.getToCol()).showAsHighLighted(false);
+				getChessSquare(highLightMove.getFromRow(), highLightMove.getFromCol()).showAsHighLighted(false);
 			}
-			
+
 			highLightCount--;
 		}
 

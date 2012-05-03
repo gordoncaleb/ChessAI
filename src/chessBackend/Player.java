@@ -8,7 +8,7 @@ public interface Player {
 	public void setGame(PlayerContainer game);
 	
 	public void makeMove();
-	public void makeRecommendation();
+	public Move makeRecommendation();
 	
 	//blocks until move on players board is made
 	public boolean moveMade(Move move);
