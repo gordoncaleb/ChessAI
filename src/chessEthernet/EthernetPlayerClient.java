@@ -1,105 +1,64 @@
 package chessEthernet;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Vector;
 
 import chessBackend.Board;
-import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
 import chessIO.XMLParser;
 
-public class EthernetPlayerClient extends Thread implements Player, EthernetMsgRxer {
+public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 
-	private Vector<String> messages;
 	private PlayerContainer game;
 
 	private Socket clientSocket;
 
 	private int port = 1234;
+	private String dest = "localhost";
+
+	private String version;
 
 	public EthernetPlayerClient() {
-		messages = new Vector<String>();
-
+		version = "";
 		EthernetMsgServer server = new EthernetMsgServer(this, 2345);
 		server.start();
-	}
 
-	public void run() {
-
-		synchronized (this) {
-
-			while (true) {
-
-				if (messages.size() == 0) {
-					try {
-						wait(100);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				} else {
-
-					//processMessage();
-				}
-
-			}
-
-		}
-
-	}
-
-	public void newMessage(String message) {
-		messages.add(message);
-		processMessage();
-		System.out.println("Client rx: " + message);
 	}
 
 	private void sendMessage(String message) {
 
-		System.out.println("Sending:\n" + message);
-
 		try {
-			clientSocket = new Socket("localhost", port);
-			// String sentence;
-			// String modifiedSentence;
-			// BufferedReader inFromUser = new BufferedReader(new
-			// InputStreamReader(System.in));
+			if (clientSocket == null) {
+				clientSocket = new Socket(dest, port);
+			} else {
+				if (clientSocket.isClosed()) {
+					clientSocket = new Socket(dest, port);
+				}
+			}
 
-			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			// BufferedReader inFromServer = new BufferedReader(new
-			// InputStreamReader(clientSocket.getInputStream()));
-			// sentence = inFromUser.readLine();
-
-			// outToServer.writeChars(message);
-
-			outToServer.writeBytes(message);
-			// modifiedSentence = inFromServer.readLine();
-			// System.out.println("FROM SERVER: " + modifiedSentence);
-			clientSocket.close();
-
-		} catch (Exception e) {
-
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
+
+		EthernetMsgServer.sendMessage(message, clientSocket);
 
 	}
 
-	private void processMessage() {
-		String message = messages.elementAt(0);
-		messages.remove(0);
+	public synchronized void newMessage(String message) {
 
 		int tagStart = message.indexOf("<");
 		int tagEnd = message.indexOf(">");
 
 		String tag = message.substring(tagStart, tagEnd + 1);
+		String payload = message.substring(tagEnd + 1, message.length());
 
-		System.out.println("Message tag = " + tag);
+		// System.out.println("Message tag = " + tag);
 
 		switch (tag) {
 
@@ -118,13 +77,17 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 		case "<pause>":
 			game.pause();
 			break;
+		case "<version>":
+			version = payload;
+			this.notifyAll();
+			break;
 		default:
 			System.out.println("Client unrecognized command received: \n" + message);
 			break;
 
 		}
 
-		System.out.println("Rx:\n" + message);
+		// System.out.println("Rx:\n" + message);
 	}
 
 	@Override
@@ -179,6 +142,21 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 	public Board getBoard() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getVersion() {
+		sendMessage("<version>");
+
+		synchronized (this) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return version;
 	}
 
 }

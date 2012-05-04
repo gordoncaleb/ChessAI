@@ -91,6 +91,10 @@ public class Bishop extends Piece {
 			nextCol = currentCol + i * BISHOPMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
+			if (pieceStatus == PositionStatus.OFF_BOARD) {
+				continue;
+			}
+
 			while (pieceStatus == PositionStatus.NO_PIECE) {
 				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
 				i++;
@@ -99,7 +103,9 @@ public class Bishop extends Piece {
 				pieceStatus = board.checkPiece(nextRow, nextCol, player);
 			}
 
-			bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
+			if (pieceStatus != PositionStatus.OFF_BOARD) {
+				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
+			}
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 				blockingPiece = board.getPiece(nextRow, nextCol);

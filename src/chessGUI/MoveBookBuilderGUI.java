@@ -328,4 +328,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 	}
 
+	@Override
+	public String getVersion() {
+		return "MoveBookBuilder";
+	}
+
 }

@@ -1,112 +1,94 @@
 package chessEthernet;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.io.IOException;
 import java.net.Socket;
-import java.util.Vector;
+import java.net.UnknownHostException;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 import chessAI.AI;
 import chessBackend.Board;
-import chessBackend.Game;
 import chessBackend.GameResults;
-import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
+import chessIO.FileIO;
 import chessIO.XMLParser;
 
-public class EthernetPlayerServer extends Thread implements EthernetMsgRxer, PlayerContainer {
+public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer {
+
+	private JFrame frame;
+	private JLabel statusTxt;
+	private String[] stat;
+	private int statNum;
 
 	private Player player;
-	private Vector<String> messages;
 	private int port = 2345;
+	private String dest = "localhost";
 	private Socket clientSocket;
 
 	public EthernetPlayerServer(Player player) {
 		this.player = player;
-		messages = new Vector<String>();
 		EthernetMsgServer server = new EthernetMsgServer(this, 1234);
 		server.start();
-	}
 
-	public synchronized void newMessage(String message) {
-		messages.add(message);
-		System.out.println("Server rx: " + message);
+		String[] stat = { "|", "/", "-", "\\" };
+		this.stat = stat;
+		statNum = 0;
+
+		frame = new JFrame("EthernetPlayerServer");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(new BorderLayout());
+
+		frame.setVisible(true);
+
+		frame.setPreferredSize(new Dimension(300,100));
+		statusTxt = new JLabel(stat[0]);
 		
-		processMessage();
-		//notifyAll();
+		statusTxt.setFont(new Font("Courier New", Font.ITALIC, 45));
+		statusTxt.setHorizontalAlignment(SwingConstants.CENTER);
+		
+		frame.add(statusTxt, BorderLayout.CENTER);
+		frame.pack();
 	}
 
 	public static void main(String[] args) {
-
+		
 		AI ai = new AI(null, true);
+		ai.setUseBook(true);
 		EthernetPlayerServer server = new EthernetPlayerServer(ai);
 		ai.setGame(server);
-		server.start();
-
-	}
-
-	public void run() {
-
-		synchronized (this) {
-
-			while (true) {
-
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				//processMessage();
-
-			}
-
-		}
 
 	}
 
 	private void sendMessage(String message) {
 
-		System.out.println("Sending:\n" + message);
-
-		try {
-			clientSocket = new Socket("localhost", port);
-			// String sentence;
-			// String modifiedSentence;
-			// BufferedReader inFromUser = new BufferedReader(new
-			// InputStreamReader(System.in));
-
-			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			// BufferedReader inFromServer = new BufferedReader(new
-			// InputStreamReader(clientSocket.getInputStream()));
-			// sentence = inFromUser.readLine();
-
-			// outToServer.writeChars(message);
-
-			outToServer.writeBytes(message);
-			// modifiedSentence = inFromServer.readLine();
-			// System.out.println("FROM SERVER: " + modifiedSentence);
-			clientSocket.close();
-
-		} catch (Exception e) {
-
+		if (clientSocket == null) {
+			try {
+				clientSocket = new Socket(dest, port);
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
+		EthernetMsgServer.sendMessage(message, clientSocket);
 	}
 
-	private void processMessage() {
-		String message = messages.elementAt(0);
-		messages.remove(0);
+	public void newMessage(String message) {
+
+		updateStatus();
 
 		int tagStart = message.indexOf("<");
 		int tagEnd = message.indexOf(">");
 
 		String tag = message.substring(tagStart, tagEnd + 1);
-
-		System.out.println("Message tag = " + tag);
 
 		switch (tag) {
 
@@ -117,7 +99,6 @@ public class EthernetPlayerServer extends Thread implements EthernetMsgRxer, Pla
 			Board board = XMLParser.XMLToBoard(message);
 			System.out.println("got new board:\n" + board.toString());
 			player.newGame(board);
-
 			break;
 		case "<move>":
 			player.moveMade(XMLParser.XMLToMove(message));
@@ -128,13 +109,19 @@ public class EthernetPlayerServer extends Thread implements EthernetMsgRxer, Pla
 		case "<pause>":
 			player.pause();
 			break;
+		case "<version>":
+			sendMessage("<version>" + player.getVersion());
+			break;
 		default:
 			System.out.println("Server unrecognized command received: \n" + message);
 			break;
 
 		}
+	}
 
-		System.out.println("Rx:\n" + message);
+	private void updateStatus() {
+		statusTxt.setText(stat[statNum % 4]);
+		statNum++;
 	}
 
 	@Override

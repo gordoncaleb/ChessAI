@@ -90,6 +90,10 @@ public class Queen extends Piece {
 			nextRow = currentRow + i * QUEENMOVES[0][d];
 			nextCol = currentCol + i * QUEENMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
+			
+			if(pieceStatus == PositionStatus.OFF_BOARD){
+				continue;
+			}
 
 			while (pieceStatus == PositionStatus.NO_PIECE) {
 				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
@@ -99,7 +103,9 @@ public class Queen extends Piece {
 				pieceStatus = board.checkPiece(nextRow, nextCol, player);
 			}
 
-			bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
+			if (pieceStatus != PositionStatus.OFF_BOARD) {
+				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
+			}
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 

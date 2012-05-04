@@ -14,62 +14,47 @@ public class EthernetMsgServer extends Thread {
 
 	public EthernetMsgServer(EthernetMsgRxer rxer, int port) {
 		this.rxer = rxer;
-
 		this.port = port;
 	}
 
 	public void run() {
-		try {
-			char[] clientSentence = new char[500];
 
-			// String capitalizedSentence;
+		try {
+
 			ServerSocket welcomeSocket = new ServerSocket(port);
 
+			Socket connectionSocket = welcomeSocket.accept();
+			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+
+			String msg;
 			while (true) {
+				msg = inFromClient.readLine();
 
-				Socket connectionSocket = welcomeSocket.accept();
-				BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-				// DataOutputStream outToClient = new
-				// DataOutputStream(connectionSocket.getOutputStream());
-
-				int recvMsgSize;
-
-				try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if (msg != null) {
+					rxer.newMessage(msg);
 				}
-
-				while (inFromClient.ready()) {
-					
-					String fullMsg = "";
-					char[] temp;
-					while ((recvMsgSize = inFromClient.read(clientSentence)) != -1) {
-						temp = new char[recvMsgSize];
-						System.arraycopy(clientSentence, 0, temp, 0, recvMsgSize);
-						fullMsg += new String(temp);
-					}
-					// inFromClient.read(clientSentence);
-
-					// System.out.println("read buffer = " + new
-					// String(clientSentence));
-
-					rxer.newMessage(fullMsg);
-
-				}
-
-				synchronized (rxer) {
-					rxer.notifyAll();
-				}
-
-				// System.out.println("Received: " + clientSentence);
-				// capitalizedSentence = clientSentence.toUpperCase() + '\n';
-				// outToClient.writeBytes(capitalizedSentence);
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	public static void sendMessage(String message, Socket clientSocket) {
+
+		try {
+
+			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+
+			String outMsg = message.replace("\n", "") + "\n";
+
+			outToServer.writeBytes(outMsg);
+
+		} catch (Exception e) {
+
+		}
+
 	}
 
 }

@@ -2,6 +2,7 @@ package chessAI;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.Game;
 import chessBackend.GameStatus;
@@ -13,6 +14,7 @@ import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
+	public static String VERSION = "1.1.050412";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -67,6 +69,8 @@ public class AI extends Thread implements Player {
 		}
 
 		active = true;
+		
+		BitBoard.loadMasks();
 
 		this.start();
 	}
@@ -471,6 +475,11 @@ public class AI extends Thread implements Player {
 	
 	public void setUseBook(boolean useBook){
 		this.useBook = useBook;
+	}
+
+	@Override
+	public String getVersion() {
+		return AI.VERSION;
 	}
 
 }

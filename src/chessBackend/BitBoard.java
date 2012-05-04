@@ -12,6 +12,8 @@ public class BitBoard {
 	public static final long BLACK_CHECK_NEAR = 0x20L;
 	public static final long BLACK_CHECK_FAR = 0x8L;
 
+	public static long[][] bitMask;
+
 	public static void main(String args[]) {
 		long base = 1;
 		long temp = WHITE_CHECK_FAR;
@@ -21,13 +23,20 @@ public class BitBoard {
 	}
 
 	public static long getMask(int row, int col) {
+		return bitMask[row][col];
+	}
+
+	public static void loadMasks() {
 		long one = 1;
 
-		if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-			return (one << (row * 8 + col));
-		} else {
-			return 0;
+		bitMask = new long[8][8];
+		
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				bitMask[r][c] = (one << (r * 8 + c));
+			}
 		}
+
 	}
 
 	public static String printBitBoard(long bitBoard) {
@@ -44,7 +53,7 @@ public class BitBoard {
 			bitBoardString += "\n";
 		}
 
-		//System.out.println(bitBoardString);
+		// System.out.println(bitBoardString);
 
 		return bitBoardString;
 	}
