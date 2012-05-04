@@ -1,17 +1,12 @@
 package chessEthernet;
 
-import java.io.BufferedReader;
+
 import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
-
 import chessAI.AI;
 import chessBackend.Board;
-import chessBackend.Game;
 import chessBackend.GameResults;
-import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
@@ -23,6 +18,15 @@ public class EthernetPlayerServer extends Thread implements EthernetMsgRxer, Pla
 	private Vector<String> messages;
 	private int port = 2345;
 	private Socket clientSocket;
+
+	public static void main(String[] args) {
+	
+		AI ai = new AI(null, true);
+		EthernetPlayerServer server = new EthernetPlayerServer(ai);
+		ai.setGame(server);
+		server.start();
+	
+	}
 
 	public EthernetPlayerServer(Player player) {
 		this.player = player;
@@ -37,15 +41,6 @@ public class EthernetPlayerServer extends Thread implements EthernetMsgRxer, Pla
 		
 		processMessage();
 		//notifyAll();
-	}
-
-	public static void main(String[] args) {
-
-		AI ai = new AI(null, true);
-		EthernetPlayerServer server = new EthernetPlayerServer(ai);
-		ai.setGame(server);
-		server.start();
-
 	}
 
 	public void run() {
