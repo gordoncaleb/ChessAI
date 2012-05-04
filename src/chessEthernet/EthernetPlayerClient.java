@@ -151,8 +151,8 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 	}
 
 	@Override
-	public void makeRecommendation() {
-
+	public Move makeRecommendation() {
+		return null;
 	}
 
 	@Override

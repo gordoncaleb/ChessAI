@@ -23,7 +23,7 @@ public class Board {
 	private long[] posBitBoard;
 
 	public Board(Piece[][] board, Vector<Piece> blackPieces, Vector<Piece> whitePieces, long[] posBitBoard, Piece blackKing, Piece whiteKing,
-			Side turn, Stack<Move> moveHistory, Long hashCode, RNGTable rngTable) {
+			Side turn, Stack<Move> moveHistory, Long hashCode) {
 
 		this.board = board;
 		this.blackPieces = blackPieces;
@@ -33,7 +33,7 @@ public class Board {
 		this.posBitBoard = posBitBoard;
 		this.moveHistory = moveHistory;
 		this.hashCodeHistory = new Stack<Long>();
-		this.rngTable = rngTable;
+		this.rngTable = RNGTable.getSingleton();
 		this.turn = turn;
 		this.nullMoveInfo = new long[3];
 
@@ -42,6 +42,45 @@ public class Board {
 		} else {
 			this.hashCode = generateHashCode();
 		}
+
+	}
+
+	public Board(Vector<Piece> blackPieces, Vector<Piece> whitePieces, Side turn) {
+		this.board = new Piece[8][8];
+		this.blackPieces = blackPieces;
+		this.whitePieces = whitePieces;
+		this.moveHistory = new Stack<Move>();
+		this.hashCodeHistory = new Stack<Long>();
+		this.rngTable = RNGTable.getSingleton();
+		this.turn = turn;
+		this.nullMoveInfo = new long[3];
+
+		long[] posBitBoard = { 0, 0 };
+
+		Piece temp;
+		for (int p = 0; p < blackPieces.size(); p++) {
+			temp = blackPieces.elementAt(p);
+			board[temp.getRow()][temp.getCol()] = temp;
+			posBitBoard[Side.BLACK.ordinal()] |= temp.getBit();
+
+			if (temp.getPieceID() == PieceID.KING) {
+				blackKing = temp;
+			}
+		}
+
+		for (int p = 0; p < whitePieces.size(); p++) {
+			temp = whitePieces.elementAt(p);
+			board[temp.getRow()][temp.getCol()] = temp;
+			posBitBoard[Side.WHITE.ordinal()] |= temp.getBit();
+
+			if (temp.getPieceID() == PieceID.KING) {
+				whiteKing = temp;
+			}
+		}
+
+		this.posBitBoard = posBitBoard;
+
+		this.hashCode = generateHashCode();
 
 	}
 
@@ -547,6 +586,60 @@ public class Board {
 		}
 	}
 
+	public void placePiece(Piece piece, int toRow, int toCol) {
+
+		if (piece.getRow() >= 0) {
+			// remove where piece was if it was on board
+			posBitBoard[piece.getSide().ordinal()] ^= piece.getBit();
+			board[piece.getRow()][piece.getCol()] = null;
+		} else {
+
+			// piece is new
+			if (piece.getSide() == Side.WHITE) {
+				whitePieces.add(piece);
+			} else {
+				blackPieces.add(piece);
+			}
+		}
+
+		if (toRow >= 0) {
+			// remove where piece taken was
+			if (board[toRow][toCol] != null) {
+
+				// remove bit position of piece taken
+				posBitBoard[board[toRow][toCol].getSide().ordinal()] ^= board[toRow][toCol].getBit();
+
+				// remove ref to piece taken
+				if (board[toRow][toCol].getSide() == Side.WHITE) {
+					whitePieces.remove(board[toRow][toCol]);
+				} else {
+					blackPieces.remove(board[toRow][toCol]);
+				}
+			}
+
+			// tell piece where it is now
+			piece.setPos(toRow, toCol);
+			// reflect new piece in position bitboard
+			posBitBoard[piece.getSide().ordinal()] |= piece.getBit();
+			// update board ref to show piece there
+			board[toRow][toCol] = piece;
+		} else {
+			// piece is being taken off the board. Remove 
+			if (piece.getSide() == Side.WHITE) {
+				whitePieces.remove(piece);
+			} else {
+				blackPieces.remove(piece);
+			}
+		}
+
+		// basically start over with new board
+		this.moveHistory.clear();
+		this.hashCodeHistory.clear();
+
+		this.hashCode = generateHashCode();
+
+	}
+
 	public boolean isInCheck() {
 		return (boardStatus == GameStatus.CHECK);
 	}
@@ -638,8 +731,7 @@ public class Board {
 			}
 		}
 
-		return new Board(copyBoard, copyBlackPieces, copyWhitePieces, posBitBoard, blackKing, whiteKing, this.turn, new Stack<Move>(), this.hashCode,
-				this.rngTable);
+		return new Board(copyBoard, copyBlackPieces, copyWhitePieces, posBitBoard, blackKing, whiteKing, this.turn, new Stack<Move>(), this.hashCode);
 
 	}
 

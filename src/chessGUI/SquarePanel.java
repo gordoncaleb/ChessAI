@@ -15,9 +15,10 @@ import javax.swing.border.BevelBorder;
 
 import chessBackend.Move;
 import chessBackend.Side;
+import chessIO.ChessImages;
 import chessPieces.PieceID;
 
-public class SquarePanel extends JPanel {
+public class SquarePanel extends JPanel implements PieceGUI{
 	private static final long serialVersionUID = 1L;
 
 	private int row;
@@ -25,8 +26,6 @@ public class SquarePanel extends JPanel {
 	private PieceID id;
 	private Side player;
 	private Vector<Move> validMoves;
-
-	private BoardPanel gui;
 
 	// Debug components
 	private JLabel debugLocationLabel;
@@ -66,6 +65,17 @@ public class SquarePanel extends JPanel {
 		picLabel = new JLabel();
 
 		this.debug = debug;
+		
+
+		imagePane = new JPanel(new FlowLayout());
+		imagePane.setBackground(this.getBackground());
+		imagePane.add(picLabel);
+		
+		updateBackgroundColor();
+		updateBorderColor();
+
+		this.add(imagePane, BorderLayout.PAGE_START);
+		
 		if (debug) {
 			JPanel debugPane = new JPanel(new BorderLayout());
 			debugPane.setBackground(this.getBackground());
@@ -87,15 +97,6 @@ public class SquarePanel extends JPanel {
 			debugPane.add(debugPieceValue, BorderLayout.CENTER);
 			this.add(debugPane, BorderLayout.PAGE_END);
 		}
-
-		imagePane = new JPanel(new FlowLayout());
-		imagePane.setBackground(this.getBackground());
-		imagePane.add(picLabel);
-		
-		updateBackgroundColor();
-		updateBorderColor();
-
-		this.add(imagePane, BorderLayout.PAGE_START);
 	}
 
 	public void updateBackgroundColor() {
@@ -181,7 +182,7 @@ public class SquarePanel extends JPanel {
 
 		// Image image = gui.getChessImage(id, player);
 		// ImageIcon icon = new ImageIcon(image);
-		picLabel.setIcon(gui.getChessIcon(id, player));
+		picLabel.setIcon(ChessImages.getChessIcon(id, player));
 		picLabel.updateUI();
 
 	}
@@ -216,10 +217,6 @@ public class SquarePanel extends JPanel {
 
 		if (debug)
 			debugPieceValue.setText("");
-	}
-
-	public void setGUI(BoardPanel gui) {
-		this.gui = gui;
 	}
 
 	public boolean hasPiece() {

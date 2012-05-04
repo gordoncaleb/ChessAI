@@ -3,18 +3,23 @@ package chessGUI;
 import java.awt.BorderLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Hashtable;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import chessAI.AI;
 import chessBackend.Board;
 import chessBackend.Game;
+import chessBackend.GameResults;
 import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
 import chessBackend.Side;
+import chessIO.FileIO;
+import chessIO.XMLParser;
 
 public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;
@@ -28,6 +33,69 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	private PlayerContainer game;
 	private int gameNum;
 	private boolean paused;
+	
+	public static void main(String[] args) {
+
+		boolean debug = true;
+		Game game;
+		GameResults results;
+
+		int whiteWins = 0;
+		int blackWins = 0;
+		int draws = 0;
+
+		long whiteTime = 0;
+		long blackTime = 0;
+
+		FileIO.initLog();
+
+		Player observer = new ObserverGUI(null, false);
+
+		// Game game = new Game(GameType.AI_VS_AI);
+
+		Player playerOne = new AI(null, debug);
+		Player playerTwo = new AI(null, debug);
+		
+		((AI)playerOne).setUseBook(true);
+
+		Board defaultBoard = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
+
+		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
+
+		players.put(Side.WHITE, playerOne);
+		players.put(Side.BLACK, playerTwo);
+
+		game = new Game(players);
+
+		playerOne.setGame(game);
+		playerTwo.setGame(game);
+		game.addObserver(observer);
+
+		for (int i = 0; i < 1000; i++) {
+
+			results = game.newGame(defaultBoard, true);
+
+			if (results.getWinner() == Side.WHITE) {
+				whiteWins++;
+				whiteTime += results.getWinnerTime();
+				blackTime += results.getLoserTime();
+			} else {
+				if (results.getWinner() == Side.BLACK) {
+					blackWins++;
+					blackTime += results.getWinnerTime();
+					whiteTime += results.getLoserTime();
+				} else {
+					draws++;
+				}
+			}
+
+			System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
+					+ draws);
+
+		}
+
+		System.out.println("Tournament done");
+	}
 
 	public ObserverGUI(PlayerContainer game, boolean debug) {
 		this.game = game;
@@ -101,8 +169,8 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public void makeRecommendation() {
-
+	public Move makeRecommendation() {
+		return null;
 	}
 	
 	public void makeMove(){

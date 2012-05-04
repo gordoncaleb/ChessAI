@@ -12,6 +12,8 @@ public class RNGTable {
 	private long blackToMove;
 	private long[][][][] castlingRights;
 	private long[] enPassantFile;
+	
+	private static RNGTable singleton;
 
 	public RNGTable() {
 		rng = new SecureRandom(seed);
@@ -27,6 +29,13 @@ public class RNGTable {
 		for (int i = 0; i < 5; i++) {
 			System.out.println(rngTable.randomLong() + "");
 		}
+	}
+	
+	public static RNGTable getSingleton(){
+		if(singleton == null){
+			singleton = new RNGTable();
+		}
+		return singleton;
 	}
 
 	public long randomLong() {

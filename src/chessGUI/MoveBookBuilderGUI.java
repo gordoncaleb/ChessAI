@@ -14,16 +14,19 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
+import chessAI.AI;
 import chessBackend.Board;
+import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
+import chessBackend.Side;
 import chessIO.MoveBook;
 
 public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;
-	private PlayerContainer game;
+	private AI ai;
 	private boolean paused;
 
 	private BoardPanel boardPanel;
@@ -34,13 +37,30 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton undoBtn;
 	private JButton saveBtn;
 	private JButton recommendBtn;
+	private JButton aiRecommendBtn;
+	private JButton freelyMoveBtn;
 
 	private MoveBook moveBook;
 	private boolean record;
 
-	public MoveBookBuilderGUI(PlayerContainer game) {
+	public static void main(String[] args) {
 
-		this.game = game;
+		java.util.Hashtable<Side, Player> players = new java.util.Hashtable<Side, Player>();
+
+		MoveBookBuilderGUI mbBuilder = new MoveBookBuilderGUI();
+
+		players.put(Side.BOTH, mbBuilder);
+
+		Game game = new Game(players);
+
+		mbBuilder.setGame(game);
+
+		game.newGame(Game.getDefaultBoard(), false);
+	}
+
+	public MoveBookBuilderGUI() {
+
+		this.ai = new AI(null,true);
 		this.moveBook = new MoveBook();
 		moveBook.loadVerboseMoveBook();
 		this.record = false;
@@ -77,15 +97,23 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		saveBtn = new JButton("Save");
 		saveBtn.addMouseListener(this);
-		
+
 		recommendBtn = new JButton("Recommend");
 		recommendBtn.addMouseListener(this);
+		
+		aiRecommendBtn = new JButton("AI Recommend");
+		aiRecommendBtn.addMouseListener(this);
+				
+		freelyMoveBtn = new JButton("Free Move?");
+		freelyMoveBtn.addMouseListener(this);
 
 		controlBtnsPanel.add(recordBtn);
 		controlBtnsPanel.add(deleteEntryBtn);
 		controlBtnsPanel.add(undoBtn);
 		controlBtnsPanel.add(saveBtn);
 		controlBtnsPanel.add(recommendBtn);
+		controlBtnsPanel.add(aiRecommendBtn);
+		controlBtnsPanel.add(freelyMoveBtn);
 
 		eastPanel.add(controlBtnsPanel, BorderLayout.SOUTH);
 
@@ -117,13 +145,15 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public Move undoMove() {
 		Move undone = boardPanel.undoMove();
+		ai.undoMove();
 		populateMoveList();
 		return undone;
 	}
 
 	@Override
 	public void newGame(Board board) {
-		boardPanel.newGame(board);
+		boardPanel.newGame(board.getCopy());
+		ai.newGame(board.getCopy());
 
 		populateMoveList();
 
@@ -131,21 +161,23 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public void setGame(PlayerContainer game) {
-		this.game = game;
+
 
 	}
 
 	@Override
-	public void makeRecommendation() {
-		// TODO Auto-generated method stub
-
+	public Move makeRecommendation() {
+		return null;
 	}
 
 	@Override
 	public boolean moveMade(Move move) {
 		boardPanel.moveMade(move);
+		ai.moveMade(move);
 
 		populateMoveList();
+		
+		boardPanel.makeMove();
 
 		return true;
 	}
@@ -163,7 +195,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			moveBook.addEntry(boardPanel.getBoard().toXML(false), boardPanel.getBoard().getHashCode(), move);
 		}
 
-		game.makeMove(move);
+		this.moveMade(move);
 
 	}
 
@@ -215,7 +247,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		if (e.getSource() == undoBtn) {
 			if (boardPanel.canUndo()) {
-				game.undoMove();
+				this.undoMove();
 			}
 		}
 
@@ -228,8 +260,8 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		if (e.getSource() == saveBtn) {
 			moveBook.saveMoveBook();
 		}
-		
-		if(e.getSource() == recommendBtn){
+
+		if (e.getSource() == recommendBtn) {
 			Move rec = moveBook.getRecommendation(boardPanel.getBoard().getHashCode());
 
 			if (rec != null) {
@@ -237,9 +269,37 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			}
 		}
 		
-		if(e.getSource() == moveList){
+		if (e.getSource() == aiRecommendBtn) {
+			
+			if(boardPanel.isFreelyMove()){
+				ai.newGame(boardPanel.getBoard().getCopy());
+			}
+			
+			Move rec = ai.makeRecommendation();
+
+			if (rec != null) {
+				boardPanel.highlightMove(rec);
+			}
+		}
+
+		if (e.getSource() == moveList) {
 			Move move = moveList.getSelectedValue();
 			boardPanel.highlightMove(move);
+		}
+		
+		if(e.getSource() == freelyMoveBtn){
+			
+			if(boardPanel.isFreelyMove()){
+				ai.newGame(boardPanel.getBoard().getCopy());
+			}
+			
+			boardPanel.setFreelyMove(!boardPanel.isFreelyMove());
+			
+			if(boardPanel.isFreelyMove()){
+				freelyMoveBtn.setText("Moving Freely");
+			}else{
+				freelyMoveBtn.setText("Free Move?");
+			}
 		}
 
 	}

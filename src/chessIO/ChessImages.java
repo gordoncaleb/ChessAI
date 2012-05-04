@@ -1,0 +1,67 @@
+package chessIO;
+
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Toolkit;
+
+import javax.swing.ImageIcon;
+
+import chessBackend.Side;
+import chessPieces.PieceID;
+
+public class ChessImages {
+	
+	private static Image[][] chessPieceGraphics;
+	private static ImageIcon[][] chessPieceIcons;
+	
+	private static boolean loaded;
+	
+	private static void loadChessImages() {
+		
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+		int gameHeight = (int) ((double) screenSize.height * 0.8);
+		int imageHeight = (int) ((double) gameHeight * 0.10);
+		int imageWidth = (int) ((double) imageHeight * 0.6);
+
+		chessPieceGraphics = new Image[2][6];
+		chessPieceIcons = new ImageIcon[2][6];
+		String pieceNames[] = { "rook", "knight", "bishop", "queen", "king", "pawn" };
+		String imgDir = "pieces";
+
+		String whiteFileName;
+		String blackFileName;
+
+		for (int i = 0; i < 6; i++) {
+
+			whiteFileName = imgDir + "/white_" + pieceNames[i] + ".png";
+			blackFileName = imgDir + "/black_" + pieceNames[i] + ".png";
+
+			chessPieceGraphics[0][i] = FileIO.readImage(blackFileName).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
+			chessPieceGraphics[1][i] = FileIO.readImage(whiteFileName).getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
+
+			chessPieceIcons[0][i] = new ImageIcon(chessPieceGraphics[0][i]);
+			chessPieceIcons[1][i] = new ImageIcon(chessPieceGraphics[1][i]);
+		}
+	}
+
+	public static Image getChessImage(PieceID id, Side player) {
+		
+		if(!loaded){
+			loadChessImages();
+			loaded = true;
+		}
+		return chessPieceGraphics[player.ordinal()][id.ordinal()];
+	}
+
+	public static ImageIcon getChessIcon(PieceID id, Side player) {
+		
+		if(!loaded){
+			loadChessImages();
+			loaded = true;
+		}
+		
+		return chessPieceIcons[player.ordinal()][id.ordinal()];
+	}
+
+}

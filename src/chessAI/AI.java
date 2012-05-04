@@ -336,7 +336,8 @@ public class AI extends Thread implements Player {
 		return (getBoard().getMoveHistory().size() > 0);
 	}
 
-	public void makeRecommendation() {
+	public synchronized Move makeRecommendation() {
+		return getAIDecision().getMove();
 	}
 
 	private void setRootNode(DecisionNode newRootNode) {

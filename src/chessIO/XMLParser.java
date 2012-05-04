@@ -125,7 +125,7 @@ public class XMLParser {
 			return null;
 		}
 
-		return new Board(board, blackPieces, whitePieces, posBitBoard, blackKing, whiteKing, player, moveHistory, null, new RNGTable());
+		return new Board(board, blackPieces, whitePieces, posBitBoard, blackKing, whiteKing, player, moveHistory, null);
 	}
 
 	public static Piece XMLToPiece(String xmlPiece) {
