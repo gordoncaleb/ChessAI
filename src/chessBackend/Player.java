@@ -17,6 +17,8 @@ public interface Player {
 	
 	public GameStatus getGameStatus();
 	
+	public String getVersion();
+	
 	public Board getBoard();
 
 }

@@ -74,14 +74,14 @@ public class King extends Piece {
 		if (canCastleFar(board, player, nullMoveInfo, allPosBitBoard) && !board.isInCheck()) {
 			if (isValidMove(currentRow, currentCol - 2, nullMoveInfo)) {
 				validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol - 2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
-			}else{
+			} else {
 			}
 		}
 
 		if (canCastleNear(board, player, nullMoveInfo, allPosBitBoard) && !board.isInCheck()) {
 			if (isValidMove(currentRow, currentCol + 2, nullMoveInfo)) {
 				validMoves.add(new Move(currentRow, currentCol, currentRow, currentCol + 2, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
-			}else{
+			} else {
 			}
 		}
 
@@ -95,7 +95,9 @@ public class King extends Piece {
 		int currentCol = this.getCol();
 
 		for (int i = 0; i < 8; i++) {
-			nullMoveInfo[0] |= BitBoard.getMask(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i]);
+			if (board.checkPiece(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i], getSide()) != PositionStatus.OFF_BOARD) {
+				nullMoveInfo[0] |= BitBoard.getMask(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i]);
+			}
 		}
 
 	}

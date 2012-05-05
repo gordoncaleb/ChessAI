@@ -225,4 +225,9 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 		return boardPanel.getBoard().getBoardStatus();
 	}
 
+	@Override
+	public String getVersion() {
+		return "PlayerGUI";
+	}
+
 }

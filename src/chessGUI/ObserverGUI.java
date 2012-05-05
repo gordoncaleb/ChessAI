@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import chessAI.AI;
+import chessEthernet.EthernetPlayerClient;
 import chessBackend.Board;
 import chessBackend.Game;
 import chessBackend.GameResults;
@@ -33,7 +34,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	private PlayerContainer game;
 	private int gameNum;
 	private boolean paused;
-	
+
 	public static void main(String[] args) {
 
 		boolean debug = true;
@@ -47,16 +48,19 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		long whiteTime = 0;
 		long blackTime = 0;
 
-		FileIO.initLog();
-
-		Player observer = new ObserverGUI(null, false);
+		ObserverGUI observer = new ObserverGUI(null, false);
 
 		// Game game = new Game(GameType.AI_VS_AI);
 
 		Player playerOne = new AI(null, debug);
-		Player playerTwo = new AI(null, debug);
-		
-		((AI)playerOne).setUseBook(true);
+		// Player playerTwo = new AI(null, debug);
+
+		Player playerTwo = new EthernetPlayerClient();
+
+		System.out.println("Player One: " + playerOne.getVersion());
+		System.out.println("Player Two: " + playerTwo.getVersion());
+
+		((AI) playerOne).setUseBook(true);
 
 		Board defaultBoard = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 
@@ -71,8 +75,13 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		playerTwo.setGame(game);
 		game.addObserver(observer);
 
+		String stats;
 		for (int i = 0; i < 1000; i++) {
-
+			
+			stats = "White wins: " + whiteWins + " with " + whiteTime + "ms Black wins: " + blackWins + " with " + blackTime + "ms Draws: " + draws;
+			observer.setFrameTitle(stats);
+			FileIO.log(stats);
+			
 			results = game.newGame(defaultBoard, true);
 
 			if (results.getWinner() == Side.WHITE) {
@@ -87,14 +96,11 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 				} else {
 					draws++;
 				}
-			}
-
-			System.out.println("White wins: " + whiteWins + " with " + whiteTime + "\nBlack wins: " + blackWins + " with " + blackTime + "\nDraws: "
-					+ draws);
+			}		
 
 		}
 
-		System.out.println("Tournament done");
+		FileIO.log("Tournament done");
 	}
 
 	public ObserverGUI(PlayerContainer game, boolean debug) {
@@ -125,7 +131,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		// frame.setSize(gameWidth, gameHeight);
 		frame.setResizable(false);
 		frame.setVisible(true);
-		
+
 		gameNum = 0;
 
 		boardPanel = new BoardPanel(this, debug);
@@ -137,12 +143,12 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	public void newGame(Board board) {
 		gameNum++;
-		frame.setTitle(getFrameTitle() + " Game Number #"  + gameNum);
+		// frame.setTitle(getFrameTitle() + " Game Number #" + gameNum);
 		boardPanel.newGame(board);
 	}
-	
-	public synchronized void stop(){
-		
+
+	public synchronized void stop() {
+
 	}
 
 	public void gameOverLose() {
@@ -172,9 +178,9 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	public Move makeRecommendation() {
 		return null;
 	}
-	
-	public void makeMove(){
-		
+
+	public void makeMove() {
+
 	}
 
 	public void setGame(PlayerContainer game) {
@@ -187,7 +193,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
 		if (arg0.getSource() == resetButton) {
-			game.newGame(null,false);
+			game.newGame(null, false);
 		}
 
 		if (arg0.getSource() == pauseButton) {
@@ -197,7 +203,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 		if (arg0.getSource() == undoButton) {
 			if (boardPanel.canUndo() && paused) {
-				//boardPanel.undoMove();
+				// boardPanel.undoMove();
 				game.undoMove();
 			}
 		}
@@ -262,14 +268,23 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 			return "Oh,Word? Observer" + Game.VERSION;
 		}
 	}
-	
-	public Board getBoard(){
+
+	public void setFrameTitle(String title) {
+		frame.setTitle(title);
+	}
+
+	public Board getBoard() {
 		return boardPanel.getBoard();
 	}
 
 	@Override
 	public GameStatus getGameStatus() {
 		return boardPanel.getBoard().getBoardStatus();
+	}
+
+	@Override
+	public String getVersion() {
+		return "Observer";
 	}
 
 }
