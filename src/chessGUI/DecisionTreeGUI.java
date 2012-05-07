@@ -16,8 +16,6 @@ import chessAI.DecisionNode;
 import chessBackend.Game;
 
 public class DecisionTreeGUI implements KeyListener, MouseListener {
-
-	Game game;
 	BoardPanel gui;
 
 	// debug components
@@ -28,8 +26,7 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 	private JScrollPane treeView;
 	private DecisionNode rootDecision;
 
-	public DecisionTreeGUI(Game game, BoardPanel gui) {
-		this.game = game;
+	public DecisionTreeGUI( BoardPanel gui) {
 		this.gui = gui;
 
 		debugFrame = new JFrame("Decision Tree Observer");
@@ -64,12 +61,13 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 
 		branchGUI.setUserObject(branch);
 
+		
 		child = branch.getHeadChild();
 		for (int i = 0; i < branch.getChildrenSize(); i++) {
 			childGUI = new DefaultMutableTreeNode(child);
 			branchGUI.add(childGUI);
 
-			if (child.hasChildren() && level < 5) {
+			if (child.hasChildren() && !child.hasChosenPathValue()) {
 				buildDecisionTreeGUI(childGUI, child, level + 1);
 			}
 

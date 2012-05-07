@@ -5,7 +5,7 @@ public class BoardHashEntry {
 	private int level;
 	//private String boardString;
 	
-	public BoardHashEntry(int score, int level){//, String boardString){
+	public BoardHashEntry(int level, int score){//, String boardString){
 		this.score = score;
 		this.level = level;
 		//this.boardString = boardString;

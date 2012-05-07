@@ -39,6 +39,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton recommendBtn;
 	private JButton aiRecommendBtn;
 	private JButton freelyMoveBtn;
+	private JButton clearHashTableBtn;
+	
+	private DecisionTreeGUI dtgui;
 
 	private MoveBook moveBook;
 	private boolean record;
@@ -106,6 +109,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 				
 		freelyMoveBtn = new JButton("Free Move?");
 		freelyMoveBtn.addMouseListener(this);
+		
+		clearHashTableBtn = new JButton("Clear Hashtable");
+		clearHashTableBtn.addMouseListener(this);
 
 		controlBtnsPanel.add(recordBtn);
 		controlBtnsPanel.add(deleteEntryBtn);
@@ -114,6 +120,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		controlBtnsPanel.add(recommendBtn);
 		controlBtnsPanel.add(aiRecommendBtn);
 		controlBtnsPanel.add(freelyMoveBtn);
+		controlBtnsPanel.add(clearHashTableBtn);
 
 		eastPanel.add(controlBtnsPanel, BorderLayout.SOUTH);
 
@@ -126,6 +133,8 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		frame.add(eastPanel, BorderLayout.EAST);
 		// frame.add(controlPanel, BorderLayout.NORTH);
 		frame.pack();
+		
+		dtgui = new DecisionTreeGUI(boardPanel);
 
 	}
 
@@ -276,6 +285,8 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			}
 			
 			Move rec = ai.makeRecommendation();
+			
+			dtgui.setRootDecisionTree(ai.getRootNode());
 
 			if (rec != null) {
 				boardPanel.highlightMove(rec);
@@ -302,6 +313,13 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 				populateMoveList();
 			}
 		}
+		
+		if (e.getSource() == clearHashTableBtn) {
+			ai.cleanHashTable();
+			ai.toggleIterative();
+		}
+		
+		
 
 	}
 

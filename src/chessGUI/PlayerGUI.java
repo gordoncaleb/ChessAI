@@ -59,7 +59,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	public PlayerGUI(PlayerContainer game, boolean debug) {
 		this.game = game;
 
-		frame = new JFrame("Oh,Word? " + Game.VERSION);
+		frame = new JFrame("Oh,Word? " + AI.VERSION);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 

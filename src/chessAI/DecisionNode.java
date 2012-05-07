@@ -1,6 +1,5 @@
 package chessAI;
 
-import chessBackend.Board;
 import chessBackend.GameStatus;
 import chessBackend.MoveNote;
 import chessBackend.Side;
@@ -11,7 +10,7 @@ import chessPieces.Values;
 public class DecisionNode {
 
 	// Previous move/status information
-	private DecisionNode parent;
+	// private DecisionNode parent;
 
 	// Children which represent all the possible moves of "player
 	private DecisionNode headChild;
@@ -25,7 +24,7 @@ public class DecisionNode {
 	// The points scored by choosing the greatest scoring/value child and then
 	// their greatest scoring/value child and so on until the bottom of the
 	// tree, which is known as the twigs
-	private int chosenPathValue;
+	private Integer chosenPathValue;
 
 	// Status of the current game state. ie. Check or Checkmate
 	private GameStatus status;
@@ -87,7 +86,7 @@ public class DecisionNode {
 	}
 
 	public DecisionNode(DecisionNode parent, Move move) {
-		this.parent = parent;
+		// this.parent = parent;
 
 		// Linked List data struct pointers
 		this.headChild = null;
@@ -250,13 +249,13 @@ public class DecisionNode {
 		this.move = nodeMove;
 	}
 
-	public void setParent(DecisionNode parent) {
-		this.parent = parent;
-	}
-
-	public DecisionNode getParent() {
-		return parent;
-	}
+	// private void setParent(DecisionNode parent) {
+	// this.parent = parent;
+	// }
+	//
+	// private DecisionNode getParent() {
+	// return parent;
+	// }
 
 	public DecisionNode getChosenChild() {
 		return headChild;
@@ -272,8 +271,19 @@ public class DecisionNode {
 	public int getChosenPathValue(int depth) {
 		int value;
 
-		if (childrenSize != 0) {
-			value = this.getMoveValue() - headChild.getChosenPathValue(depth + 1);
+		// if (childrenSize != 0) {
+		// value = this.getMoveValue() - headChild.getChosenPathValue(depth +
+		// 1);
+		// } else {
+		// value = chosenPathValue;
+		// }
+
+		if (chosenPathValue == null) {
+			if (headChild != null) {
+				value = this.getMoveValue() - headChild.getChosenPathValue(depth + 1);
+			}else{
+				value = 0;
+			}
 		} else {
 			value = chosenPathValue;
 		}
@@ -282,19 +292,23 @@ public class DecisionNode {
 			value = Values.CHECKMATE_MOVE - Values.CHECKMATE_DEPTH_INC * depth;
 		}
 
-//		if (status == GameStatus.STALEMATE || status == GameStatus.DRAW) {
-//			if (depth % 2 == 0) {
-//				value = -Values.STALEMATE_MOVE;
-//			}else{
-//				value = Values.STALEMATE_MOVE;
-//			}
-//		}
+		// if (status == GameStatus.STALEMATE || status == GameStatus.DRAW) {
+		// if (depth % 2 == 0) {
+		// value = -Values.STALEMATE_MOVE;
+		// }else{
+		// value = Values.STALEMATE_MOVE;
+		// }
+		// }
 
 		return value;
 	}
 
-	public void setChosenPathValue(int chosenPathValue) {
+	public void setChosenPathValue(Integer chosenPathValue) {
 		this.chosenPathValue = chosenPathValue;
+	}
+	
+	public boolean hasChosenPathValue(){
+		return (chosenPathValue != null);
 	}
 
 	public void finalize() {
@@ -321,11 +335,11 @@ public class DecisionNode {
 			}
 		}
 	}
-	
-	public int getPieceTakenValue(){
-		if(hasPieceTaken()){
+
+	public int getPieceTakenValue() {
+		if (hasPieceTaken()) {
 			return Values.getPieceValue(move.getPieceTaken().getPieceID());
-		}else{
+		} else {
 			return 0;
 		}
 	}
@@ -347,14 +361,9 @@ public class DecisionNode {
 	}
 
 	public String toString() {
-		boolean chosen;
-		if (parent != null)
-			chosen = parent.getChosenChild() == this;
-		else
-			chosen = false;
 
 		if (move != null)
-			return move.toString() + " Status =" + getStatus().name() + " Move Value =" + this.getMoveValue() + " Chosen Path Value =" + this.getChosenPathValue(0) + " Chosen: " + chosen;
+			return move.toString() + " Status =" + getStatus().name() + " Chosen Path Value =" + this.getChosenPathValue(0);
 		else
 			return "Board Start";
 	}

@@ -13,13 +13,6 @@ import chessIO.FileIO;
 import chessIO.XMLParser;
 
 public class Game implements PlayerContainer {
-	public static String VERSION = "0.3.031912";
-
-	private boolean debug;
-
-	private Board board;
-
-	private DecisionTreeGUI decisionTreeGUI;
 
 	private Hashtable<Side, Player> players;
 	private Vector<Player> observers;
@@ -67,7 +60,6 @@ public class Game implements PlayerContainer {
 	public Game(Hashtable<Side, Player> players) {
 
 		paused = false;
-		debug = false;
 
 		this.observers = new Vector<Player>();
 

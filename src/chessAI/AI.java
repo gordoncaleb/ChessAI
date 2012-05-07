@@ -1,15 +1,11 @@
 package chessAI;
 
-import java.util.Collection;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.BoardHashEntry;
-import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
@@ -19,7 +15,7 @@ import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.1.050612";
+	public static String VERSION = "1.1.050712";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -152,6 +148,8 @@ public class AI extends Thread implements Player {
 
 		moveNum = 0;
 		hashTable.clear();
+		
+		System.out.println("New game");
 
 	}
 
@@ -340,7 +338,7 @@ public class AI extends Thread implements Player {
 
 	}
 
-	private void cleanHashTable() {
+	public void cleanHashTable() {
 		
 		if(hashTable.size()>maxHashSize){
 			maxHashSize = hashTable.size();
@@ -400,7 +398,7 @@ public class AI extends Thread implements Player {
 
 		rootNode = newRootNode;
 
-		rootNode.setParent(null);
+		//rootNode.setParent(null);
 		rootNode.setNextSibling(rootNode);
 		rootNode.setPreviousSibling(rootNode);
 
@@ -544,6 +542,14 @@ public class AI extends Thread implements Player {
 	
 	public int getMaxHashSize(){
 		return maxHashSize;
+	}
+	
+	public DecisionNode getRootNode(){
+		return rootNode;
+	}
+	
+	public void toggleIterative(){
+		processorThreads[0].setIterativeDeepening(!processorThreads[0].getIterativeDeepening());
 	}
 
 }
