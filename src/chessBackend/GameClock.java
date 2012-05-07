@@ -8,12 +8,12 @@ public class GameClock {
 	private String[] name;
 	private long timeLimit;
 	private boolean paused;
+	private long[] maxTime;
 
-	public GameClock(String whitePlayerName, String blackPlayerName,
-			long whitePlayerTime, long blackPlayerTime, Side turn) {
-		
+	public GameClock(String whitePlayerName, String blackPlayerName, long whitePlayerTime, long blackPlayerTime, Side turn) {
+
 		this.name = new String[2];
-		
+
 		this.name[0] = whitePlayerName;
 		this.name[1] = blackPlayerName;
 		this.turn = turn;
@@ -26,6 +26,10 @@ public class GameClock {
 
 		timeLimit = 0;
 		paused = false;
+
+		maxTime = new long[2];
+		maxTime[0] = 0;
+		maxTime[1] = 0;
 	}
 
 	public void setTimeLimit(long timeLimit) {
@@ -35,13 +39,21 @@ public class GameClock {
 	public void reset() {
 		time[0] = 0;
 		time[1] = 0;
+		maxTime[0] = 0;
+		maxTime[1] = 0;
 		active = false;
 	}
 
 	public boolean hit() {
+		long timeDiff;
 
 		if (active) {
-			time[turn.ordinal()] += System.currentTimeMillis() - startTime;
+			timeDiff = System.currentTimeMillis() - startTime;
+			time[turn.ordinal()] += timeDiff;
+
+			if (timeDiff > maxTime[turn.ordinal()]) {
+				maxTime[turn.ordinal()] = timeDiff;
+			}
 
 			if (time[turn.ordinal()] > timeLimit && timeLimit != 0) {
 				// game over
@@ -59,12 +71,20 @@ public class GameClock {
 	}
 
 	public long getTime(Side side) {
-		
-		if(side == Side.NONE){
+
+		if (side == Side.NONE) {
 			return 0;
 		}
-		
+
 		return time[side.ordinal()];
+	}
+
+	public long getMaxTime(Side side) {
+		if (side == Side.NONE) {
+			return 0;
+		}
+
+		return maxTime[side.ordinal()];
 	}
 
 	public String getName(Side side) {

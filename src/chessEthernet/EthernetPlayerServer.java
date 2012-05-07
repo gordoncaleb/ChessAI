@@ -41,7 +41,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer {
 		this.stat = stat;
 		statNum = 0;
 
-		frame = new JFrame("EthernetPlayerServer");
+		frame = new JFrame(player.getVersion());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 
@@ -58,7 +58,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer {
 	}
 
 	public static void main(String[] args) {
-		
+		FileIO.setLogEnabled(false);
 		AI ai = new AI(null, true);
 		ai.setUseBook(true);
 		EthernetPlayerServer server = new EthernetPlayerServer(ai);

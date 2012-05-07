@@ -1,9 +1,14 @@
 package chessAI;
 
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import chessBackend.BitBoard;
 import chessBackend.Board;
+import chessBackend.BoardHashEntry;
 import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Player;
@@ -14,7 +19,7 @@ import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.1.050412";
+	public static String VERSION = "1.1.050612";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -39,13 +44,20 @@ public class AI extends Thread implements Player {
 	private int taskSize;
 	private DecisionNode nextTask;
 	private AIProcessor[] processorThreads;
+
+	private Hashtable<Long, BoardHashEntry> hashTable;
+	private int moveNum;
 	
+	private int maxHashSize = 0;
+
 	private boolean useBook;
 
 	public AI(PlayerContainer game, boolean debug) {
 		this.debug = debug;
 		this.game = game;
 		processing = new Object();
+		
+		hashTable = new Hashtable<Long, BoardHashEntry>();
 
 		undoMove = new AtomicBoolean();
 
@@ -69,9 +81,9 @@ public class AI extends Thread implements Player {
 		}
 
 		active = true;
-		
-		BitBoard.loadMasks();
 
+		BitBoard.loadMasks();
+		
 		this.start();
 	}
 
@@ -138,6 +150,9 @@ public class AI extends Thread implements Player {
 		makeMove = false;
 		undoMove.set(false);
 
+		moveNum = 0;
+		hashTable.clear();
+
 	}
 
 	public synchronized void makeMove() {
@@ -178,6 +193,8 @@ public class AI extends Thread implements Player {
 
 			setRootNode(decision);
 
+			moveNum++;
+
 			return true;
 
 		} else {
@@ -197,6 +214,8 @@ public class AI extends Thread implements Player {
 			return null;
 		}
 
+		cleanHashTable();
+		
 		long time = 0;
 		DecisionNode aiDecision;
 
@@ -224,7 +243,7 @@ public class AI extends Thread implements Player {
 		// debug print out of decision tree stats. i.e. the tree size and
 		// the values of the move options that the AI has
 		if (debug) {
-			//game.setDecisionTreeRoot(rootNode);
+			// game.setDecisionTreeRoot(rootNode);
 			printRootDebug();
 		}
 
@@ -321,6 +340,33 @@ public class AI extends Thread implements Player {
 
 	}
 
+	private void cleanHashTable() {
+		
+		if(hashTable.size()>maxHashSize){
+			maxHashSize = hashTable.size();
+		}
+		
+		hashTable.clear();
+
+//		int delFrom = moveNum - 3;
+//		int removed = 0;
+//
+//		if (delFrom > 0) {
+//			Iterator<BoardHashEntry> it = hashTable.values().iterator();
+//			BoardHashEntry entry;
+//			while(it.hasNext()) {
+//				entry = it.next();
+//				if (entry.getMoveNum() < delFrom) {
+//					it.remove();
+//					removed++;
+//				}
+//				
+//			}
+//		}
+//		
+//		System.out.println("Removed " + removed + " entries from hashtable");
+	}
+
 	private void undoMoveOnSubThreads() {
 		if (canUndo()) {
 
@@ -341,7 +387,13 @@ public class AI extends Thread implements Player {
 	}
 
 	public synchronized Move makeRecommendation() {
-		return getAIDecision().getMove();
+		DecisionNode rec = getAIDecision();
+
+		if (rec != null) {
+			return rec.getMove();
+		} else {
+			return null;
+		}
 	}
 
 	private void setRootNode(DecisionNode newRootNode) {
@@ -472,14 +524,26 @@ public class AI extends Thread implements Player {
 	public int getMoveChosenPathValue(Move m) {
 		return getMatchingDecisionNode(m).getChosenPathValue(0);
 	}
-	
-	public void setUseBook(boolean useBook){
+
+	public void setUseBook(boolean useBook) {
 		this.useBook = useBook;
 	}
 
 	@Override
 	public String getVersion() {
 		return AI.VERSION;
+	}
+
+	public Hashtable<Long, BoardHashEntry> getHashTable() {
+		return hashTable;
+	}
+
+	public int getMoveNum() {
+		return moveNum;
+	}
+	
+	public int getMaxHashSize(){
+		return maxHashSize;
 	}
 
 }

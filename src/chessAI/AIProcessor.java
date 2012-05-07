@@ -35,11 +35,12 @@ public class AIProcessor extends Thread {
 		this.maxTwigLevel = maxTwigLevel;
 		pruningEnabled = true;
 		twigGrowthEnabled = true;
-		aspirationWindowSize = 10;
+		aspirationWindowSize = 0;
 
 		threadActive = true;
 
-		hashTable = new Hashtable<Long, BoardHashEntry>();
+		hashTable = ai.getHashTable();
+
 	}
 
 	@Override
@@ -58,7 +59,7 @@ public class AIProcessor extends Thread {
 					executeTask();
 
 					System.out.println("HashTable size = " + hashTable.size());
-					hashTable.clear();
+					// hashTable.clear();
 				}
 
 			}
@@ -157,7 +158,11 @@ public class AIProcessor extends Thread {
 
 			branch.setStatus(board.getBoardStatus());
 
-			if (branch.isGameOver()) {
+			if (board.isGameOver()) {
+				if (board.isInStaleMate() || board.isDraw()) {
+					branch.setChosenPathValue((board.winningBy(board.getTurn()) + branch.getPieceTakenValue()) / Values.DRAW_DIVISOR);
+				}
+
 				return;
 			}
 
@@ -194,7 +199,7 @@ public class AIProcessor extends Thread {
 						// }
 
 						// check to see if depth is sufficient
-						if (hashOut.getLevel() > (level + maxTwigLevel)) {
+						if (hashOut.getLevel() >= (level + maxTwigLevel)) {
 							skip = true;
 						}
 					} else {
@@ -224,8 +229,8 @@ public class AIProcessor extends Thread {
 						}
 
 						// add new entry into hash table
-						hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, newNode.getChosenPathValue(0)));// ,
-																																	// board.toString()));
+						//hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, newNode.getChosenPathValue(0)));// ,
+						// board.toString()));
 					} else {
 						newNode.setChosenPathValue(hashOut.getScore());
 					}
@@ -238,7 +243,7 @@ public class AIProcessor extends Thread {
 
 				// alpha beta pruning
 				if (pruningEnabled) {
-					if (branch.getMoveValue() - newNode.getChosenPathValue(0) < alphaBeta + aspirationWindowSize) {
+					if (branch.getMoveValue() - newNode.getChosenPathValue(0) <= alphaBeta + aspirationWindowSize) {
 						pruned = true;
 					}
 				}
@@ -274,9 +279,15 @@ public class AIProcessor extends Thread {
 						// explore down tree
 						growDecisionTree(currentChild, level - 1, newAlphaBeta);
 
-						// add new entry into hash table
-						hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, currentChild.getChosenPathValue(0)));// ,
-																																			// board.toString()));
+						if ((hashOut = hashTable.get(board.getHashCode())) != null) {
+
+							if (hashOut.getLevel() < level + maxTwigLevel) {
+								// update entry into hash table
+								//hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, currentChild.getChosenPathValue(0)));
+							}
+						}else{
+							//hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, currentChild.getChosenPathValue(0)));
+						}
 
 						board.undoMove();
 
@@ -286,7 +297,7 @@ public class AIProcessor extends Thread {
 				// alpha beta pruning
 				if (pruningEnabled) {
 
-					if (branch.getMoveValue() - currentChild.getChosenPathValue(0) < alphaBeta + aspirationWindowSize) {
+					if (branch.getMoveValue() - currentChild.getChosenPathValue(0) <= alphaBeta + aspirationWindowSize) {
 						pruned = true;
 					}
 
@@ -349,18 +360,15 @@ public class AIProcessor extends Thread {
 		GameStatus tempBoardState;
 
 		BoardHashEntry hashOut;
-		boolean skip;
 
 		int childsBestPathValue = Integer.MIN_VALUE;
 
 		moves = board.generateValidMoves();
 
-		for (int m = 0; m < moves.size(); m++) {
-			move = moves.elementAt(m);
+		if (!board.isGameOver()) {
 
-			skip = false;
-
-			if ((level > 0 || board.isInCheck() || move.getPieceTaken() != null) && (level > -maxFrontierLevel)) {
+			for (int m = 0; m < moves.size(); m++) {
+				move = moves.elementAt(m);
 
 				tempBoardState = board.getBoardStatus();
 
@@ -368,39 +376,46 @@ public class AIProcessor extends Thread {
 
 				hashOut = hashTable.get(board.getHashCode());
 
-				if (hashOut != null) {
+				if (hashOut == null) {
+					if ((level > 0 || board.isInCheck() || move.getPieceTaken() != null) && (level > -maxFrontierLevel)) {
 
-					if (hashOut.getLevel() > level) {
-						skip = true;
+						suggestedPathValue = growDecisionTreeLite(board, move, childsBestPathValue, level - 1);
+						//hashTable.put(board.getHashCode(), new BoardHashEntry(level, suggestedPathValue));
+
+					} else {
+
+						suggestedPathValue = move.getValue();
+						//hashTable.put(board.getHashCode(), new BoardHashEntry(0, suggestedPathValue));
+
 					}
+
 				} else {
-					// hashTable.put(board.getHashCode(), new
-					// HashTableEntry(level, 0));
+					if (hashOut.getLevel() >= level) {
+						// use hashed value
+						suggestedPathValue = hashOut.getScore();
+
+					} else {
+
+						suggestedPathValue = growDecisionTreeLite(board, move, childsBestPathValue, level - 1);
+
+						// update hashtable
+						//hashTable.put(board.getHashCode(), new BoardHashEntry(level, suggestedPathValue));
+
+					}
 				}
 
-				if (!skip) {
-					suggestedPathValue = growDecisionTreeLite(board, move, childsBestPathValue, level - 1);
-
-					hashTable.put(board.getHashCode(), new BoardHashEntry(level, suggestedPathValue));// ,
-																										// board.toString()));
-				} else {
-					suggestedPathValue = hashOut.getScore();
+				if (suggestedPathValue > childsBestPathValue) {
+					childsBestPathValue = suggestedPathValue;
 				}
 
 				board.undoMove();
 
 				board.setBoardStatus(tempBoardState);
 
-			} else {
-				suggestedPathValue = move.getValue();
-			}
+				if (parentMove.getValue() - childsBestPathValue <= alphaBeta + aspirationWindowSize) {
+					break;
+				}
 
-			if (suggestedPathValue > childsBestPathValue) {
-				childsBestPathValue = suggestedPathValue;
-			}
-
-			if (parentMove.getValue() - childsBestPathValue < alphaBeta + aspirationWindowSize) {
-				break;
 			}
 
 		}
@@ -408,10 +423,10 @@ public class AIProcessor extends Thread {
 		int parentsBestPathValue;
 
 		if (board.isInCheckMate()) {
-			parentsBestPathValue = Values.CHECKMATE_MOVE - (maxTwigLevel - level + maxTreeLevel) * Values.CHECKMATE_DEPTH_INC;
+			parentsBestPathValue = Values.CHECKMATE_MOVE - (maxTwigLevel - level + maxTreeLevel + 1) * Values.CHECKMATE_DEPTH_INC;
 		} else {
-			if (board.isInStaleMate()) {
-				parentsBestPathValue = Values.STALEMATE_MOVE;
+			if (board.isInStaleMate() || board.isDraw()) {
+				parentsBestPathValue = (board.winningBy(board.getTurn()) + parentMove.getValue()) / Values.DRAW_DIVISOR;
 			} else {
 				parentsBestPathValue = parentMove.getValue() - childsBestPathValue;
 			}

@@ -36,8 +36,6 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	public static void main(String[] args){
 		boolean debug = false;
 
-		FileIO.initLog();
-
 		PlayerGUI playerOne = new PlayerGUI(null, debug);
 		AI playerTwo = new AI(null, debug);
 		playerTwo.setUseBook(true);

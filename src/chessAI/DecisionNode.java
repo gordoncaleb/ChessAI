@@ -282,9 +282,13 @@ public class DecisionNode {
 			value = Values.CHECKMATE_MOVE - Values.CHECKMATE_DEPTH_INC * depth;
 		}
 
-		if (status == GameStatus.STALEMATE) {
-			value = -Values.STALEMATE_MOVE;
-		}
+//		if (status == GameStatus.STALEMATE || status == GameStatus.DRAW) {
+//			if (depth % 2 == 0) {
+//				value = -Values.STALEMATE_MOVE;
+//			}else{
+//				value = Values.STALEMATE_MOVE;
+//			}
+//		}
 
 		return value;
 	}
@@ -317,6 +321,14 @@ public class DecisionNode {
 			}
 		}
 	}
+	
+	public int getPieceTakenValue(){
+		if(hasPieceTaken()){
+			return Values.getPieceValue(move.getPieceTaken().getPieceID());
+		}else{
+			return 0;
+		}
+	}
 
 	public boolean isGameOver() {
 		if (status == GameStatus.CHECKMATE || status == GameStatus.STALEMATE || status == GameStatus.DRAW) {
@@ -342,8 +354,7 @@ public class DecisionNode {
 			chosen = false;
 
 		if (move != null)
-			return move.toString() + " Status =" + getStatus().name() + " Move Value =" + this.getMoveValue() + " Chosen Path Value ="
-					+ this.getChosenPathValue(0) + " Chosen: " + chosen;
+			return move.toString() + " Status =" + getStatus().name() + " Move Value =" + this.getMoveValue() + " Chosen Path Value =" + this.getChosenPathValue(0) + " Chosen: " + chosen;
 		else
 			return "Board Start";
 	}

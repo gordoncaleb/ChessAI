@@ -1,19 +1,29 @@
 package chessBackend;
 
 public class GameResults {
-	
+
 	private Side winner;
 	private int winBy;
-	
-	private long winnerTime;
-	private long loserTime;
 
-	public GameResults(Side winner, int winBy, long winnerTime, long loserTime) {
+	private long whiteTime;
+	private long blackTime;
+
+	private long maxWhiteTime;
+	private long maxBlackTime;
+
+	private long numOfMoves;
+
+	public GameResults(Side winner, int winBy, long whiteTime, long blackTime, int numOfMoves, long maxWhiteTime, long maxBlackTime) {
 		this.winner = winner;
 		this.winBy = winBy;
-		
-		this.winnerTime = winnerTime;
-		this.loserTime = loserTime;
+
+		this.numOfMoves = numOfMoves;
+
+		this.whiteTime = whiteTime;
+		this.blackTime = blackTime;
+
+		this.maxWhiteTime = maxWhiteTime;
+		this.maxBlackTime = maxBlackTime;
 	}
 
 	public Side getWinner() {
@@ -32,23 +42,29 @@ public class GameResults {
 		this.winBy = winBy;
 	}
 
-	public long getWinnerTime() {
-		return winnerTime;
+	public long getTime(Side side) {
+		if (side == Side.WHITE) {
+			return whiteTime;
+		} else {
+			return blackTime;
+		}
 	}
 
-	public void setWinnerTime(long winnerTime) {
-		this.winnerTime = winnerTime;
+	public long getNumOfMoves() {
+		return numOfMoves;
 	}
 
-	public long getLoserTime() {
-		return loserTime;
+	public void setNumOfMoves(long numOfMoves) {
+		this.numOfMoves = numOfMoves;
 	}
 
-	public void setLoserTime(long loserTime) {
-		this.loserTime = loserTime;
+	public long getMaxTime(Side side) {
+		if (side == Side.WHITE) {
+			return maxWhiteTime;
+		} else {
+			return maxBlackTime;
+		}
 	}
-	
-	
-	
+
 
 }

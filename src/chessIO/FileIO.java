@@ -8,8 +8,9 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 
 public class FileIO {
-	
+
 	private static boolean logFileReady;
+	private static boolean useLogFile = true;
 
 	/**
 	 * Fetch the entire contents of a text file, and return it in a String. This
@@ -90,11 +91,17 @@ public class FileIO {
 
 	}
 
-	public static void initLog() {
+	private static void initLog() {
 
-		writeFile("log.txt", "Log File Start:\n", false);
-		logFileReady = true;
+		if (useLogFile) {
+			writeFile("log.txt", "Log File Start:\n", false);
+			logFileReady = true;
+		}
 
+	}
+
+	public static void setLogEnabled(boolean enable) {
+		useLogFile = enable;
 	}
 
 	public static BufferedImage readImage(String fileName) {
@@ -114,12 +121,17 @@ public class FileIO {
 
 	public static void log(String msg) {
 
-		if(!logFileReady){
-			initLog();
+		if (useLogFile) {
+
+			if (!logFileReady) {
+				initLog();
+			}
+
+			writeFile("log.txt", msg + "\n", true);
+
 		}
-		
+
 		System.out.println(msg);
-		writeFile("log.txt", msg + "\n", true);
 
 	}
 

@@ -113,8 +113,8 @@ public class Game implements PlayerContainer {
 				}
 			}
 
-			return new GameResults(adjudicator.getWinner(), 0, clock.getTime(adjudicator.getWinner()), clock.getTime(adjudicator.getWinner()
-					.otherSide()));
+			return new GameResults(adjudicator.getWinner(), adjudicator.getBoard().winningBy(adjudicator.getWinner()), clock.getTime(Side.WHITE),
+					clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE), clock.getMaxTime(Side.BLACK));
 		}
 
 		return null;

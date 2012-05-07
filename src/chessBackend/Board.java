@@ -530,6 +530,23 @@ public class Board {
 		return value;
 
 	}
+	
+	public int winningBy(Side player){
+		int ptDiff = 0;
+		
+		Vector<Piece> myPieces = getPiecesFor(player);
+		Vector<Piece> otherPieces = getPiecesFor(player.otherSide());
+		
+		for(int i=0;i<myPieces.size();i++){
+			ptDiff += Values.getPieceValue(myPieces.elementAt(i).getPieceID());
+		}
+		
+		for(int i=0;i<otherPieces.size();i++){
+			ptDiff -= Values.getPieceValue(otherPieces.elementAt(i).getPieceID());
+		}
+		
+		return ptDiff;
+	}
 
 	public Piece getPiece(int row, int col) {
 		return board[row][col];

@@ -153,7 +153,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			toSqr.showChessPiece(fromSqr.getPieceID(), fromSqr.getPlayer());
 
 			fromSqr.clearChessPiece();
-			
+
 			Piece piece = adjudicator.getPiece(fromSqr.getRow(), fromSqr.getCol());
 			adjudicator.placePiece(piece, toSqr.getRow(), toSqr.getCol());
 		}
@@ -165,7 +165,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			takePiece(fromSqr.getPieceID(), fromSqr.getPlayer());
 
 			fromSqr.clearChessPiece();
-			
+
 			Piece piece = adjudicator.getPiece(fromSqr.getRow(), fromSqr.getCol());
 			adjudicator.placePiece(piece, -1, -1);
 		}
@@ -174,7 +174,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		if (fromComponent instanceof JPieceTakenLabel && toComponent instanceof SquarePanel) {
 			SquarePanel toSqr = (SquarePanel) toComponent;
 			JPieceTakenLabel fromLbl = (JPieceTakenLabel) fromComponent;
-			
+
 			if (toSqr.getPieceID() != null) {
 				takePiece(toSqr.getPieceID(), toSqr.getPlayer());
 			}
@@ -184,7 +184,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			fromLbl.getParent().remove(fromLbl);
 			lostWhitePiecesPanel.updateUI();
 			lostBlackPiecesPanel.updateUI();
-			
+
 			Piece piece = Piece.createPiece(fromLbl.getPieceID(), fromLbl.getPlayer(), -1, -1, false);
 			adjudicator.placePiece(piece, toSqr.getRow(), toSqr.getCol());
 		}
@@ -515,11 +515,15 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			if (selectedComponent == null) {
 				if (clickedSquare.hasPiece()) {
 
-					selectedComponent = clickedSquare;
-					selectedComponent.showAsSelected(true);
+					if (arg0.isControlDown() && freelyMove) {
+						freeMove(clickedSquare, null);
+					} else {
+						selectedComponent = clickedSquare;
+						selectedComponent.showAsSelected(true);
 
-					if (!freelyMove) {
-						colorValidMoveSquares(clickedSquare, true);
+						if (!freelyMove) {
+							colorValidMoveSquares(clickedSquare, true);
+						}
 					}
 				}
 

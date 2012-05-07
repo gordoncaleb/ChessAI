@@ -72,6 +72,10 @@ public class Adjudicator {
 
 		return validMoves;
 	}
+	
+	public Vector<Move> getMoveHistory(){
+		return board.getMoveHistory();
+	}
 
 	public Side getTurn() {
 		return board.getTurn();

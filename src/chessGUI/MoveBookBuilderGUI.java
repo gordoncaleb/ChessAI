@@ -299,6 +299,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 				freelyMoveBtn.setText("Moving Freely");
 			}else{
 				freelyMoveBtn.setText("Free Move?");
+				populateMoveList();
 			}
 		}
 
