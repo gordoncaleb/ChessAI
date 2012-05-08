@@ -15,7 +15,7 @@ import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.1.050712.2";
+	public static String VERSION = "1.1.050812";
 	private boolean debug;
 
 	private PlayerContainer game;

@@ -40,12 +40,16 @@ public class TournamentGUI {
 
 		Player playerTwo = new EthernetPlayerClient();
 
-		System.out.println("Player One: " + playerOne.getVersion());
-		System.out.println("Player Two: " + playerTwo.getVersion());
+		String playerOneVersion = playerOne.getVersion();
+		String playerTwoVersion = playerTwo.getVersion();
+		
+		System.out.println("Player One: " + playerOneVersion);
+		System.out.println("Player Two: " + playerTwoVersion);
 
 		((AI) playerOne).setUseBook(true);
 
 		Board defaultBoard = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
+		System.out.println(defaultBoard.toString());
 
 		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
 
@@ -54,8 +58,8 @@ public class TournamentGUI {
 
 		Hashtable<Player, String> playerNames = new Hashtable<Player, String>();
 
-		playerNames.put(playerOne, playerOne.getVersion());
-		playerNames.put(playerTwo, playerTwo.getVersion());
+		playerNames.put(playerOne, playerOneVersion);
+		playerNames.put(playerTwo, playerTwoVersion);
 
 		Hashtable<String, Long[]> playerScore = new Hashtable<String, Long[]>();
 
@@ -76,6 +80,7 @@ public class TournamentGUI {
 		int numOfGames = 1000;
 		for (int i = 0; i < numOfGames; i++) {
 
+			System.out.println("Game#" + i);
 			results = game.newGame(defaultBoard, true);
 
 			if (results.getWinner() != Side.NONE) {

@@ -22,6 +22,36 @@ public class Board {
 	private long[] nullMoveInfo;
 	private long[] posBitBoard;
 
+	public static void main(String[] args) {
+		BitBoard.loadMasks();
+		Board board = Game.getDefaultBoard();
+
+		Vector<Move> moves = board.generateValidMoves();
+
+		Move m = moves.elementAt(0);
+
+		int its = 10000000;
+
+		long t1 = System.currentTimeMillis();
+		for (int i = 0; i < its; i++) {
+			board.makeMove(m);
+			moves = board.generateValidMoves();
+			board.undoMove();
+		}
+
+		long A = System.currentTimeMillis() - t1;
+
+		t1 = System.currentTimeMillis();
+		for (int i = 0; i < its; i++) {
+			board.makeMove(m);
+			board.undoMove();
+		}
+		
+		long B = System.currentTimeMillis() - t1;
+		
+		System.out.println("A= " + A + ", B= " + B + " A/B=" +(double)A/(double)B);
+	}
+
 	public Board(Piece[][] board, Vector<Piece> blackPieces, Vector<Piece> whitePieces, long[] posBitBoard, Piece blackKing, Piece whiteKing,
 			Side turn, Stack<Move> moveHistory, Long hashCode) {
 
@@ -530,21 +560,21 @@ public class Board {
 		return value;
 
 	}
-	
-	public int winningBy(Side player){
+
+	public int winningBy(Side player) {
 		int ptDiff = 0;
-		
+
 		Vector<Piece> myPieces = getPiecesFor(player);
 		Vector<Piece> otherPieces = getPiecesFor(player.otherSide());
-		
-		for(int i=0;i<myPieces.size();i++){
+
+		for (int i = 0; i < myPieces.size(); i++) {
 			ptDiff += Values.getPieceValue(myPieces.elementAt(i).getPieceID());
 		}
-		
-		for(int i=0;i<otherPieces.size();i++){
+
+		for (int i = 0; i < otherPieces.size(); i++) {
 			ptDiff -= Values.getPieceValue(otherPieces.elementAt(i).getPieceID());
 		}
-		
+
 		return ptDiff;
 	}
 
@@ -641,7 +671,7 @@ public class Board {
 			// update board ref to show piece there
 			board[toRow][toCol] = piece;
 		} else {
-			// piece is being taken off the board. Remove 
+			// piece is being taken off the board. Remove
 			if (piece.getSide() == Side.WHITE) {
 				whitePieces.remove(piece);
 			} else {
