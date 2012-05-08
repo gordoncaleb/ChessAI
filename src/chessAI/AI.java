@@ -15,7 +15,7 @@ import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.1.050712";
+	public static String VERSION = "1.1.050712.2";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -546,10 +546,6 @@ public class AI extends Thread implements Player {
 	
 	public DecisionNode getRootNode(){
 		return rootNode;
-	}
-	
-	public void toggleIterative(){
-		processorThreads[0].setIterativeDeepening(!processorThreads[0].getIterativeDeepening());
 	}
 
 }

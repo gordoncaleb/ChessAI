@@ -316,7 +316,6 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		
 		if (e.getSource() == clearHashTableBtn) {
 			ai.cleanHashTable();
-			ai.toggleIterative();
 		}
 		
 		

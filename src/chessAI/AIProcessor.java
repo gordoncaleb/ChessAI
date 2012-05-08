@@ -3,9 +3,7 @@ package chessAI;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import chessBackend.BitBoard;
 import chessBackend.Board;
-import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.BoardHashEntry;
 import chessBackend.Move;
@@ -18,7 +16,8 @@ public class AIProcessor extends Thread {
 	private int maxTreeLevel;
 	private int maxTwigLevel;
 	private boolean twigGrowthEnabled;
-	private boolean iterativeDeepening;
+	private final boolean iterativeDeepening = false;
+	private final boolean useHashTable = true;
 
 	private int maxFrontierLevel = 2;
 
@@ -37,7 +36,6 @@ public class AIProcessor extends Thread {
 		this.maxTwigLevel = maxTwigLevel;
 		pruningEnabled = true;
 		twigGrowthEnabled = true;
-		iterativeDeepening = false;
 		aspirationWindowSize = 0;
 
 		threadActive = true;
@@ -153,7 +151,9 @@ public class AIProcessor extends Thread {
 					growDecisionTree(task, maxTreeLevel, ab);
 				}
 
-				hashTable.put(board.getHashCode(), new BoardHashEntry(maxTreeLevel + maxTwigLevel + 1, task.getChosenPathValue(0)));
+				if (useHashTable) {
+					hashTable.put(board.getHashCode(), new BoardHashEntry(maxTreeLevel + maxTwigLevel + 1, task.getChosenPathValue(0)));
+				}
 			}
 
 			board.undoMove();
@@ -203,7 +203,7 @@ public class AIProcessor extends Thread {
 				move = moves.elementAt(m);
 
 				hashHit = false;
-				
+
 				newNode = new DecisionNode(branch, move);
 
 				if (pruned) {
@@ -244,8 +244,10 @@ public class AIProcessor extends Thread {
 
 						}
 
-						// add or update new entry into hash table
-						hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, newNode.getChosenPathValue(0)));
+						if (useHashTable) {
+							// add or update new entry into hash table
+							hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, newNode.getChosenPathValue(0)));
+						}
 					}
 
 					board.undoMove();
@@ -277,7 +279,7 @@ public class AIProcessor extends Thread {
 				nextChild = currentChild.getNextSibling();
 
 				hashHit = false;
-				
+
 				if (pruned) {
 
 					currentChild.setChosenPathValue(currentChild.getMoveValue());
@@ -305,7 +307,9 @@ public class AIProcessor extends Thread {
 						if (!hashHit) {
 							currentChild.setChosenPathValue(null);
 							growDecisionTree(currentChild, level - 1, newAlphaBeta);
-							hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, currentChild.getChosenPathValue(0)));
+							if (useHashTable) {
+								hashTable.put(board.getHashCode(), new BoardHashEntry(level + maxTwigLevel, currentChild.getChosenPathValue(0)));
+							}
 						}
 
 						board.undoMove();
@@ -389,7 +393,7 @@ public class AIProcessor extends Thread {
 
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
-				
+
 				hashHit = false;
 
 				tempBoardState = board.getBoardStatus();
@@ -461,12 +465,5 @@ public class AIProcessor extends Thread {
 	public synchronized void setPruningEnabled(boolean pruningEnabled) {
 		this.pruningEnabled = pruningEnabled;
 	}
-	
-	public synchronized void setIterativeDeepening(boolean iterativeDeepening){
-		this.iterativeDeepening = iterativeDeepening;
-	}
-	
-	public synchronized boolean getIterativeDeepening(){
-		return iterativeDeepening;
-	}
+
 }
