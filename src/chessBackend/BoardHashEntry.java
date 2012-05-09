@@ -1,16 +1,25 @@
 package chessBackend;
 
 public class BoardHashEntry {
+	public static final int hashIndexSize = 20;
+	public static final long hashIndexMask = (long)(Math.pow(2, hashIndexSize) - 1);
 	private int score;
 	private int level;
 	private int moveNum;
-	//private String boardString;
-	
-	public BoardHashEntry(int level, int score, int moveNum){//, String boardString){
+	private long hashCode;
+
+	public BoardHashEntry(long hashCode, int level, int score, int moveNum) {
 		this.score = score;
 		this.level = level;
 		this.moveNum = moveNum;
-		//this.boardString = boardString;
+		this.hashCode = hashCode;
+	}
+	
+	public void setAll(long hashCode, int level, int score, int moveNum){
+		this.score = score;
+		this.level = level;
+		this.moveNum = moveNum;
+		this.hashCode = hashCode;
 	}
 
 	public int getScore() {
@@ -28,19 +37,29 @@ public class BoardHashEntry {
 	public void setLevel(int level) {
 		this.level = level;
 	}
-	
-	public int getMoveNum(){
+
+	public int getMoveNum() {
 		return moveNum;
 	}
 
-//	public String getBoardString() {
-//		return boardString;
-//	}
-//
-//	public void setBoardString(String boardString) {
-//		this.boardString = boardString;
-//	}
-	
-	
+	public void setMoveNum(int moveNum) {
+		this.moveNum = moveNum;
+	}
+
+	public long getHashCode() {
+		return hashCode;
+	}
+
+	public void setHashCode(long hashCode) {
+		this.hashCode = hashCode;
+	}
+
+	// public String getBoardString() {
+	// return boardString;
+	// }
+	//
+	// public void setBoardString(String boardString) {
+	// this.boardString = boardString;
+	// }
 
 }

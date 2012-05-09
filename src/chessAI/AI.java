@@ -42,7 +42,9 @@ public class AI extends Thread implements Player {
 	private DecisionNode nextTask;
 	private AIProcessor[] processorThreads;
 
-	private Hashtable<Long, BoardHashEntry> hashTable;
+	//private Hashtable<Long, BoardHashEntry> hashTable;
+	
+	private BoardHashEntry[] hashTable;
 	private int moveNum;
 	
 	private int maxHashSize = 0;
@@ -54,7 +56,7 @@ public class AI extends Thread implements Player {
 		this.game = game;
 		processing = new Object();
 		
-		hashTable = new Hashtable<Long, BoardHashEntry>();
+		hashTable = new BoardHashEntry[(int)Math.pow(2, BoardHashEntry.hashIndexSize)];//new Hashtable<Long, BoardHashEntry>();
 
 		undoMove = new AtomicBoolean();
 
@@ -148,7 +150,7 @@ public class AI extends Thread implements Player {
 		undoMove.set(false);
 
 		moveNum = 0;
-		hashTable.clear();
+		//hashTable.clear();
 		
 		System.out.println("New game");
 
@@ -341,27 +343,27 @@ public class AI extends Thread implements Player {
 
 	public void cleanHashTable() {
 		
-		if(hashTable.size()>maxHashSize){
-			maxHashSize = hashTable.size();
-		}
-		
-		//hashTable.clear();
-
-		int delFrom = moveNum - 2;
-		int removed = 0;
-
-		if (delFrom > 0) {
-			Iterator<BoardHashEntry> it = hashTable.values().iterator();
-			BoardHashEntry entry;
-			while(it.hasNext()) {
-				entry = it.next();
-				if (entry.getMoveNum() < delFrom) {
-					it.remove();
-					removed++;
-				}
-				
-			}
-		}
+//		if(hashTable.size()>maxHashSize){
+//			maxHashSize = hashTable.size();
+//		}
+//		
+//		//hashTable.clear();
+//
+//		int delFrom = moveNum - 2;
+//		int removed = 0;
+//
+//		if (delFrom > 0) {
+//			Iterator<BoardHashEntry> it = hashTable.values().iterator();
+//			BoardHashEntry entry;
+//			while(it.hasNext()) {
+//				entry = it.next();
+//				if (entry.getMoveNum() < delFrom) {
+//					it.remove();
+//					removed++;
+//				}
+//				
+//			}
+//		}
 //		
 //		System.out.println("Removed " + removed + " entries from hashtable");
 	}
@@ -533,7 +535,7 @@ public class AI extends Thread implements Player {
 		return AI.VERSION;
 	}
 
-	public Hashtable<Long, BoardHashEntry> getHashTable() {
+	public BoardHashEntry[] getHashTable() {
 		return hashTable;
 	}
 

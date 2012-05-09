@@ -46,10 +46,10 @@ public class Board {
 			board.makeMove(m);
 			board.undoMove();
 		}
-		
+
 		long B = System.currentTimeMillis() - t1;
-		
-		System.out.println("A= " + A + ", B= " + B + " A/B=" +(double)A/(double)B);
+
+		System.out.println("A= " + A + ", B= " + B + " A/B=" + (double) A / (double) B);
 	}
 
 	public Board(Piece[][] board, Vector<Piece> blackPieces, Vector<Piece> whitePieces, long[] posBitBoard, Piece blackKing, Piece whiteKing,
@@ -869,6 +869,10 @@ public class Board {
 		}
 
 		return hashCode;
+	}
+
+	public int getHashIndex() {
+		return (int) (hashCode & BoardHashEntry.hashIndexMask);
 	}
 
 	public long getHashCode() {
