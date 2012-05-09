@@ -9,7 +9,7 @@ public class Values {
 	public static final int PAWN_VALUE = 100;
 	public static final int CASTLE_VALUE = 80;
 	public static final int CASTLE_ABILITY_LOST_VALUE = -40;
-	public static final int RISK_QUEEN = -10;
+	public static final int RISK_QUEEN = 0;
 	public static final int KNIGHT_ENDGAME_INC = 6;
 	public static final int CHECKMATE_MOVE = 2*KING_VALUE;
 	public static final int STALEMATE_MOVE = 0;

@@ -3,11 +3,13 @@ package chessBackend;
 public class BoardHashEntry {
 	private int score;
 	private int level;
+	private int moveNum;
 	//private String boardString;
 	
-	public BoardHashEntry(int level, int score){//, String boardString){
+	public BoardHashEntry(int level, int score, int moveNum){//, String boardString){
 		this.score = score;
 		this.level = level;
+		this.moveNum = moveNum;
 		//this.boardString = boardString;
 	}
 
@@ -25,6 +27,10 @@ public class BoardHashEntry {
 
 	public void setLevel(int level) {
 		this.level = level;
+	}
+	
+	public int getMoveNum(){
+		return moveNum;
 	}
 
 //	public String getBoardString() {

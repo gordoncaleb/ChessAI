@@ -1,6 +1,7 @@
 package chessAI;
 
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import chessBackend.BitBoard;
@@ -61,7 +62,7 @@ public class AI extends Thread implements Player {
 		moveBook.loadMoveBook();
 
 		// Default levels
-		maxDecisionTreeLevel = 2;
+		maxDecisionTreeLevel = 3;
 		maxTwigLevel = 0;
 
 		// processorThreads = new
@@ -344,23 +345,23 @@ public class AI extends Thread implements Player {
 			maxHashSize = hashTable.size();
 		}
 		
-		hashTable.clear();
+		//hashTable.clear();
 
-//		int delFrom = moveNum - 3;
-//		int removed = 0;
-//
-//		if (delFrom > 0) {
-//			Iterator<BoardHashEntry> it = hashTable.values().iterator();
-//			BoardHashEntry entry;
-//			while(it.hasNext()) {
-//				entry = it.next();
-//				if (entry.getMoveNum() < delFrom) {
-//					it.remove();
-//					removed++;
-//				}
-//				
-//			}
-//		}
+		int delFrom = moveNum - 2;
+		int removed = 0;
+
+		if (delFrom > 0) {
+			Iterator<BoardHashEntry> it = hashTable.values().iterator();
+			BoardHashEntry entry;
+			while(it.hasNext()) {
+				entry = it.next();
+				if (entry.getMoveNum() < delFrom) {
+					it.remove();
+					removed++;
+				}
+				
+			}
+		}
 //		
 //		System.out.println("Removed " + removed + " entries from hashtable");
 	}
