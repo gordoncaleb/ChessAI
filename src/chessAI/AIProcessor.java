@@ -1,6 +1,5 @@
 package chessAI;
 
-import java.util.Hashtable;
 import java.util.Vector;
 
 import chessBackend.Board;
@@ -95,10 +94,10 @@ public class AIProcessor extends Thread {
 		this.rootNode = rootNode;
 
 		// if game isnt over make sure tree root shows what next valid moves are
-		if (!this.rootNode.hasChildren() && !this.rootNode.isGameOver()) {
+		if (!this.rootNode.hasChildren()) {
 			Vector<Move> moves = board.generateValidMoves();
 			for (int m = 0; m < moves.size(); m++) {
-				this.rootNode.addChild(new DecisionNode(this.rootNode, moves.elementAt(m)));
+				this.rootNode.addChild(new DecisionNode(moves.elementAt(m)));
 			}
 		}
 
@@ -113,7 +112,7 @@ public class AIProcessor extends Thread {
 		while ((task = ai.getNextTask()) != null) {
 
 			if (rootNode.getHeadChild() != null) {
-				ab = rootNode.getHeadChild().getChosenPathValue(0);
+				ab = rootNode.getHeadChild().getChosenPathValue(0, 0);
 			}
 
 			board.makeMove(task.getMove());
@@ -155,11 +154,11 @@ public class AIProcessor extends Thread {
 				if (useHashTable) {
 					if (hashOut == null) {
 						hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), maxTreeLevel + maxTwigLevel + 2,
-								task.getChosenPathValue(0), ai.getMoveNum());
+								task.getChosenPathValue(0, 0), ai.getMoveNum());
 					} else {
 						if (hashTableUpdate(hashOut, maxTreeLevel + maxTwigLevel + 2, ai.getMoveNum())) {
-							hashTable[board.getHashIndex()].setAll(board.getHashCode(), maxTreeLevel + maxTwigLevel + 2, task.getChosenPathValue(0),
-									ai.getMoveNum());
+							hashTable[board.getHashIndex()].setAll(board.getHashCode(), maxTreeLevel + maxTwigLevel + 2,
+									task.getChosenPathValue(0, 0), ai.getMoveNum());
 						}
 					}
 				}
@@ -167,15 +166,18 @@ public class AIProcessor extends Thread {
 
 			board.undoMove();
 
-			if (rootNode.getHeadChild() != null) {
-				if (task.getChosenPathValue(0) > rootNode.getHeadChild().getChosenPathValue(0)) {
-					rootNode.removeAllChildren();
-					rootNode.addChild(task);
-				}
-			}else{
-				rootNode.addChild(task);
-			}
-			
+			rootNode.addChild(task);
+
+			// if (rootNode.getHeadChild() != null) {
+			// if (task.getChosenPathValue(0,0) >
+			// rootNode.getHeadChild().getChosenPathValue(0,0)) {
+			// rootNode.removeAllChildren();
+			// rootNode.addChild(task);
+			// }
+			// }else{
+			//
+			// }
+
 			ai.taskDone();
 
 		}
@@ -206,6 +208,7 @@ public class AIProcessor extends Thread {
 
 		boolean pruned = false;
 		int newAlphaBeta = Integer.MIN_VALUE;
+		GameStatus branchStatus;
 		BoardHashEntry hashOut;
 		boolean hashHit = false;
 
@@ -214,36 +217,35 @@ public class AIProcessor extends Thread {
 			// check all moves of all pieces
 			Vector<Move> moves = board.generateValidMoves();
 
-			branch.setStatus(board.getBoardStatus());
+			branchStatus = board.getBoardStatus();
 
 			if (board.isGameOver()) {
 				if (board.isInStaleMate() || board.isDraw()) {
 					branch.setChosenPathValue((board.winningBy(board.getTurn()) + branch.getPieceTakenValue()) / Values.DRAW_DIVISOR);
+				} else {
+					branch.setChosenPathValue(Values.CHECKMATE_MOVE);
 				}
 
 				return;
 			}
 
 			Move move;
-			DecisionNode newNode;
+			DecisionNode newNode = null;
+			DecisionNode tailNode = null;
 			for (int m = 0; m < moves.size(); m++) {
 
 				move = moves.elementAt(m);
 
-				hashHit = false;
+				newNode = new DecisionNode(move);
 
-				newNode = new DecisionNode(branch, move);
-
-				if (pruned) {
-
-					newNode.setChosenPathValue(move.getValue());
-
-				} else {
+				if (!pruned) {
 
 					board.makeMove(move);
 
 					// use hashtable to see if hashcode has been seen before
 					hashOut = hashTable[board.getHashIndex()];
+
+					hashHit = false;
 
 					if (hashOut != null) {
 						// check to see if depth is sufficient
@@ -255,10 +257,10 @@ public class AIProcessor extends Thread {
 
 					if (!hashHit) {
 						if (branch.getHeadChild() != null) {
-							newAlphaBeta = branch.getHeadChild().getChosenPathValue(0);
+							newAlphaBeta = branch.getHeadChild().getChosenPathValue(0, 0);
 						}
 
-						if ((level > 0 || newNode.hasPieceTaken() || branch.isInCheck()) && (level > -maxFrontierLevel)) {
+						if ((level > 0 || newNode.hasPieceTaken() || branchStatus == GameStatus.CHECK) && (level > -maxFrontierLevel)) {
 
 							growDecisionTree(newNode, level - 1, newAlphaBeta);
 
@@ -276,11 +278,87 @@ public class AIProcessor extends Thread {
 							// add or update new entry into hash table
 							if (hashOut == null) {
 								hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level + maxTwigLevel + 1,
-										newNode.getChosenPathValue(0), ai.getMoveNum());
+										newNode.getChosenPathValue(0, 0), ai.getMoveNum());
 							} else {
 								if (hashTableUpdate(hashOut, level + maxTwigLevel + 1, ai.getMoveNum())) {
 									hashTable[board.getHashIndex()].setAll(board.getHashCode(), level + maxTwigLevel + 1,
-											newNode.getChosenPathValue(0), ai.getMoveNum());
+											newNode.getChosenPathValue(0, 0), ai.getMoveNum());
+								}
+							}
+
+						}
+					}
+
+					board.undoMove();
+					
+					branch.addChild(newNode);
+
+					// alpha beta pruning
+					if (pruningEnabled) {
+						if (branch.getMoveValue() - newNode.getChosenPathValue(0, 0) <= alphaBeta + aspirationWindowSize) {
+							// branch.setChosenPathValue(branch.getMoveValue() -
+							// newNode.getChosenPathValue(0));
+							// branch.removeAllChildren();
+							// return;
+							tailNode = newNode.getLastSibling();
+							pruned = true;
+						}
+					}
+					
+					
+				}else{
+					tailNode.setNextSibling(newNode);
+					tailNode = newNode;
+				}
+
+
+			}
+
+		} else {
+
+			// Node has already been created and has children
+			//int childrenSize = branch.getChildrenSize();
+			DecisionNode nextChild;
+			DecisionNode currentChild = branch.getHeadChild();
+			branch.removeAllChildren();
+			while (currentChild != null) {
+
+				// System.out.println(" next child" + i);
+				nextChild = currentChild.getNextSibling();
+
+				if (level > 0) {
+
+					if (branch.getHeadChild() != null) {
+						newAlphaBeta = branch.getHeadChild().getChosenPathValue(0, 0);
+					}
+
+					board.makeMove(currentChild.getMove());
+
+					// explore down tree
+					hashOut = hashTable[board.getHashIndex()];
+
+					hashHit = false;
+
+					if (hashOut != null) {
+						if (hashOut.getLevel() >= level + maxTwigLevel + 1) {
+							currentChild.setChosenPathValue(hashOut.getScore());
+							hashHit = true;
+						}
+					}
+
+					if (!hashHit) {
+						currentChild.setChosenPathValue(null);
+						growDecisionTree(currentChild, level - 1, newAlphaBeta);
+
+						if (useHashTable) {
+
+							if (hashOut == null) {
+								hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level + maxTwigLevel + 1,
+										currentChild.getChosenPathValue(0, 0), ai.getMoveNum());
+							} else {
+								if (hashTableUpdate(hashOut, level + maxTwigLevel + 1, ai.getMoveNum())) {
+									hashTable[board.getHashIndex()].setAll(board.getHashCode(), level + maxTwigLevel + 1,
+											currentChild.getChosenPathValue(0, 0), ai.getMoveNum());
 								}
 							}
 
@@ -289,100 +367,26 @@ public class AIProcessor extends Thread {
 
 					board.undoMove();
 
-					// alpha beta pruning
-					if (pruningEnabled) {
-						if (branch.getMoveValue() - newNode.getChosenPathValue(0) <= alphaBeta + aspirationWindowSize) {
-							// branch.setChosenPathValue(branch.getMoveValue() -
-							// newNode.getChosenPathValue(0));
-							// branch.removeAllChildren();
-							// return;
-							pruned = true;
-						}
-					}
-
 				}
 
-				branch.addChild(newNode);
+				// alpha beta pruning
+				if (pruningEnabled) {
 
-			}
-
-		} else {
-
-			// Node has already been created and has children
-			int childrenSize = branch.getChildrenSize();
-			DecisionNode nextChild;
-			DecisionNode currentChild = branch.getHeadChild();
-			branch.removeAllChildren();
-			for (int i = 0; i < childrenSize; i++) {
-
-				// System.out.println(" next child" + i);
-				nextChild = currentChild.getNextSibling();
-
-				hashHit = false;
-
-				if (pruned) {
-
-					currentChild.setChosenPathValue(currentChild.getMoveValue());
-
-				} else {
-
-					if (level > 0) {
-
-						if (branch.getHeadChild() != null) {
-							newAlphaBeta = branch.getHeadChild().getChosenPathValue(0);
-						}
-
-						board.makeMove(currentChild.getMove());
-
-						// explore down tree
-						hashOut = hashTable[board.getHashIndex()];
-
-						if (hashOut != null) {
-							if (hashOut.getLevel() >= level + maxTwigLevel + 1) {
-								currentChild.setChosenPathValue(hashOut.getScore());
-								hashHit = true;
-							}
-						}
-
-						if (!hashHit) {
-							currentChild.setChosenPathValue(null);
-							growDecisionTree(currentChild, level - 1, newAlphaBeta);
-
-							if (useHashTable) {
-
-								if (hashOut == null) {
-									hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level + maxTwigLevel + 1,
-											currentChild.getChosenPathValue(0), ai.getMoveNum());
-								} else {
-									if (hashTableUpdate(hashOut, level + maxTwigLevel + 1, ai.getMoveNum())) {
-										hashTable[board.getHashIndex()].setAll(board.getHashCode(), level + maxTwigLevel + 1,
-												currentChild.getChosenPathValue(0), ai.getMoveNum());
-									}
-								}
-
-							}
-						}
-
-						board.undoMove();
-
+					if (branch.getMoveValue() - currentChild.getChosenPathValue(0, 0) <= alphaBeta + aspirationWindowSize) {
+						// branch.setChosenPathValue(branch.getMoveValue() -
+						// currentChild.getChosenPathValue(0));
+						// branch.removeAllChildren();
+						// return;
+						
+						branch.addChild(currentChild);
+						currentChild.getLastSibling().setNextSibling(nextChild);
+						return;
 					}
 
-					// alpha beta pruning
-					if (pruningEnabled) {
-
-						if (branch.getMoveValue() - currentChild.getChosenPathValue(0) <= alphaBeta + aspirationWindowSize) {
-							// branch.setChosenPathValue(branch.getMoveValue() -
-							// currentChild.getChosenPathValue(0));
-							// branch.removeAllChildren();
-							// return;
-							pruned = true;
-						}
-
-					}
 				}
 
 				branch.addChild(currentChild);
-
+				
 				currentChild = nextChild;
 			}
 
@@ -407,7 +411,7 @@ public class AIProcessor extends Thread {
 
 		int twigsBestPathValue = growDecisionTreeLite(board, twig.getMove(), alphaBeta, maxTwigLevel);
 
-		twig.setStatus(board.getBoardStatus());
+		// twig.setStatus(board.getBoardStatus());
 
 		twig.setChosenPathValue(twigsBestPathValue);
 	}
@@ -494,7 +498,7 @@ public class AIProcessor extends Thread {
 		int parentsBestPathValue;
 
 		if (board.isInCheckMate()) {
-			parentsBestPathValue = Values.CHECKMATE_MOVE - (maxTwigLevel - level + maxTreeLevel + 1) * Values.CHECKMATE_DEPTH_INC;
+			parentsBestPathValue = Values.CHECKMATE_MOVE - (maxTwigLevel - level + maxTreeLevel + 1);
 		} else {
 			if (board.isInStaleMate() || board.isDraw()) {
 				parentsBestPathValue = (board.winningBy(board.getTurn()) + parentMove.getValue()) / Values.DRAW_DIVISOR;

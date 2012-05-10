@@ -1,7 +1,5 @@
 package chessAI;
 
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import chessBackend.BitBoard;
@@ -10,7 +8,6 @@ import chessBackend.BoardHashEntry;
 import chessBackend.GameStatus;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
-import chessBackend.Side;
 import chessBackend.Move;
 import chessIO.FileIO;
 import chessIO.MoveBook;
@@ -42,11 +39,11 @@ public class AI extends Thread implements Player {
 	private DecisionNode nextTask;
 	private AIProcessor[] processorThreads;
 
-	//private Hashtable<Long, BoardHashEntry> hashTable;
-	
+	// private Hashtable<Long, BoardHashEntry> hashTable;
+
 	private BoardHashEntry[] hashTable;
 	private int moveNum;
-	
+
 	private int maxHashSize = 0;
 
 	private boolean useBook;
@@ -55,8 +52,10 @@ public class AI extends Thread implements Player {
 		this.debug = debug;
 		this.game = game;
 		processing = new Object();
-		
-		hashTable = new BoardHashEntry[(int)Math.pow(2, BoardHashEntry.hashIndexSize)];//new Hashtable<Long, BoardHashEntry>();
+
+		hashTable = new BoardHashEntry[(int) Math.pow(2, BoardHashEntry.hashIndexSize)];// new
+																						// Hashtable<Long,
+																						// BoardHashEntry>();
 
 		undoMove = new AtomicBoolean();
 
@@ -82,7 +81,7 @@ public class AI extends Thread implements Player {
 		active = true;
 
 		BitBoard.loadMasks();
-		
+
 		this.start();
 	}
 
@@ -134,7 +133,7 @@ public class AI extends Thread implements Player {
 
 	public synchronized void newGame(Board board) {
 
-		rootNode = new DecisionNode(null, null);
+		rootNode = new DecisionNode(null);
 
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i].setBoard(board.getCopy());
@@ -150,8 +149,8 @@ public class AI extends Thread implements Player {
 		undoMove.set(false);
 
 		moveNum = 0;
-		//hashTable.clear();
-		
+		// hashTable.clear();
+
 		System.out.println("New game");
 
 	}
@@ -211,12 +210,12 @@ public class AI extends Thread implements Player {
 	private DecisionNode getAIDecision() {
 
 		// Game Over?
-		if (rootNode.isGameOver()) {
+		if (!rootNode.hasChildren()) {
 			return null;
 		}
 
 		cleanHashTable();
-		
+
 		long time = 0;
 		DecisionNode aiDecision;
 
@@ -309,7 +308,7 @@ public class AI extends Thread implements Player {
 				FileIO.log(this + " " + taskDone + "/" + taskSize + " done");
 			}
 
-			if (taskDone >= taskSize) {
+			if (nextTask == null) {
 				processing.notifyAll();
 			}
 		}
@@ -342,36 +341,36 @@ public class AI extends Thread implements Player {
 	}
 
 	public void cleanHashTable() {
-		
-//		if(hashTable.size()>maxHashSize){
-//			maxHashSize = hashTable.size();
-//		}
-//		
-//		//hashTable.clear();
-//
-//		int delFrom = moveNum - 2;
-//		int removed = 0;
-//
-//		if (delFrom > 0) {
-//			Iterator<BoardHashEntry> it = hashTable.values().iterator();
-//			BoardHashEntry entry;
-//			while(it.hasNext()) {
-//				entry = it.next();
-//				if (entry.getMoveNum() < delFrom) {
-//					it.remove();
-//					removed++;
-//				}
-//				
-//			}
-//		}
-//		
-//		System.out.println("Removed " + removed + " entries from hashtable");
+
+		// if(hashTable.size()>maxHashSize){
+		// maxHashSize = hashTable.size();
+		// }
+		//
+		// //hashTable.clear();
+		//
+		// int delFrom = moveNum - 2;
+		// int removed = 0;
+		//
+		// if (delFrom > 0) {
+		// Iterator<BoardHashEntry> it = hashTable.values().iterator();
+		// BoardHashEntry entry;
+		// while(it.hasNext()) {
+		// entry = it.next();
+		// if (entry.getMoveNum() < delFrom) {
+		// it.remove();
+		// removed++;
+		// }
+		//
+		// }
+		// }
+		//
+		// System.out.println("Removed " + removed + " entries from hashtable");
 	}
 
 	private void undoMoveOnSubThreads() {
 		if (canUndo()) {
 
-			rootNode = new DecisionNode(null, null);
+			rootNode = new DecisionNode(null);
 
 			for (int i = 0; i < processorThreads.length; i++) {
 				synchronized (processorThreads[i]) {
@@ -401,9 +400,9 @@ public class AI extends Thread implements Player {
 
 		rootNode = newRootNode;
 
-		//rootNode.setParent(null);
-		rootNode.setNextSibling(rootNode);
-		rootNode.setPreviousSibling(rootNode);
+		// rootNode.setParent(null);
+		rootNode.setNextSibling(null);
+		// rootNode.setPreviousSibling(rootNode);
 
 		// tell threads about new root node
 		for (int i = 0; i < processorThreads.length; i++) {
@@ -414,7 +413,7 @@ public class AI extends Thread implements Player {
 			FileIO.log("Board hash code = " + Long.toHexString(getBoard().getHashCode()));
 		}
 
-		setGameSatus(rootNode.getStatus(), getBoard().getTurn());
+		// setGameSatus(rootNode.getStatus(), getBoard().getTurn());
 
 		System.gc();
 	}
@@ -424,25 +423,24 @@ public class AI extends Thread implements Player {
 		this.game = game;
 	}
 
-	public void setGameSatus(GameStatus status, Side playerTurn) {
-		if (status != GameStatus.IN_PLAY) {
-			FileIO.log(rootNode.getStatus().toString());
-		}
-	}
+	// public void setGameSatus(GameStatus status, Side playerTurn) {
+	// if (status != GameStatus.IN_PLAY) {
+	// FileIO.log(rootNode.getStatus().toString());
+	// }
+	// }
 
-	public GameStatus getGameStatus() {
-		return rootNode.getStatus();
-	}
+	// public GameStatus getGameStatus() {
+	// return rootNode.getStatus();
+	// }
 
 	public Board getBoard() {
 		return processorThreads[0].getBoard();
 	}
 
 	private DecisionNode getMatchingDecisionNode(Move goodMove) {
-		int childrenSize = rootNode.getChildrenSize();
 
 		DecisionNode currentChild = rootNode.getHeadChild();
-		for (int i = 0; i < childrenSize; i++) {
+		while (currentChild != null) {
 			if (currentChild.getMove().equals(goodMove)) {
 				return currentChild;
 			}
@@ -478,7 +476,7 @@ public class AI extends Thread implements Player {
 		childNum[depth]++;
 
 		DecisionNode currentChild = branch.getHeadChild();
-		for (int i = 0; i < branch.getChildrenSize(); i++) {
+		while (currentChild != null) {
 			countChildren(currentChild, depth + 1);
 			currentChild = currentChild.getNextSibling();
 		}
@@ -488,7 +486,7 @@ public class AI extends Thread implements Player {
 	private void printChildren(DecisionNode parent) {
 
 		DecisionNode currentChild = parent.getHeadChild();
-		for (int i = 0; i < parent.getChildrenSize(); i++) {
+		while (currentChild != null) {
 			FileIO.log(currentChild.toString());
 			currentChild = currentChild.getNextSibling();
 		}
@@ -523,7 +521,7 @@ public class AI extends Thread implements Player {
 	}
 
 	public int getMoveChosenPathValue(Move m) {
-		return getMatchingDecisionNode(m).getChosenPathValue(0);
+		return getMatchingDecisionNode(m).getChosenPathValue(0, 0);
 	}
 
 	public void setUseBook(boolean useBook) {
@@ -542,13 +540,19 @@ public class AI extends Thread implements Player {
 	public int getMoveNum() {
 		return moveNum;
 	}
-	
-	public int getMaxHashSize(){
+
+	public int getMaxHashSize() {
 		return maxHashSize;
 	}
-	
-	public DecisionNode getRootNode(){
+
+	public DecisionNode getRootNode() {
 		return rootNode;
+	}
+
+	@Override
+	public GameStatus getGameStatus() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
