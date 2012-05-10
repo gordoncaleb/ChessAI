@@ -17,9 +17,9 @@ public class AIProcessor extends Thread {
 	private int maxTwigLevel;
 	private boolean twigGrowthEnabled;
 	private final boolean iterativeDeepening = false;
-	private final boolean useHashTable = true;
+	private final boolean useHashTable = false;
 
-	private int maxFrontierLevel = 1;
+	private int maxFrontierLevel = 2;
 
 	private final boolean pruningEnabled = true;
 	private int aspirationWindowSize;
@@ -167,8 +167,15 @@ public class AIProcessor extends Thread {
 
 			board.undoMove();
 
-			rootNode.addChild(task);
-
+			if (rootNode.getHeadChild() != null) {
+				if (task.getChosenPathValue(0) > rootNode.getHeadChild().getChosenPathValue(0)) {
+					rootNode.removeAllChildren();
+					rootNode.addChild(task);
+				}
+			}else{
+				rootNode.addChild(task);
+			}
+			
 			ai.taskDone();
 
 		}
@@ -272,22 +279,24 @@ public class AIProcessor extends Thread {
 										newNode.getChosenPathValue(0), ai.getMoveNum());
 							} else {
 								if (hashTableUpdate(hashOut, level + maxTwigLevel + 1, ai.getMoveNum())) {
-									hashTable[board.getHashIndex()].setAll(board.getHashCode(), level + maxTwigLevel + 1, newNode.getChosenPathValue(0),
-											ai.getMoveNum());
+									hashTable[board.getHashIndex()].setAll(board.getHashCode(), level + maxTwigLevel + 1,
+											newNode.getChosenPathValue(0), ai.getMoveNum());
 								}
 							}
-						
+
 						}
 					}
 
 					board.undoMove();
-					
+
 					// alpha beta pruning
 					if (pruningEnabled) {
 						if (branch.getMoveValue() - newNode.getChosenPathValue(0) <= alphaBeta + aspirationWindowSize) {
-							branch.removeAllChildren();
-							return;
-							//pruned = true;
+							// branch.setChosenPathValue(branch.getMoveValue() -
+							// newNode.getChosenPathValue(0));
+							// branch.removeAllChildren();
+							// return;
+							pruned = true;
 						}
 					}
 
@@ -338,38 +347,40 @@ public class AIProcessor extends Thread {
 						if (!hashHit) {
 							currentChild.setChosenPathValue(null);
 							growDecisionTree(currentChild, level - 1, newAlphaBeta);
-							
+
 							if (useHashTable) {
-								
+
 								if (hashOut == null) {
 									hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level + maxTwigLevel + 1,
 											currentChild.getChosenPathValue(0), ai.getMoveNum());
 								} else {
 									if (hashTableUpdate(hashOut, level + maxTwigLevel + 1, ai.getMoveNum())) {
-										hashTable[board.getHashIndex()].setAll(board.getHashCode(), level + maxTwigLevel + 1, currentChild.getChosenPathValue(0),
-												ai.getMoveNum());
+										hashTable[board.getHashIndex()].setAll(board.getHashCode(), level + maxTwigLevel + 1,
+												currentChild.getChosenPathValue(0), ai.getMoveNum());
 									}
 								}
-								
+
 							}
 						}
 
 						board.undoMove();
 
 					}
-					
+
 					// alpha beta pruning
 					if (pruningEnabled) {
 
 						if (branch.getMoveValue() - currentChild.getChosenPathValue(0) <= alphaBeta + aspirationWindowSize) {
-							branch.removeAllChildren();
-							return;
-							//pruned = true;
+							// branch.setChosenPathValue(branch.getMoveValue() -
+							// currentChild.getChosenPathValue(0));
+							// branch.removeAllChildren();
+							// return;
+							pruned = true;
 						}
 
 					}
 				}
-				
+
 				branch.addChild(currentChild);
 
 				currentChild = nextChild;
