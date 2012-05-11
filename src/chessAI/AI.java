@@ -23,7 +23,7 @@ public class AI extends Thread implements Player {
 	private int maxTwigLevel;
 	private int maxDecisionTreeLevel;
 
-	private int[] childNum = new int[20];
+	private int[] childNum = new int[200];
 
 	private boolean makeMove;
 	private AtomicBoolean undoMove;

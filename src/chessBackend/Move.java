@@ -1,7 +1,6 @@
 package chessBackend;
 
 import chessPieces.Piece;
-import chessPieces.PieceID;
 
 public class Move {
 	private MoveNote note;
@@ -186,18 +185,6 @@ public class Move {
 
 	public void setHadMoved(boolean hadMoved) {
 		this.hadMoved = hadMoved;
-	}
-
-	public boolean isKingTaken() {
-		if (pieceTaken != null) {
-			if (pieceTaken.getPieceID() == PieceID.KING) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
 	}
 
 	public Move reverse() {

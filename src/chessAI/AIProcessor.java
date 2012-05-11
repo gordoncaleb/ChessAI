@@ -16,7 +16,7 @@ public class AIProcessor extends Thread {
 	private int maxTwigLevel;
 	private boolean twigGrowthEnabled;
 	private final boolean iterativeDeepening = false;
-	private final boolean useHashTable = false;
+	private final boolean useHashTable = true;
 
 	private int maxFrontierLevel = 2;
 
@@ -208,7 +208,6 @@ public class AIProcessor extends Thread {
 
 		boolean pruned = false;
 		int newAlphaBeta = Integer.MIN_VALUE;
-		GameStatus branchStatus;
 		BoardHashEntry hashOut;
 		boolean hashHit = false;
 
@@ -216,8 +215,6 @@ public class AIProcessor extends Thread {
 
 			// check all moves of all pieces
 			Vector<Move> moves = board.generateValidMoves();
-
-			branchStatus = board.getBoardStatus();
 
 			if (board.isGameOver()) {
 				if (board.isInStaleMate() || board.isDraw()) {
@@ -229,9 +226,13 @@ public class AIProcessor extends Thread {
 				return;
 			}
 
+			boolean branchInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxFrontierLevel);
+
+
 			Move move;
 			DecisionNode newNode = null;
 			DecisionNode tailNode = null;
+			Boolean bonusSearch;
 			for (int m = 0; m < moves.size(); m++) {
 
 				move = moves.elementAt(m);
@@ -240,84 +241,92 @@ public class AIProcessor extends Thread {
 
 				if (!pruned) {
 
-					board.makeMove(move);
+					bonusSearch = newNode.hasPieceTaken() || branchInCheckSearch ;
 
-					// use hashtable to see if hashcode has been seen before
-					hashOut = hashTable[board.getHashIndex()];
+					if (level > 0 || bonusSearch) {
 
-					hashHit = false;
+						board.makeMove(move);
 
-					if (hashOut != null) {
-						// check to see if depth is sufficient
-						if (hashOut.getHashCode() == board.getHashCode() && hashOut.getLevel() >= (level + maxTwigLevel + 1)) {
-							newNode.setChosenPathValue(hashOut.getScore());
-							hashHit = true;
+						// use hashtable to see if hashcode has been seen before
+						hashOut = hashTable[board.getHashIndex()];
+
+						hashHit = false;
+
+						if (hashOut != null) {
+							// check to see if depth is sufficient
+							if (hashOut.getHashCode() == board.getHashCode() && hashOut.getLevel() >= (level + maxTwigLevel + 1)) {
+								newNode.setChosenPathValue(hashOut.getScore());
+								hashHit = true;
+							}
 						}
-					}
 
-					if (!hashHit) {
-						if (branch.getHeadChild() != null) {
-							newAlphaBeta = branch.getHeadChild().getChosenPathValue(0, 0);
-						}
-
-						if ((level > 0 || newNode.hasPieceTaken() || branchStatus == GameStatus.CHECK) && (level > -maxFrontierLevel)) {
-
-							growDecisionTree(newNode, level - 1, newAlphaBeta);
-
-						} else {
-
-							if (twigGrowthEnabled) {
-								growFrontierTwig(newNode, newAlphaBeta);
-							} else {
-								newNode.setChosenPathValue(move.getValue());
+						if (!hashHit) {
+							if (branch.getHeadChild() != null) {
+								newAlphaBeta = branch.getHeadChild().getChosenPathValue(0, 0);
 							}
 
-						}
+							if (level > 0) {
 
-						if (useHashTable) {
-							// add or update new entry into hash table
-							if (hashOut == null) {
-								hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level + maxTwigLevel + 1,
-										newNode.getChosenPathValue(0, 0), ai.getMoveNum());
+								growDecisionTree(newNode, level - 1, newAlphaBeta);
+
 							} else {
-								if (hashTableUpdate(hashOut, level + maxTwigLevel + 1, ai.getMoveNum())) {
-									hashTable[board.getHashIndex()].setAll(board.getHashCode(), level + maxTwigLevel + 1,
-											newNode.getChosenPathValue(0, 0), ai.getMoveNum());
+								// bonus depth
+
+								if (twigGrowthEnabled) {
+									growFrontierTwig(newNode, newAlphaBeta);
+								} else {
+									growDecisionTree(newNode, level - 1, newAlphaBeta);
 								}
+
 							}
 
+							if (useHashTable) {
+								// add or update new entry into hash table
+								if (hashOut == null) {
+									hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level + maxTwigLevel + 1,
+											newNode.getChosenPathValue(0, 0), ai.getMoveNum());
+								} else {
+									if (hashTableUpdate(hashOut, level + maxTwigLevel + 1, ai.getMoveNum())) {
+										hashTable[board.getHashIndex()].setAll(board.getHashCode(), level + maxTwigLevel + 1,
+												newNode.getChosenPathValue(0, 0), ai.getMoveNum());
+									}
+								}
+
+							}
 						}
+
+						board.undoMove();
+
+						branch.addChild(newNode);
+
+						// alpha beta pruning
+						if (pruningEnabled) {
+							if (branch.getMoveValue() - newNode.getChosenPathValue(0, 0) <= alphaBeta + aspirationWindowSize) {
+								// branch.setChosenPathValue(branch.getMoveValue()
+								// -
+								// newNode.getChosenPathValue(0));
+								// branch.removeAllChildren();
+								// return;
+								tailNode = newNode.getLastSibling();
+								pruned = true;
+							}
+						}
+
+					} else {
+						branch.addChild(newNode);
 					}
 
-					board.undoMove();
-					
-					branch.addChild(newNode);
-
-					// alpha beta pruning
-					if (pruningEnabled) {
-						if (branch.getMoveValue() - newNode.getChosenPathValue(0, 0) <= alphaBeta + aspirationWindowSize) {
-							// branch.setChosenPathValue(branch.getMoveValue() -
-							// newNode.getChosenPathValue(0));
-							// branch.removeAllChildren();
-							// return;
-							tailNode = newNode.getLastSibling();
-							pruned = true;
-						}
-					}
-					
-					
-				}else{
+				} else {
 					tailNode.setNextSibling(newNode);
 					tailNode = newNode;
 				}
-
 
 			}
 
 		} else {
 
 			// Node has already been created and has children
-			//int childrenSize = branch.getChildrenSize();
+			// int childrenSize = branch.getChildrenSize();
 			DecisionNode nextChild;
 			DecisionNode currentChild = branch.getHeadChild();
 			branch.removeAllChildren();
@@ -377,7 +386,7 @@ public class AIProcessor extends Thread {
 						// currentChild.getChosenPathValue(0));
 						// branch.removeAllChildren();
 						// return;
-						
+
 						branch.addChild(currentChild);
 						currentChild.getLastSibling().setNextSibling(nextChild);
 						return;
@@ -386,7 +395,7 @@ public class AIProcessor extends Thread {
 				}
 
 				branch.addChild(currentChild);
-				
+
 				currentChild = nextChild;
 			}
 

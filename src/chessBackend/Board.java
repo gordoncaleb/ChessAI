@@ -30,7 +30,7 @@ public class Board {
 
 		Move m = moves.elementAt(0);
 
-		int its = 10000000;
+		int its = 1000000;
 
 		long t1 = System.currentTimeMillis();
 		for (int i = 0; i < its; i++) {

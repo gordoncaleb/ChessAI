@@ -1,6 +1,5 @@
 package chessAI;
 
-import chessBackend.GameStatus;
 import chessBackend.MoveNote;
 import chessBackend.Move;
 import chessPieces.Values;
