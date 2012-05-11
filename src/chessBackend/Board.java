@@ -135,11 +135,11 @@ public class Board {
 
 			// piceTaken is old ref, find new ref
 			if (pieceTaken != board[pieceTaken.getRow()][pieceTaken.getCol()]) {
-
+				move = null;
 				if (board[move.getToRow()][move.getToCol()] == null) {
 					System.out.println("What?");
 				}
-
+				
 				pieceTaken = board[move.getToRow()][move.getToCol()];
 				move.setPieceTaken(pieceTaken);
 			}
@@ -163,45 +163,45 @@ public class Board {
 
 		}
 
-		if (move.getNote() != MoveNote.NEW_QUEEN) {
+//		if (move.getNote() != MoveNote.NEW_QUEEN) {
 
 			movePiece(move);
 
-		} else {
-
-			// remove old hash from where pawn was
-			hashCode ^= rngTable.getPiecePerSquareRandom(turn, PieceID.PAWN, move.getFromRow(), move.getFromCol());
-
-			// remove pawn from vector
-			if (turn == Side.WHITE) {
-				whitePieces.remove(board[move.getFromRow()][move.getFromCol()]);
-			} else {
-				blackPieces.remove(board[move.getFromRow()][move.getFromCol()]);
-			}
-
-			// remove bit position from where pawn was
-			posBitBoard[turn.ordinal()] ^= board[move.getFromRow()][move.getFromCol()].getBit();
-
-			// remove pawn from board
-			board[move.getFromRow()][move.getFromCol()] = null;
-
-			// put queen on board
-			board[move.getToRow()][move.getToCol()] = new Queen(turn, move.getToRow(), move.getToCol(), false);
-
-			// add bit position of where piece is now
-			posBitBoard[turn.ordinal()] |= board[move.getToRow()][move.getToCol()].getBit();
-
-			// add hash of piece at new location. Probably a queen.
-			hashCode ^= rngTable
-					.getPiecePerSquareRandom(turn, board[move.getToRow()][move.getToCol()].getPieceID(), move.getToRow(), move.getToCol());
-
-			// add queen to vectors
-			if (turn == Side.WHITE) {
-				whitePieces.add(board[move.getToRow()][move.getToCol()]);
-			} else {
-				blackPieces.add(board[move.getToRow()][move.getToCol()]);
-			}
-		}
+//		} else {
+//
+//			// remove old hash from where pawn was
+//			hashCode ^= rngTable.getPiecePerSquareRandom(turn, PieceID.PAWN, move.getFromRow(), move.getFromCol());
+//
+//			// remove pawn from vector
+//			if (turn == Side.WHITE) {
+//				whitePieces.remove(board[move.getFromRow()][move.getFromCol()]);
+//			} else {
+//				blackPieces.remove(board[move.getFromRow()][move.getFromCol()]);
+//			}
+//
+//			// remove bit position from where pawn was
+//			posBitBoard[turn.ordinal()] ^= board[move.getFromRow()][move.getFromCol()].getBit();
+//
+//			// remove pawn from board
+//			board[move.getFromRow()][move.getFromCol()] = null;
+//
+//			// put queen on board
+//			board[move.getToRow()][move.getToCol()].setPieceID(PieceID.QUEEN); //= new Queen(turn, move.getToRow(), move.getToCol(), false);
+//
+//			// add bit position of where piece is now
+//			posBitBoard[turn.ordinal()] |= board[move.getToRow()][move.getToCol()].getBit();
+//
+//			// add hash of piece at new location. Probably a queen.
+//			hashCode ^= rngTable
+//					.getPiecePerSquareRandom(turn, board[move.getToRow()][move.getToCol()].getPieceID(), move.getToRow(), move.getToCol());
+//
+//			// add queen to vectors
+//			if (turn == Side.WHITE) {
+//				whitePieces.add(board[move.getToRow()][move.getToCol()]);
+//			} else {
+//				blackPieces.add(board[move.getToRow()][move.getToCol()]);
+//			}
+//		}
 
 		if (move.getNote() == MoveNote.CASTLE_NEAR) {
 			if (turn == Side.BLACK) {
@@ -266,6 +266,10 @@ public class Board {
 
 		// add bit position of where piece is now
 		posBitBoard[pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
+		
+		if(move.getNote() == MoveNote.NEW_QUEEN){
+			pieceMoving.setPieceID(PieceID.QUEEN);
+		}
 
 		// add hash of piece at new location
 		hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), move.getToRow(), move.getToCol());
@@ -286,38 +290,38 @@ public class Board {
 		// player
 		turn = turn.otherSide();
 
-		if (lastMove.getNote() != MoveNote.NEW_QUEEN) {
+//		if (lastMove.getNote() != MoveNote.NEW_QUEEN) {
 
 			undoMovePiece(lastMove);
 
-		} else {
-
-			// remove queen from vectors
-			if (turn == Side.WHITE) {
-				whitePieces.remove(board[lastMove.getToRow()][lastMove.getToCol()]);
-			} else {
-				blackPieces.remove(board[lastMove.getToRow()][lastMove.getToCol()]);
-			}
-
-			// remove bit position from where queen was
-			posBitBoard[turn.ordinal()] ^= board[lastMove.getToRow()][lastMove.getToCol()].getBit();
-
-			// remove queen from board
-			board[lastMove.getToRow()][lastMove.getToCol()] = null;
-
-			// add pawn back to board
-			board[lastMove.getFromRow()][lastMove.getFromCol()] = new Pawn(turn, lastMove.getFromRow(), lastMove.getFromCol(), true);
-
-			// add bit position of where piece is now
-			posBitBoard[turn.ordinal()] |= board[lastMove.getFromRow()][lastMove.getFromCol()].getBit();
-
-			// add pawn to vectors
-			if (turn == Side.WHITE) {
-				whitePieces.add(board[lastMove.getFromRow()][lastMove.getFromCol()]);
-			} else {
-				blackPieces.add(board[lastMove.getFromRow()][lastMove.getFromCol()]);
-			}
-		}
+//		} else {
+//
+//			// remove queen from vectors
+//			if (turn == Side.WHITE) {
+//				whitePieces.remove(board[lastMove.getToRow()][lastMove.getToCol()]);
+//			} else {
+//				blackPieces.remove(board[lastMove.getToRow()][lastMove.getToCol()]);
+//			}
+//
+//			// remove bit position from where queen was
+//			posBitBoard[turn.ordinal()] ^= board[lastMove.getToRow()][lastMove.getToCol()].getBit();
+//
+//			// remove queen from board
+//			board[lastMove.getToRow()][lastMove.getToCol()] = null;
+//
+//			// add pawn back to board
+//			board[lastMove.getFromRow()][lastMove.getFromCol()].setPieceID(PieceID.PAWN); // = new Pawn(turn, lastMove.getFromRow(), lastMove.getFromCol(), true);
+//
+//			// add bit position of where piece is now
+//			posBitBoard[turn.ordinal()] |= board[lastMove.getFromRow()][lastMove.getFromCol()].getBit();
+//
+//			// add pawn to vectors
+//			if (turn == Side.WHITE) {
+//				whitePieces.add(board[lastMove.getFromRow()][lastMove.getFromCol()]);
+//			} else {
+//				blackPieces.add(board[lastMove.getFromRow()][lastMove.getFromCol()]);
+//			}
+//		}
 
 		// add taken piece back to vectors and board
 		Piece pieceTaken = lastMove.getPieceTaken();
@@ -375,7 +379,7 @@ public class Board {
 		posBitBoard[pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
 
 		// tell piece where it was
-		pieceMoving.move(move.reverse());
+		pieceMoving.reverseMove(move);
 		// put piece in old position
 		board[move.getFromRow()][move.getFromCol()] = pieceMoving;
 		// remove old position
@@ -386,6 +390,10 @@ public class Board {
 
 		// add bit position of where piece is now
 		posBitBoard[pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
+		
+		if(move.getNote() == MoveNote.NEW_QUEEN){
+			pieceMoving.setPieceID(PieceID.PAWN);
+		}
 
 	}
 
@@ -915,15 +923,13 @@ public class Board {
 			sufficient = false;
 
 			for (int i = 0; i < whitePieces.size(); i++) {
-				if ((whitePieces.elementAt(i) instanceof Pawn) || (whitePieces.elementAt(i) instanceof Queen)
-						|| (whitePieces.elementAt(i) instanceof Rook)) {
+				if ((whitePieces.elementAt(i).getPieceID() == PieceID.PAWN) || (whitePieces.elementAt(i).getPieceID() == PieceID.QUEEN) || (whitePieces.elementAt(i).getPieceID() == PieceID.ROOK)) {
 					sufficient = true;
 				}
 			}
 
 			for (int i = 0; i < blackPieces.size(); i++) {
-				if ((blackPieces.elementAt(i) instanceof Pawn) || (blackPieces.elementAt(i) instanceof Queen)
-						|| (blackPieces.elementAt(i) instanceof Rook)) {
+				if ((blackPieces.elementAt(i).getPieceID() == PieceID.PAWN) || (blackPieces.elementAt(i).getPieceID() == PieceID.QUEEN) || (blackPieces.elementAt(i).getPieceID() == PieceID.ROOK)) {
 					sufficient = true;
 				}
 			}

@@ -7,34 +7,33 @@ import chessBackend.Board;
 import chessBackend.Side;
 import chessBackend.Move;
 
-public class Knight extends Piece {
+public class Knight{
 	private static int[][] KNIGHTMOVES = { { 2, 2, -2, -2, 1, -1, 1, -1 }, { 1, -1, 1, -1, 2, 2, -2, -2 } };
 
-	public Knight(Side player, int row, int col, boolean moved) {
-		super(player, row, col, moved);
+	public Knight() {
 	}
 
-	public PieceID getPieceID() {
+	public static PieceID getPieceID() {
 		return PieceID.KNIGHT;
 	}
 
-	public String getName() {
+	public static String getName() {
 		return "Knight";
 	}
 
-	public String getStringID() {
+	public static String getStringID() {
 		return "N";
 	}
 
-	public Vector<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
+	public static Vector<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
 		Vector<Move> validMoves = new Vector<Move>();
-		int currentRow = this.getRow();
-		int currentCol = this.getCol();
+		int currentRow = p.getRow();
+		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
 		int bonus;
 		PositionStatus pieceStatus;
-		Side player = this.getSide();
+		Side player = p.getSide();
 		Move move;
 
 		for (int i = 0; i < 8; i++) {
@@ -43,20 +42,20 @@ public class Knight extends Piece {
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
 			if (pieceStatus != PositionStatus.OFF_BOARD) {
-				bonus = PositionBonus.getKnightPositionBonus(currentRow, currentCol, nextRow, nextCol, this.getSide());
+				bonus = PositionBonus.getKnightPositionBonus(currentRow, currentCol, nextRow, nextCol, p.getSide());
 
 				if (pieceStatus == PositionStatus.NO_PIECE) {
-					if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
+					if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 						move = new Move(currentRow, currentCol, nextRow, nextCol, bonus);
 						validMoves.add(move);
 					}
 				}
 
 				if (pieceStatus == PositionStatus.ENEMY) {
-					if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
+					if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 						int pieceValue = board.getPieceValue(nextRow, nextCol);
 						move = new Move(currentRow, currentCol, nextRow, nextCol, pieceValue + bonus);
-						move.setPieceTaken(board.getPiece(nextRow, nextCol).getCopy());
+						move.setPieceTaken(board.getPiece(nextRow, nextCol));
 						validMoves.add(move);
 					}
 				}
@@ -68,10 +67,10 @@ public class Knight extends Piece {
 
 	}
 
-	public void getNullMoveInfo(Board board, long[] nullMoveInfo) {
+	public static void getNullMoveInfo(Piece p, Board board, long[] nullMoveInfo) {
 
-		int currentRow = this.getRow();
-		int currentCol = this.getCol();
+		int currentRow = p.getRow();
+		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
@@ -80,12 +79,12 @@ public class Knight extends Piece {
 			nextRow = currentRow + KNIGHTMOVES[0][i];
 			nextCol = currentCol + KNIGHTMOVES[1][i];
 
-			pieceStatus = board.checkPiece(nextRow, nextCol, getSide());
+			pieceStatus = board.checkPiece(nextRow, nextCol, p.getSide());
 
 			if (pieceStatus != PositionStatus.OFF_BOARD) {
 
 				if (board.getPieceID(nextRow, nextCol) == PieceID.KING && pieceStatus == PositionStatus.ENEMY) {
-					nullMoveInfo[1] &= this.getBit();
+					nullMoveInfo[1] &= p.getBit();
 				}
 
 				nullMoveInfo[0] |= BitBoard.getMask(nextRow, nextCol);
@@ -94,7 +93,4 @@ public class Knight extends Piece {
 
 	}
 
-	public Piece getCopy() {
-		return new Knight(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
-	}
 }

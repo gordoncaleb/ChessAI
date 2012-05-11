@@ -7,32 +7,30 @@ import chessBackend.Board;
 import chessBackend.MoveNote;
 import chessBackend.Side;
 import chessBackend.Move;
-import chessIO.FileIO;
 
-public class King extends Piece {
+public class King{
 	private static int[][] KINGMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
 
-	public King(Side player, int row, int col, boolean moved) {
-		super(player, row, col, moved);
+	public King() {
 	}
 
-	public PieceID getPieceID() {
+	public static PieceID getPieceID() {
 		return PieceID.KING;
 	}
 
-	public String getName() {
+	public static String getName() {
 		return "King";
 	}
 
-	public String getStringID() {
+	public static String getStringID() {
 		return "K";
 	}
 
-	public Vector<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
+	public static Vector<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
 		Vector<Move> validMoves = new Vector<Move>();
-		int currentRow = this.getRow();
-		int currentCol = this.getCol();
-		Side player = this.getSide();
+		int currentRow = p.getRow();
+		int currentCol = p.getCol();
+		Side player = p.getSide();
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
@@ -46,7 +44,7 @@ public class King extends Piece {
 			if (pieceStatus == PositionStatus.NO_PIECE) {
 
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					if (!this.hasMoved() && (!board.farRookHasMoved(player) || !board.nearRookHasMoved(player))) {
+					if (!p.hasMoved() && (!board.farRookHasMoved(player) || !board.nearRookHasMoved(player))) {
 						// The player loses points for losing the ability to
 						// castle
 						move = new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
@@ -61,7 +59,7 @@ public class King extends Piece {
 			if (pieceStatus == PositionStatus.ENEMY) {
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
 					move = new Move(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol));
-					move.setPieceTaken(board.getPiece(nextRow, nextCol).getCopy());
+					move.setPieceTaken(board.getPiece(nextRow, nextCol));
 					validMoves.add(move);
 				}
 			}
@@ -89,20 +87,20 @@ public class King extends Piece {
 
 	}
 
-	public void getNullMoveInfo(Board board, long[] nullMoveInfo) {
+	public static void getNullMoveInfo(Piece p, Board board, long[] nullMoveInfo) {
 
-		int currentRow = this.getRow();
-		int currentCol = this.getCol();
+		int currentRow = p.getRow();
+		int currentCol = p.getCol();
 
 		for (int i = 0; i < 8; i++) {
-			if (board.checkPiece(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i], getSide()) != PositionStatus.OFF_BOARD) {
+			if (board.checkPiece(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i], p.getSide()) != PositionStatus.OFF_BOARD) {
 				nullMoveInfo[0] |= BitBoard.getMask(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i]);
 			}
 		}
 
 	}
 
-	public boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
+	public static boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
 		long mask = BitBoard.getMask(toRow, toCol);
 
 		if ((mask & (nullMoveInfo[0] | nullMoveInfo[2])) == 0) {
@@ -112,7 +110,7 @@ public class King extends Piece {
 		}
 	}
 
-	public boolean canCastleFar(Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
+	public static boolean canCastleFar(Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
 
 		if (board.kingHasMoved(player) || board.farRookHasMoved(player)) {
 			return false;
@@ -138,7 +136,7 @@ public class King extends Piece {
 
 	}
 
-	public boolean canCastleNear(Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
+	public static boolean canCastleNear(Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
 
 		if (board.kingHasMoved(player) || board.nearRookHasMoved(player)) {
 			return false;
@@ -163,7 +161,4 @@ public class King extends Piece {
 		return false;
 	}
 
-	public Piece getCopy() {
-		return new King(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
-	}
 }

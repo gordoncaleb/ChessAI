@@ -211,23 +211,23 @@ public class Adjudicator {
 		Vector<Piece> pieces = new Vector<Piece>(16);
 
 		for (int i = 0; i < 8; i++) {
-			pieces.add(new Pawn(player, 0, 0, false));
+			pieces.add(new Piece(PieceID.PAWN,player, 0, 0, false));
 		}
 
-		for (int i = 0; i < 8; i++) {
-			pieces.add(new Rook(player, 0, 0, false));
+		for (int i = 0; i < 2; i++) {
+			pieces.add(new Piece(PieceID.BISHOP, player, 0, 0, false));
 		}
 
-		for (int i = 0; i < 8; i++) {
-			pieces.add(new Knight(player, 0, 0, false));
+		for (int i = 0; i < 2; i++) {
+			pieces.add(new Piece(PieceID.ROOK, player, 0, 0, false));
 		}
 
-		for (int i = 0; i < 8; i++) {
-			pieces.add(new Bishop(player, 0, 0, false));
+		for (int i = 0; i < 2; i++) {
+			pieces.add(new Piece(PieceID.KNIGHT, player, 0, 0, false));
 		}
 
-		pieces.add(new King(player, 0, 0, false));
-		pieces.add(new Queen(player, 0, 0, false));
+		pieces.add(new Piece(PieceID.KING, player, 0, 0, false));
+		pieces.add(new Piece(PieceID.QUEEN, player, 0, 0, false));
 
 		return pieces;
 	}

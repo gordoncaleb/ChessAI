@@ -185,7 +185,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			lostWhitePiecesPanel.updateUI();
 			lostBlackPiecesPanel.updateUI();
 
-			Piece piece = Piece.createPiece(fromLbl.getPieceID(), fromLbl.getPlayer(), -1, -1, false);
+			Piece piece = new Piece(fromLbl.getPieceID(), fromLbl.getPlayer(), -1, -1, false);
 			adjudicator.placePiece(piece, toSqr.getRow(), toSqr.getCol());
 		}
 

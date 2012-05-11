@@ -6,6 +6,7 @@ import chessBackend.Board;
 import chessBackend.GameStatus;
 import chessBackend.BoardHashEntry;
 import chessBackend.Move;
+import chessBackend.MoveNote;
 import chessPieces.Values;
 
 public class AIProcessor extends Thread {
@@ -16,7 +17,7 @@ public class AIProcessor extends Thread {
 	private int maxTwigLevel;
 	private boolean twigGrowthEnabled;
 	private final boolean iterativeDeepening = false;
-	private final boolean useHashTable = true;
+	private final boolean useHashTable = false;
 
 	private int maxFrontierLevel = 2;
 
@@ -228,7 +229,6 @@ public class AIProcessor extends Thread {
 
 			boolean branchInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxFrontierLevel);
 
-
 			Move move;
 			DecisionNode newNode = null;
 			DecisionNode tailNode = null;
@@ -241,7 +241,7 @@ public class AIProcessor extends Thread {
 
 				if (!pruned) {
 
-					bonusSearch = newNode.hasPieceTaken() || branchInCheckSearch ;
+					bonusSearch = newNode.hasPieceTaken() || branchInCheckSearch || (move.getNote() == MoveNote.NEW_QUEEN);
 
 					if (level > 0 || bonusSearch) {
 

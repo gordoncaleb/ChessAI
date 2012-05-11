@@ -7,30 +7,29 @@ import chessBackend.Board;
 import chessBackend.Side;
 import chessBackend.Move;
 
-public class Rook extends Piece {
+public class Rook{
 	private static int[][] ROOKMOVES = { { 1, -1, 0, 0 }, { 0, 0, 1, -1 } };
 
-	public Rook(Side player, int row, int col, boolean moved) {
-		super(player, row, col, moved);
+	public Rook() {
 	}
 
-	public PieceID getPieceID() {
+	public static PieceID getPieceID() {
 		return PieceID.ROOK;
 	}
 
-	public String getName() {
+	public static String getName() {
 		return "Rook";
 	}
 
-	public String getStringID() {
+	public static String getStringID() {
 		return "R";
 	}
 
-	public Vector<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
+	public static Vector<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
 		Vector<Move> validMoves = new Vector<Move>();
-		int currentRow = this.getRow();
-		int currentCol = this.getCol();
-		Side player = this.getSide();
+		int currentRow = p.getRow();
+		int currentCol = p.getCol();
+		Side player = p.getSide();
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
@@ -44,9 +43,9 @@ public class Rook extends Piece {
 
 			while (pieceStatus == PositionStatus.NO_PIECE) {
 
-				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
+				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
-					if (!this.hasMoved() && !board.kingHasMoved(player)) {
+					if (!p.hasMoved() && !board.kingHasMoved(player)) {
 						move = new Move(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
 					} else {
 						move = new Move(currentRow, currentCol, nextRow, nextCol);
@@ -63,12 +62,12 @@ public class Rook extends Piece {
 			}
 
 			if (pieceStatus == PositionStatus.ENEMY) {
-				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
+				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
 					move = new Move(currentRow, currentCol, nextRow, nextCol);
-					move.setPieceTaken(board.getPiece(nextRow, nextCol).getCopy());
+					move.setPieceTaken(board.getPiece(nextRow, nextCol));
 
-					if (!this.hasMoved() && !board.kingHasMoved(player)) {
+					if (!p.hasMoved() && !board.kingHasMoved(player)) {
 						move.setValue(board.getPieceValue(nextRow, nextCol) + Values.CASTLE_ABILITY_LOST_VALUE);
 					} else {
 						move.setValue(board.getPieceValue(nextRow, nextCol));
@@ -85,20 +84,20 @@ public class Rook extends Piece {
 
 	}
 
-	public void getNullMoveInfo(Board board, long[] nullMoveInfo) {
+	public static void getNullMoveInfo(Piece p, Board board, long[] nullMoveInfo) {
 		long bitAttackVector = 0;
 		long bitAttackCompliment = 0;
 		boolean inCheck = false;
 		Piece blockingPiece;
 
-		int currentRow = this.getRow();
-		int currentCol = this.getCol();
+		int currentRow = p.getRow();
+		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
 		PositionStatus pieceStatus;
-		Side player = this.getSide();
+		Side player = p.getSide();
 		
-		long bitPosition = this.getBit();
+		long bitPosition = p.getBit();
 
 		int i = 1;
 		for (int d = 0; d < 4; d++) {
@@ -164,7 +163,4 @@ public class Rook extends Piece {
 
 	}
 
-	public Piece getCopy() {
-		return new Rook(this.getSide(), this.getRow(), this.getCol(), this.hasMoved());
-	}
 }

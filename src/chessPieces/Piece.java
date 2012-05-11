@@ -7,20 +7,25 @@ import chessBackend.Board;
 import chessBackend.Side;
 import chessBackend.Move;
 
-public abstract class Piece {
+public class Piece {
 	private int row;
 	private int col;
 	private Side player;
 	private boolean moved;
 	private long blockingVector;
+	private PieceID id;
 
-	public Piece(Side player, int row, int col, boolean moved) {
-
+	public Piece(PieceID id, Side player, int row, int col, boolean moved) {
+		this.id = id;
 		this.moved = moved;
 		this.player = player;
 		this.row = row;
 		this.col = col;
 		this.blockingVector = BitBoard.ALL_ONES;
+
+		if (id == null) {
+			System.out.println("WTF");
+		}
 
 	}
 
@@ -45,6 +50,10 @@ public abstract class Piece {
 		setPos(newMove.getToRow(), newMove.getToCol());
 		moved = true;
 	}
+	
+	public void reverseMove(Move newMove){
+		setPos(newMove.getFromRow(), newMove.getFromCol());
+	}
 
 	public Side getSide() {
 		return player;
@@ -65,8 +74,8 @@ public abstract class Piece {
 	public void clearBlocking() {
 		blockingVector = BitBoard.ALL_ONES;
 	}
-	
-	public long getBlockingVector(){
+
+	public long getBlockingVector() {
 		return blockingVector;
 	}
 
@@ -96,7 +105,6 @@ public abstract class Piece {
 
 	public static Piece fromString(String stringPiece, int row, int col) {
 		Side player;
-		Piece piece = null;
 
 		boolean hasMoved = false;
 
@@ -114,58 +122,38 @@ public abstract class Piece {
 			player = Side.WHITE;
 		}
 
+		PieceID id;
 		char type = stringPiece.toLowerCase().charAt(0);
 
 		switch (type) {
 		case 'r':
-			piece = new Rook(player, row, col, hasMoved);
+			id = PieceID.ROOK;
 			break;
 		case 'n':
-			piece = new Knight(player, row, col, hasMoved);
+			id = PieceID.KNIGHT;
 			break;
 		case 'b':
-			piece = new Bishop(player, row, col, hasMoved);
+			id = PieceID.BISHOP;
 			break;
 		case 'q':
-			piece = new Queen(player, row, col, hasMoved);
+			id = PieceID.QUEEN;
 			break;
 		case 'k':
-			piece = new King(player, row, col, hasMoved);
+			id = PieceID.KING;
 			break;
 		case 'p':
-			piece = new Pawn(player, row, col, hasMoved);
+			id = PieceID.PAWN;
 			break;
+		default:
+			id = null;
 		}
 
-		return piece;
-
-	}
-	
-	public static Piece createPiece(PieceID id, Side player, int row, int col, boolean hasMoved){
-		Piece piece = null;
-		
-		switch (id) {
-		case ROOK:
-			piece = new Rook(player, row, col, hasMoved);
-			break;
-		case KNIGHT:
-			piece = new Knight(player, row, col, hasMoved);
-			break;
-		case BISHOP:
-			piece = new Bishop(player, row, col, hasMoved);
-			break;
-		case QUEEN:
-			piece = new Queen(player, row, col, hasMoved);
-			break;
-		case KING:
-			piece = new King(player, row, col, hasMoved);
-			break;
-		case PAWN:
-			piece = new Pawn(player, row, col, hasMoved);
-			break;
+		if (id != null) {
+			return new Piece(id, player, row, col, hasMoved);
+		} else {
+			return null;
 		}
-		
-		return piece;
+
 	}
 
 	public boolean equals(Piece piece) {
@@ -182,25 +170,108 @@ public abstract class Piece {
 	}
 
 	public boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
-		long mask = BitBoard.getMask(toRow,toCol);
-		
-		if((mask & nullMoveInfo[1] & blockingVector) != 0){
+		long mask = BitBoard.getMask(toRow, toCol);
+
+		if ((mask & nullMoveInfo[1] & blockingVector) != 0) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
 
-	public abstract String getStringID();
+	public String getStringID() {
+		switch (id) {
+		case ROOK:
+			return Rook.getStringID();
+		case KNIGHT:
+			return Knight.getStringID();
+		case BISHOP:
+			return Bishop.getStringID();
+		case QUEEN:
+			return Queen.getStringID();
+		case KING:
+			return King.getStringID();
+		case PAWN:
+			return Pawn.getStringID();
+		default:
+			return "";
+		}
 
-	public abstract PieceID getPieceID();
+	}
 
-	public abstract String getName();
+	public PieceID getPieceID() {
+		return id;
+	}
 
-	public abstract Vector<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard);
+	public void setPieceID(PieceID id) {
+		this.id = id;
+	}
 
-	public abstract void getNullMoveInfo(Board board, long[] nullMoveBitBoards);
+	public String getName() {
+		switch (id) {
+		case ROOK:
+			return Rook.getName();
+		case KNIGHT:
+			return Knight.getName();
+		case BISHOP:
+			return Bishop.getName();
+		case QUEEN:
+			return Queen.getName();
+		case KING:
+			return King.getName();
+		case PAWN:
+			return Pawn.getName();
+		default:
+			return "";
+		}
+	}
 
-	public abstract Piece getCopy();
+	public Vector<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
+
+		switch (id) {
+		case ROOK:
+			return Rook.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+		case KNIGHT:
+			return Knight.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+		case BISHOP:
+			return Bishop.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+		case QUEEN:
+			return Queen.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+		case KING:
+			return King.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+		case PAWN:
+			return Pawn.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+		default:
+			return null;
+		}
+
+	}
+
+	public void getNullMoveInfo(Board board, long[] nullMoveBitBoards) {
+		switch (id) {
+		case ROOK:
+			Rook.getNullMoveInfo(this, board, nullMoveBitBoards);
+			break;
+		case KNIGHT:
+			Knight.getNullMoveInfo(this, board, nullMoveBitBoards);
+			break;
+		case BISHOP:
+			Bishop.getNullMoveInfo(this, board, nullMoveBitBoards);
+			break;
+		case QUEEN:
+			Queen.getNullMoveInfo(this, board, nullMoveBitBoards);
+			break;
+		case KING:
+			King.getNullMoveInfo(this, board, nullMoveBitBoards);
+			break;
+		case PAWN:
+			Pawn.getNullMoveInfo(this, board, nullMoveBitBoards);
+			break;
+		}
+	}
+
+	public Piece getCopy() {
+		return new Piece(id, player, row, col, moved);
+	}
 
 }
