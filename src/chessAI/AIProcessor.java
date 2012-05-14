@@ -19,7 +19,7 @@ public class AIProcessor extends Thread {
 	private final boolean iterativeDeepening = false;
 	private final boolean useHashTable = true;
 
-	private int maxCheckFrontierLevel = 2;
+	private int maxInCheckFrontierLevel = 2;
 	private int maxPieceTakenFrontierLevel = 2;
 
 	private final boolean pruningEnabled = true;
@@ -35,7 +35,7 @@ public class AIProcessor extends Thread {
 		this.ai = ai;
 		this.maxTreeLevel = maxTreeLevel;
 		this.maxTwigLevel = maxTwigLevel;
-		twigGrowthEnabled = true;
+		twigGrowthEnabled = false;
 		aspirationWindowSize = 0;
 
 		threadActive = true;
@@ -222,7 +222,7 @@ public class AIProcessor extends Thread {
 
 			if (board.isGameOver()) {
 				if (board.isInStaleMate() || board.isDraw()) {
-					branch.setChosenPathValue((board.winningBy(board.getTurn()) + branch.getPieceTakenValue()) / Values.DRAW_DIVISOR);
+					branch.setChosenPathValue((board.winningBy(board.getTurn())) / Values.DRAW_DIVISOR);
 				} else {
 					branch.setChosenPathValue(Values.CHECKMATE_MOVE);
 				}

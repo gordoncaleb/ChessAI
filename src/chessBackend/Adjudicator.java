@@ -6,18 +6,13 @@ import java.util.Vector;
 import chessPieces.*;
 
 public class Adjudicator {
-	private Vector<Piece> whitePiecesTaken;
-	private Vector<Piece> blackPiecesTaken;
 	private Vector<Move> validMoves;
 	private Stack<Move> undoneMoves;
 	private Board board;
 
 	public Adjudicator(Board board) {
-		whitePiecesTaken = new Vector<Piece>();
-		blackPiecesTaken = new Vector<Piece>();
 		undoneMoves = new Stack<Move>();
 		this.board = board;
-		loadPiecesTaken();
 	}
 
 	public boolean move(Move move) {
@@ -27,7 +22,6 @@ public class Adjudicator {
 		Move matchingMove = getMatchingMove(move);
 
 		if (board.makeMove(matchingMove)) {
-			takePiece(matchingMove.getPieceTaken());
 
 			return true;
 		} else {
@@ -41,7 +35,6 @@ public class Adjudicator {
 
 		if (canUndo()) {
 			lastMove = board.undoMove();
-			untakePiece(lastMove.getPieceTaken());
 			undoneMoves.push(lastMove);
 		}
 
@@ -72,8 +65,8 @@ public class Adjudicator {
 
 		return validMoves;
 	}
-	
-	public Vector<Move> getMoveHistory(){
+
+	public Vector<Move> getMoveHistory() {
 		return board.getMoveHistory();
 	}
 
@@ -88,9 +81,9 @@ public class Adjudicator {
 	public Side getPiecePlayer(int row, int col) {
 		return board.getPieceSide(row, col);
 	}
-	
-	public Piece getPiece(int row, int col){
-		return board.getPiece(row,col);
+
+	public Piece getPiece(int row, int col) {
+		return board.getPiece(row, col);
 	}
 
 	public Move getLastMoveMade() {
@@ -110,73 +103,10 @@ public class Adjudicator {
 	}
 
 	public Vector<Piece> getPiecesTaken(Side player) {
-		if (player == Side.WHITE) {
-			return whitePiecesTaken;
-		} else {
-			return blackPiecesTaken;
-		}
+		return board.getPiecesTakenFor(player);
 	}
 
-	private void loadPiecesTaken() {
-
-		Vector<Piece> whitePieces = board.getPiecesFor(Side.WHITE);
-		whitePiecesTaken = getFullPieceSet(Side.WHITE);
-
-		Piece piecePresent;
-		for (int p = 0; p < whitePieces.size(); p++) {
-			piecePresent = whitePieces.elementAt(p);
-
-			for (int t = 0; t < whitePiecesTaken.size(); t++) {
-				if (whitePiecesTaken.elementAt(t).getPieceID() == piecePresent.getPieceID()) {
-					whitePiecesTaken.remove(t);
-					break;
-				}
-			}
-		}
-
-		Vector<Piece> blackPieces = board.getPiecesFor(Side.BLACK);
-		blackPiecesTaken = getFullPieceSet(Side.BLACK);
-
-		for (int p = 0; p < blackPieces.size(); p++) {
-			piecePresent = blackPieces.elementAt(p);
-
-			for (int t = 0; t < whitePiecesTaken.size(); t++) {
-				if (blackPiecesTaken.elementAt(t).getPieceID() == piecePresent.getPieceID()) {
-					blackPiecesTaken.remove(t);
-					break;
-				}
-			}
-		}
-	}
-
-	private void takePiece(Piece pieceTaken) {
-
-		if (pieceTaken != null) {
-
-			if (pieceTaken.getSide() == Side.BLACK) {
-				blackPiecesTaken.add(pieceTaken);
-			} else {
-				whitePiecesTaken.add(pieceTaken);
-			}
-
-		}
-
-	}
-
-	private void untakePiece(Piece pieceTaken) {
-
-		if (pieceTaken != null) {
-
-			if (pieceTaken.getSide() == Side.BLACK) {
-				blackPiecesTaken.remove(pieceTaken);
-			} else {
-				whitePiecesTaken.remove(pieceTaken);
-			}
-
-		}
-	}
-	
-	public void placePiece(Piece piece, int toRow, int toCol){
+	public void placePiece(Piece piece, int toRow, int toCol) {
 		board.placePiece(piece, toRow, toCol);
 	}
 
@@ -205,31 +135,6 @@ public class Adjudicator {
 
 	public Board getBoard() {
 		return board;
-	}
-
-	private Vector<Piece> getFullPieceSet(Side player) {
-		Vector<Piece> pieces = new Vector<Piece>(16);
-
-		for (int i = 0; i < 8; i++) {
-			pieces.add(new Piece(PieceID.PAWN,player, 0, 0, false));
-		}
-
-		for (int i = 0; i < 2; i++) {
-			pieces.add(new Piece(PieceID.BISHOP, player, 0, 0, false));
-		}
-
-		for (int i = 0; i < 2; i++) {
-			pieces.add(new Piece(PieceID.ROOK, player, 0, 0, false));
-		}
-
-		for (int i = 0; i < 2; i++) {
-			pieces.add(new Piece(PieceID.KNIGHT, player, 0, 0, false));
-		}
-
-		pieces.add(new Piece(PieceID.KING, player, 0, 0, false));
-		pieces.add(new Piece(PieceID.QUEEN, player, 0, 0, false));
-
-		return pieces;
 	}
 
 }

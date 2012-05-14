@@ -426,21 +426,21 @@ public class DecisionNode {
 		if (move == null) {
 			return false;
 		} else {
-			if (move.getPieceTaken() == null) {
-				return false;
-			} else {
+			if (move.hasPieceTaken()) {
 				return true;
+			} else {
+				return false;
 			}
 		}
 	}
 
-	public int getPieceTakenValue() {
-		if (hasPieceTaken()) {
-			return Values.getPieceValue(move.getPieceTaken().getPieceID());
-		} else {
-			return 0;
-		}
-	}
+//	private int getPieceTakenValue() {
+//		if (hasPieceTaken()) {
+//			return Values.getPieceValue(move.getPieceTakenID());
+//		} else {
+//			return 0;
+//		}
+//	}
 
 	// private boolean isGameOver() {
 	// if (status == GameStatus.CHECKMATE || status == GameStatus.STALEMATE ||
