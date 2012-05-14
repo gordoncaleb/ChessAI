@@ -175,6 +175,10 @@ public class Move {
 		return pieceTaken;
 	}
 
+	public boolean hasPieceTaken() {
+		return (pieceTaken != null);
+	}
+
 	public void setPieceTaken(Piece pieceTaken) {
 		this.pieceTaken = pieceTaken;
 	}

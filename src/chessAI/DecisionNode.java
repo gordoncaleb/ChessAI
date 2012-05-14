@@ -284,11 +284,11 @@ public class DecisionNode {
 	// }
 
 	public int getChildrenSize() {
-		
-		if(!hasChildren()){
+
+		if (!hasChildren()) {
 			return 0;
 		}
-		
+
 		int childrenSize = 1;
 		DecisionNode sib = headChild;
 
@@ -296,7 +296,7 @@ public class DecisionNode {
 			sib = sib.getNextSibling();
 			childrenSize++;
 		}
-		
+
 		return childrenSize;
 	}
 
@@ -379,7 +379,11 @@ public class DecisionNode {
 			}
 		} else {
 			if ((Math.abs(chosenPathValue) & Values.CHECKMATE_MASK) != 0) {
-				return Values.CHECKMATE_MOVE - depth;
+				if (chosenPathValue > 0) {
+					return chosenPathValue - depth;
+				} else {
+					return chosenPathValue + depth;
+				}
 			} else {
 				return chosenPathValue - pmv;
 			}

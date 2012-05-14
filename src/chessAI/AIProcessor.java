@@ -17,9 +17,10 @@ public class AIProcessor extends Thread {
 	private int maxTwigLevel;
 	private boolean twigGrowthEnabled;
 	private final boolean iterativeDeepening = false;
-	private final boolean useHashTable = false;
+	private final boolean useHashTable = true;
 
-	private int maxFrontierLevel = 2;
+	private int maxCheckFrontierLevel = 2;
+	private int maxPieceTakenFrontierLevel = 2;
 
 	private final boolean pruningEnabled = true;
 	private int aspirationWindowSize;
@@ -34,7 +35,7 @@ public class AIProcessor extends Thread {
 		this.ai = ai;
 		this.maxTreeLevel = maxTreeLevel;
 		this.maxTwigLevel = maxTwigLevel;
-		twigGrowthEnabled = false;
+		twigGrowthEnabled = true;
 		aspirationWindowSize = 0;
 
 		threadActive = true;
@@ -167,17 +168,19 @@ public class AIProcessor extends Thread {
 
 			board.undoMove();
 
-			rootNode.addChild(task);
+			if (rootNode.getHeadChild() != null) {
+				int rootCPV = rootNode.getHeadChild().getChosenPathValue(0, 0);
+				int taskCPV = task.getChosenPathValue(0, 0);
 
-			// if (rootNode.getHeadChild() != null) {
-			// if (task.getChosenPathValue(0,0) >
-			// rootNode.getHeadChild().getChosenPathValue(0,0)) {
-			// rootNode.removeAllChildren();
-			// rootNode.addChild(task);
-			// }
-			// }else{
-			//
-			// }
+				if (taskCPV >= rootCPV) {
+					if (taskCPV > rootCPV || (Math.random() > 0.5)) {
+						rootNode.removeAllChildren();
+						rootNode.addChild(task);
+					}
+				}
+			} else {
+				rootNode.addChild(task);
+			}
 
 			ai.taskDone();
 
@@ -227,8 +230,8 @@ public class AIProcessor extends Thread {
 				return;
 			}
 
-			boolean branchInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxFrontierLevel);
-
+			boolean bonusInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxCheckFrontierLevel);
+			boolean bonusPieceTakenSearch;
 			Move move;
 			DecisionNode newNode = null;
 			DecisionNode tailNode = null;
@@ -241,7 +244,9 @@ public class AIProcessor extends Thread {
 
 				if (!pruned) {
 
-					bonusSearch = newNode.hasPieceTaken() || branchInCheckSearch || (move.getNote() == MoveNote.NEW_QUEEN);
+					bonusPieceTakenSearch = (newNode.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel);
+
+					bonusSearch = bonusPieceTakenSearch || bonusInCheckSearch || (move.getNote() == MoveNote.NEW_QUEEN);
 
 					if (level > 0 || bonusSearch) {
 
@@ -273,7 +278,7 @@ public class AIProcessor extends Thread {
 								// bonus depth
 
 								if (twigGrowthEnabled) {
-									growFrontierTwig(newNode, newAlphaBeta);
+									growFrontierTwig(newNode, newAlphaBeta, 0);
 								} else {
 									growDecisionTree(newNode, level - 1, newAlphaBeta);
 								}
@@ -416,9 +421,9 @@ public class AIProcessor extends Thread {
 	 *            A node at the bottom of the tree, which has no children.
 	 * @return
 	 */
-	private void growFrontierTwig(DecisionNode twig, int alphaBeta) {
+	private void growFrontierTwig(DecisionNode twig, int alphaBeta, int startLevel) {
 
-		int twigsBestPathValue = growDecisionTreeLite(board, twig.getMove(), alphaBeta, maxTwigLevel);
+		int twigsBestPathValue = growDecisionTreeLite(board, twig.getMove(), alphaBeta, startLevel);
 
 		// twig.setStatus(board.getBoardStatus());
 
@@ -447,6 +452,7 @@ public class AIProcessor extends Thread {
 		int suggestedPathValue;
 		GameStatus tempBoardState;
 		boolean hashHit = false;
+		boolean bonusSearch;
 
 		BoardHashEntry hashOut;
 
@@ -456,15 +462,22 @@ public class AIProcessor extends Thread {
 
 		if (!board.isGameOver()) {
 
+			boolean branchInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxCheckFrontierLevel);
+			boolean bonusPieceTakenSearch;
+
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
 
-				if ((level > 0 || board.isInCheck() || move.getPieceTaken() != null) && (level > -maxFrontierLevel)) {
+				bonusPieceTakenSearch = (move.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel);
 
-					hashHit = false;
+				bonusSearch = bonusPieceTakenSearch || branchInCheckSearch || (move.getNote() == MoveNote.NEW_QUEEN);
+
+				if (level > 0 || bonusSearch) {
+
 					tempBoardState = board.getBoardStatus();
 					board.makeMove(move);
 
+					hashHit = false;
 					hashOut = hashTable[board.getHashIndex()];
 
 					if (hashOut != null) {
