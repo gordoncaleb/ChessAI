@@ -213,7 +213,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			refreshBoard();
 
 			if (move.hasPieceTaken()) {
-				takePiece(move.getPieceTakenID(), adjudicator.getTurn().otherSide());
+				takePiece(move.getPieceTakenID(), adjudicator.getTurn());
 			}
 
 			updateLastMovedSquare();
@@ -292,7 +292,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			refreshBoard();
 
 			if (redoneMove.hasPieceTaken()) {
-				takePiece(redoneMove.getPieceTakenID(), adjudicator.getTurn().otherSide());
+				takePiece(redoneMove.getPieceTakenID(), adjudicator.getTurn());
 			}
 
 			updateLastMovedSquare();

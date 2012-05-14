@@ -168,17 +168,14 @@ public class AIProcessor extends Thread {
 
 			board.undoMove();
 
-			rootNode.addChild(task);
-
-			// if (rootNode.getHeadChild() != null) {
-			// if (task.getChosenPathValue(0,0) >
-			// rootNode.getHeadChild().getChosenPathValue(0,0)) {
-			// rootNode.removeAllChildren();
-			// rootNode.addChild(task);
-			// }
-			// }else{
-			//
-			// }
+			if (rootNode.getHeadChild() != null) {
+				if (task.getChosenPathValue(0, 0) > rootNode.getHeadChild().getChosenPathValue(0, 0)) {
+					rootNode.removeAllChildren();
+					rootNode.addChild(task);
+				}
+			} else {
+				rootNode.addChild(task);
+			}
 
 			ai.taskDone();
 
@@ -241,7 +238,7 @@ public class AIProcessor extends Thread {
 				newNode = new DecisionNode(move);
 
 				if (!pruned) {
-					
+
 					pieceTakenBonusSearch = newNode.hasPieceTaken() && (level > -maxPieceTakenFrontierLevel);
 
 					bonusSearch = pieceTakenBonusSearch || branchInCheckSearch || (move.getNote() == MoveNote.NEW_QUEEN);
