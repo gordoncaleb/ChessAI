@@ -19,7 +19,8 @@ public class AIProcessor extends Thread {
 	private final boolean iterativeDeepening = false;
 	private final boolean useHashTable = false;
 
-	private int maxFrontierLevel = 2;
+	private int maxInCheckFrontierLevel = 2;
+	private int maxPieceTakenFrontierLevel = 2;
 
 	private final boolean pruningEnabled = true;
 	private int aspirationWindowSize;
@@ -219,7 +220,7 @@ public class AIProcessor extends Thread {
 
 			if (board.isGameOver()) {
 				if (board.isInStaleMate() || board.isDraw()) {
-					branch.setChosenPathValue((board.winningBy(board.getTurn()) + branch.getPieceTakenValue()) / Values.DRAW_DIVISOR);
+					branch.setChosenPathValue((board.winningBy(board.getTurn())) / Values.DRAW_DIVISOR);
 				} else {
 					branch.setChosenPathValue(Values.CHECKMATE_MOVE);
 				}
@@ -227,8 +228,8 @@ public class AIProcessor extends Thread {
 				return;
 			}
 
-			boolean branchInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxFrontierLevel);
-
+			boolean branchInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel);
+			boolean pieceTakenBonusSearch;
 			Move move;
 			DecisionNode newNode = null;
 			DecisionNode tailNode = null;
@@ -240,8 +241,10 @@ public class AIProcessor extends Thread {
 				newNode = new DecisionNode(move);
 
 				if (!pruned) {
+					
+					pieceTakenBonusSearch = newNode.hasPieceTaken() && (level > -maxPieceTakenFrontierLevel);
 
-					bonusSearch = newNode.hasPieceTaken() || branchInCheckSearch || (move.getNote() == MoveNote.NEW_QUEEN);
+					bonusSearch = pieceTakenBonusSearch || branchInCheckSearch || (move.getNote() == MoveNote.NEW_QUEEN);
 
 					if (level > 0 || bonusSearch) {
 
@@ -459,7 +462,7 @@ public class AIProcessor extends Thread {
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.elementAt(m);
 
-				if ((level > 0 || board.isInCheck() || move.getPieceTaken() != null) && (level > -maxFrontierLevel)) {
+				if ((level > 0 || board.isInCheck() || move.hasPieceTaken()) && (level > -maxInCheckFrontierLevel)) {
 
 					hashHit = false;
 					tempBoardState = board.getBoardStatus();

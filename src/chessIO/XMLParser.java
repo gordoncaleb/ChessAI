@@ -47,13 +47,8 @@ public class XMLParser {
 	}
 
 	private static Board buildBoard(Element boardElement) {
-
-		Piece[][] board = new Piece[8][8];
 		Vector<Piece> blackPieces = new Vector<Piece>();
 		Vector<Piece> whitePieces = new Vector<Piece>();
-		Piece whiteKing = null;
-		Piece blackKing = null;
-		long[] posBitBoard = { 0, 0 };
 
 		Stack<Move> moveHistory = new Stack<Move>();
 		Side player;
@@ -74,22 +69,13 @@ public class XMLParser {
 					pawnLeap = piece;
 				}
 
-				board[row][col] = piece;
-
 				if (piece != null) {
-
-					posBitBoard[piece.getSide().ordinal()] |= BitBoard.getMask(row, col);
 
 					if (piece.getSide() == Side.BLACK) {
 						blackPieces.add(piece);
 
-						if (piece.getPieceID() == PieceID.KING)
-							blackKing = piece;
 					} else {
 						whitePieces.add(piece);
-
-						if (piece.getPieceID() == PieceID.KING)
-							whiteKing = piece;
 					}
 				}
 
@@ -120,12 +106,12 @@ public class XMLParser {
 			}
 		}
 
-		if (blackPieces.size() == 0 || whitePieces.size() == 0 || blackKing == null || whiteKing == null) {
+		if (blackPieces.size() == 0 || whitePieces.size() == 0) {
 			System.out.println("Error loading xml board!");
 			return null;
 		}
 
-		return new Board(board, blackPieces, whitePieces, posBitBoard, blackKing, whiteKing, player, moveHistory, null);
+		return new Board(blackPieces, whitePieces,player, moveHistory);
 	}
 
 	public static Piece XMLToPiece(String xmlPiece) {

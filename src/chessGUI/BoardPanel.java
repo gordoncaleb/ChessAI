@@ -212,8 +212,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		if (adjudicator.move(move)) {
 			refreshBoard();
 
-			if (move.getPieceTaken() != null) {
-				takePiece(move.getPieceTaken().getPieceID(), move.getPieceTaken().getSide());
+			if (move.hasPieceTaken()) {
+				takePiece(move.getPieceTakenID(), adjudicator.getTurn().otherSide());
 			}
 
 			updateLastMovedSquare();
@@ -264,7 +264,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			attachValidMoves();
 
 			// update side line view of pieces that have been taken
-			if (undoneMove.getPieceTaken() != null) {
+			if (undoneMove.hasPieceTaken()) {
 				refreshPiecesTaken();
 			}
 
@@ -291,8 +291,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 			refreshBoard();
 
-			if (redoneMove.getPieceTaken() != null) {
-				takePiece(redoneMove.getPieceTaken().getPieceID(), redoneMove.getPieceTaken().getSide());
+			if (redoneMove.hasPieceTaken()) {
+				takePiece(redoneMove.getPieceTakenID(), adjudicator.getTurn().otherSide());
 			}
 
 			updateLastMovedSquare();
