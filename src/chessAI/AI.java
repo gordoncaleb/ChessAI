@@ -13,14 +13,13 @@ import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.1.051212";
+	public static String VERSION = "1.1.051512";
 	private boolean debug;
 
 	private PlayerContainer game;
 	private MoveBook moveBook;
 	private DecisionNode rootNode;
 
-	private int maxTwigLevel;
 	private int maxDecisionTreeLevel;
 
 	private int[] childNum = new int[200];
@@ -64,13 +63,12 @@ public class AI extends Thread implements Player {
 
 		// Default levels
 		maxDecisionTreeLevel = 3;
-		maxTwigLevel = 0;
 
 		// processorThreads = new
 		// AIProcessor[Runtime.getRuntime().availableProcessors()];
 		processorThreads = new AIProcessor[1];
 		for (int i = 0; i < processorThreads.length; i++) {
-			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel, maxTwigLevel);
+			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel);
 			processorThreads[i].start();
 		}
 
@@ -521,7 +519,7 @@ public class AI extends Thread implements Player {
 	}
 
 	public int getMoveChosenPathValue(Move m) {
-		return getMatchingDecisionNode(m).getChosenPathValue(0, 0);
+		return getMatchingDecisionNode(m).getChosenPathValue();
 	}
 
 	public void setUseBook(boolean useBook) {

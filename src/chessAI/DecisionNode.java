@@ -202,10 +202,10 @@ public class DecisionNode {
 
 		DecisionNode currentChild = null;
 		DecisionNode nextChild = headChild;
-		int newChildChosenPathValue = newChild.getChosenPathValue(0, 0);
+		int newChildChosenPathValue = newChild.getChosenPathValue();
 
 		while (nextChild != null) {
-			if (newChildChosenPathValue > nextChild.getChosenPathValue(0, 0)) {
+			if (newChildChosenPathValue > nextChild.getChosenPathValue()) {
 				newChild.setNextSibling(nextChild);
 				if (currentChild != null) {
 					currentChild.setNextSibling(newChild);
@@ -369,25 +369,31 @@ public class DecisionNode {
 	// return value;
 	// }
 
-	public int getChosenPathValue(int pmv, int depth) {
+	public int getChosenPathValue() {
 
-		if (chosenPathValue == null) {
-			if (headChild != null) {
-				return -headChild.getChosenPathValue(this.getMoveValue() - pmv, depth + 1);
-			} else {
-				return this.getMoveValue() - pmv;
-			}
-		} else {
-			if ((Math.abs(chosenPathValue) & Values.CHECKMATE_MASK) != 0) {
-				if (chosenPathValue > 0) {
-					return chosenPathValue - depth;
-				} else {
-					return chosenPathValue + depth;
-				}
-			} else {
-				return chosenPathValue - pmv;
-			}
-		}
+		// if (chosenPathValue == null) {
+		// if (headChild != null) {
+		// return -headChild.getChosenPathValue(this.getMoveValue() - pmv, depth
+		// + 1);
+		// } else {
+		// return this.getMoveValue() - pmv;
+		// }
+		// } else {
+		// if ((Math.abs(chosenPathValue) & Values.CHECKMATE_MASK) != 0) {
+		// if (chosenPathValue > 0) {
+		// return chosenPathValue - depth;
+		// } else {
+		// return chosenPathValue + depth;
+		// }
+		// } else {
+		// return chosenPathValue - pmv;
+		// }
+		// }
+
+		if (hasChosenPathValue())
+			return chosenPathValue;
+		else
+			return 0;
 
 	}
 
@@ -434,13 +440,13 @@ public class DecisionNode {
 		}
 	}
 
-//	private int getPieceTakenValue() {
-//		if (hasPieceTaken()) {
-//			return Values.getPieceValue(move.getPieceTakenID());
-//		} else {
-//			return 0;
-//		}
-//	}
+	// private int getPieceTakenValue() {
+	// if (hasPieceTaken()) {
+	// return Values.getPieceValue(move.getPieceTakenID());
+	// } else {
+	// return 0;
+	// }
+	// }
 
 	// private boolean isGameOver() {
 	// if (status == GameStatus.CHECKMATE || status == GameStatus.STALEMATE ||
@@ -462,7 +468,7 @@ public class DecisionNode {
 	public String toString() {
 
 		if (move != null)
-			return move.toString() + " Chosen Path Value =" + this.getChosenPathValue(0, 0);
+			return move.toString() + " Chosen Path Value =" + this.getChosenPathValue();
 		else
 			return "Board Start";
 	}
@@ -470,7 +476,7 @@ public class DecisionNode {
 	public void printChildrenValues() {
 		DecisionNode currentChild = headChild;
 		while (currentChild != null) {
-			System.out.print(currentChild.getChosenPathValue(0, 0) + ",");
+			System.out.print(currentChild.getChosenPathValue() + ",");
 			currentChild = currentChild.getNextSibling();
 		}
 

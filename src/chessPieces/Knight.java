@@ -42,7 +42,7 @@ public class Knight{
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
 			if (pieceStatus != PositionStatus.OFF_BOARD) {
-				bonus = PositionBonus.getKnightPositionBonus(currentRow, currentCol, nextRow, nextCol, p.getSide());
+				bonus = PositionBonus.getKnightMoveBonus(currentRow, currentCol, nextRow, nextCol, p.getSide());
 
 				if (pieceStatus == PositionStatus.NO_PIECE) {
 					if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {

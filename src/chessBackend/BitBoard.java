@@ -15,11 +15,12 @@ public class BitBoard {
 	public static long[][] bitMask;
 
 	public static void main(String args[]) {
+		loadMasks();
 		long base = 1;
-		long temp = WHITE_CHECK_FAR;
+		long temp = WHITE_CASTLE_NEAR;
 
 		System.out.println(Long.toHexString(temp));
-		printBitBoard(temp);
+		System.out.println(printBitBoard(temp));
 	}
 
 	public static long getMask(int row, int col) {

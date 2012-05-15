@@ -150,12 +150,16 @@ public class Board {
 				moveSide = moveSide.otherSide();
 			}
 
-		}else{
+		} else {
 			loadPiecesTaken();
 		}
 	}
 
 	public boolean makeMove(Move move) {
+		
+		if(board[move.getFromRow()][move.getFromCol()]==null){
+			System.out.println("WTF?");
+		}
 
 		if (board[move.getFromRow()][move.getFromCol()].getSide() != turn) {
 			System.out.println("Problem with player ref");
@@ -169,11 +173,9 @@ public class Board {
 		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
 				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
-		
-
 		// remove taken piece first
 		if (move.hasPieceTaken()) {
-			
+
 			Piece pieceTaken = board[move.getPieceTakenRow()][move.getPieceTakenCol()];
 
 			// remove pieceTaken from vectors
@@ -288,14 +290,14 @@ public class Board {
 		undoMovePiece(lastMove);
 
 		if (lastMove.hasPieceTaken()) {
-			
+
 			// add taken piece back to vectors and board
 			Piece pieceTaken;
-			
-			if(turn==Side.WHITE){
+
+			if (turn == Side.WHITE) {
 				pieceTaken = blackPiecesTaken.pop();
 				blackPieces.add(pieceTaken);
-			}else{
+			} else {
 				pieceTaken = whitePiecesTaken.pop();
 				whitePieces.add(pieceTaken);
 			}
@@ -396,11 +398,8 @@ public class Board {
 
 	public Vector<Move> generateValidMoves() {
 
-		// recalculating check info
-		clearBoardStatus();
-
 		// find in check details. i.e. left and right castle info
-		makeNullMove();
+		//makeNullMove();
 
 		// System.out.println("Not safe areas");
 		// BitBoard.printBitBoard(nullMoveInfo[0]);
@@ -425,7 +424,7 @@ public class Board {
 				addSortValidMove(validMoves, moves.elementAt(m));
 			}
 
-			piece.clearBlocking();
+			
 
 		}
 
@@ -453,8 +452,12 @@ public class Board {
 		nullMoveInfo[1] = inCheckVector;
 		nullMoveInfo[2] = bitAttackCompliment;
 
+		// recalculating check info
+		clearBoardStatus();
+
 		Vector<Piece> pieces = getPiecesFor(turn.otherSide());
 		for (int p = 0; p < pieces.size(); p++) {
+			pieces.elementAt(p).clearBlocking();
 			pieces.elementAt(p).getNullMoveInfo(this, nullMoveInfo);
 		}
 
@@ -504,13 +507,19 @@ public class Board {
 	}
 
 	public int getPieceValue(int row, int col) {
-		int value;
-		Side player = board[row][col].getSide();
+		return getPieceValue(board[row][col]);
+	}
 
-		switch (board[row][col].getPieceID()) {
+	public int getPieceValue(Piece piece) {
+		int value;
+		Side player = piece.getSide();
+		int row = piece.getRow();
+		int col = piece.getCol();
+
+		switch (piece.getPieceID()) {
 		case KNIGHT:
 			int piecesMissing = 32 - (blackPieces.size() + whitePieces.size());
-			value = Values.KNIGHT_VALUE - piecesMissing * Values.KNIGHT_ENDGAME_INC;
+			value = Values.KNIGHT_VALUE - piecesMissing * Values.KNIGHT_ENDGAME_INC + PositionBonus.getKnightPositionBonus(row, col, player);
 			break;
 		case PAWN:
 			value = Values.PAWN_VALUE + PositionBonus.getPawnPositionBonus(row, col, player);
@@ -536,18 +545,18 @@ public class Board {
 
 	}
 
-	public int winningBy(Side player) {
+	public int staticScore() {
 		int ptDiff = 0;
 
-		Vector<Piece> myPieces = getPiecesFor(player);
-		Vector<Piece> otherPieces = getPiecesFor(player.otherSide());
+		Vector<Piece> myPieces = getPiecesFor(turn);
+		Vector<Piece> otherPieces = getPiecesFor(turn.otherSide());
 
 		for (int i = 0; i < myPieces.size(); i++) {
-			ptDiff += Values.getPieceValue(myPieces.elementAt(i).getPieceID());
+			ptDiff += getPieceValue(myPieces.elementAt(i));
 		}
 
 		for (int i = 0; i < otherPieces.size(); i++) {
-			ptDiff -= Values.getPieceValue(otherPieces.elementAt(i).getPieceID());
+			ptDiff -= getPieceValue(otherPieces.elementAt(i));
 		}
 
 		return ptDiff;
@@ -845,7 +854,9 @@ public class Board {
 
 		int count = 0;
 
-		for (int i = hashCodeHistory.size() - 1; i >= 0; i--) {
+		int goBackTo = Math.max(0, hashCodeHistory.size() - 10);
+
+		for (int i = hashCodeHistory.size() - 1; i >= goBackTo; i--) {
 			if (hashCode == hashCodeHistory.elementAt(i)) {
 				count++;
 			}

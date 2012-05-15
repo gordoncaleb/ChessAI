@@ -61,6 +61,7 @@ public class Adjudicator {
 	}
 
 	public Vector<Move> getValidMoves() {
+		board.makeNullMove();
 		validMoves = board.generateValidMoves();
 
 		return validMoves;

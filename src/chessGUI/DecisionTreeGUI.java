@@ -67,7 +67,7 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 			childGUI = new DefaultMutableTreeNode(child);
 			branchGUI.add(childGUI);
 
-			if (child.hasChildren() && !child.hasChosenPathValue()) {
+			if (child.hasChildren()) {
 				buildDecisionTreeGUI(childGUI, child, level + 1);
 			}
 

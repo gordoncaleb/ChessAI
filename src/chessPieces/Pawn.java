@@ -49,7 +49,7 @@ public class Pawn{
 
 			if (p.isValidMove(currentRow + dir, currentCol, nullMoveInfo)) {
 
-				bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + dir, currentCol, p.getSide());
+				bonus = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + dir, currentCol, p.getSide());
 				validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol, bonus, MoveNote.NONE);
 				if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
 					validMove.setNote(MoveNote.NEW_QUEEN);
@@ -59,7 +59,7 @@ public class Pawn{
 
 				if (!p.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == PositionStatus.NO_PIECE) {
 					if (p.isValidMove(currentRow + 2 * dir, currentCol, nullMoveInfo)) {
-						bonus = PositionBonus.getPawnPositionBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, p.getSide());
+						bonus = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, p.getSide());
 						validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol, bonus, MoveNote.PAWN_LEAP));
 					}
 				}

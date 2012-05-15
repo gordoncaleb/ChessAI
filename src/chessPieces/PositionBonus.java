@@ -46,11 +46,11 @@ public class PositionBonus {
 			{ 3, 6,   9, 15, 15,  9,  6, 3 },// 5
 			{ 4, 8,  12, 20, 20, 12,  8, 4 },// 6
 			{ 5, 10, 15, 25, 25, 15, 10, 5 },// 7
-			{ 5, 10, 15, 25, 25, 15, 10, 5 } // 8
-	       // a, b,   c,  d,  e,  f,  g, h
+			{ 0,  0,  0,  0,  0,  0,  0, 0 } // 8
+	       // a,  b,  c,  d,  e,  f,  g, h
 	};
 
-	public static final int getKnightPositionBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
+	public static final int getKnightMoveBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = knightBonus[toRow][toCol] - knightBonus[fromRow][fromCol];
@@ -70,7 +70,7 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static final int getPawnPositionBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
+	public static final int getPawnMoveBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = pawnBonus[toRow][toCol] - pawnBonus[fromRow][fromCol];

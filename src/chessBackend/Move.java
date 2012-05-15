@@ -15,6 +15,77 @@ public class Move {
 	private int value;
 	private int moveInt;
 
+	public static void main(String[] args) {
+
+		Move move;
+		Piece pieceTaken1;
+		Piece pieceTaken2;
+
+		for (int n = 0; n < MoveNote.values().length; n++) {
+			for (int ptid = 0; ptid < PieceID.values().length; ptid++) {
+				for (int ptc = 0; ptc < 8; ptc++) {
+					for (int ptr = 0; ptr < 8; ptr++) {
+						for (int fr = 0; fr < 8; fr++) {
+							for (int fc = 0; fc < 8; fc++) {
+								for (int tr = 0; tr < 8; tr++) {
+									for (int tc = 0; tc < 8; tc++) {
+										pieceTaken1 = new Piece(PieceID.PAWN, Side.WHITE, 1, 2, false);
+										move = new Move(fr, fc, tr, tc, 100, MoveNote.NONE, pieceTaken1, true);
+
+										pieceTaken2 = new Piece(PieceID.values()[ptid], Side.WHITE, ptr, ptc, true);
+										move.setPieceTaken(pieceTaken2);
+										
+										move.setNote(MoveNote.values()[n]);
+										move.setHadMoved(false);
+
+										if (move.getFromRow() != fr) {
+											System.out.println("problem");
+										}
+										if (move.getFromCol() != fc) {
+											System.out.println("problem");
+										}
+										if (move.getToRow() != tr) {
+											System.out.println("problem");
+										}
+										if (move.getToCol() != tc) {
+											System.out.println("problem");
+										}
+										if (move.getNote() != MoveNote.values()[n]) {
+											System.out.println("problem");
+										}
+
+										if (move.getPieceTakenID() != PieceID.values()[ptid]) {
+											System.out.println("problem");
+										}
+
+										if (move.getPieceTakenRow() != ptr) {
+											System.out.println("problem");
+										}
+
+										if (move.getPieceTakenCol() != ptc) {
+											System.out.println("problem");
+										}
+
+										if (!move.getPieceTakenHasMoved()) {
+											System.out.println("problem");
+										}
+
+										if (move.hadMoved()) {
+											System.out.println("problem");
+										}
+
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		System.out.println("Done");
+	}
+
 	public Move(int fromRow, int fromCol, int toRow, int toCol) {
 		this(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, null, false);
 	}
