@@ -142,6 +142,7 @@ public class Queen{
 				nullMoveInfo[2] |= bitAttackCompliment;
 			}
 			
+			bitAttackCompliment = 0;
 			bitAttackVector = 0;
 
 			i = 1;

@@ -156,6 +156,7 @@ public class Rook{
 				nullMoveInfo[2] |= bitAttackCompliment;
 			}
 			
+			bitAttackCompliment = 0;
 			bitAttackVector = 0;
 
 			i = 1;
