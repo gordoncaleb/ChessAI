@@ -198,7 +198,7 @@ public class AIProcessor extends Thread {
 								// bonus depth
 
 								if (twigGrowthEnabled) {
-									newNode.setChosenPathValue(growDecisionTreeLite(-beta, -alpha, level, move, bonusLevel));
+									newNode.setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, move, bonusLevel));
 								} else {
 									growDecisionTree(newNode, -beta, -alpha, level - 1, bonusLevel);
 								}
@@ -315,19 +315,15 @@ public class AIProcessor extends Thread {
 
 		board.makeNullMove();
 
-		if ((board.getBoardStatus() == GameStatus.CHECK) && (level <= 1)) {
-			bonusLevel += 1;
+		if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel)) {
+			bonusLevel = Math.min(bonusLevel, level - 2);
 		}
 
-		if ((moveMade.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel) && (level <= 0)) {
-			bonusLevel += 1;
+		if ((moveMade.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel)) {
+			bonusLevel = Math.min(bonusLevel, level - 1);
 		}
 
-		boolean branchInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel);
-		boolean bonusPieceTakenSearch = (moveMade.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel);
-		boolean bonusSearch = bonusPieceTakenSearch || branchInCheckSearch;
-
-		if (level > 0 || bonusSearch) {
+		if (level > bonusLevel) {
 
 			GameStatus tempBoardState;
 			Move move;
