@@ -41,7 +41,7 @@ public class XMLParser {
 	}
 
 	public static Board XMLToBoard(String xmlBoard) {
-		Document doc = XMLParser.getDocument(xmlBoard);
+		Document doc = XMLParser.getDocument(xmlBoard.replace("\n", ""));
 
 		return buildBoard((Element) doc.getElementsByTagName("board").item(0));
 	}

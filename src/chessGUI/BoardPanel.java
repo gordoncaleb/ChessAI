@@ -8,6 +8,7 @@ import java.awt.event.MouseListener;
 import java.util.Vector;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 
 import chessBackend.*;
 import chessIO.ChessImages;
@@ -27,6 +28,11 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private JPanel squaresGUIPanel;
 	private JPanel lostBlackPiecesPanel;
 	private JPanel lostWhitePiecesPanel;
+	private JPanel whiteTurnPanel;
+	private JPanel blackTurnPanel;
+
+	private Border blackLine = BorderFactory.createLineBorder(Color.black);
+	private Border redLine = BorderFactory.createLineBorder(Color.red);
 
 	private SquarePanel[][] chessSquares;
 	private PieceGUI selectedComponent;
@@ -47,6 +53,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private boolean debug;
 
 	public BoardPanel(BoardGUI boardGUI, boolean debug) {
+		super(new BorderLayout());
+
 		this.debug = debug;
 		this.boardGUI = boardGUI;
 		this.flipBoard = false;
@@ -80,6 +88,34 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 		this.setBackground(Color.GRAY);
 
+		JPanel turnPanel = new JPanel();
+		turnPanel.setBackground(Color.GRAY);
+		whiteTurnPanel = new JPanel();
+		whiteTurnPanel.setPreferredSize(new Dimension(200, 50));
+		whiteTurnPanel.setBackground(Color.WHITE);
+		whiteTurnPanel.setOpaque(true);
+		whiteTurnPanel.addMouseListener(this);
+		blackTurnPanel = new JPanel();
+		blackTurnPanel.setPreferredSize(new Dimension(200, 50));
+		blackTurnPanel.setBackground(Color.BLACK);
+		blackTurnPanel.setOpaque(true);
+		blackTurnPanel.addMouseListener(this);
+
+		JLabel whiteLbl = new JLabel("White");
+		whiteTurnPanel.add(whiteLbl);
+		JLabel blackLbl = new JLabel("Black");
+		blackTurnPanel.add(blackLbl);
+
+		whiteTurnPanel.setBorder(blackLine);
+		blackTurnPanel.setBorder(blackLine);
+		// TitledBorder border = BorderFactory.createTitledBorder(blackLine,
+		// "Protocols");
+
+		turnPanel.add(whiteTurnPanel);
+		turnPanel.add(blackTurnPanel);
+
+		this.add(turnPanel, BorderLayout.PAGE_END);
+
 		highLightTimer = new Timer(200, this);
 
 	}
@@ -89,9 +125,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		adjudicator = new Adjudicator(board);
 
 		refreshBoard();
+		refreshPiecesTaken();
 
 		colorSquaresDefault();
-		clearPiecesTaken();
+
 		attachValidMoves();
 
 		updateLastMovedSquare();
@@ -109,6 +146,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			attachValidMoves();
 		}
 
+	}
+
+	public void flipBoard() {
+		setFlipBoard(!flipBoard);
 	}
 
 	public void highlightMove(Move move) {
@@ -154,8 +195,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 			fromSqr.clearChessPiece();
 
-			Piece piece = adjudicator.getPiece(fromSqr.getRow(), fromSqr.getCol());
-			adjudicator.placePiece(piece, toSqr.getRow(), toSqr.getCol());
+			Piece piece = adjudicator.getPiece(flipTrans(fromSqr.getRow()), flipTrans(fromSqr.getCol()));
+			adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()));
 		}
 
 		// moving piece from board to side lines
@@ -166,7 +207,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 			fromSqr.clearChessPiece();
 
-			Piece piece = adjudicator.getPiece(fromSqr.getRow(), fromSqr.getCol());
+			Piece piece = adjudicator.getPiece(flipTrans(fromSqr.getRow()), flipTrans(fromSqr.getCol()));
 			adjudicator.placePiece(piece, -1, -1);
 		}
 
@@ -186,7 +227,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			lostBlackPiecesPanel.updateUI();
 
 			Piece piece = new Piece(fromLbl.getPieceID(), fromLbl.getPlayer(), -1, -1, false);
-			adjudicator.placePiece(piece, toSqr.getRow(), toSqr.getCol());
+			adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()));
 		}
 
 	}
@@ -309,6 +350,16 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		return adjudicator.canRedo();
 	}
 
+	public void refreshTurn() {
+		if (adjudicator.getTurn() == Side.WHITE) {
+			whiteTurnPanel.setBorder(redLine);
+			blackTurnPanel.setBorder(blackLine);
+		} else {
+			whiteTurnPanel.setBorder(blackLine);
+			blackTurnPanel.setBorder(redLine);
+		}
+	}
+
 	public void refreshBoard() {
 
 		highLightCount = 0;
@@ -329,6 +380,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 				}
 			}
 		}
+
+		refreshTurn();
 
 		this.selectedComponent = null;
 	}
@@ -447,6 +500,14 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	}
 
+	private int flipTrans(int in) {
+		if (flipBoard) {
+			return 7 - in;
+		} else {
+			return in;
+		}
+	}
+
 	private SquarePanel getChessSquare(int row, int col) {
 		int getRow;
 		int getCol;
@@ -495,6 +556,22 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		SquarePanel clickedSquare = null;
 		JPieceTakenLabel takenClicked = null;
 		Component c = arg0.getComponent();
+
+		if (arg0.getSource() == blackTurnPanel) {
+			if (freelyMove) {
+				adjudicator.getBoard().setTurn(Side.BLACK);
+				refreshTurn();
+			}
+			return;
+		}
+
+		if (arg0.getSource() == whiteTurnPanel) {
+			if (freelyMove) {
+				adjudicator.getBoard().setTurn(Side.WHITE);
+				refreshTurn();
+			}
+			return;
+		}
 
 		if (c instanceof SquarePanel) {
 			clickedSquare = (SquarePanel) c;

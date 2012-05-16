@@ -22,6 +22,9 @@ public class DecisionNode {
 	// their greatest scoring/value child and so on until the bottom of the
 	// tree, which is known as the twigs
 	private Integer chosenPathValue;
+	
+	private int alpha;
+	private int beta;
 
 	// Status of the current game state. ie. Check or Checkmate
 	// private GameStatus status;
@@ -103,6 +106,11 @@ public class DecisionNode {
 		this.move = move;
 		// this.status = GameStatus.IN_PLAY;
 
+	}
+
+	public void setAB(int alpha, int beta) {
+		this.alpha = alpha;
+		this.beta = beta;
 	}
 
 	// public void sort() {
@@ -468,7 +476,7 @@ public class DecisionNode {
 	public String toString() {
 
 		if (move != null)
-			return move.toString() + " Chosen Path Value =" + this.getChosenPathValue();
+			return move.toString() + " Chosen Path Value =" + this.getChosenPathValue() + " alpha=" + alpha + " beta=" + beta;
 		else
 			return "Board Start";
 	}

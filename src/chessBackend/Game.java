@@ -69,6 +69,18 @@ public class Game implements PlayerContainer {
 
 	}
 
+	public GameResults newGame(boolean block) {
+
+		String xmlBoard = FileIO.readFile("tempSave.xml");
+
+		if (xmlBoard == null) {
+			return newGame(Game.getDefaultBoard(), block);
+		} else {
+			return newGame(XMLParser.XMLToBoard(xmlBoard), block);
+		}
+
+	}
+
 	public GameResults newGame(Board board, boolean block) {
 
 		if (board == null) {

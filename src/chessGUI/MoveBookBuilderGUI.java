@@ -1,18 +1,23 @@
 package chessGUI;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.TitledBorder;
 
 import chessAI.AI;
 import chessBackend.Board;
@@ -22,7 +27,9 @@ import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
 import chessBackend.Side;
+import chessIO.FileIO;
 import chessIO.MoveBook;
+import chessIO.XMLParser;
 
 public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;
@@ -32,15 +39,21 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private BoardPanel boardPanel;
 	private JList<Move> moveList;
 	private DefaultListModel<Move> listModel;
-	private JButton recordBtn;
-	private JButton deleteEntryBtn;
+	private JButton recordMbBtn;
+	private JButton deleteMbEntryBtn;
 	private JButton undoBtn;
-	private JButton saveBtn;
-	private JButton recommendBtn;
+	private JButton saveMbBtn;
+	private JButton mbRecommendBtn;
 	private JButton aiRecommendBtn;
 	private JButton freelyMoveBtn;
 	private JButton clearHashTableBtn;
+	private JButton loadGameBtn;
+	private JButton saveGameBtn;
+	private JButton newGameBtn;
+	private JButton flipBoardBtn;
 	
+	private JFileChooser fc = new JFileChooser();
+
 	private DecisionTreeGUI dtgui;
 
 	private MoveBook moveBook;
@@ -58,12 +71,14 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		mbBuilder.setGame(game);
 
-		game.newGame(Game.getDefaultBoard(), false);
+		game.newGame(false);
 	}
 
 	public MoveBookBuilderGUI() {
+		
+		fc.setCurrentDirectory(new File("."));
 
-		this.ai = new AI(null,true);
+		this.ai = new AI(null, true);
 		this.moveBook = new MoveBook();
 		moveBook.loadVerboseMoveBook();
 		this.record = false;
@@ -75,7 +90,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		JPanel eastPanel = new JPanel(new BorderLayout());
 		listModel = new DefaultListModel<Move>();
 		moveList = new JList<Move>(listModel);
-		moveList.setPreferredSize(new Dimension(300, 100));
+		moveList.setPreferredSize(new Dimension(200, 100));
 		moveList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moveList.setLayoutOrientation(JList.VERTICAL);
 		moveList.setVisibleRowCount(-1);
@@ -87,40 +102,80 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		JPanel controlBtnsPanel = new JPanel();
 
-		controlBtnsPanel.setPreferredSize(new Dimension(300, 100));
+		controlBtnsPanel.setPreferredSize(new Dimension(300, 500));
 
-		recordBtn = new JButton("Record");
-		recordBtn.addMouseListener(this);
+		recordMbBtn = new JButton("Record");
+		recordMbBtn.addMouseListener(this);
 
-		deleteEntryBtn = new JButton("Delete");
-		deleteEntryBtn.addMouseListener(this);
+		deleteMbEntryBtn = new JButton("Delete");
+		deleteMbEntryBtn.addMouseListener(this);
 
 		undoBtn = new JButton("Undo");
 		undoBtn.addMouseListener(this);
 
-		saveBtn = new JButton("Save");
-		saveBtn.addMouseListener(this);
+		saveMbBtn = new JButton("Save MB");
+		saveMbBtn.addMouseListener(this);
 
-		recommendBtn = new JButton("Recommend");
-		recommendBtn.addMouseListener(this);
-		
+		mbRecommendBtn = new JButton("MB Recommend");
+		mbRecommendBtn.addMouseListener(this);
+
 		aiRecommendBtn = new JButton("AI Recommend");
 		aiRecommendBtn.addMouseListener(this);
-				
+
 		freelyMoveBtn = new JButton("Free Move?");
 		freelyMoveBtn.addMouseListener(this);
-		
+
+		loadGameBtn = new JButton("Load Game");
+		loadGameBtn.addMouseListener(this);
+
+		saveGameBtn = new JButton("Save Game");
+		saveGameBtn.addMouseListener(this);
+
+		newGameBtn = new JButton("New Game");
+		newGameBtn.addMouseListener(this);
+
 		clearHashTableBtn = new JButton("Clear Hashtable");
 		clearHashTableBtn.addMouseListener(this);
+		
+		flipBoardBtn = new JButton("Flip Board");
+		flipBoardBtn.addMouseListener(this);
+		
+		JPanel gameCtrlPanel = new JPanel();
+		gameCtrlPanel.setPreferredSize(new Dimension(300,100));
+		
+		JPanel boardCtrlPanel = new JPanel();
+		boardCtrlPanel.setPreferredSize(new Dimension(300,100));
+		
+		JPanel aiCtrlPanel = new JPanel();
+		aiCtrlPanel.setPreferredSize(new Dimension(300,100));
+		
+		JPanel mbCtrlPanel = new JPanel();
+		mbCtrlPanel.setPreferredSize(new Dimension(300,100));
+		
+		gameCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Game"));
+		boardCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Board"));
+		aiCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "AI"));
+		mbCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "MoveBook"));
 
-		controlBtnsPanel.add(recordBtn);
-		controlBtnsPanel.add(deleteEntryBtn);
-		controlBtnsPanel.add(undoBtn);
-		controlBtnsPanel.add(saveBtn);
-		controlBtnsPanel.add(recommendBtn);
-		controlBtnsPanel.add(aiRecommendBtn);
-		controlBtnsPanel.add(freelyMoveBtn);
-		controlBtnsPanel.add(clearHashTableBtn);
+		mbCtrlPanel.add(recordMbBtn);
+		mbCtrlPanel.add(deleteMbEntryBtn);
+		
+		mbCtrlPanel.add(saveMbBtn);
+		mbCtrlPanel.add(mbRecommendBtn);
+		aiCtrlPanel.add(aiRecommendBtn);
+		aiCtrlPanel.add(clearHashTableBtn);
+		boardCtrlPanel.add(freelyMoveBtn);
+		boardCtrlPanel.add(flipBoardBtn);
+		gameCtrlPanel.add(loadGameBtn);
+		gameCtrlPanel.add(newGameBtn);
+		gameCtrlPanel.add(saveGameBtn);
+		gameCtrlPanel.add(undoBtn);
+		
+		
+		controlBtnsPanel.add(gameCtrlPanel);
+		controlBtnsPanel.add(boardCtrlPanel);
+		controlBtnsPanel.add(aiCtrlPanel);
+		controlBtnsPanel.add(mbCtrlPanel);
 
 		eastPanel.add(controlBtnsPanel, BorderLayout.SOUTH);
 
@@ -133,7 +188,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		frame.add(eastPanel, BorderLayout.EAST);
 		// frame.add(controlPanel, BorderLayout.NORTH);
 		frame.pack();
-		
+
 		dtgui = new DecisionTreeGUI(boardPanel);
 
 	}
@@ -166,11 +221,12 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		populateMoveList();
 
+		tempGameSave();
+
 	}
 
 	@Override
 	public void setGame(PlayerContainer game) {
-
 
 	}
 
@@ -185,7 +241,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		ai.moveMade(move);
 
 		populateMoveList();
-		
+
+		tempGameSave();
+
 		boardPanel.makeMove();
 
 		return true;
@@ -206,6 +264,10 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		this.moveMade(move);
 
+	}
+
+	public void tempGameSave() {
+		FileIO.writeFile("tempSave.xml", boardPanel.getBoard().toXML(true), false);
 	}
 
 	@Override
@@ -245,12 +307,12 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 
-		if (e.getSource() == recordBtn) {
+		if (e.getSource() == recordMbBtn) {
 			record = !record;
 			if (record) {
-				recordBtn.setText("Stop");
+				recordMbBtn.setText("Stop");
 			} else {
-				recordBtn.setText("Record");
+				recordMbBtn.setText("Record");
 			}
 		}
 
@@ -260,32 +322,32 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			}
 		}
 
-		if (e.getSource() == deleteEntryBtn) {
+		if (e.getSource() == deleteMbEntryBtn) {
 			Move move = moveList.getSelectedValue();
 			moveBook.removeEntry(boardPanel.getBoard().toXML(false), boardPanel.getBoard().getHashCode(), move);
 			populateMoveList();
 		}
 
-		if (e.getSource() == saveBtn) {
+		if (e.getSource() == saveMbBtn) {
 			moveBook.saveMoveBook();
 		}
 
-		if (e.getSource() == recommendBtn) {
+		if (e.getSource() == mbRecommendBtn) {
 			Move rec = moveBook.getRecommendation(boardPanel.getBoard().getHashCode());
 
 			if (rec != null) {
 				boardPanel.highlightMove(rec);
 			}
 		}
-		
+
 		if (e.getSource() == aiRecommendBtn) {
-			
-			if(boardPanel.isFreelyMove()){
+
+			if (boardPanel.isFreelyMove()) {
 				ai.newGame(boardPanel.getBoard().getCopy());
 			}
-			
+
 			Move rec = ai.makeRecommendation();
-			
+
 			dtgui.setRootDecisionTree(ai.getRootNode());
 
 			if (rec != null) {
@@ -297,28 +359,62 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			Move move = moveList.getSelectedValue();
 			boardPanel.highlightMove(move);
 		}
-		
-		if(e.getSource() == freelyMoveBtn){
-			
-			if(boardPanel.isFreelyMove()){
+
+		if (e.getSource() == freelyMoveBtn) {
+
+			if (boardPanel.isFreelyMove()) {
 				ai.newGame(boardPanel.getBoard().getCopy());
 			}
-			
+
 			boardPanel.setFreelyMove(!boardPanel.isFreelyMove());
-			
-			if(boardPanel.isFreelyMove()){
+
+			if (boardPanel.isFreelyMove()) {
 				freelyMoveBtn.setText("Moving Freely");
-			}else{
+			} else {
 				freelyMoveBtn.setText("Free Move?");
 				populateMoveList();
 			}
 		}
-		
+
 		if (e.getSource() == clearHashTableBtn) {
 			ai.cleanHashTable();
 		}
+
+		if (e.getSource() == loadGameBtn) {
+
+			int returnVal = fc.showOpenDialog(frame);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+				Board board = XMLParser.XMLToBoard(FileIO.readFile(fc.getSelectedFile().getPath()));
+
+				this.newGame(board);
+
+			}
+		}
+
+		if (e.getSource() == saveGameBtn) {
+
+			int returnVal = fc.showSaveDialog(frame);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+				FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toXML(true), false);
+
+			}
+		}
+
+		if (e.getSource() == newGameBtn) {
+
+			Board board = Game.getDefaultBoard();
+
+			this.newGame(board);
+
+		}
 		
-		
+		if(e.getSource() == flipBoardBtn){
+			boardPanel.flipBoard();
+		}
 
 	}
 

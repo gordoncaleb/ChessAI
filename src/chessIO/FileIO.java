@@ -2,6 +2,7 @@ package chessIO;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -22,6 +23,18 @@ public class FileIO {
 	public static String readFile(String fileName) {
 
 		URL fileURL = FileIO.class.getResource("doc/" + fileName);
+
+		if (fileURL == null) {
+			try {
+				fileURL = (new File(fileName)).toURI().toURL();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (fileURL == null) {
+			return null;
+		}
 
 		// ...checks on aFile are elided
 		StringBuilder contents = new StringBuilder();
@@ -70,6 +83,14 @@ public class FileIO {
 	public static void writeFile(String fileName, String aContents, boolean append) {
 
 		URL fileURL = FileIO.class.getResource("doc/" + fileName);
+
+		if (fileURL == null) {
+			try {
+				fileURL = (new File(fileName)).toURI().toURL();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
 
 		File aFile;
 		try {

@@ -108,7 +108,7 @@ public class AIProcessor extends Thread {
 
 	private void executeTask() {
 		DecisionNode task;
-		int alpha = Integer.MIN_VALUE;
+		int alpha = Integer.MIN_VALUE + 100;
 		BoardHashEntry hashOut;
 		boolean hashHit = false;
 
@@ -121,9 +121,9 @@ public class AIProcessor extends Thread {
 			board.makeMove(task.getMove());
 
 			// task.setChosenPathValue(-growDecisionTreeLite(alpha,
-			// Integer.MAX_VALUE, searchDepth, task.getMove()));
+			// Integer.MAX_VALUE-100, searchDepth, task.getMove()));
 
-			growDecisionTree(task, alpha, Integer.MAX_VALUE, searchDepth);
+			growDecisionTree(task, alpha, Integer.MAX_VALUE - 100, searchDepth, 0);
 
 			board.undoMove();
 
@@ -155,7 +155,7 @@ public class AIProcessor extends Thread {
 	 *            Level from the rootNode that the branch is at
 	 * @return
 	 */
-	private void growDecisionTree(DecisionNode branch, int alpha, int beta, int level) {
+	private void growDecisionTree(DecisionNode branch, int alpha, int beta, int level, int bonusLevel) {
 
 		boolean pruned = false;
 
@@ -163,11 +163,15 @@ public class AIProcessor extends Thread {
 
 			board.makeNullMove();
 
-			boolean bonusInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel);
-			boolean bonusPieceTakenSearch = (branch.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel);
-			boolean bonusSearch = bonusPieceTakenSearch || bonusInCheckSearch;
+			if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel)) {
+				bonusLevel = Math.min(bonusLevel, level - 2);
+			}
 
-			if (level > 0) {
+			if ((branch.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel)) {
+				bonusLevel = Math.min(bonusLevel, level - 1);
+			}
+
+			if (level > bonusLevel) {
 				// check all moves of all pieces
 				Vector<Move> moves = board.generateValidMoves();
 
@@ -188,15 +192,15 @@ public class AIProcessor extends Thread {
 
 							if (level > 0) {
 
-								growDecisionTree(newNode, -beta, -alpha, level - 1);
+								growDecisionTree(newNode, -beta, -alpha, level - 1, bonusLevel);
 
 							} else {
 								// bonus depth
 
 								if (twigGrowthEnabled) {
-									newNode.setChosenPathValue(growDecisionTreeLite(-beta, -alpha, level, move));
+									newNode.setChosenPathValue(growDecisionTreeLite(-beta, -alpha, level, move, bonusLevel));
 								} else {
-									growDecisionTree(newNode, -beta, -alpha, level - 1);
+									growDecisionTree(newNode, -beta, -alpha, level - 1, bonusLevel);
 								}
 
 							}
@@ -219,11 +223,13 @@ public class AIProcessor extends Thread {
 							}
 
 						} else {
+							newNode.setAB(alpha, beta);
 							tailNode.setNextSibling(newNode);
 							tailNode = newNode;
 						}
 
 						branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
+						branch.setAB(alpha, beta);
 
 					}
 				} else {
@@ -235,6 +241,7 @@ public class AIProcessor extends Thread {
 				}
 			} else {
 				branch.setChosenPathValue(-board.staticScore());
+				branch.setAB(alpha, beta);
 			}
 
 		} else {
@@ -249,36 +256,38 @@ public class AIProcessor extends Thread {
 				// System.out.println(" next child" + i);
 				nextChild = currentChild.getNextSibling();
 
-				if (currentChild.getChosenPathValue() != Values.CHECKMATE_MOVE) {
+				// if (currentChild.getChosenPathValue() !=
+				// Values.CHECKMATE_MOVE) {
 
-					board.makeMove(currentChild.getMove());
+				board.makeMove(currentChild.getMove());
 
-					growDecisionTree(currentChild, -beta, -alpha, level - 1);
+				growDecisionTree(currentChild, -beta, -alpha, level - 1, bonusLevel);
 
-					board.undoMove();
+				board.undoMove();
 
-					branch.addChild(currentChild);
+				branch.addChild(currentChild);
 
-					// alpha beta pruning
-					if (pruningEnabled) {
+				// alpha beta pruning
+				if (pruningEnabled) {
 
-						if (currentChild.getChosenPathValue() > alpha) {
-							alpha = currentChild.getChosenPathValue();
-						}
+					if (currentChild.getChosenPathValue() > alpha) {
+						alpha = currentChild.getChosenPathValue();
+					}
 
-						if (alpha >= beta) {
-							currentChild.getLastSibling().setNextSibling(nextChild);
-							break;
-						}
-
+					if (alpha >= beta) {
+						currentChild.getLastSibling().setNextSibling(nextChild);
+						break;
 					}
 
 				}
+
+				// }
 
 				currentChild = nextChild;
 			}
 
 			branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
+			branch.setAB(alpha, beta);
 
 		} // end of node already has children code
 
@@ -300,11 +309,19 @@ public class AIProcessor extends Thread {
 	 *            'growDecisionTreeLite()'
 	 * @return The value of the best move for 'player' on the 'board'
 	 */
-	private int growDecisionTreeLite(int alpha, int beta, int level, Move moveMade) {
+	private int growDecisionTreeLite(int alpha, int beta, int level, Move moveMade, int bonusLevel) {
 		int suggestedPathValue;
 		int bestPathValue = Integer.MIN_VALUE;
 
 		board.makeNullMove();
+
+		if ((board.getBoardStatus() == GameStatus.CHECK) && (level <= 1)) {
+			bonusLevel += 1;
+		}
+
+		if ((moveMade.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel) && (level <= 0)) {
+			bonusLevel += 1;
+		}
 
 		boolean branchInCheckSearch = (board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel);
 		boolean bonusPieceTakenSearch = (moveMade.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel);
@@ -326,7 +343,7 @@ public class AIProcessor extends Thread {
 
 					board.makeMove(move);
 
-					suggestedPathValue = -growDecisionTreeLite(-beta, -alpha, level - 1, move);
+					suggestedPathValue = -growDecisionTreeLite(-beta, -alpha, level - 1, move, bonusLevel);
 
 					board.undoMove();
 

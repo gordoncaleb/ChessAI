@@ -37,6 +37,7 @@ public class Board {
 		long t1 = System.currentTimeMillis();
 		for (int i = 0; i < its; i++) {
 			board.makeMove(m);
+			board.makeNullMove();
 			moves = board.generateValidMoves();
 			board.undoMove();
 		}
@@ -174,14 +175,6 @@ public class Board {
 	}
 
 	public boolean makeMove(Move move) {
-
-		if (move.equals(new Move(1, 2, 3, 2)) && (moveHistory.size() == 3)) {
-			System.out.println("WTF?");
-		}
-
-		if (board[move.getFromRow()][move.getFromCol()] == null) {
-			System.out.println("WTF?");
-		}
 
 		if (board[move.getFromRow()][move.getFromCol()].getSide() != turn) {
 			System.out.println("Problem with player ref");
@@ -608,6 +601,10 @@ public class Board {
 	public Side getTurn() {
 		return turn;
 	}
+	
+	public void setTurn(Side turn){
+		this.turn = turn;
+	}
 
 	public Piece getMovingSidesKing() {
 		if (turn == Side.BLACK) {
@@ -753,9 +750,9 @@ public class Board {
 
 	public boolean kingHasMoved(Side player) {
 		if (player == Side.BLACK) {
-			return hasMoved(0, 4);
+			return blackKing.hasMoved();
 		} else {
-			return hasMoved(7, 4);
+			return whiteKing.hasMoved();
 		}
 	}
 
