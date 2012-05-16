@@ -105,8 +105,17 @@ public class Board {
 			board[temp.getRow()][temp.getCol()] = temp;
 			posBitBoard[Side.BLACK.ordinal()] |= temp.getBit();
 
+			if (temp.getPieceID() == PieceID.PAWN) {
+				if (temp.getRow() != 1) {
+					temp.setMoved(true);
+				}
+			}
+
 			if (temp.getPieceID() == PieceID.KING) {
 				blackKing = temp;
+				if (blackKing.getRow() != 0 || blackKing.getCol() != 4) {
+					blackKing.setMoved(true);
+				}
 			}
 		}
 
@@ -116,8 +125,17 @@ public class Board {
 			board[temp.getRow()][temp.getCol()] = temp;
 			posBitBoard[Side.WHITE.ordinal()] |= temp.getBit();
 
+			if (temp.getPieceID() == PieceID.PAWN) {
+				if (temp.getRow() != 6) {
+					temp.setMoved(true);
+				}
+			}
+
 			if (temp.getPieceID() == PieceID.KING) {
 				whiteKing = temp;
+				if (whiteKing.getRow() != 7 || whiteKing.getCol() != 4) {
+					whiteKing.setMoved(true);
+				}
 			}
 		}
 
@@ -156,8 +174,12 @@ public class Board {
 	}
 
 	public boolean makeMove(Move move) {
-		
-		if(board[move.getFromRow()][move.getFromCol()]==null){
+
+		if (move.equals(new Move(1, 2, 3, 2)) && (moveHistory.size() == 3)) {
+			System.out.println("WTF?");
+		}
+
+		if (board[move.getFromRow()][move.getFromCol()] == null) {
 			System.out.println("WTF?");
 		}
 
@@ -399,7 +421,7 @@ public class Board {
 	public Vector<Move> generateValidMoves() {
 
 		// find in check details. i.e. left and right castle info
-		//makeNullMove();
+		// makeNullMove();
 
 		// System.out.println("Not safe areas");
 		// BitBoard.printBitBoard(nullMoveInfo[0]);
@@ -423,8 +445,6 @@ public class Board {
 				move.setHadMoved(hasMoved(move.getFromRow(), move.getFromCol()));
 				addSortValidMove(validMoves, moves.elementAt(m));
 			}
-
-			
 
 		}
 
