@@ -48,7 +48,7 @@ public class TournamentGUI {
 
 		((AI) playerOne).setUseBook(true);
 
-		Board defaultBoard = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
+		Board defaultBoard = Game.getDefaultBoard();
 		System.out.println(defaultBoard.toString());
 
 		Hashtable<Side, Player> players = new Hashtable<Side, Player>();

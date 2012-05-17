@@ -99,7 +99,7 @@ public class Adjudicator {
 			}
 		}
 
-		System.out.println("ERROR: Adjudicator says move is invalid");
+		System.out.println("ERROR: Adjudicator says " + move + " move is invalid");
 		return null;
 	}
 

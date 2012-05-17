@@ -13,7 +13,7 @@ import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.1.051512";
+	public static String VERSION = "1.1.051612";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -190,6 +190,9 @@ public class AI extends Thread implements Player {
 		if (decision != null) {
 
 			setRootNode(decision);
+			
+			System.out.println(move);
+			System.out.println(getBoard().toString());
 
 			moveNum++;
 
@@ -250,7 +253,7 @@ public class AI extends Thread implements Player {
 		// setRootNode(aiDecision);
 
 		if (debug) {
-			FileIO.log(getBoard().toString());
+			//FileIO.log(getBoard().toString());
 		}
 
 		return aiDecision;
