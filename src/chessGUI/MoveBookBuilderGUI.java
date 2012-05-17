@@ -42,6 +42,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton recordMbBtn;
 	private JButton deleteMbEntryBtn;
 	private JButton undoBtn;
+	private JButton redoBtn;
 	private JButton saveMbBtn;
 	private JButton mbRecommendBtn;
 	private JButton aiRecommendBtn;
@@ -51,7 +52,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton saveGameBtn;
 	private JButton newGameBtn;
 	private JButton flipBoardBtn;
-	
+
 	private JFileChooser fc = new JFileChooser();
 
 	private DecisionTreeGUI dtgui;
@@ -75,7 +76,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	public MoveBookBuilderGUI() {
-		
+
 		fc.setCurrentDirectory(new File("."));
 
 		this.ai = new AI(null, true);
@@ -113,6 +114,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		undoBtn = new JButton("Undo");
 		undoBtn.addMouseListener(this);
 
+		redoBtn = new JButton("Redo");
+		redoBtn.addMouseListener(this);
+
 		saveMbBtn = new JButton("Save MB");
 		saveMbBtn.addMouseListener(this);
 
@@ -136,22 +140,22 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		clearHashTableBtn = new JButton("Clear Hashtable");
 		clearHashTableBtn.addMouseListener(this);
-		
+
 		flipBoardBtn = new JButton("Flip Board");
 		flipBoardBtn.addMouseListener(this);
-		
+
 		JPanel gameCtrlPanel = new JPanel();
-		gameCtrlPanel.setPreferredSize(new Dimension(300,100));
-		
+		gameCtrlPanel.setPreferredSize(new Dimension(300, 100));
+
 		JPanel boardCtrlPanel = new JPanel();
-		boardCtrlPanel.setPreferredSize(new Dimension(300,100));
-		
+		boardCtrlPanel.setPreferredSize(new Dimension(300, 100));
+
 		JPanel aiCtrlPanel = new JPanel();
-		aiCtrlPanel.setPreferredSize(new Dimension(300,100));
-		
+		aiCtrlPanel.setPreferredSize(new Dimension(300, 100));
+
 		JPanel mbCtrlPanel = new JPanel();
-		mbCtrlPanel.setPreferredSize(new Dimension(300,100));
-		
+		mbCtrlPanel.setPreferredSize(new Dimension(300, 100));
+
 		gameCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Game"));
 		boardCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Board"));
 		aiCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "AI"));
@@ -159,7 +163,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		mbCtrlPanel.add(recordMbBtn);
 		mbCtrlPanel.add(deleteMbEntryBtn);
-		
+
 		mbCtrlPanel.add(saveMbBtn);
 		mbCtrlPanel.add(mbRecommendBtn);
 		aiCtrlPanel.add(aiRecommendBtn);
@@ -170,8 +174,8 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		gameCtrlPanel.add(newGameBtn);
 		gameCtrlPanel.add(saveGameBtn);
 		gameCtrlPanel.add(undoBtn);
-		
-		
+		gameCtrlPanel.add(redoBtn);
+
 		controlBtnsPanel.add(gameCtrlPanel);
 		controlBtnsPanel.add(boardCtrlPanel);
 		controlBtnsPanel.add(aiCtrlPanel);
@@ -211,6 +215,10 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		Move undone = boardPanel.undoMove();
 		ai.undoMove();
 		populateMoveList();
+		
+		undoBtn.setEnabled(boardPanel.canUndo());
+		redoBtn.setEnabled(boardPanel.canRedo());
+		
 		return undone;
 	}
 
@@ -222,6 +230,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		populateMoveList();
 
 		tempGameSave();
+		
+		undoBtn.setEnabled(boardPanel.canUndo());
+		redoBtn.setEnabled(boardPanel.canRedo());
 
 	}
 
@@ -245,6 +256,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		tempGameSave();
 
 		boardPanel.makeMove();
+		
+		undoBtn.setEnabled(boardPanel.canUndo());
+		redoBtn.setEnabled(boardPanel.canRedo());
 
 		return true;
 	}
@@ -319,6 +333,12 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		if (e.getSource() == undoBtn) {
 			if (boardPanel.canUndo()) {
 				this.undoMove();
+			}
+		}
+
+		if (e.getSource() == redoBtn) {
+			if (boardPanel.canRedo()) {
+				boardPanel.redoMove();
 			}
 		}
 
@@ -411,8 +431,8 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			this.newGame(board);
 
 		}
-		
-		if(e.getSource() == flipBoardBtn){
+
+		if (e.getSource() == flipBoardBtn) {
 			boardPanel.flipBoard();
 		}
 

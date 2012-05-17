@@ -14,6 +14,18 @@ public class PositionBonus {
 			{ 1, 3, 4, 5, 5, 4, 3, 1 } // 8
 	       // a, b, c, d, e, f, g, h
 	};
+	
+	private static int[][] kingBonus = 
+	  { { 0,  0,  0,  0,  0,  0,  0,  0 },// 1
+		{ 0,  0,  0,  0,  0,  0,  0,  0 },// 2
+		{ 0,  0,  0,  0,  0,  0,  0,  0 },// 3
+		{ 0,  0,  0,  0,  0,  0,  0,  0 },// 4
+		{ 0,  0,  0,  0,  0,  0,  0,  0 },// 5
+		{ 0,  0,  0,  0,  0,  0,  0,  0 },// 6
+		{ 5,  5,  2,  2,  2,  2,  5,  5 },// 7
+		{15, 17, 20, 10, 10, 10, 20, 15 } // 8
+       // a,  b,  c,  d,  e,  f,  g,  h
+		};
 
 	// private static int[][] knightBonus = {
 	// {0,1,1,1,1,1,1,0},//1
@@ -66,6 +78,16 @@ public class PositionBonus {
 			bonus = knightBonus[row][col];
 		} else {
 			bonus = knightBonus[7 - row][col];
+		}
+		return bonus;
+	}
+	
+	public static final int getKingPositionBonus(int row, int col, Side player) {
+		int bonus;
+		if (player == Side.BLACK) {
+			bonus = kingBonus[row][col];
+		} else {
+			bonus = kingBonus[7 - row][col];
 		}
 		return bonus;
 	}

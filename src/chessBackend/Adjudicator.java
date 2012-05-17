@@ -17,7 +17,13 @@ public class Adjudicator {
 
 	public boolean move(Move move) {
 
-		undoneMoves.clear();
+		if (undoneMoves.size() > 0) {
+			if (move.equals(undoneMoves.peek())) {
+				undoneMoves.pop();
+			} else {
+				undoneMoves.clear();
+			}
+		}
 
 		Move matchingMove = getMatchingMove(move);
 
@@ -46,17 +52,17 @@ public class Adjudicator {
 		return (board.getMoveHistory().size() > 0);
 	}
 
-	public Move redo() {
+	public Move getLastUndoneMove() {
 		Move lastMoveUndone = null;
 
-		if (canRedo()) {
-			lastMoveUndone = undoneMoves.pop();
-			board.makeMove(lastMoveUndone);
+		if (hashUndoneMoves()) {
+			lastMoveUndone = undoneMoves.peek();
+			// board.makeMove(lastMoveUndone);
 		}
 		return lastMoveUndone;
 	}
 
-	public boolean canRedo() {
+	public boolean hashUndoneMoves() {
 		return (undoneMoves.size() > 0);
 	}
 

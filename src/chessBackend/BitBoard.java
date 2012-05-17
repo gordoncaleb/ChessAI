@@ -13,6 +13,7 @@ public class BitBoard {
 	public static final long BLACK_CHECK_FAR = 0x8L;
 
 	public static long[][] bitMask;
+	public static long[][][][] slidFromToMask;
 
 	public static void main(String args[]) {
 		loadMasks();
@@ -37,7 +38,15 @@ public class BitBoard {
 				bitMask[r][c] = (one << (r * 8 + c));
 			}
 		}
+		
+		loadFromToMask();
 
+	}
+	
+	private static void loadFromToMask(){
+		slidFromToMask = new  long[8][8][8][8];
+		
+		//for(int )
 	}
 
 	public static String printBitBoard(long bitBoard) {

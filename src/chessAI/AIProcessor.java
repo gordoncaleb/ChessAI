@@ -31,6 +31,8 @@ public class AIProcessor extends Thread {
 
 	private BoardHashEntry[] hashTable;
 
+	private Move[] voi = { new Move(1, 5, 2, 7), new Move(4, 7, 2, 5), new Move(6, 0, 6, 7) };
+
 	public AIProcessor(AI ai, int maxTreeLevel) {
 		this.ai = ai;
 		this.searchDepth = maxTreeLevel;
@@ -159,6 +161,10 @@ public class AIProcessor extends Thread {
 
 		boolean pruned = false;
 
+		// if(board.isVoi(voi)){
+		// System.out.println("voi found");
+		// }
+
 		if (!branch.hasChildren()) {
 
 			board.makeNullMove();
@@ -223,9 +229,11 @@ public class AIProcessor extends Thread {
 							}
 
 						} else {
-							newNode.setAB(alpha, beta);
+							// newNode.setAB(alpha, beta);
 							tailNode.setNextSibling(newNode);
 							tailNode = newNode;
+
+							// branch.addChild(newNode);
 						}
 
 						branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
@@ -256,9 +264,6 @@ public class AIProcessor extends Thread {
 				// System.out.println(" next child" + i);
 				nextChild = currentChild.getNextSibling();
 
-				// if (currentChild.getChosenPathValue() !=
-				// Values.CHECKMATE_MOVE) {
-
 				board.makeMove(currentChild.getMove());
 
 				growDecisionTree(currentChild, -beta, -alpha, level - 1, bonusLevel);
@@ -275,13 +280,12 @@ public class AIProcessor extends Thread {
 					}
 
 					if (alpha >= beta) {
+						pruned = true;
 						currentChild.getLastSibling().setNextSibling(nextChild);
 						break;
 					}
 
 				}
-
-				// }
 
 				currentChild = nextChild;
 			}

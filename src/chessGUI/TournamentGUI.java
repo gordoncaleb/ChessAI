@@ -42,7 +42,7 @@ public class TournamentGUI {
 
 		String playerOneVersion = playerOne.getVersion();
 		String playerTwoVersion = playerTwo.getVersion();
-		
+
 		System.out.println("Player One: " + playerOneVersion);
 		System.out.println("Player Two: " + playerTwoVersion);
 
@@ -85,6 +85,10 @@ public class TournamentGUI {
 
 			if (results.getWinner() != Side.NONE) {
 
+				if (players.get(results.getWinner()) != playerOne) {
+					FileIO.writeFile("tournamentLose.xml", ((AI)playerOne).getBoard().toXML(true), false);
+				}
+
 				winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));
 				winnerScore[results.getWinner().ordinal()]++;
 				winnerScore[2] += results.getWinBy();
@@ -117,9 +121,9 @@ public class TournamentGUI {
 			out1 += "Average pts won by: " + avgWinby1 + "\n";
 			out1 += "Average time per move: " + avgTimePerMove1 + "\n";
 			out1 += "Max time on move: " + playerOneScore[5] + "\n";
-			
-			if(playerOne instanceof AI){
-				out1+= "MaxHashSize = " + ((AI)playerOne).getMaxHashSize() + "\n";
+
+			if (playerOne instanceof AI) {
+				out1 += "MaxHashSize = " + ((AI) playerOne).getMaxHashSize() + "\n";
 			}
 
 			String playerTwoName = playerNames.get(playerTwo);
@@ -135,12 +139,13 @@ public class TournamentGUI {
 			out2 += "Average pts won by: " + avgWinby2 + "\n";
 			out2 += "Average time per move: " + avgTimePerMove2 + "\n";
 			out2 += "Max time on move: " + playerTwoScore[5] + "\n";
-			
-			if(playerTwo instanceof AI){
-				out2+= "MaxHashSize = " + ((AI)playerTwo).getMaxHashSize() + "\n";
+
+			if (playerTwo instanceof AI) {
+				out2 += "MaxHashSize = " + ((AI) playerTwo).getMaxHashSize() + "\n";
 			}
 
-			tournamentGui.setStatusTxt(out1 + out2 + "Draws: " + draws + "\nGames played: " + (i+1) + "/" + numOfGames + " - " + (numOfGames - i) + " left");
+			tournamentGui.setStatusTxt(out1 + out2 + "Draws: " + draws + "\nGames played: " + (i + 1) + "/" + numOfGames + " - " + (numOfGames - i)
+					+ " left");
 
 			Player whitePlayer = players.get(Side.WHITE);
 			players.put(Side.WHITE, players.get(Side.BLACK));

@@ -93,8 +93,14 @@ public class FileIO {
 		}
 
 		File aFile;
+
 		try {
-			aFile = new File(fileURL.toURI());
+			if (fileURL == null) {
+				aFile = new File(fileName);
+			} else {
+				aFile = new File(fileURL.toURI());
+			}
+
 			Writer output = new BufferedWriter(new FileWriter(aFile, append));
 
 			try {

@@ -425,11 +425,9 @@ public class Board {
 		Vector<Move> validMoves = new Vector<Move>(30);
 
 		Vector<Piece> pieces = getPiecesFor(turn);
-		Piece piece;
 		Vector<Move> moves;
 		Move move;
 		for (int p = 0; p < pieces.size(); p++) {
-			piece = pieces.elementAt(p);
 
 			moves = pieces.elementAt(p).generateValidMoves(this, nullMoveInfo, posBitBoard);
 			for (int m = 0; m < moves.size(); m++) {
@@ -468,9 +466,13 @@ public class Board {
 		// recalculating check info
 		clearBoardStatus();
 
-		Vector<Piece> pieces = getPiecesFor(turn.otherSide());
+		Vector<Piece> pieces = getPiecesFor(turn);
 		for (int p = 0; p < pieces.size(); p++) {
 			pieces.elementAt(p).clearBlocking();
+		}
+
+		pieces = getPiecesFor(turn.otherSide());
+		for (int p = 0; p < pieces.size(); p++) {
 			pieces.elementAt(p).getNullMoveInfo(this, nullMoveInfo);
 		}
 
@@ -478,6 +480,23 @@ public class Board {
 			setBoardStatus(GameStatus.CHECK);
 		}
 
+	}
+
+	public boolean isVoi(Move[] voi) {
+
+		int historySize = moveHistory.size();
+
+		if (historySize < voi.length) {
+			return false;
+		}
+
+		for (int i = 0; i < voi.length; i++) {
+			if (!voi[i].equals(moveHistory.elementAt(historySize - i - 1))) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private void addSortValidMove(Vector<Move> validMoves, Move move) {
@@ -541,7 +560,7 @@ public class Board {
 			value = Values.BISHOP_VALUE;
 			break;
 		case KING:
-			value = Values.KING_VALUE;
+			value = Values.KING_VALUE + PositionBonus.getKingPositionBonus(row, col, player);
 			break;
 		case QUEEN:
 			value = Values.QUEEN_VALUE;
@@ -601,8 +620,8 @@ public class Board {
 	public Side getTurn() {
 		return turn;
 	}
-	
-	public void setTurn(Side turn){
+
+	public void setTurn(Side turn) {
 		this.turn = turn;
 	}
 
