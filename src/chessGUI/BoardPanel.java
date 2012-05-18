@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -379,11 +380,11 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 		clearValidMoves();
 
-		Vector<Move> validMoves = adjudicator.getValidMoves();
+		ArrayList<Move> validMoves = adjudicator.getValidMoves();
 
 		Move move;
 		for (int m = 0; m < validMoves.size(); m++) {
-			move = validMoves.elementAt(m);
+			move = validMoves.get(m);
 			getChessSquare(move.getFromRow(), move.getFromCol()).addValidMove(move);
 		}
 

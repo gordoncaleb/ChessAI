@@ -1,5 +1,6 @@
 package chessAI;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import chessBackend.Board;
@@ -100,10 +101,8 @@ public class AIProcessor extends Thread {
 		// if game isnt over make sure tree root shows what next valid moves are
 		if (!this.rootNode.hasChildren()) {
 			board.makeNullMove();
-			Vector<Move> moves = board.generateValidMoves();
-			for (int m = 0; m < moves.size(); m++) {
-				this.rootNode.addChild(new DecisionNode(moves.elementAt(m)));
-			}
+			attachValidMoves(rootNode);
+
 		}
 
 	}
@@ -148,6 +147,16 @@ public class AIProcessor extends Thread {
 			}
 		}
 	}
+	
+	public void attachValidMoves(DecisionNode branch) {
+
+		ArrayList<Move> moves = board.generateValidMoves(false);
+
+		for (int m = 0; m < moves.size(); m++) {
+			branch.addChild(new DecisionNode(moves.get(m),moves.get(m).getValue()));
+		}
+
+	}
 
 	/**
 	 * 
@@ -159,7 +168,8 @@ public class AIProcessor extends Thread {
 	 */
 	private void growDecisionTree(DecisionNode branch, int alpha, int beta, int level, int bonusLevel) {
 
-		boolean pruned = false;
+		DecisionNode nextChild;
+		DecisionNode currentChild;
 
 		// if(board.isVoi(voi)){
 		// System.out.println("voi found");
@@ -179,85 +189,70 @@ public class AIProcessor extends Thread {
 
 			if (level > bonusLevel) {
 				// check all moves of all pieces
-				Vector<Move> moves = board.generateValidMoves();
+				attachValidMoves(branch);
 
 				if (!board.isGameOver()) {
 
-					Move move;
-					DecisionNode newNode = null;
-					DecisionNode tailNode = null;
-					for (int m = 0; m < moves.size(); m++) {
+					currentChild = branch.getHeadChild();
+					branch.removeAllChildren();
 
-						move = moves.elementAt(m);
+					while (currentChild != null) {
 
-						newNode = new DecisionNode(move);
+						nextChild = currentChild.getNextSibling();
 
-						if (!pruned) {
+						board.makeMove(currentChild.getMove());
 
-							board.makeMove(move);
+						if (level > 0) {
 
-							if (level > 0) {
-
-								growDecisionTree(newNode, -beta, -alpha, level - 1, bonusLevel);
-
-							} else {
-								// bonus depth
-
-								if (twigGrowthEnabled) {
-									newNode.setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, move, bonusLevel));
-								} else {
-									growDecisionTree(newNode, -beta, -alpha, level - 1, bonusLevel);
-								}
-
-							}
-
-							board.undoMove();
-
-							branch.addChild(newNode);
-
-							// alpha beta pruning
-							if (pruningEnabled) {
-
-								if (newNode.getChosenPathValue() > alpha) {
-									alpha = newNode.getChosenPathValue();
-								}
-
-								if (alpha >= beta) {
-									tailNode = newNode.getLastSibling();
-									pruned = true;
-								}
-							}
+							growDecisionTree(currentChild, -beta, -alpha, level - 1, bonusLevel);
 
 						} else {
-							// newNode.setAB(alpha, beta);
-							tailNode.setNextSibling(newNode);
-							tailNode = newNode;
+							// bonus depth
 
-							// branch.addChild(newNode);
+							if (twigGrowthEnabled) {
+								currentChild.setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, currentChild.getMove(), bonusLevel));
+							} else {
+								growDecisionTree(currentChild, -beta, -alpha, level - 1, bonusLevel);
+							}
+
 						}
 
-						branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
-						branch.setAB(alpha, beta);
+						board.undoMove();
+
+						branch.addChild(currentChild);
+
+						// alpha beta pruning
+						if (pruningEnabled) {
+
+							if (currentChild.getChosenPathValue() > alpha) {
+								alpha = currentChild.getChosenPathValue();
+							}
+
+							if (alpha >= beta) {
+								currentChild.getLastSibling().setNextSibling(nextChild);
+								break;
+							}
+						}
 
 					}
+
+					branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
 				} else {
 					if (board.isInStaleMate() || board.isDraw()) {
-						branch.setChosenPathValue(-board.staticScore());
+						branch.setChosenPathValue(board.staticScore());
 					} else {
 						branch.setChosenPathValue(Values.CHECKMATE_MOVE);
 					}
 				}
 			} else {
 				branch.setChosenPathValue(-board.staticScore());
-				branch.setAB(alpha, beta);
 			}
 
 		} else {
 
 			// Node has already been created and has children
 			// int childrenSize = branch.getChildrenSize();
-			DecisionNode nextChild;
-			DecisionNode currentChild = branch.getHeadChild();
+			currentChild = branch.getHeadChild();
 			branch.removeAllChildren();
 			while (currentChild != null) {
 
@@ -280,7 +275,6 @@ public class AIProcessor extends Thread {
 					}
 
 					if (alpha >= beta) {
-						pruned = true;
 						currentChild.getLastSibling().setNextSibling(nextChild);
 						break;
 					}
@@ -291,7 +285,6 @@ public class AIProcessor extends Thread {
 			}
 
 			branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
-			branch.setAB(alpha, beta);
 
 		} // end of node already has children code
 
@@ -332,12 +325,12 @@ public class AIProcessor extends Thread {
 			GameStatus tempBoardState;
 			Move move;
 
-			Vector<Move> moves = board.generateValidMoves();
+			ArrayList<Move> moves = board.generateValidMoves(true);
 
 			if (!board.isGameOver()) {
 
 				for (int m = 0; m < moves.size(); m++) {
-					move = moves.elementAt(m);
+					move = moves.get(m);
 
 					tempBoardState = board.getBoardStatus();
 

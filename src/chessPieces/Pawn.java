@@ -1,5 +1,6 @@
 package chessPieces;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import chessBackend.BitBoard;
@@ -25,8 +26,8 @@ public class Pawn{
 		return "P";
 	}
 
-	public static Vector<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
-		Vector<Move> validMoves = new Vector<Move>();
+	public static ArrayList<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
+		ArrayList<Move> validMoves = new ArrayList<Move>();
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
 		Side player = p.getSide();

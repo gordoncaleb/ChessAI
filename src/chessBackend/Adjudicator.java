@@ -1,12 +1,13 @@
 package chessBackend;
 
+import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Vector;
 
 import chessPieces.*;
 
 public class Adjudicator {
-	private Vector<Move> validMoves;
+	private ArrayList<Move> validMoves;
 	private Stack<Move> undoneMoves;
 	private Board board;
 
@@ -66,9 +67,9 @@ public class Adjudicator {
 		return (undoneMoves.size() > 0);
 	}
 
-	public Vector<Move> getValidMoves() {
+	public ArrayList<Move> getValidMoves() {
 		board.makeNullMove();
-		validMoves = board.generateValidMoves();
+		validMoves = board.generateValidMoves(false);
 
 		return validMoves;
 	}
@@ -100,8 +101,8 @@ public class Adjudicator {
 	private Move getMatchingMove(Move move) {
 
 		for (int i = 0; i < validMoves.size(); i++) {
-			if (validMoves.elementAt(i).equals(move)) {
-				return validMoves.elementAt(i);
+			if (validMoves.get(i).equals(move)) {
+				return validMoves.get(i);
 			}
 		}
 

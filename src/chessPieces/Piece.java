@@ -1,5 +1,6 @@
 package chessPieces;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import chessBackend.BitBoard;
@@ -226,7 +227,7 @@ public class Piece {
 		}
 	}
 
-	public Vector<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
+	public ArrayList<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
 
 		switch (id) {
 		case ROOK:

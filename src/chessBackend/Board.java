@@ -1,8 +1,10 @@
 package chessBackend;
 
+import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Vector;
 
+import chessAI.DecisionNode;
 import chessIO.FileIO;
 import chessIO.XMLParser;
 import chessPieces.*;
@@ -10,9 +12,9 @@ import chessPieces.*;
 public class Board {
 	private Piece[][] board;
 	private GameStatus boardStatus;
-	private Vector<Piece> blackPieces;
+	private ArrayList<Piece> blackPieces;
 	private Stack<Piece> blackPiecesTaken;
-	private Vector<Piece> whitePieces;
+	private ArrayList<Piece> whitePieces;
 	private Stack<Piece> whitePiecesTaken;
 	private Piece blackKing;
 	private Piece whiteKing;
@@ -28,9 +30,9 @@ public class Board {
 		BitBoard.loadMasks();
 		Board board = Game.getDefaultBoard();
 
-		Vector<Move> moves = board.generateValidMoves();
+		ArrayList<Move> moves = board.generateValidMoves(true);
 
-		Move m = moves.elementAt(0);
+		Move m = moves.get(0);
 
 		int its = 1000000;
 
@@ -38,7 +40,7 @@ public class Board {
 		for (int i = 0; i < its; i++) {
 			board.makeMove(m);
 			board.makeNullMove();
-			moves = board.generateValidMoves();
+			moves = board.generateValidMoves(true);
 			board.undoMove();
 		}
 
@@ -81,14 +83,14 @@ public class Board {
 	//
 	// }
 
-	public Board(Vector<Piece> blackPieces, Vector<Piece> whitePieces, Side turn) {
+	public Board(ArrayList<Piece> blackPieces, ArrayList<Piece> whitePieces, Side turn) {
 		this(blackPieces, whitePieces, turn, new Stack<Move>());
 	}
 
-	public Board(Vector<Piece> blackPieces, Vector<Piece> whitePieces, Side turn, Stack<Move> moveHistory) {
+	public Board(ArrayList<Piece> blackPieces, ArrayList<Piece> whitePieces, Side turn, Stack<Move> moveHistory) {
 		this.board = new Piece[8][8];
-		this.blackPieces = new Vector<Piece>(blackPieces.size());
-		this.whitePieces = new Vector<Piece>(whitePieces.size());
+		this.blackPieces = new ArrayList<Piece>(blackPieces.size());
+		this.whitePieces = new ArrayList<Piece>(whitePieces.size());
 		this.blackPiecesTaken = new Stack<Piece>();
 		this.whitePiecesTaken = new Stack<Piece>();
 		this.moveHistory = new Stack<Move>();
@@ -101,7 +103,7 @@ public class Board {
 
 		Piece temp;
 		for (int p = 0; p < blackPieces.size(); p++) {
-			temp = blackPieces.elementAt(p).getCopy();
+			temp = blackPieces.get(p).getCopy();
 			this.blackPieces.add(temp);
 			board[temp.getRow()][temp.getCol()] = temp;
 			posBitBoard[Side.BLACK.ordinal()] |= temp.getBit();
@@ -121,7 +123,7 @@ public class Board {
 		}
 
 		for (int p = 0; p < whitePieces.size(); p++) {
-			temp = whitePieces.elementAt(p).getCopy();
+			temp = whitePieces.get(p).getCopy();
 			this.whitePieces.add(temp);
 			board[temp.getRow()][temp.getCol()] = temp;
 			posBitBoard[Side.WHITE.ordinal()] |= temp.getBit();
@@ -411,7 +413,7 @@ public class Board {
 		return match;
 	}
 
-	public Vector<Move> generateValidMoves() {
+	public ArrayList<Move> generateValidMoves(boolean sort) {
 
 		// find in check details. i.e. left and right castle info
 		// makeNullMove();
@@ -422,19 +424,24 @@ public class Board {
 		// System.out.println("in check vector");
 		// BitBoard.printBitBoard(nullMoveInfo[1]);
 
-		Vector<Move> validMoves = new Vector<Move>(30);
+		ArrayList<Move> validMoves = new ArrayList<Move>(30);
 
-		Vector<Piece> pieces = getPiecesFor(turn);
-		Vector<Move> moves;
+		ArrayList<Piece> pieces = getPiecesFor(turn);
+		ArrayList<Move> moves;
 		Move move;
 		for (int p = 0; p < pieces.size(); p++) {
 
-			moves = pieces.elementAt(p).generateValidMoves(this, nullMoveInfo, posBitBoard);
+			moves = pieces.get(p).generateValidMoves(this, nullMoveInfo, posBitBoard);
 			for (int m = 0; m < moves.size(); m++) {
-				move = moves.elementAt(m);
+				move = moves.get(m);
 
 				move.setHadMoved(hasMoved(move.getFromRow(), move.getFromCol()));
-				addSortValidMove(validMoves, moves.elementAt(m));
+
+				if (sort) {
+					addSortValidMove(validMoves, moves.get(m));
+				} else {
+					validMoves.addAll(moves);
+				}
 			}
 
 		}
@@ -454,6 +461,17 @@ public class Board {
 		return validMoves;
 	}
 
+	private void addSortValidMove(ArrayList<Move> validMoves, Move move) {
+		for (int m = 0; m < validMoves.size(); m++) {
+			if (move.getValue() >= validMoves.get(m).getValue()) {
+				validMoves.add(m, move);
+				return;
+			}
+		}
+
+		validMoves.add(move);
+	}
+
 	public void makeNullMove() {
 		long nullMoveAttacks = 0;
 		long inCheckVector = BitBoard.ALL_ONES;
@@ -466,14 +484,14 @@ public class Board {
 		// recalculating check info
 		clearBoardStatus();
 
-		Vector<Piece> pieces = getPiecesFor(turn);
+		ArrayList<Piece> pieces = getPiecesFor(turn);
 		for (int p = 0; p < pieces.size(); p++) {
-			pieces.elementAt(p).clearBlocking();
+			pieces.get(p).clearBlocking();
 		}
 
 		pieces = getPiecesFor(turn.otherSide());
 		for (int p = 0; p < pieces.size(); p++) {
-			pieces.elementAt(p).getNullMoveInfo(this, nullMoveInfo);
+			pieces.get(p).getNullMoveInfo(this, nullMoveInfo);
 		}
 
 		if ((getMovingSidesKing().getBit() & nullMoveInfo[0]) != 0) {
@@ -497,17 +515,6 @@ public class Board {
 		}
 
 		return true;
-	}
-
-	private void addSortValidMove(Vector<Move> validMoves, Move move) {
-		for (int m = 0; m < validMoves.size(); m++) {
-			if (move.getValue() >= validMoves.elementAt(m).getValue()) {
-				validMoves.add(m, move);
-				return;
-			}
-		}
-
-		validMoves.add(move);
 	}
 
 	public PositionStatus checkPiece(int row, int col, Side player) {
@@ -580,15 +587,15 @@ public class Board {
 	public int staticScore() {
 		int ptDiff = 0;
 
-		Vector<Piece> myPieces = getPiecesFor(turn);
-		Vector<Piece> otherPieces = getPiecesFor(turn.otherSide());
+		ArrayList<Piece> myPieces = getPiecesFor(turn);
+		ArrayList<Piece> otherPieces = getPiecesFor(turn.otherSide());
 
 		for (int i = 0; i < myPieces.size(); i++) {
-			ptDiff += getPieceValue(myPieces.elementAt(i));
+			ptDiff += getPieceValue(myPieces.get(i));
 		}
 
 		for (int i = 0; i < otherPieces.size(); i++) {
-			ptDiff -= getPieceValue(otherPieces.elementAt(i));
+			ptDiff -= getPieceValue(otherPieces.get(i));
 		}
 
 		return ptDiff;
@@ -645,7 +652,7 @@ public class Board {
 		}
 	}
 
-	public Vector<Piece> getPiecesFor(Side player) {
+	public ArrayList<Piece> getPiecesFor(Side player) {
 		if (player == Side.WHITE) {
 			return whitePieces;
 		} else {
@@ -890,9 +897,11 @@ public class Board {
 
 		int count = 0;
 
-		int goBackTo = Math.max(0, hashCodeHistory.size() - 10);
+		if (hashCodeHistory.size() > 600) {
+			return true;
+		}
 
-		for (int i = hashCodeHistory.size() - 1; i >= goBackTo; i--) {
+		for (int i = hashCodeHistory.size() - 1; i >= 0; i--) {
 			if (hashCode == hashCodeHistory.elementAt(i)) {
 				count++;
 			}
@@ -914,15 +923,15 @@ public class Board {
 			sufficient = false;
 
 			for (int i = 0; i < whitePieces.size(); i++) {
-				if ((whitePieces.elementAt(i).getPieceID() == PieceID.PAWN) || (whitePieces.elementAt(i).getPieceID() == PieceID.QUEEN)
-						|| (whitePieces.elementAt(i).getPieceID() == PieceID.ROOK)) {
+				if ((whitePieces.get(i).getPieceID() == PieceID.PAWN) || (whitePieces.get(i).getPieceID() == PieceID.QUEEN)
+						|| (whitePieces.get(i).getPieceID() == PieceID.ROOK)) {
 					sufficient = true;
 				}
 			}
 
 			for (int i = 0; i < blackPieces.size(); i++) {
-				if ((blackPieces.elementAt(i).getPieceID() == PieceID.PAWN) || (blackPieces.elementAt(i).getPieceID() == PieceID.QUEEN)
-						|| (blackPieces.elementAt(i).getPieceID() == PieceID.ROOK)) {
+				if ((blackPieces.get(i).getPieceID() == PieceID.PAWN) || (blackPieces.get(i).getPieceID() == PieceID.QUEEN)
+						|| (blackPieces.get(i).getPieceID() == PieceID.ROOK)) {
 					sufficient = true;
 				}
 			}
@@ -938,7 +947,7 @@ public class Board {
 
 		Piece piecePresent;
 		for (int p = 0; p < whitePieces.size(); p++) {
-			piecePresent = whitePieces.elementAt(p);
+			piecePresent = whitePieces.get(p);
 
 			for (int t = 0; t < whitePiecesTaken.size(); t++) {
 				if (whitePiecesTaken.elementAt(t).getPieceID() == piecePresent.getPieceID()) {
@@ -951,7 +960,7 @@ public class Board {
 		blackPiecesTaken = getFullPieceSet(Side.BLACK);
 
 		for (int p = 0; p < blackPieces.size(); p++) {
-			piecePresent = blackPieces.elementAt(p);
+			piecePresent = blackPieces.get(p);
 
 			for (int t = 0; t < blackPiecesTaken.size(); t++) {
 				if (blackPiecesTaken.elementAt(t).getPieceID() == piecePresent.getPieceID()) {

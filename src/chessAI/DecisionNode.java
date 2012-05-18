@@ -6,28 +6,14 @@ import chessPieces.Values;
 
 public class DecisionNode {
 
-	// Previous move/status information
-	// private DecisionNode parent;
-
 	// Children which represent all the possible moves of "player
 	private DecisionNode headChild;
 	private DecisionNode nextSibling;
-	// private DecisionNode previousSibling;
-	// private int childrenSize;
 
 	// The last move made on the attached board.
 	private Move move;
 
-	// The points scored by choosing the greatest scoring/value child and then
-	// their greatest scoring/value child and so on until the bottom of the
-	// tree, which is known as the twigs
-	private Integer chosenPathValue;
-	
-	private int alpha;
-	private int beta;
-
-	// Status of the current game state. ie. Check or Checkmate
-	// private GameStatus status;
+	private int chosenPathValue;
 
 	public static void main(String[] args) {
 		// for (int i = 0; i < 1; i++) {
@@ -100,7 +86,7 @@ public class DecisionNode {
 		this.headChild = null;
 		// this.childrenSize = 0;
 		this.nextSibling = null;
-		this.chosenPathValue = null;
+		this.chosenPathValue = 0;
 		// this.previousSibling = this;
 
 		this.move = move;
@@ -108,9 +94,14 @@ public class DecisionNode {
 
 	}
 
-	public void setAB(int alpha, int beta) {
-		this.alpha = alpha;
-		this.beta = beta;
+	public DecisionNode(Move move, int chosenPathValue) {
+
+		// Linked List data struct pointers
+		this.headChild = null;
+		this.nextSibling = null;
+		this.chosenPathValue = chosenPathValue;
+
+		this.move = move;
 	}
 
 	// public void sort() {
@@ -378,39 +369,11 @@ public class DecisionNode {
 	// }
 
 	public int getChosenPathValue() {
-
-		// if (chosenPathValue == null) {
-		// if (headChild != null) {
-		// return -headChild.getChosenPathValue(this.getMoveValue() - pmv, depth
-		// + 1);
-		// } else {
-		// return this.getMoveValue() - pmv;
-		// }
-		// } else {
-		// if ((Math.abs(chosenPathValue) & Values.CHECKMATE_MASK) != 0) {
-		// if (chosenPathValue > 0) {
-		// return chosenPathValue - depth;
-		// } else {
-		// return chosenPathValue + depth;
-		// }
-		// } else {
-		// return chosenPathValue - pmv;
-		// }
-		// }
-
-		if (hasChosenPathValue())
-			return chosenPathValue;
-		else
-			return 0;
-
+		return chosenPathValue;
 	}
 
 	public void setChosenPathValue(Integer chosenPathValue) {
 		this.chosenPathValue = chosenPathValue;
-	}
-
-	public boolean hasChosenPathValue() {
-		return (chosenPathValue != null);
 	}
 
 	public DecisionNode getLastSibling() {
@@ -476,7 +439,7 @@ public class DecisionNode {
 	public String toString() {
 
 		if (move != null)
-			return move.toString() + " Chosen Path Value =" + this.getChosenPathValue() + " alpha=" + alpha + " beta=" + beta;
+			return move.toString() + " Chosen Path Value =" + this.getChosenPathValue();
 		else
 			return "Board Start";
 	}

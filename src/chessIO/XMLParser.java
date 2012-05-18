@@ -3,6 +3,7 @@ package chessIO;
 import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Stack;
 import java.util.Vector;
@@ -47,8 +48,8 @@ public class XMLParser {
 	}
 
 	private static Board buildBoard(Element boardElement) {
-		Vector<Piece> blackPieces = new Vector<Piece>();
-		Vector<Piece> whitePieces = new Vector<Piece>();
+		ArrayList<Piece> blackPieces = new ArrayList<Piece>();
+		ArrayList<Piece> whitePieces = new ArrayList<Piece>();
 
 		Stack<Move> moveHistory = new Stack<Move>();
 		Side player;
