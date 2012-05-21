@@ -17,7 +17,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.TitledBorder;
 
 import chessAI.AI;
 import chessBackend.Board;
@@ -465,6 +464,18 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public String getVersion() {
 		return "MoveBookBuilder";
+	}
+
+	@Override
+	public String getPlayerName(Side side) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getPlayerTime(Side side) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

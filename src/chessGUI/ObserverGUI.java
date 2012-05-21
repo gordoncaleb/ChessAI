@@ -9,11 +9,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import chessBackend.Board;
-import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
+import chessBackend.Side;
 
 public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;
@@ -196,6 +196,16 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public String getVersion() {
 		return "Observer";
+	}
+
+	@Override
+	public String getPlayerName(Side side) {
+		return game.getPlayerName(side);
+	}
+
+	@Override
+	public long getPlayerTime(Side side) {
+		return game.getPlayerTime(side);
 	}
 
 }

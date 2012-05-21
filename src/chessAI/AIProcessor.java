@@ -233,6 +233,8 @@ public class AIProcessor extends Thread {
 								break;
 							}
 						}
+						
+						currentChild = nextChild;
 
 					}
 

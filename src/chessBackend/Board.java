@@ -440,7 +440,7 @@ public class Board {
 				if (sort) {
 					addSortValidMove(validMoves, moves.get(m));
 				} else {
-					validMoves.addAll(moves);
+					validMoves.add(move);
 				}
 			}
 

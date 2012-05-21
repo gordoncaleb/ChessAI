@@ -11,5 +11,8 @@ public interface PlayerContainer {
 	public void pause();
 	
 	public boolean isPaused();
+	
+	public String getPlayerName(Side side);
+	public long getPlayerTime(Side side);
 
 }

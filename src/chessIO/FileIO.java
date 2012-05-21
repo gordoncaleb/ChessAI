@@ -23,17 +23,26 @@ public class FileIO {
 	public static String readFile(String fileName) {
 
 		URL fileURL = FileIO.class.getResource("doc/" + fileName);
+		File aFile = null;
 
 		if (fileURL == null) {
 			try {
-				fileURL = (new File(fileName)).toURI().toURL();
+				aFile = new File(fileName);
+				fileURL = aFile.toURI().toURL();
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
+
 		}
 
 		if (fileURL == null) {
 			return null;
+		} else {
+			if (aFile != null) {
+				if (!aFile.canRead()) {
+					return null;
+				}
+			}
 		}
 
 		// ...checks on aFile are elided
@@ -42,7 +51,8 @@ public class FileIO {
 		try {
 			// use buffering, reading one line at a time
 			// FileReader always assumes default encoding is OK!
-			BufferedReader input = new BufferedReader(new InputStreamReader(fileURL.openStream()));
+			BufferedReader input = new BufferedReader(new InputStreamReader(
+					fileURL.openStream()));
 			try {
 				String line = null; // not declared within while loop
 				/*
@@ -80,7 +90,8 @@ public class FileIO {
 	 * @throws IOException
 	 *             if problem encountered during write.
 	 */
-	public static void writeFile(String fileName, String aContents, boolean append) {
+	public static void writeFile(String fileName, String aContents,
+			boolean append) {
 
 		URL fileURL = FileIO.class.getResource("doc/" + fileName);
 

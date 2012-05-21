@@ -17,6 +17,7 @@ import chessBackend.GameResults;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
+import chessBackend.Side;
 import chessIO.FileIO;
 import chessIO.XMLParser;
 
@@ -156,6 +157,18 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer {
 	@Override
 	public boolean isPaused() {
 		return false;
+	}
+
+	@Override
+	public String getPlayerName(Side side) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getPlayerTime(Side side) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

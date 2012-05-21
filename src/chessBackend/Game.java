@@ -218,6 +218,14 @@ public class Game implements PlayerContainer {
 		}
 
 	}
+	
+	public String getPlayerName(Side side){
+		return players.get(side).getVersion();
+	}
+	
+	public long getPlayerTime(Side side){
+		return clock.getTime(side);
+	}
 
 	public synchronized void addObserver(Player observer) {
 		// observer.newGame(Side.NONE, board.getCopy());

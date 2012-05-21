@@ -64,8 +64,7 @@ public class AI extends Thread implements Player {
 		// Default levels
 		maxDecisionTreeLevel = 3;
 
-		// processorThreads = new
-		// AIProcessor[Runtime.getRuntime().availableProcessors()];
+		//processorThreads = new AIProcessor[Runtime.getRuntime().availableProcessors()];
 		processorThreads = new AIProcessor[1];
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel);
@@ -190,7 +189,7 @@ public class AI extends Thread implements Player {
 		if (decision != null) {
 
 			setRootNode(decision);
-			
+
 			System.out.println(move);
 			System.out.println(getBoard().toString());
 
@@ -253,7 +252,7 @@ public class AI extends Thread implements Player {
 		// setRootNode(aiDecision);
 
 		if (debug) {
-			//FileIO.log(getBoard().toString());
+			// FileIO.log(getBoard().toString());
 		}
 
 		return aiDecision;

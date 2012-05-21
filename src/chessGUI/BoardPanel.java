@@ -12,7 +12,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 import chessBackend.*;
-import chessIO.ChessImages;
+import chessBackend.Adjudicator;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 
@@ -31,6 +31,11 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private JPanel lostWhitePiecesPanel;
 	private JPanel whiteTurnPanel;
 	private JPanel blackTurnPanel;
+
+	private JLabel whiteName;
+	private JLabel blackName;
+	private JLabel whiteTime;
+	private JLabel blackTime;
 
 	private Border blackLine = BorderFactory.createLineBorder(Color.black);
 	private Border redLine = BorderFactory.createLineBorder(Color.red);
@@ -102,10 +107,15 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		blackTurnPanel.setOpaque(true);
 		blackTurnPanel.addMouseListener(this);
 
-		JLabel whiteLbl = new JLabel("White");
-		whiteTurnPanel.add(whiteLbl);
-		JLabel blackLbl = new JLabel("Black");
-		blackTurnPanel.add(blackLbl);
+		whiteName = new JLabel("White");
+		whiteTurnPanel.add(whiteName);
+		blackName = new JLabel("Black");
+		blackTurnPanel.add(blackName);
+
+		whiteTime = new JLabel("0:0");
+		whiteTurnPanel.add(whiteTime);
+		blackTime = new JLabel("0:0");
+		blackTurnPanel.add(blackTime);
 
 		whiteTurnPanel.setBorder(blackLine);
 		blackTurnPanel.setBorder(blackLine);
@@ -134,6 +144,23 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 		updateLastMovedSquare();
 
+		updateTurnPanels();
+
+	}
+
+	private void updateTurnPanels() {
+		whiteName.setText("Name: " + boardGUI.getPlayerName(Side.WHITE));
+		blackName.setText("Name: " + boardGUI.getPlayerName(Side.BLACK));
+
+		whiteTime.setText(getPlayerTimeString(Side.WHITE));
+		blackTime.setText(getPlayerTimeString(Side.BLACK));
+	}
+
+	private String getPlayerTimeString(Side side) {
+		long time = boardGUI.getPlayerTime(side);
+		long min = time / 60000;
+		long sec = (time/1000) % 60;
+		return min + ":" + sec;
 	}
 
 	private void setFlipBoard(boolean flipBoard) {
@@ -263,6 +290,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			attachValidMoves();
 
 			setGameSatus(adjudicator.getGameStatus(), adjudicator.getTurn());
+			
+			whiteTime.setText(getPlayerTimeString(Side.WHITE));
+			blackTime.setText(getPlayerTimeString(Side.BLACK));
+			
 		} else {
 			return false;
 		}

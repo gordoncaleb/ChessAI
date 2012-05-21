@@ -228,4 +228,16 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 		return "PlayerGUI";
 	}
 
+	@Override
+	public String getPlayerName(Side side) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getPlayerTime(Side side) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
