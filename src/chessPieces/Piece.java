@@ -47,13 +47,13 @@ public class Piece {
 		this.col = col;
 	}
 
-	public void move(Move newMove) {
-		setPos(newMove.getToRow(), newMove.getToCol());
+	public void move(long newMove) {
+		setPos(Move.getToRow(newMove), Move.getToCol(newMove));
 		moved = true;
 	}
 	
-	public void reverseMove(Move newMove){
-		setPos(newMove.getFromRow(), newMove.getFromCol());
+	public void reverseMove(long newMove){
+		setPos(Move.getFromRow(newMove), Move.getFromCol(newMove));
 	}
 
 	public Side getSide() {
@@ -227,7 +227,7 @@ public class Piece {
 		}
 	}
 
-	public ArrayList<Move> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
+	public ArrayList<Long> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
 
 		switch (id) {
 		case ROOK:

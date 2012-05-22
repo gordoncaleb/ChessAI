@@ -92,7 +92,7 @@ public class AIProcessor extends Thread {
 
 	public synchronized void setRootNode(DecisionNode rootNode) {
 
-		if (rootNode.getMove() != null) {
+		if (rootNode.getMove() != 0) {
 			board.makeMove(rootNode.getMove());
 		}
 
@@ -147,13 +147,13 @@ public class AIProcessor extends Thread {
 			}
 		}
 	}
-	
+
 	public void attachValidMoves(DecisionNode branch) {
 
-		ArrayList<Move> moves = board.generateValidMoves(false);
+		ArrayList<Long> moves = board.generateValidMoves(false);
 
 		for (int m = 0; m < moves.size(); m++) {
-			branch.addChild(new DecisionNode(moves.get(m),moves.get(m).getValue()));
+			branch.addChild(new DecisionNode(moves.get(m), Move.getValue(moves.get(m))));
 		}
 
 	}
@@ -233,7 +233,7 @@ public class AIProcessor extends Thread {
 								break;
 							}
 						}
-						
+
 						currentChild = nextChild;
 
 					}
@@ -308,7 +308,7 @@ public class AIProcessor extends Thread {
 	 *            'growDecisionTreeLite()'
 	 * @return The value of the best move for 'player' on the 'board'
 	 */
-	private int growDecisionTreeLite(int alpha, int beta, int level, Move moveMade, int bonusLevel) {
+	private int growDecisionTreeLite(int alpha, int beta, int level, long moveMade, int bonusLevel) {
 		int suggestedPathValue;
 		int bestPathValue = Integer.MIN_VALUE;
 
@@ -318,16 +318,16 @@ public class AIProcessor extends Thread {
 			bonusLevel = Math.min(bonusLevel, level - 2);
 		}
 
-		if ((moveMade.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel)) {
+		if ((Move.hasPieceTaken(moveMade)) && (level > -maxPieceTakenFrontierLevel)) {
 			bonusLevel = Math.min(bonusLevel, level - 1);
 		}
 
 		if (level > bonusLevel) {
 
 			GameStatus tempBoardState;
-			Move move;
+			long move;
 
-			ArrayList<Move> moves = board.generateValidMoves(true);
+			ArrayList<Long> moves = board.generateValidMoves(true);
 
 			if (!board.isGameOver()) {
 

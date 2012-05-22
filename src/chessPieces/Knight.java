@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import chessBackend.BitBoard;
 import chessBackend.Board;
+import chessBackend.MoveNote;
 import chessBackend.Side;
 import chessBackend.Move;
 
@@ -26,8 +27,8 @@ public class Knight{
 		return "N";
 	}
 
-	public static ArrayList<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
-		ArrayList<Move> validMoves = new ArrayList<Move>();
+	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
+		ArrayList<Long> validMoves = new ArrayList<Long>();
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
 		int nextRow;
@@ -35,7 +36,7 @@ public class Knight{
 		int bonus;
 		PositionStatus pieceStatus;
 		Side player = p.getSide();
-		Move move;
+		Long moveLong;
 
 		for (int i = 0; i < 8; i++) {
 			nextRow = currentRow + KNIGHTMOVES[0][i];
@@ -47,17 +48,16 @@ public class Knight{
 
 				if (pieceStatus == PositionStatus.NO_PIECE) {
 					if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-						move = new Move(currentRow, currentCol, nextRow, nextCol, bonus);
-						validMoves.add(move);
+						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, bonus);
+						validMoves.add(moveLong);
 					}
 				}
 
 				if (pieceStatus == PositionStatus.ENEMY) {
 					if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 						int pieceValue = board.getPieceValue(nextRow, nextCol);
-						move = new Move(currentRow, currentCol, nextRow, nextCol, pieceValue + bonus);
-						move.setPieceTaken(board.getPiece(nextRow, nextCol));
-						validMoves.add(move);
+						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, pieceValue + bonus,MoveNote.NONE,board.getPiece(nextRow, nextCol));
+						validMoves.add(moveLong);
 					}
 				}
 

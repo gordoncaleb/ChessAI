@@ -199,19 +199,19 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private void populateMoveList() {
 		listModel.removeAllElements();
 
-		Vector<Move> moves = moveBook.getAllRecommendations(boardPanel.getBoard().getHashCode());
+		Vector<Long> moves = moveBook.getAllRecommendations(boardPanel.getBoard().getHashCode());
 
 		if (moves != null) {
 			for (int i = 0; i < moves.size(); i++) {
-				listModel.addElement(moves.elementAt(i));
+				listModel.addElement(new Move(moves.elementAt(i)));
 			}
 		}
 
 	}
 
 	@Override
-	public Move undoMove() {
-		Move undone = boardPanel.undoMove();
+	public long undoMove() {
+		long undone = boardPanel.undoMove();
 		ai.undoMove();
 		populateMoveList();
 		
@@ -241,12 +241,12 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public Move makeRecommendation() {
-		return null;
+	public long makeRecommendation() {
+		return 0;
 	}
 
 	@Override
-	public boolean moveMade(Move move) {
+	public boolean moveMade(long move) {
 		boardPanel.moveMade(move);
 		ai.moveMade(move);
 
@@ -269,7 +269,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public void makeMove(Move move) {
+	public void makeMove(long move) {
 
 		if (record) {
 			moveBook.addEntry(boardPanel.getBoard().toXML(false), boardPanel.getBoard().getHashCode(), move);
@@ -352,9 +352,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		}
 
 		if (e.getSource() == mbRecommendBtn) {
-			Move rec = moveBook.getRecommendation(boardPanel.getBoard().getHashCode());
+			long rec = moveBook.getRecommendation(boardPanel.getBoard().getHashCode());
 
-			if (rec != null) {
+			if (rec != 0) {
 				boardPanel.highlightMove(rec);
 			}
 		}
@@ -365,17 +365,17 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 				ai.newGame(boardPanel.getBoard().getCopy());
 			}
 
-			Move rec = ai.makeRecommendation();
+			long rec = ai.makeRecommendation();
 
 			dtgui.setRootDecisionTree(ai.getRootNode());
 
-			if (rec != null) {
+			if (rec != 0) {
 				boardPanel.highlightMove(rec);
 			}
 		}
 
 		if (e.getSource() == moveList) {
-			Move move = moveList.getSelectedValue();
+			long move = moveList.getSelectedValue().getMoveLong();
 			boardPanel.highlightMove(move);
 		}
 

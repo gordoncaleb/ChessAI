@@ -126,8 +126,8 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer {
 	}
 
 	@Override
-	public boolean makeMove(Move move) {
-		sendMessage(move.toXML());
+	public boolean makeMove(long move) {
+		sendMessage(Move.toXML(move));
 		return true;
 	}
 

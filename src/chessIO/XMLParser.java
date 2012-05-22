@@ -51,7 +51,7 @@ public class XMLParser {
 		ArrayList<Piece> blackPieces = new ArrayList<Piece>();
 		ArrayList<Piece> whitePieces = new ArrayList<Piece>();
 
-		Stack<Move> moveHistory = new Stack<Move>();
+		Stack<Long> moveHistory = new Stack<Long>();
 		Side player;
 
 		String stringBoard = getCharacterDataFromElement((Element) boardElement.getElementsByTagName("setup").item(0));
@@ -92,7 +92,7 @@ public class XMLParser {
 		}
 
 		NodeList nodes = boardElement.getElementsByTagName("move");
-		Move m;
+		Long m;
 		for (int n = 0; n < nodes.getLength(); n++) {
 			m = buildMove((Element) nodes.item(n));
 			moveHistory.push(m);
@@ -101,9 +101,9 @@ public class XMLParser {
 		if (moveHistory.size() == 0 && pawnLeap != null) {
 			int col = pawnLeap.getCol();
 			if (pawnLeap.getSide() == Side.BLACK) {
-				moveHistory.push(new Move(1, col, 3, col, 0, MoveNote.PAWN_LEAP));
+				moveHistory.push(Move.moveLong(1, col, 3, col, 0, MoveNote.PAWN_LEAP));
 			} else {
-				moveHistory.push(new Move(6, col, 4, col, 0, MoveNote.PAWN_LEAP));
+				moveHistory.push(Move.moveLong(6, col, 4, col, 0, MoveNote.PAWN_LEAP));
 			}
 		}
 
@@ -140,13 +140,13 @@ public class XMLParser {
 		return Piece.fromString(id, row, col);
 	}
 
-	public static Move XMLToMove(String xmlMove) {
+	public static long XMLToMove(String xmlMove) {
 		Document doc = XMLParser.getDocument(xmlMove);
 
 		return buildMove((Element) doc.getElementsByTagName("move").item(0));
 	}
 
-	private static Move buildMove(Element moveElement) {
+	private static long buildMove(Element moveElement) {
 
 		NodeList nodes;
 
@@ -187,15 +187,15 @@ public class XMLParser {
 			pieceTaken = buildPiece((Element) nodes.item(0));
 		}
 
-		return new Move(fromRow, fromCol, toRow, toCol, 0, moveNote, pieceTaken, hadMoved);
+		return Move.moveLong(fromRow, fromCol, toRow, toCol, 0, moveNote, pieceTaken, hadMoved);
 	}
 
-	public static Hashtable<Long, Vector<Move>> XMLToMoveBook(String xmlMoveBook) {
+	public static Hashtable<Long, Vector<Long>> XMLToMoveBook(String xmlMoveBook) {
 		Document doc = XMLParser.getDocument(xmlMoveBook);
 
-		Hashtable<Long, Vector<Move>> moveBook = new Hashtable<Long, Vector<Move>>();
+		Hashtable<Long, Vector<Long>> moveBook = new Hashtable<Long, Vector<Long>>();
 		Long hashcode = null;
-		Vector<Move> moves;
+		Vector<Long> moves;
 
 		NodeList entires = doc.getElementsByTagName("entry");
 
@@ -220,13 +220,13 @@ public class XMLParser {
 			responseTag = ((Element) entires.item(i)).getElementsByTagName("response");
 
 			moveTags = ((Element) responseTag.item(0)).getElementsByTagName("move");
-			moves = new Vector<Move>(moveTags.getLength());
+			moves = new Vector<Long>(moveTags.getLength());
 			for (int m = 0; m < moveTags.getLength(); m++) {
 				moves.add(buildMove((Element) moveTags.item(m)));
 			}
 
 			if (moves.size() > 0) {
-				Vector<Move> oldMoves = moveBook.get(hashcode);
+				Vector<Long> oldMoves = moveBook.get(hashcode);
 				if (oldMoves != null) {
 					moves.addAll(oldMoves);
 				}
@@ -238,11 +238,11 @@ public class XMLParser {
 		return moveBook;
 	}
 
-	public static Hashtable<String, Vector<Move>> XMLToVerboseMoveBook(String xmlVerboseMoveBook) {
+	public static Hashtable<String, Vector<Long>> XMLToVerboseMoveBook(String xmlVerboseMoveBook) {
 		Document doc = XMLParser.getDocument(xmlVerboseMoveBook);
 
-		Hashtable<String, Vector<Move>> moveBook = new Hashtable<String, Vector<Move>>();
-		Vector<Move> moves;
+		Hashtable<String, Vector<Long>> moveBook = new Hashtable<String, Vector<Long>>();
+		Vector<Long> moves;
 
 		NodeList main = doc.getElementsByTagName("moveBook");
 
@@ -263,7 +263,7 @@ public class XMLParser {
 			responseTag = ((Element) entries.item(i)).getElementsByTagName("response");
 
 			moveTags = ((Element) responseTag.item(0)).getElementsByTagName("move");
-			moves = new Vector<Move>(moveTags.getLength());
+			moves = new Vector<Long>(moveTags.getLength());
 			for (int m = 0; m < moveTags.getLength(); m++) {
 				moves.add(buildMove((Element) moveTags.item(m)));
 			}

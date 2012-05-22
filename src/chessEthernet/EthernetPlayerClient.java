@@ -91,9 +91,9 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 	}
 
 	@Override
-	public Move undoMove() {
+	public long undoMove() {
 		sendMessage("<undoMove>");
-		return null;
+		return 0;
 	}
 
 	@Override
@@ -114,13 +114,13 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 	}
 
 	@Override
-	public Move makeRecommendation() {
-		return null;
+	public long makeRecommendation() {
+		return 0;
 	}
 
 	@Override
-	public boolean moveMade(Move move) {
-		sendMessage(move.toXML());
+	public boolean moveMade(long move) {
+		sendMessage(Move.toXML(move));
 		// TODO Auto-generated method stub
 		return false;
 	}

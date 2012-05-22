@@ -7,18 +7,18 @@ import chessBackend.Move;
 
 public class MoveBook {
 
-	Hashtable<Long, Vector<Move>> hashMoveBook;
+	Hashtable<Long, Vector<Long>> hashMoveBook;
 
-	Hashtable<String, Vector<Move>> verboseMoveBook;
+	Hashtable<String, Vector<Long>> verboseMoveBook;
 
 	public MoveBook() {
 
 	}
 
-	public Move getRecommendation(Long hashCode) {
-		Move move = null;
+	public long getRecommendation(Long hashCode) {
+		long move = 0;
 
-		Vector<Move> moves = hashMoveBook.get(hashCode);
+		Vector<Long> moves = hashMoveBook.get(hashCode);
 
 		if (moves != null && moves.size() > 0) {
 			double maxIndex = (double) (moves.size() - 1);
@@ -31,16 +31,16 @@ public class MoveBook {
 		return move;
 	}
 
-	public Vector<Move> getAllRecommendations(Long hashCode) {
+	public Vector<Long> getAllRecommendations(Long hashCode) {
 
-		Vector<Move> moves = hashMoveBook.get(hashCode);
+		Vector<Long> moves = hashMoveBook.get(hashCode);
 
 		return moves;
 	}
 
 	public void removeEntry(String xmlBoard, Long hashcode, Move move) {
-		Vector<Move> verboseEntries = verboseMoveBook.get(xmlBoard);
-		Vector<Move> entries = hashMoveBook.get(hashcode);
+		Vector<Long> verboseEntries = verboseMoveBook.get(xmlBoard);
+		Vector<Long> entries = hashMoveBook.get(hashcode);
 
 		if (verboseEntries != null) {
 			verboseEntries.remove(move);
@@ -78,9 +78,9 @@ public class MoveBook {
 
 	}
 
-	public void addEntry(String xmlBoard, Long hashcode, Move move) {
-		Vector<Move> verboseEntries = verboseMoveBook.get(xmlBoard);
-		Vector<Move> entries = hashMoveBook.get(hashcode);
+	public void addEntry(String xmlBoard, Long hashcode, long move) {
+		Vector<Long> verboseEntries = verboseMoveBook.get(xmlBoard);
+		Vector<Long> entries = hashMoveBook.get(hashcode);
 
 		if (entries != null) {
 			if (!entries.contains(move)) {
@@ -89,7 +89,7 @@ public class MoveBook {
 				return;
 			}
 		} else {
-			entries = new Vector<Move>();
+			entries = new Vector<Long>();
 			entries.add(move);
 			hashMoveBook.put(hashcode, entries);
 		}
@@ -97,7 +97,7 @@ public class MoveBook {
 		if (verboseEntries != null) {
 			verboseEntries.add(move);
 		} else {
-			verboseEntries = new Vector<Move>();
+			verboseEntries = new Vector<Long>();
 			verboseEntries.add(move);
 			verboseMoveBook.put(xmlBoard, verboseEntries);
 		}
@@ -113,7 +113,7 @@ public class MoveBook {
 
 		int i = 0;
 		Vector<Long> keys = new Vector<Long>(hashMoveBook.keySet());
-		for (Vector<Move> moves : hashMoveBook.values()) {
+		for (Vector<Long> moves : hashMoveBook.values()) {
 			xmlMoveBook += "<entry>\n";
 
 			xmlMoveBook += "<state>\n";
@@ -129,7 +129,7 @@ public class MoveBook {
 			xmlMoveBook += "<response>\n";
 
 			for (int m = 0; m < moves.size(); m++) {
-				xmlMoveBook += moves.elementAt(m).toXML();
+				xmlMoveBook += Move.toString(moves.elementAt(m));
 			}
 
 			xmlMoveBook += "</response>\n";
@@ -152,7 +152,7 @@ public class MoveBook {
 
 		int i = 0;
 		Vector<String> keys = new Vector<String>(verboseMoveBook.keySet());
-		for (Vector<Move> moves : verboseMoveBook.values()) {
+		for (Vector<Long> moves : verboseMoveBook.values()) {
 			xmlMoveBook += "<entry>\n";
 
 			xmlMoveBook += "<state>\n";
@@ -164,7 +164,7 @@ public class MoveBook {
 			xmlMoveBook += "<response>\n";
 
 			for (int m = 0; m < moves.size(); m++) {
-				xmlMoveBook += moves.elementAt(m).toXML();
+				xmlMoveBook += Move.toXML(moves.elementAt(m));
 			}
 
 			xmlMoveBook += "</response>\n";

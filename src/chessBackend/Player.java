@@ -2,16 +2,16 @@ package chessBackend;
 
 public interface Player {
 	
-	public Move undoMove();
+	public long undoMove();
 	
 	public void newGame(Board board);
 	public void setGame(PlayerContainer game);
 	
 	public void makeMove();
-	public Move makeRecommendation();
+	public long makeRecommendation();
 	
 	//blocks until move on players board is made
-	public boolean moveMade(Move move);
+	public boolean moveMade(long move);
 	
 	public void pause();
 	

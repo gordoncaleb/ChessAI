@@ -64,7 +64,8 @@ public class AI extends Thread implements Player {
 		// Default levels
 		maxDecisionTreeLevel = 3;
 
-		//processorThreads = new AIProcessor[Runtime.getRuntime().availableProcessors()];
+		// processorThreads = new
+		// AIProcessor[Runtime.getRuntime().availableProcessors()];
 		processorThreads = new AIProcessor[1];
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel);
@@ -130,7 +131,7 @@ public class AI extends Thread implements Player {
 
 	public synchronized void newGame(Board board) {
 
-		rootNode = new DecisionNode(null);
+		rootNode = new DecisionNode(0);
 
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i].setBoard(board.getCopy());
@@ -162,7 +163,7 @@ public class AI extends Thread implements Player {
 		notifyAll();
 	}
 
-	public Move undoMove() {
+	public long undoMove() {
 		if (canUndo()) {
 			undoMove.set(true);
 
@@ -174,7 +175,7 @@ public class AI extends Thread implements Player {
 
 		} else {
 
-			return null;
+			return 0;
 
 		}
 	}
@@ -182,7 +183,7 @@ public class AI extends Thread implements Player {
 	/**
 	 * Blocks until move has been made
 	 */
-	public synchronized boolean moveMade(Move move) {
+	public synchronized boolean moveMade(long move) {
 
 		DecisionNode decision = getMatchingDecisionNode(move);
 
@@ -190,7 +191,7 @@ public class AI extends Thread implements Player {
 
 			setRootNode(decision);
 
-			System.out.println(move);
+			System.out.println(Move.toString(move));
 			System.out.println(getBoard().toString());
 
 			moveNum++;
@@ -221,8 +222,8 @@ public class AI extends Thread implements Player {
 
 		time = System.currentTimeMillis();
 
-		Move mb;
-		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == null || !useBook) {
+		long mb;
+		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == 0 || !useBook) {
 
 			// Split the task of looking at all possible AI moves up amongst
 			// multiple threads. This takes advantage of multicore systems.
@@ -370,7 +371,7 @@ public class AI extends Thread implements Player {
 	private void undoMoveOnSubThreads() {
 		if (canUndo()) {
 
-			rootNode = new DecisionNode(null);
+			rootNode = new DecisionNode(0);
 
 			for (int i = 0; i < processorThreads.length; i++) {
 				synchronized (processorThreads[i]) {
@@ -386,13 +387,13 @@ public class AI extends Thread implements Player {
 		return (getBoard().getMoveHistory().size() > 0);
 	}
 
-	public synchronized Move makeRecommendation() {
+	public synchronized long makeRecommendation() {
 		DecisionNode rec = getAIDecision();
 
 		if (rec != null) {
 			return rec.getMove();
 		} else {
-			return null;
+			return 0;
 		}
 	}
 
@@ -437,11 +438,11 @@ public class AI extends Thread implements Player {
 		return processorThreads[0].getBoard();
 	}
 
-	private DecisionNode getMatchingDecisionNode(Move goodMove) {
+	private DecisionNode getMatchingDecisionNode(long goodMove) {
 
 		DecisionNode currentChild = rootNode.getHeadChild();
 		while (currentChild != null) {
-			if (currentChild.getMove().equals(goodMove)) {
+			if (Move.equals(currentChild.getMove(), goodMove)) {
 				return currentChild;
 			}
 
@@ -449,7 +450,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (debug) {
-			FileIO.log("Good move (" + goodMove.toString() + ") not found as possibility");
+			FileIO.log("Good move (" + Move.toString(goodMove) + ") not found as possibility");
 		}
 
 		return null;
@@ -520,7 +521,7 @@ public class AI extends Thread implements Player {
 
 	}
 
-	public int getMoveChosenPathValue(Move m) {
+	public int getMoveChosenPathValue(long m) {
 		return getMatchingDecisionNode(m).getChosenPathValue();
 	}
 

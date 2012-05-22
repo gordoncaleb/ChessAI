@@ -160,12 +160,12 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	}
 
 	@Override
-	public void makeMove(Move move) {
+	public void makeMove(long move) {
 		game.makeMove(move);
 	}
 
 	@Override
-	public synchronized boolean moveMade(Move move) {
+	public synchronized boolean moveMade(long move) {
 		return boardPanel.moveMade(move);
 	}
 	
@@ -174,13 +174,13 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener {
 	}
 
 	@Override
-	public Move undoMove() {
+	public long undoMove() {
 		return boardPanel.undoMove();
 	}
 
 	@Override
-	public Move makeRecommendation() {
-		return null;
+	public long makeRecommendation() {
+		return 0;
 	}
 	
 	public void makeMove(){

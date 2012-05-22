@@ -151,7 +151,7 @@ public class Game implements PlayerContainer {
 		}
 	}
 
-	public synchronized boolean makeMove(Move move) {
+	public synchronized boolean makeMove(long move) {
 
 		if (clock.hit()) {
 			System.out.println("Game Over " + turn.otherSide() + " wins by time!");

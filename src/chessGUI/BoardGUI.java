@@ -1,10 +1,9 @@
 package chessGUI;
 
-import chessBackend.Move;
 import chessBackend.Side;
 
 public interface BoardGUI {
-	public void makeMove(Move move);
+	public void makeMove(long move);
 
 	public void gameOverLose();
 

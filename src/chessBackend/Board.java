@@ -20,7 +20,7 @@ public class Board {
 	private Piece whiteKing;
 	private Side turn;
 	private RNGTable rngTable;
-	private Stack<Move> moveHistory;
+	private Stack<Long> moveHistory;
 	private long hashCode;
 	private Stack<Long> hashCodeHistory;
 	private long[] nullMoveInfo;
@@ -30,9 +30,9 @@ public class Board {
 		BitBoard.loadMasks();
 		Board board = Game.getDefaultBoard();
 
-		ArrayList<Move> moves = board.generateValidMoves(true);
+		ArrayList<Long> moves = board.generateValidMoves(true);
 
-		Move m = moves.get(0);
+		long m = moves.get(0);
 
 		int its = 1000000;
 
@@ -84,16 +84,16 @@ public class Board {
 	// }
 
 	public Board(ArrayList<Piece> blackPieces, ArrayList<Piece> whitePieces, Side turn) {
-		this(blackPieces, whitePieces, turn, new Stack<Move>());
+		this(blackPieces, whitePieces, turn, new Stack<Long>());
 	}
 
-	public Board(ArrayList<Piece> blackPieces, ArrayList<Piece> whitePieces, Side turn, Stack<Move> moveHistory) {
+	public Board(ArrayList<Piece> blackPieces, ArrayList<Piece> whitePieces, Side turn, Stack<Long> moveHistory) {
 		this.board = new Piece[8][8];
 		this.blackPieces = new ArrayList<Piece>(blackPieces.size());
 		this.whitePieces = new ArrayList<Piece>(whitePieces.size());
 		this.blackPiecesTaken = new Stack<Piece>();
 		this.whitePiecesTaken = new Stack<Piece>();
-		this.moveHistory = new Stack<Move>();
+		this.moveHistory = new Stack<Long>();
 		this.hashCodeHistory = new Stack<Long>();
 		this.rngTable = RNGTable.getSingleton();
 		this.turn = turn;
@@ -147,7 +147,7 @@ public class Board {
 		this.hashCode = generateHashCode();
 
 		if (moveHistory.size() > 0) {
-			Move move;
+			Long move;
 			Side moveSide;
 			if (moveHistory.size() % 2 == 0) {
 				moveSide = turn;
@@ -156,15 +156,13 @@ public class Board {
 			}
 
 			for (int i = 0; i < moveHistory.size(); i++) {
-				move = moveHistory.elementAt(i).getCopy();
+				move = moveHistory.elementAt(i);
 				this.moveHistory.push(move);
-				if (move.hasPieceTaken()) {
+				if (Move.hasPieceTaken(move)) {
 					if (moveSide == Side.WHITE) {
-						blackPiecesTaken.push(new Piece(move.getPieceTakenID(), Side.BLACK, move.getPieceTakenRow(), move.getPieceTakenCol(), move
-								.getPieceTakenHasMoved()));
+						blackPiecesTaken.push(new Piece(Move.getPieceTakenID(move), Side.BLACK, Move.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
 					} else {
-						whitePiecesTaken.push(new Piece(move.getPieceTakenID(), Side.WHITE, move.getPieceTakenRow(), move.getPieceTakenCol(), move
-								.getPieceTakenHasMoved()));
+						whitePiecesTaken.push(new Piece(Move.getPieceTakenID(move), Side.WHITE, Move.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
 					}
 				}
 
@@ -176,9 +174,15 @@ public class Board {
 		}
 	}
 
-	public boolean makeMove(Move move) {
+	public boolean makeMove(long move) {
 
-		if (board[move.getFromRow()][move.getFromCol()].getSide() != turn) {
+		int fromRow = Move.getFromRow(move);
+		int fromCol = Move.getFromCol(move);
+		int toRow = Move.getToRow(move);
+		int toCol = Move.getToCol(move);
+		MoveNote note = Move.getNote(move);
+
+		if (board[fromRow][fromCol].getSide() != turn) {
 			System.out.println("Problem with player ref");
 			return false;
 		}
@@ -187,13 +191,13 @@ public class Board {
 		hashCodeHistory.push(new Long(hashCode));
 
 		// remove previous castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
-				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE),
+				this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		// remove taken piece first
-		if (move.hasPieceTaken()) {
+		if (Move.hasPieceTaken(move)) {
 
-			Piece pieceTaken = board[move.getPieceTakenRow()][move.getPieceTakenCol()];
+			Piece pieceTaken = board[Move.getPieceTakenRow(move)][Move.getPieceTakenCol(move)];
 
 			// remove pieceTaken from vectors
 			if (turn == Side.WHITE) {
@@ -215,39 +219,39 @@ public class Board {
 
 		}
 
-		movePiece(move);
+		movePiece(fromRow, fromCol, toRow, toCol, note);
 
-		if (move.getNote() == MoveNote.CASTLE_NEAR) {
+		if (note == MoveNote.CASTLE_NEAR) {
 			if (turn == Side.BLACK) {
-				movePiece(new Move(0, 7, 0, 5));
+				movePiece(0, 7, 0, 5, MoveNote.NONE);
 			} else {
-				movePiece(new Move(7, 7, 7, 5));
+				movePiece(7, 7, 7, 5, MoveNote.NONE);
 			}
 		}
 
-		if (move.getNote() == MoveNote.CASTLE_FAR) {
+		if (note == MoveNote.CASTLE_FAR) {
 			if (turn == Side.BLACK) {
-				movePiece(new Move(0, 0, 0, 3));
+				movePiece(0, 0, 0, 3, MoveNote.NONE);
 			} else {
-				movePiece(new Move(7, 0, 7, 3));
+				movePiece(7, 0, 7, 3, MoveNote.NONE);
 			}
 		}
 
 		// if last move made is pawn leap, remove en passant file num
-		if (getLastMoveMade() != null) {
-			if (getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
-				hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());
+		if (getLastMoveMade() != 0) {
+			if (Move.getNote(getLastMoveMade()) == MoveNote.PAWN_LEAP) {
+				hashCode ^= rngTable.getEnPassantFile(Move.getToCol(getLastMoveMade()));
 			}
 		}
 
 		// if new move is pawn leap, add en passant file num
-		if (move.getNote() == MoveNote.PAWN_LEAP) {
-			hashCode ^= rngTable.getEnPassantFile(move.getToCol());
+		if (note == MoveNote.PAWN_LEAP) {
+			hashCode ^= rngTable.getEnPassantFile(Move.getToCol(move));
 		}
 
 		// add new castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
-				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE),
+				this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		// either remove black and add white or reverse. Same operation.
 		hashCode ^= rngTable.getBlackToMoveRandom();
@@ -262,51 +266,58 @@ public class Board {
 
 	}
 
-	private void movePiece(Move move) {
-		Piece pieceMoving = board[move.getFromRow()][move.getFromCol()];
+	private void movePiece(int fromRow, int fromCol, int toRow, int toCol, MoveNote note) {
+		Piece pieceMoving = board[fromRow][fromCol];
 
 		// remove bit position from where piece was
 		posBitBoard[pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
 
 		// remove old hash from where piece was
-		hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), move.getFromRow(), move.getFromCol());
+		hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), fromRow, fromCol);
 
 		// tell piece its new position
-		pieceMoving.move(move);
+		pieceMoving.setPos(toRow, toCol);
+		pieceMoving.setMoved(true);
 		// update board to reflect piece's new position
-		board[move.getToRow()][move.getToCol()] = pieceMoving;
+		board[toRow][toCol] = pieceMoving;
 		// remove pieces old position
-		board[move.getFromRow()][move.getFromCol()] = null;
+		board[fromRow][fromCol] = null;
 
 		// add bit position of where piece is now
 		posBitBoard[pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
 
-		if (move.getNote() == MoveNote.NEW_QUEEN) {
+		if (note == MoveNote.NEW_QUEEN) {
 			pieceMoving.setPieceID(PieceID.QUEEN);
 		}
 
 		// add hash of piece at new location
-		hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), move.getToRow(), move.getToCol());
+		hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), toRow, toCol);
 	}
 
-	public Move undoMove() {
+	public long undoMove() {
 
 		// if no there is no last move then undoMove is impossible
 		if (moveHistory.empty()) {
 			System.out.println("Can not undo move");
-			return null;
+			return 0;
 		}
 
 		// retrieve last move made
-		Move lastMove = getLastMoveMade();
+		long lastMove = getLastMoveMade();
+
+		int fromRow = Move.getFromRow(lastMove);
+		int fromCol = Move.getFromCol(lastMove);
+		int toRow = Move.getToRow(lastMove);
+		int toCol = Move.getToCol(lastMove);
+		MoveNote note = Move.getNote(lastMove);
 
 		// last move made was made by previous player, which is also the next
 		// player
 		turn = turn.otherSide();
 
-		undoMovePiece(lastMove);
+		undoMovePiece(fromRow, fromCol, toRow, toCol, note, Move.hadMoved(lastMove));
 
-		if (lastMove.hasPieceTaken()) {
+		if (Move.hasPieceTaken(lastMove)) {
 
 			// add taken piece back to vectors and board
 			Piece pieceTaken;
@@ -326,19 +337,19 @@ public class Board {
 
 		}
 
-		if (lastMove.getNote() == MoveNote.CASTLE_NEAR) {
+		if (note == MoveNote.CASTLE_NEAR) {
 			if (turn == Side.BLACK) {
-				undoMovePiece(new Move(0, 7, 0, 5));
+				undoMovePiece(0, 7, 0, 5, MoveNote.NONE, false);
 			} else {
-				undoMovePiece(new Move(7, 7, 7, 5));
+				undoMovePiece(7, 7, 7, 5, MoveNote.NONE, false);
 			}
 		}
 
-		if (lastMove.getNote() == MoveNote.CASTLE_FAR) {
+		if (note == MoveNote.CASTLE_FAR) {
 			if (turn == Side.BLACK) {
-				undoMovePiece(new Move(0, 0, 0, 3));
+				undoMovePiece(0, 0, 0, 3, MoveNote.NONE, false);
 			} else {
-				undoMovePiece(new Move(7, 0, 7, 3));
+				undoMovePiece(7, 0, 7, 3, MoveNote.NONE, false);
 			}
 		}
 
@@ -357,27 +368,28 @@ public class Board {
 
 	}
 
-	private void undoMovePiece(Move move) {
+	private void undoMovePiece(int fromRow, int fromCol, int toRow, int toCol, MoveNote note, boolean hadMoved) {
 
-		Piece pieceMoving = board[move.getToRow()][move.getToCol()];
+		Piece pieceMoving = board[toRow][toCol];
 
 		// remove bit position from where piece was
 		posBitBoard[pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
 
 		// tell piece where it was
-		pieceMoving.reverseMove(move);
+		pieceMoving.setPos(fromRow, fromCol);
+
 		// put piece in old position
-		board[move.getFromRow()][move.getFromCol()] = pieceMoving;
+		board[fromRow][fromCol] = pieceMoving;
 		// remove old position
-		board[move.getToRow()][move.getToCol()] = null;
+		board[toRow][toCol] = null;
 
 		// show whether piece had moved before this move was made
-		board[move.getFromRow()][move.getFromCol()].setMoved(move.hadMoved());
+		board[fromRow][fromCol].setMoved(hadMoved);
 
 		// add bit position of where piece is now
 		posBitBoard[pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
 
-		if (move.getNote() == MoveNote.NEW_QUEEN) {
+		if (note == MoveNote.NEW_QUEEN) {
 			pieceMoving.setPieceID(PieceID.PAWN);
 		}
 
@@ -413,7 +425,7 @@ public class Board {
 		return match;
 	}
 
-	public ArrayList<Move> generateValidMoves(boolean sort) {
+	public ArrayList<Long> generateValidMoves(boolean sort) {
 
 		// find in check details. i.e. left and right castle info
 		// makeNullMove();
@@ -424,21 +436,22 @@ public class Board {
 		// System.out.println("in check vector");
 		// BitBoard.printBitBoard(nullMoveInfo[1]);
 
-		ArrayList<Move> validMoves = new ArrayList<Move>(30);
+		ArrayList<Long> validMoves = new ArrayList<Long>(30);
 
 		ArrayList<Piece> pieces = getPiecesFor(turn);
-		ArrayList<Move> moves;
-		Move move;
+		ArrayList<Long> moves;
+		Long move;
 		for (int p = 0; p < pieces.size(); p++) {
 
 			moves = pieces.get(p).generateValidMoves(this, nullMoveInfo, posBitBoard);
+
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.get(m);
 
-				move.setHadMoved(hasMoved(move.getFromRow(), move.getFromCol()));
+				move = Move.setHadMoved(move, hasMoved(Move.getFromRow(move), Move.getFromCol(move)));
 
 				if (sort) {
-					addSortValidMove(validMoves, moves.get(m));
+					addSortValidMove(validMoves, move);
 				} else {
 					validMoves.add(move);
 				}
@@ -461,9 +474,10 @@ public class Board {
 		return validMoves;
 	}
 
-	private void addSortValidMove(ArrayList<Move> validMoves, Move move) {
+	private void addSortValidMove(ArrayList<Long> validMoves, Long move) {
+		int moveValue = Move.getValue(move);
 		for (int m = 0; m < validMoves.size(); m++) {
-			if (move.getValue() >= validMoves.get(m).getValue()) {
+			if (moveValue >= Move.getValue(validMoves.get(m))) {
 				validMoves.add(m, move);
 				return;
 			}
@@ -533,15 +547,15 @@ public class Board {
 
 	}
 
-	public Move getLastMoveMade() {
+	public long getLastMoveMade() {
 		if (!moveHistory.empty()) {
 			return moveHistory.peek();
 		} else {
-			return null;
+			return 0;
 		}
 	}
 
-	public Vector<Move> getMoveHistory() {
+	public Vector<Long> getMoveHistory() {
 		return moveHistory;
 	}
 
@@ -808,10 +822,11 @@ public class Board {
 					if (p.getPieceID() == PieceID.KING && nearRookHasMoved(p.getSide()) && farRookHasMoved(p.getSide())) {
 						pieceDetails |= 1;
 					}
+					
+					long lastMove = getLastMoveMade();
 
-					if (getLastMoveMade() != null) {
-						if (getLastMoveMade().getToRow() == row && getLastMoveMade().getToCol() == col
-								&& getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
+					if (getLastMoveMade() != 0) {
+						if (Move.getToRow(lastMove) == row && Move.getToCol(lastMove) == col && Move.getNote(lastMove) == MoveNote.PAWN_LEAP) {
 							pieceDetails |= 2;
 						}
 					}
@@ -838,7 +853,7 @@ public class Board {
 
 		if (includeHistory) {
 			for (int i = 0; i < moveHistory.size(); i++) {
-				xmlBoard += moveHistory.elementAt(i).toXML();
+				xmlBoard += Move.toXML(moveHistory.elementAt(i));
 			}
 		}
 
@@ -863,12 +878,12 @@ public class Board {
 			}
 		}
 
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
-				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE),
+				this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
-		if (this.getLastMoveMade() != null) {
-			if (this.getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
-				hashCode ^= rngTable.getEnPassantFile(this.getLastMoveMade().getToCol());
+		if (getLastMoveMade() != 0) {
+			if (Move.getNote(getLastMoveMade()) == MoveNote.PAWN_LEAP) {
+				hashCode ^= rngTable.getEnPassantFile(Move.getToCol(getLastMoveMade()));
 			}
 		}
 
@@ -923,15 +938,13 @@ public class Board {
 			sufficient = false;
 
 			for (int i = 0; i < whitePieces.size(); i++) {
-				if ((whitePieces.get(i).getPieceID() == PieceID.PAWN) || (whitePieces.get(i).getPieceID() == PieceID.QUEEN)
-						|| (whitePieces.get(i).getPieceID() == PieceID.ROOK)) {
+				if ((whitePieces.get(i).getPieceID() == PieceID.PAWN) || (whitePieces.get(i).getPieceID() == PieceID.QUEEN) || (whitePieces.get(i).getPieceID() == PieceID.ROOK)) {
 					sufficient = true;
 				}
 			}
 
 			for (int i = 0; i < blackPieces.size(); i++) {
-				if ((blackPieces.get(i).getPieceID() == PieceID.PAWN) || (blackPieces.get(i).getPieceID() == PieceID.QUEEN)
-						|| (blackPieces.get(i).getPieceID() == PieceID.ROOK)) {
+				if ((blackPieces.get(i).getPieceID() == PieceID.PAWN) || (blackPieces.get(i).getPieceID() == PieceID.QUEEN) || (blackPieces.get(i).getPieceID() == PieceID.ROOK)) {
 					sufficient = true;
 				}
 			}

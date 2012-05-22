@@ -2,7 +2,7 @@ package chessBackend;
 
 public interface PlayerContainer {
 	
-	public boolean makeMove(Move move);
+	public boolean makeMove(long move);
 	
 	public GameResults newGame(Board board, boolean block);
 	

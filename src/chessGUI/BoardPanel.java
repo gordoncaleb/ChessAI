@@ -51,7 +51,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private Board freelyMoveBoard;
 
 	private int highLightCount;
-	private Move highLightMove;
+	private long highLightMove;
 	private Timer highLightTimer;
 
 	private Adjudicator adjudicator;
@@ -180,7 +180,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		setFlipBoard(!flipBoard);
 	}
 
-	public void highlightMove(Move move) {
+	public void highlightMove(long move) {
 		highLightCount = 5;
 		highLightMove = move;
 		highLightTimer.start();
@@ -276,13 +276,13 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	}
 
-	public boolean moveMade(Move move) {
+	public boolean moveMade(long move) {
 
 		if (adjudicator.move(move)) {
 			refreshBoard();
 
-			if (move.hasPieceTaken()) {
-				takePiece(move.getPieceTakenID(), adjudicator.getTurn());
+			if (Move.hasPieceTaken(move)) {
+				takePiece(Move.getPieceTakenID(move), adjudicator.getTurn());
 			}
 
 			updateLastMovedSquare();
@@ -321,8 +321,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		}
 	}
 
-	public Move undoMove() {
-		Move undoneMove = null;
+	public long undoMove() {
+		long undoneMove = 0;
 
 		if (adjudicator.canUndo()) {
 
@@ -337,7 +337,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			attachValidMoves();
 
 			// update side line view of pieces that have been taken
-			if (undoneMove.hasPieceTaken()) {
+			if (Move.hasPieceTaken(undoneMove)) {
 				refreshPiecesTaken();
 			}
 
@@ -356,8 +356,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		return adjudicator.canUndo();
 	}
 
-	public Move redoMove() {
-		Move redoneMove = null;
+	public long redoMove() {
+		long redoneMove = 0;
 
 		if (adjudicator.hashUndoneMoves()) {
 			boardGUI.makeMove(adjudicator.getLastUndoneMove());
@@ -411,12 +411,12 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 		clearValidMoves();
 
-		ArrayList<Move> validMoves = adjudicator.getValidMoves();
+		ArrayList<Long> validMoves = adjudicator.getValidMoves();
 
-		Move move;
+		long move;
 		for (int m = 0; m < validMoves.size(); m++) {
 			move = validMoves.get(m);
-			getChessSquare(move.getFromRow(), move.getFromCol()).addValidMove(move);
+			getChessSquare(Move.getFromRow(move), Move.getFromCol(move)).addValidMove(move);
 		}
 
 		if (selectedComponent instanceof SquarePanel) {
@@ -433,13 +433,13 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	}
 
 	private void colorValidMoveSquares(SquarePanel square, boolean valid) {
-		Vector<Move> validMoves = square.getValidMoves();
-		Move move;
+		Vector<Long> validMoves = square.getValidMoves();
+		long move;
 
 		for (int i = 0; i < validMoves.size(); i++) {
 			move = validMoves.elementAt(i);
 
-			getChessSquare(move.getToRow(), move.getToCol()).showAsValidMove(valid);
+			getChessSquare(Move.getToRow(move), Move.getToCol(move)).showAsValidMove(valid);
 
 			if (debug) {
 				// if (valid && move != null) {
@@ -513,9 +513,9 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			lastMovedSquare = null;
 		}
 
-		Move lastMove = adjudicator.getLastMoveMade();
-		if (lastMove != null) {
-			lastMovedSquare = getChessSquare(lastMove.getToRow(), lastMove.getToCol());
+		long lastMove = adjudicator.getLastMoveMade();
+		if (lastMove != 0) {
+			lastMovedSquare = getChessSquare(Move.getToRow(lastMove), Move.getToCol(lastMove));
 			lastMovedSquare.showAsLastMoved(true);
 		}
 
@@ -548,7 +548,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		return adjudicator.getBoard();
 	}
 
-	private Move getOrientedMove(int fromRow, int fromCol, int toRow, int toCol) {
+	private long getOrientedMove(int fromRow, int fromCol, int toRow, int toCol) {
 		int orienFromRow;
 		int orienFromCol;
 		int orienToRow;
@@ -566,7 +566,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			orienToCol = toCol;
 		}
 
-		return new Move(orienFromRow, orienFromCol, orienToRow, orienToCol);
+		return Move.moveLong(orienFromRow, orienFromCol, orienToRow, orienToCol);
 
 	}
 
@@ -633,10 +633,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 					SquarePanel selectedSquare = (SquarePanel) selectedComponent;
 
 					if (!freelyMove) {
-						Move m = getOrientedMove(selectedSquare.getRow(), selectedSquare.getCol(), clickedSquare.getRow(), clickedSquare.getCol());
+						long m = getOrientedMove(selectedSquare.getRow(), selectedSquare.getCol(), clickedSquare.getRow(), clickedSquare.getCol());
 
-						Move validMove = selectedSquare.checkIfValidMove(m);
-						if (validMove != null) {
+						long validMove = selectedSquare.checkIfValidMove(m);
+						if (validMove != 0) {
 							selectedSquare.showAsSelected(false);
 							colorValidMoveSquares(selectedSquare, false);
 
@@ -723,18 +723,22 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() == highLightTimer) {
+			
+			SquarePanel from = getChessSquare(Move.getFromRow(highLightMove), Move.getFromCol(highLightMove));
+			SquarePanel to = getChessSquare(Move.getToRow(highLightMove), Move.getToCol(highLightMove));
+			
 			if (highLightCount > 0) {
 				if (highLightCount % 2 == 0) {
-					getChessSquare(highLightMove.getToRow(), highLightMove.getToCol()).showAsHighLighted(false);
-					getChessSquare(highLightMove.getFromRow(), highLightMove.getFromCol()).showAsHighLighted(true);
+					to.showAsHighLighted(false);
+					from.showAsHighLighted(true);
 				} else {
-					getChessSquare(highLightMove.getToRow(), highLightMove.getToCol()).showAsHighLighted(true);
-					getChessSquare(highLightMove.getFromRow(), highLightMove.getFromCol()).showAsHighLighted(false);
+					to.showAsHighLighted(true);
+					from.showAsHighLighted(false);
 				}
 			} else {
 				highLightTimer.stop();
-				getChessSquare(highLightMove.getToRow(), highLightMove.getToCol()).showAsHighLighted(false);
-				getChessSquare(highLightMove.getFromRow(), highLightMove.getFromCol()).showAsHighLighted(false);
+				to.showAsHighLighted(false);
+				from.showAsHighLighted(false);
 			}
 
 			highLightCount--;

@@ -82,22 +82,22 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public void makeMove(Move move) {
+	public void makeMove(long move) {
 	}
 
 	@Override
-	public boolean moveMade(Move opponentsMove) {
+	public boolean moveMade(long opponentsMove) {
 		return boardPanel.moveMade(opponentsMove);
 	}
 
 	@Override
-	public Move undoMove() {
+	public long undoMove() {
 		return boardPanel.undoMove();
 	}
 
 	@Override
-	public Move makeRecommendation() {
-		return null;
+	public long makeRecommendation() {
+		return 0;
 	}
 
 	public void makeMove() {

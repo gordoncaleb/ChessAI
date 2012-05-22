@@ -9,7 +9,7 @@ import chessBackend.MoveNote;
 import chessBackend.Side;
 import chessBackend.Move;
 
-public class Pawn{
+public class Pawn {
 
 	public Pawn() {
 	}
@@ -26,15 +26,15 @@ public class Pawn{
 		return "P";
 	}
 
-	public static ArrayList<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
-		ArrayList<Move> validMoves = new ArrayList<Move>();
+	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
+		ArrayList<Long> validMoves = new ArrayList<Long>();
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
 		Side player = p.getSide();
 		int dir;
 		int fifthRank;
 		int bonus;
-		Move validMove;
+		Long moveLong;
 
 		int[] lr = { 1, -1 };
 
@@ -51,17 +51,17 @@ public class Pawn{
 			if (p.isValidMove(currentRow + dir, currentCol, nullMoveInfo)) {
 
 				bonus = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + dir, currentCol, p.getSide());
-				validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol, bonus, MoveNote.NONE);
+				moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol, bonus, MoveNote.NONE);
 				if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-					validMove.setNote(MoveNote.NEW_QUEEN);
-					validMove.setValue(Values.QUEEN_VALUE);
+					moveLong = Move.setNote(moveLong, MoveNote.NEW_QUEEN);
+					moveLong = Move.setValue(moveLong, Values.QUEEN_VALUE);
 				}
-				validMoves.add(validMove);
+				validMoves.add(moveLong);
 
 				if (!p.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == PositionStatus.NO_PIECE) {
 					if (p.isValidMove(currentRow + 2 * dir, currentCol, nullMoveInfo)) {
 						bonus = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, p.getSide());
-						validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol, bonus, MoveNote.PAWN_LEAP));
+						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow + 2 * dir, currentCol, bonus, MoveNote.PAWN_LEAP));
 					}
 				}
 
@@ -75,36 +75,35 @@ public class Pawn{
 
 				if (p.isValidMove(currentRow + dir, currentCol + lr[i], nullMoveInfo)) {
 
-					validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol + lr[i]);
+					moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + lr[i]);
 
 					if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-						validMove.setNote(MoveNote.NEW_QUEEN);
-						validMove.setValue(Values.QUEEN_VALUE + board.getPieceValue(currentRow + dir, currentCol + lr[i]));
+						moveLong = Move.setNote(moveLong, MoveNote.NEW_QUEEN);
+						moveLong = Move.setValue(moveLong, Values.QUEEN_VALUE + board.getPieceValue(currentRow + dir, currentCol + lr[i]));
 					} else {
-						validMove.setValue(board.getPieceValue(currentRow + dir, currentCol + lr[i]));
+						moveLong = Move.setValue(moveLong, board.getPieceValue(currentRow + dir, currentCol + lr[i]));
 					}
 
-					validMove.setPieceTaken(board.getPiece(currentRow + dir, currentCol + lr[i]));
-					validMoves.add(validMove);
+					moveLong = Move.setPieceTaken(moveLong, board.getPiece(currentRow + dir, currentCol + lr[i]));
+					validMoves.add(moveLong);
 				}
 
 			}
 		}
 
 		// Check left and right en passant rule
-		if (currentRow == fifthRank && board.getLastMoveMade() != null) {
+		if (currentRow == fifthRank && board.getLastMoveMade() != 0) {
 			for (int i = 0; i < lr.length; i++) {
 				if (board.checkPiece(fifthRank, currentCol + lr[i], player) == PositionStatus.ENEMY) {
 
-					if ((board.getLastMoveMade().getToCol() == (currentCol + lr[i])) && board.getLastMoveMade().getNote() == MoveNote.PAWN_LEAP) {
+					if ((Move.getToCol(board.getLastMoveMade()) == (currentCol + lr[i])) && Move.getNote(board.getLastMoveMade()) == MoveNote.PAWN_LEAP) {
 
 						if (p.isValidMove(currentRow + dir, currentCol + lr[i], nullMoveInfo)) {
 
-							validMove = new Move(currentRow, currentCol, currentRow + dir, currentCol + lr[i]);
-							validMove.setValue(board.getPieceValue(fifthRank, currentCol + lr[i]));
-							validMove.setPieceTaken(board.getPiece(fifthRank, currentCol + lr[i]));
-							validMove.setNote(MoveNote.ENPASSANT);
-							validMoves.add(validMove);
+							int value = board.getPieceValue(fifthRank, currentCol + lr[i]);
+							Piece pieceTaken = board.getPiece(fifthRank, currentCol + lr[i]);
+							moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + lr[i], value, MoveNote.ENPASSANT, pieceTaken);
+							validMoves.add(moveLong);
 						}
 
 					}
@@ -131,7 +130,7 @@ public class Pawn{
 		}
 
 		pieceStatus = board.checkPiece(currentRow + dir, currentCol - 1, player);
-		
+
 		if (pieceStatus != PositionStatus.OFF_BOARD) {
 
 			if (board.getPieceID(currentRow + dir, currentCol - 1) == PieceID.KING && pieceStatus == PositionStatus.ENEMY) {
@@ -140,7 +139,7 @@ public class Pawn{
 
 			nullMoveInfo[0] |= BitBoard.getMask(currentRow + dir, currentCol - 1);
 		}
-		
+
 		pieceStatus = board.checkPiece(currentRow + dir, currentCol + 1, player);
 
 		if (pieceStatus != PositionStatus.OFF_BOARD) {

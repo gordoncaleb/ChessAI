@@ -11,7 +11,7 @@ public class DecisionNode {
 	private DecisionNode nextSibling;
 
 	// The last move made on the attached board.
-	private Move move;
+	private long move;
 
 	private int chosenPathValue;
 
@@ -50,10 +50,10 @@ public class DecisionNode {
 		// System.out.println(childSize + "");
 
 		int[] nums = { 3, 7, 6, 5, 8, 3, 1, 2 };
-		DecisionNode root = new DecisionNode(new Move(0, 0, 0, 0, 100, MoveNote.NONE));
+		DecisionNode root = new DecisionNode(Move.moveLong(0, 0, 0, 0, 100, MoveNote.NONE));
 		DecisionNode child;
 		for (int i = 0; i < nums.length; i++) {
-			child = new DecisionNode(new Move(0, 0, 0, 0, nums[i], MoveNote.NONE));
+			child = new DecisionNode(Move.moveLong(0, 0, 0, 0, nums[i], MoveNote.NONE));
 			child.setChosenPathValue(nums[i]);
 			root.addChild(child);
 		}
@@ -79,7 +79,7 @@ public class DecisionNode {
 
 	}
 
-	public DecisionNode(Move move) {
+	public DecisionNode(long move) {
 		// this.parent = parent;
 
 		// Linked List data struct pointers
@@ -94,7 +94,7 @@ public class DecisionNode {
 
 	}
 
-	public DecisionNode(Move move, int chosenPathValue) {
+	public DecisionNode(long move, int chosenPathValue) {
 
 		// Linked List data struct pointers
 		this.headChild = null;
@@ -306,11 +306,11 @@ public class DecisionNode {
 			return false;
 	}
 
-	public Move getMove() {
+	public long getMove() {
 		return move;
 	}
 
-	public void setMove(Move nodeMove) {
+	public void setMove(long nodeMove) {
 		this.move = nodeMove;
 	}
 
@@ -327,8 +327,8 @@ public class DecisionNode {
 	}
 
 	public int getMoveValue() {
-		if (move != null)
-			return move.getValue();
+		if (move != 0)
+			return Move.getValue(move);
 		else
 			return 0;
 	}
@@ -400,10 +400,10 @@ public class DecisionNode {
 	// }
 
 	public boolean hasPieceTaken() {
-		if (move == null) {
+		if (move == 0) {
 			return false;
 		} else {
-			if (move.hasPieceTaken()) {
+			if (Move.hasPieceTaken(move)) {
 				return true;
 			} else {
 				return false;
@@ -438,8 +438,8 @@ public class DecisionNode {
 
 	public String toString() {
 
-		if (move != null)
-			return move.toString() + " Chosen Path Value =" + this.getChosenPathValue();
+		if (move != 0)
+			return Move.toString(move) + " Chosen Path Value =" + this.getChosenPathValue();
 		else
 			return "Board Start";
 	}

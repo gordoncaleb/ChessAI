@@ -7,26 +7,26 @@ import java.util.Vector;
 import chessPieces.*;
 
 public class Adjudicator {
-	private ArrayList<Move> validMoves;
-	private Stack<Move> undoneMoves;
+	private ArrayList<Long> validMoves;
+	private Stack<Long> undoneMoves;
 	private Board board;
 
 	public Adjudicator(Board board) {
-		undoneMoves = new Stack<Move>();
+		undoneMoves = new Stack<Long>();
 		this.board = board;
 	}
 
-	public boolean move(Move move) {
+	public boolean move(long move) {
 
 		if (undoneMoves.size() > 0) {
-			if (move.equals(undoneMoves.peek())) {
+			if (Move.equals(undoneMoves.peek(), move)) {
 				undoneMoves.pop();
 			} else {
 				undoneMoves.clear();
 			}
 		}
 
-		Move matchingMove = getMatchingMove(move);
+		long matchingMove = getMatchingMove(move);
 
 		if (board.makeMove(matchingMove)) {
 
@@ -37,8 +37,8 @@ public class Adjudicator {
 
 	}
 
-	public Move undo() {
-		Move lastMove = null;
+	public long undo() {
+		long lastMove = 0;
 
 		if (canUndo()) {
 			lastMove = board.undoMove();
@@ -53,28 +53,29 @@ public class Adjudicator {
 		return (board.getMoveHistory().size() > 0);
 	}
 
-	public Move getLastUndoneMove() {
-		Move lastMoveUndone = null;
+	public long getLastUndoneMove() {
 
 		if (hashUndoneMoves()) {
-			lastMoveUndone = undoneMoves.peek();
+			return undoneMoves.peek();
 			// board.makeMove(lastMoveUndone);
+		} else {
+			return 0;
 		}
-		return lastMoveUndone;
+
 	}
 
 	public boolean hashUndoneMoves() {
 		return (undoneMoves.size() > 0);
 	}
 
-	public ArrayList<Move> getValidMoves() {
+	public ArrayList<Long> getValidMoves() {
 		board.makeNullMove();
 		validMoves = board.generateValidMoves(false);
 
 		return validMoves;
 	}
 
-	public Vector<Move> getMoveHistory() {
+	public Vector<Long> getMoveHistory() {
 		return board.getMoveHistory();
 	}
 
@@ -94,20 +95,20 @@ public class Adjudicator {
 		return board.getPiece(row, col);
 	}
 
-	public Move getLastMoveMade() {
+	public Long getLastMoveMade() {
 		return board.getLastMoveMade();
 	}
 
-	private Move getMatchingMove(Move move) {
+	private long getMatchingMove(long move) {
 
 		for (int i = 0; i < validMoves.size(); i++) {
-			if (validMoves.get(i).equals(move)) {
+			if (Move.equals(validMoves.get(i), move)) {
 				return validMoves.get(i);
 			}
 		}
 
 		System.out.println("ERROR: Adjudicator says " + move + " move is invalid");
-		return null;
+		return 0;
 	}
 
 	public Vector<Piece> getPiecesTaken(Side player) {

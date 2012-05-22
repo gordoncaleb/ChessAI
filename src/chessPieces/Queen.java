@@ -9,7 +9,7 @@ import chessBackend.MoveNote;
 import chessBackend.Side;
 import chessBackend.Move;
 
-public class Queen{
+public class Queen {
 	private static int[][] QUEENMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
 
 	public Queen() {
@@ -27,8 +27,8 @@ public class Queen{
 		return "Q";
 	}
 
-	public static ArrayList<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
-		ArrayList<Move> validMoves = new ArrayList<Move>();
+	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
+		ArrayList<Long> validMoves = new ArrayList<Long>();
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
 		Side player = p.getSide();
@@ -45,7 +45,7 @@ public class Queen{
 			while (pieceStatus == PositionStatus.NO_PIECE) {
 
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					validMoves.add(new Move(currentRow, currentCol, nextRow, nextCol, Values.RISK_QUEEN, MoveNote.NONE));
+					validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, Values.RISK_QUEEN, MoveNote.NONE));
 				}
 
 				i++;
@@ -57,9 +57,8 @@ public class Queen{
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					Move move = new Move(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol));
-					move.setPieceTaken(board.getPiece(nextRow, nextCol));
-					validMoves.add(move);
+					Long moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE, board.getPiece(nextRow, nextCol));
+					validMoves.add(moveLong);
 				}
 			}
 
@@ -82,7 +81,7 @@ public class Queen{
 		int nextCol;
 		PositionStatus pieceStatus;
 		Side player = p.getSide();
-		
+
 		long bitPosition = p.getBit();
 
 		int i = 1;
@@ -90,8 +89,8 @@ public class Queen{
 			nextRow = currentRow + i * QUEENMOVES[0][d];
 			nextCol = currentCol + i * QUEENMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
-			
-			if(pieceStatus == PositionStatus.OFF_BOARD){
+
+			if (pieceStatus == PositionStatus.OFF_BOARD) {
 				continue;
 			}
 
@@ -138,11 +137,11 @@ public class Queen{
 			}
 
 			nullMoveInfo[0] |= bitAttackVector;
-			
+
 			if (inCheck) {
 				nullMoveInfo[2] |= bitAttackCompliment;
 			}
-			
+
 			bitAttackCompliment = 0;
 			bitAttackVector = 0;
 
