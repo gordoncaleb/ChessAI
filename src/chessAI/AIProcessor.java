@@ -1,13 +1,11 @@
 package chessAI;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 import chessBackend.Board;
 import chessBackend.GameStatus;
 import chessBackend.BoardHashEntry;
 import chessBackend.Move;
-import chessBackend.MoveNote;
 import chessPieces.Values;
 
 public class AIProcessor extends Thread {

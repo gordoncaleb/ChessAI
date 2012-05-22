@@ -1,7 +1,6 @@
 package chessPieces;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 import chessBackend.BitBoard;
 import chessBackend.Board;
@@ -131,6 +130,10 @@ public class Bishop {
 					if (board.getPieceID(nextRow, nextCol) == PieceID.KING) {
 						blockingPiece.setBlockingVector(bitAttackCompliment | bitAttackVector | bitPosition);
 					}
+				}
+				
+				if (pieceStatus == PositionStatus.FRIEND) {
+					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
 				}
 
 			}

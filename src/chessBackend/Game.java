@@ -3,12 +3,7 @@ package chessBackend;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import chessAI.AI;
 import chessAI.DecisionNode;
-import chessGUI.DecisionTreeGUI;
-import chessGUI.MoveBookBuilderGUI;
-import chessGUI.ObserverGUI;
-import chessGUI.PlayerGUI;
 import chessIO.FileIO;
 import chessIO.XMLParser;
 

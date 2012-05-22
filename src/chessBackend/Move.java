@@ -4,11 +4,29 @@ import chessPieces.Piece;
 import chessPieces.PieceID;
 
 public class Move {
+	
+	/**
+	 * Bit-field
+	 * 0-2 = toCol
+	 * 3-5 = toRow
+	 * 6-8 = fromCol
+	 * 9-11 = fromRow
+	 * 12-14 = move note
+	 * 15 = hadMoved
+	 * 16 = has piece taken
+	 * 17-19 = pieceTaken col
+	 * 20-22 = pieceTaken row
+	 * 23-25 = pieceTaken id
+	 * 26 = pieceTaken has moved
+	 * 32-48 = moveValue
+	 */
 
 	private static final int hadMovedMask = 1 << 15;
 	private static final int hasPieceTakenMask = 1 << 16;
 	private static final int pieceTakenHasMoved = 1 << 26;
 	private static final int fromToMask = 0xFFF;
+	private static final int fromMask = 0xFC0;
+	private static final int toMask = 0x3F;
 	private static final int notNoteMask = ~(0x7000);
 	private static final int notPieceTaken = ~(0x7FF << 16);
 
@@ -105,8 +123,12 @@ public class Move {
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken) {
 		this(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, pieceTaken, false);
 	}
-
-	// ----------------------
+	
+	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {
+		moveLong = moveLong(fromRow, fromCol, toRow, toCol, value, note, pieceTaken, hadMoved);
+	}
+	
+	//-------------------------------------------------------
 
 	public static long moveLong(int fromRow, int fromCol, int toRow, int toCol) {
 		return moveLong(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, null, false);
@@ -121,29 +143,7 @@ public class Move {
 	}
 
 	public static long moveLong(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken) {
-		return moveLong(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, pieceTaken, false);
-	}
-
-	/**
-	 * Bit-field
-	 * 0-2 = toCol
-	 * 3-5 = toRow
-	 * 6-8 = fromCol
-	 * 9-11 = fromRow
-	 * 12-14 = move note
-	 * 15 = hadMoved
-	 * 16 = has piece taken
-	 * 17-19 = pieceTaken col
-	 * 20-22 = pieceTaken row
-	 * 23-25 = pieceTaken id
-	 * 26 = pieceTaken has moved
-	 * 32-48 = moveValue
-	 */
-
-	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {
-
-		moveLong = moveLong(fromRow, fromCol, toRow, toCol, value, note, pieceTaken, hadMoved);
-
+		return moveLong(fromRow, fromCol, toRow, toCol, value, note, pieceTaken, false);
 	}
 
 	public static long moveLong(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {
@@ -183,6 +183,22 @@ public class Move {
 	public static boolean equals(long moveLongA, long moveLongB) {
 
 		if ((moveLongA & fromToMask) == (moveLongB & fromToMask))
+			return true;
+		else
+			return false;
+	}
+	
+	public static boolean fromEquals(long moveLongA, long moveLongB) {
+
+		if ((moveLongA & fromMask) == (moveLongB & fromMask))
+			return true;
+		else
+			return false;
+	}
+	
+	public static boolean toEquals(long moveLongA, long moveLongB) {
+
+		if ((moveLongA & toMask) == (moveLongB & toMask))
 			return true;
 		else
 			return false;

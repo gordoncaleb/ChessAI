@@ -1,7 +1,6 @@
 package chessPieces;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 import chessBackend.BitBoard;
 import chessBackend.Board;
@@ -102,6 +101,10 @@ public class King {
 
 	public static boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
 		long mask = BitBoard.getMask(toRow, toCol);
+		
+//		String nullmove0 = BitBoard.printBitBoard(nullMoveInfo[0]);
+//		String nullmove1 = BitBoard.printBitBoard(nullMoveInfo[1]);
+//		String nullmove2 = BitBoard.printBitBoard(nullMoveInfo[2]);
 
 		if ((mask & (nullMoveInfo[0] | nullMoveInfo[2])) == 0) {
 			return true;

@@ -1,6 +1,5 @@
 package chessIO;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -18,16 +16,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.Move;
 import chessBackend.MoveNote;
 import chessBackend.Side;
-import chessBackend.RNGTable;
 import chessPieces.Piece;
-import chessPieces.PieceID;
 
 public class XMLParser {
 
@@ -38,7 +32,7 @@ public class XMLParser {
 	public static void main(String[] args) {
 		String xmlBoard = FileIO.readFile("out.xml");
 
-		Board board = XMLParser.XMLToBoard(xmlBoard);
+		XMLParser.XMLToBoard(xmlBoard);
 	}
 
 	public static Board XMLToBoard(String xmlBoard) {
@@ -51,7 +45,7 @@ public class XMLParser {
 		ArrayList<Piece> blackPieces = new ArrayList<Piece>();
 		ArrayList<Piece> whitePieces = new ArrayList<Piece>();
 
-		Stack<Long> moveHistory = new Stack<Long>();
+		Stack<Move> moveHistory = new Stack<Move>();
 		Side player;
 
 		String stringBoard = getCharacterDataFromElement((Element) boardElement.getElementsByTagName("setup").item(0));
@@ -95,15 +89,15 @@ public class XMLParser {
 		Long m;
 		for (int n = 0; n < nodes.getLength(); n++) {
 			m = buildMove((Element) nodes.item(n));
-			moveHistory.push(m);
+			moveHistory.push(new Move(m));
 		}
 
 		if (moveHistory.size() == 0 && pawnLeap != null) {
 			int col = pawnLeap.getCol();
 			if (pawnLeap.getSide() == Side.BLACK) {
-				moveHistory.push(Move.moveLong(1, col, 3, col, 0, MoveNote.PAWN_LEAP));
+				moveHistory.push(new Move(Move.moveLong(1, col, 3, col, 0, MoveNote.PAWN_LEAP)));
 			} else {
-				moveHistory.push(Move.moveLong(6, col, 4, col, 0, MoveNote.PAWN_LEAP));
+				moveHistory.push(new Move(Move.moveLong(6, col, 4, col, 0, MoveNote.PAWN_LEAP)));
 			}
 		}
 
@@ -112,7 +106,21 @@ public class XMLParser {
 			return null;
 		}
 
-		return new Board(blackPieces, whitePieces,player, moveHistory);
+		Board newBoard = new Board(blackPieces, whitePieces, player, moveHistory, new Stack<Integer>(), 0);
+
+		Stack<Long> redoMoves = new Stack<Long>();
+		while (newBoard.canUndo()) {
+			redoMoves.push(newBoard.undoMove());
+		}
+		
+		newBoard.setCastleRights(Side.BLACK, newBoard.calculateCastleRights(Side.BLACK));
+		newBoard.setCastleRights(Side.WHITE, newBoard.calculateCastleRights(Side.WHITE));
+		
+		while(!redoMoves.empty()){
+			newBoard.makeMove(redoMoves.pop());
+		}
+
+		return newBoard;
 	}
 
 	public static Piece XMLToPiece(String xmlPiece) {
@@ -214,7 +222,7 @@ public class XMLParser {
 				boardTag = ((Element) stateTag.item(0)).getElementsByTagName("board");
 				hashcode = buildBoard((Element) boardTag.item(0)).getHashCode();
 			} else {
-				hashcode = (new BigInteger(getCharacterDataFromElement((Element) hashTag.item(0)).trim(),16)).longValue();
+				hashcode = (new BigInteger(getCharacterDataFromElement((Element) hashTag.item(0)).trim(), 16)).longValue();
 			}
 
 			responseTag = ((Element) entires.item(i)).getElementsByTagName("response");

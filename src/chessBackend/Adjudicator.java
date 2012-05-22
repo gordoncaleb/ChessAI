@@ -50,7 +50,7 @@ public class Adjudicator {
 	}
 
 	public boolean canUndo() {
-		return (board.getMoveHistory().size() > 0);
+		return board.canUndo();
 	}
 
 	public long getLastUndoneMove() {
@@ -75,7 +75,7 @@ public class Adjudicator {
 		return validMoves;
 	}
 
-	public Vector<Long> getMoveHistory() {
+	public Vector<Move> getMoveHistory() {
 		return board.getMoveHistory();
 	}
 

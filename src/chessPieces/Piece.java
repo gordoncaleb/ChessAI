@@ -1,7 +1,6 @@
 package chessPieces;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 import chessBackend.BitBoard;
 import chessBackend.Board;
