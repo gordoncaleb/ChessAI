@@ -4,9 +4,6 @@ import chessPieces.Piece;
 import chessPieces.PieceID;
 
 public class Move {
-	
-	
-	
 
 	private static final int hadMovedMask = 1 << 15;
 	private static final int hasPieceTakenMask = 1 << 16;
@@ -32,13 +29,13 @@ public class Move {
 								for (int tr = 0; tr < 8; tr++) {
 									for (int tc = 0; tc < 8; tc++) {
 										pieceTaken1 = new Piece(PieceID.PAWN, Side.WHITE, 1, 2, false);
-										moveLong = Move.moveLong(fr, fc, tr, tc, 0xFFFF, MoveNote.NONE, pieceTaken1, true);
+										moveLong = Move.moveLong(fr, fc, tr, tc, tr - tc, MoveNote.NONE, pieceTaken1, true);
 
 										pieceTaken2 = new Piece(PieceID.values()[ptid], Side.WHITE, ptr, ptc, true);
 										moveLong = Move.setPieceTaken(moveLong, pieceTaken2);
 
 										moveLong = Move.setNote(moveLong, MoveNote.values()[n]);
-										
+
 										moveLong = Move.setHadMoved(moveLong, false);
 
 										if (Move.getFromRow(moveLong) != fr) {
@@ -77,6 +74,10 @@ public class Move {
 											System.out.println("hadMoved");
 										}
 
+										if (Move.getValue(moveLong) != (tr - tc)) {
+											System.out.println("value");
+										}
+
 									}
 								}
 							}
@@ -104,9 +105,9 @@ public class Move {
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken) {
 		this(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, pieceTaken, false);
 	}
-	
-	//----------------------
-	
+
+	// ----------------------
+
 	public static long moveLong(int fromRow, int fromCol, int toRow, int toCol) {
 		return moveLong(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, null, false);
 	}
@@ -123,7 +124,6 @@ public class Move {
 		return moveLong(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, pieceTaken, false);
 	}
 
-	
 	/**
 	 * Bit-field
 	 * 0-2 = toCol
@@ -139,24 +139,10 @@ public class Move {
 	 * 26 = pieceTaken has moved
 	 * 32-48 = moveValue
 	 */
-	
+
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {
 
-		moveLong = (note.ordinal() << 12) | (fromRow << 9) | (fromCol << 6) | (toRow << 3) | toCol;
-
-		if (hadMoved) {
-			moveLong |= hadMovedMask;
-		}
-
-		if (pieceTaken != null) {
-			moveLong |= (pieceTaken.getPieceID().ordinal() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
-
-			if (pieceTaken.hasMoved()) {
-				moveLong |= pieceTakenHasMoved;
-			}
-		}
-
-		//moveLong |= ((long) value) << 32;
+		moveLong = moveLong(fromRow, fromCol, toRow, toCol, value, note, pieceTaken, hadMoved);
 
 	}
 
@@ -201,26 +187,25 @@ public class Move {
 		else
 			return false;
 	}
-	
-	public String toString(){
+
+	public String toString() {
 		return toString(moveLong);
 	}
 
 	public static String toString(long moveLong) {
 		String moveString;
 		if (hasPieceTaken(moveLong)) {
-			Piece pieceTaken = new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong),
-					getPieceTakenHasMoved(moveLong));
-			moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong)
-					+ " Move Note: " + getNote(moveLong).toString() + " Value:" + getValue(moveLong) + " PieceTaken: " + pieceTaken.toString();
+			Piece pieceTaken = new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong), getPieceTakenHasMoved(moveLong));
+			moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong) + " Move Note: " + getNote(moveLong).toString()
+					+ " Value:" + getValue(moveLong) + " PieceTaken: " + pieceTaken.toString();
 		} else {
-			moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong)
-					+ " Move Note: " + getNote(moveLong).toString() + " Value:" + getValue(moveLong);
+			moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong) + " Move Note: " + getNote(moveLong).toString()
+					+ " Value:" + getValue(moveLong);
 		}
 		return moveString;
 	}
-	
-	public String toXML(){
+
+	public String toXML() {
 		return toXML(moveLong);
 	}
 
@@ -242,8 +227,7 @@ public class Move {
 		}
 
 		if (hasPieceTaken(moveLong)) {
-			xmlMove += new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong),
-					getPieceTakenHasMoved(moveLong)).toXML();
+			xmlMove += new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong), getPieceTakenHasMoved(moveLong)).toXML();
 		}
 
 		xmlMove += "</move>\n";
@@ -254,7 +238,7 @@ public class Move {
 	public static long setNote(long moveLong, MoveNote note) {
 		moveLong &= notNoteMask;
 		moveLong |= (note.ordinal() << 12);
-		
+
 		return moveLong;
 	}
 
@@ -285,7 +269,7 @@ public class Move {
 	public static long setValue(long moveLong, int value) {
 		moveLong = moveLong & 0xFFFFFFFF;
 		moveLong |= ((long) value) << 32;
-		
+
 		return moveLong;
 	}
 
@@ -298,7 +282,7 @@ public class Move {
 				moveLong |= pieceTakenHasMoved;
 			}
 		}
-		
+
 		return moveLong;
 	}
 
@@ -312,7 +296,7 @@ public class Move {
 		} else {
 			moveLong &= ~hadMovedMask;
 		}
-		
+
 		return moveLong;
 	}
 

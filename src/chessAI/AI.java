@@ -33,7 +33,6 @@ public class AI extends Thread implements Player {
 	private boolean active;
 
 	private int taskDone;
-	private int taskLeft;
 	private int taskSize;
 	private DecisionNode nextTask;
 	private AIProcessor[] processorThreads;
@@ -215,7 +214,7 @@ public class AI extends Thread implements Player {
 			return null;
 		}
 
-		cleanHashTable();
+		// cleanHashTable();
 
 		long time = 0;
 		DecisionNode aiDecision;
@@ -256,6 +255,8 @@ public class AI extends Thread implements Player {
 			// FileIO.log(getBoard().toString());
 		}
 
+		System.gc();
+
 		return aiDecision;
 	}
 
@@ -266,9 +267,8 @@ public class AI extends Thread implements Player {
 		clearTaskDone();
 
 		taskSize = root.getChildrenSize();
-		taskLeft = taskSize;
 
-		if (taskLeft == 0) {
+		if (taskSize == 0) {
 
 			FileIO.log(this + " didnt see end of game");
 			return;
@@ -321,11 +321,9 @@ public class AI extends Thread implements Player {
 
 			DecisionNode task;
 
-			if (taskLeft == 0) {
-				task = null;
-			} else {
-				task = nextTask;
-				taskLeft--;
+			task = nextTask;
+
+			if (nextTask != null) {
 				nextTask = nextTask.getNextSibling();
 			}
 
