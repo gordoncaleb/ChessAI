@@ -129,10 +129,12 @@ public class AIProcessor extends Thread {
 			if (rootNode.getHeadChild() != null) {
 				if (task.getChosenPathValue() >= rootNode.getHeadChild().getChosenPathValue()) {
 
-					if (task.getChosenPathValue() != rootNode.getHeadChild().getChosenPathValue() || Math.random() > 0.5D) {
-						rootNode.removeAllChildren();
+					if (task.getChosenPathValue() == rootNode.getHeadChild().getChosenPathValue()) {
+						rootNode.addChild(task, task.getChosenPathValue() + (int) Math.round(Math.random()));
+					} else {
 						rootNode.addChild(task);
 					}
+
 				}
 			} else {
 				rootNode.addChild(task);

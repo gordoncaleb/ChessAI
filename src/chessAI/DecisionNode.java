@@ -71,6 +71,11 @@ public class DecisionNode {
 		System.out.println("Changed Values");
 		root.printChildrenValues();
 
+		
+		for(int i=0;i<100;i++){
+			System.out.println((int) Math.round(Math.random()));
+		}
+		
 		// root.sort();
 		//
 		// System.out.println("Resorted Values");
@@ -195,15 +200,19 @@ public class DecisionNode {
 	// }
 	//
 	// }
+	
+	public void addChild(DecisionNode newChild){
+		addChild(newChild,newChild.getChosenPathValue());
+	}
 
-	public synchronized void addChild(DecisionNode newChild) {
+	public synchronized void addChild(DecisionNode newChild, int newChildCPV) {
 
 		DecisionNode currentChild = null;
 		DecisionNode nextChild = headChild;
-		int newChildChosenPathValue = newChild.getChosenPathValue();
+		//int newChildCPV = newChild.getChosenPathValue();
 
 		while (nextChild != null) {
-			if (newChildChosenPathValue > nextChild.getChosenPathValue()) {
+			if (newChildCPV > nextChild.getChosenPathValue()) {
 				newChild.setNextSibling(nextChild);
 				if (currentChild != null) {
 					currentChild.setNextSibling(newChild);
