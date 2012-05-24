@@ -22,6 +22,8 @@ public class TournamentGUI {
 	JTextArea statusTxt;
 
 	public static void main(String[] args) {
+		
+		FileIO.setLogEnabled(false);
 
 		boolean debug = true;
 		Game game;
@@ -40,8 +42,8 @@ public class TournamentGUI {
 
 		Player playerTwo = new EthernetPlayerClient();
 
-		System.out.println("Player One: " + playerOne.getVersion());
-		System.out.println("Player Two: " + playerTwo.getVersion());
+		FileIO.log("Player One: " + playerOne.getVersion());
+		FileIO.log("Player Two: " + playerTwo.getVersion());
 
 		((AI) playerOne).setUseBook(true);
 

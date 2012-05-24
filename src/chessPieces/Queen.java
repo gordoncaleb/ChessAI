@@ -134,6 +134,10 @@ public class Queen extends Piece {
 						blockingPiece.setBlockingVector(bitAttackCompliment | bitAttackVector | bitPosition);
 					}
 				}
+				
+				if (pieceStatus == PositionStatus.FRIEND) {
+					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
+				}
 
 			}
 
@@ -142,7 +146,7 @@ public class Queen extends Piece {
 			if (inCheck) {
 				nullMoveInfo[2] |= bitAttackCompliment;
 			}
-			
+			bitAttackCompliment = 0;
 			bitAttackVector = 0;
 
 			i = 1;

@@ -15,7 +15,7 @@ import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.1.050712.2";
+	public static String VERSION = "1.1.050712.3";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -140,7 +140,7 @@ public class AI extends Thread implements Player {
 
 		if (debug) {
 			printRootDebug();
-			System.out.println(getBoard().toString());
+			FileIO.log(getBoard().toString());
 		}
 
 		makeMove = false;
@@ -149,7 +149,7 @@ public class AI extends Thread implements Player {
 		moveNum = 0;
 		hashTable.clear();
 		
-		System.out.println("New game");
+		FileIO.log("New game");
 
 	}
 
@@ -236,7 +236,7 @@ public class AI extends Thread implements Player {
 			aiDecision = getMatchingDecisionNode(mb);
 		}
 
-		System.out.println("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
+		FileIO.log("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
 
 		// debug print out of decision tree stats. i.e. the tree size and
 		// the values of the move options that the AI has
@@ -278,7 +278,7 @@ public class AI extends Thread implements Player {
 		root.removeAllChildren();
 
 		if (debug) {
-			System.out.println("New task");
+			FileIO.log("New task");
 		}
 
 		synchronized (processing) {

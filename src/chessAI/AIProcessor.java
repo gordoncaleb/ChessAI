@@ -7,6 +7,7 @@ import chessBackend.Board;
 import chessBackend.GameStatus;
 import chessBackend.BoardHashEntry;
 import chessBackend.Move;
+import chessIO.FileIO;
 import chessPieces.Values;
 
 public class AIProcessor extends Thread {
@@ -17,7 +18,7 @@ public class AIProcessor extends Thread {
 	private int maxTwigLevel;
 	private boolean twigGrowthEnabled;
 	private final boolean iterativeDeepening = false;
-	private final boolean useHashTable = true;
+	private final boolean useHashTable = false;
 
 	private int maxFrontierLevel = 2;
 
@@ -59,7 +60,7 @@ public class AIProcessor extends Thread {
 				if (threadActive) {
 					executeTask();
 
-					System.out.println("HashTable size = " + hashTable.size());
+					FileIO.log("HashTable size = " + hashTable.size());
 					// hashTable.clear();
 				}
 

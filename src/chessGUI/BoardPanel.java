@@ -10,6 +10,7 @@ import java.util.Vector;
 import javax.swing.*;
 
 import chessBackend.*;
+import chessBackend.Adjudicator;
 import chessIO.ChessImages;
 import chessPieces.Piece;
 import chessPieces.PieceID;

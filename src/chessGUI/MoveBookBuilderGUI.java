@@ -22,6 +22,7 @@ import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
 import chessBackend.Side;
+import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
@@ -47,6 +48,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private boolean record;
 
 	public static void main(String[] args) {
+		FileIO.setLogEnabled(false);
 
 		java.util.Hashtable<Side, Player> players = new java.util.Hashtable<Side, Player>();
 
