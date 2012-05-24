@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 public class FileIO {
 
 	private static boolean logFileReady;
+	private static boolean debugOutput = true;
 	private static boolean useLogFile = true;
 
 	/**
@@ -139,6 +140,10 @@ public class FileIO {
 	public static void setLogEnabled(boolean enable) {
 		useLogFile = enable;
 	}
+	
+	public static void setDebugOutput(boolean enable) {
+		debugOutput = enable;
+	}
 
 	public static BufferedImage readImage(String fileName) {
 		URL fileURL = FileIO.class.getResource("img/" + fileName);
@@ -167,7 +172,9 @@ public class FileIO {
 
 		}
 
-		System.out.println(msg);
+		if (debugOutput) {
+			System.out.println(msg);
+		}
 
 	}
 

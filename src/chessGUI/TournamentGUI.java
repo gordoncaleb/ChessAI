@@ -22,6 +22,9 @@ public class TournamentGUI {
 	JTextArea statusTxt;
 
 	public static void main(String[] args) {
+		
+		FileIO.setLogEnabled(false);
+		FileIO.setDebugOutput(true);
 
 		boolean debug = true;
 		Game game;
@@ -43,13 +46,13 @@ public class TournamentGUI {
 		String playerOneVersion = playerOne.getVersion();
 		String playerTwoVersion = playerTwo.getVersion();
 
-		System.out.println("Player One: " + playerOneVersion);
-		System.out.println("Player Two: " + playerTwoVersion);
+		FileIO.log("Player One: " + playerOneVersion);
+		FileIO.log("Player Two: " + playerTwoVersion);
 
 		((AI) playerOne).setUseBook(true);
 
 		Board defaultBoard = Game.getDefaultBoard();
-		System.out.println(defaultBoard.toString());
+		FileIO.log(defaultBoard.toString());
 
 		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
 
@@ -83,7 +86,7 @@ public class TournamentGUI {
 		int numOfGames = 1000;
 		for (int i = 0; i < numOfGames; i++) {
 
-			System.out.println("Game#" + i);
+			FileIO.log("Game#" + i);
 			results = game.newGame(defaultBoard, true);
 
 			winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));

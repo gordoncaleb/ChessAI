@@ -129,10 +129,10 @@ public class AIProcessor extends Thread {
 			if (rootNode.getHeadChild() != null) {
 				if (task.getChosenPathValue() >= rootNode.getHeadChild().getChosenPathValue()) {
 
-					if (task.getChosenPathValue() != rootNode.getHeadChild().getChosenPathValue() || Math.random() > 0.5D) {
-						rootNode.removeAllChildren();
-						rootNode.addChild(task);
+					if (task.getChosenPathValue() == rootNode.getHeadChild().getChosenPathValue()) {
+						rootNode.addChild(task, task.getChosenPathValue() + (int) Math.round(Math.random()));
 					}
+
 				}
 			} else {
 				rootNode.addChild(task);
@@ -161,7 +161,7 @@ public class AIProcessor extends Thread {
 		ArrayList<Long> moves = board.generateValidMoves(false);
 
 		for (int m = 0; m < moves.size(); m++) {
-			branch.addChild(new DecisionNode(moves.get(m), Move.getValue(moves.get(m))));
+			branch.addChild(new DecisionNode(moves.get(m),Move.getValue(moves.get(m))));
 		}
 
 	}
