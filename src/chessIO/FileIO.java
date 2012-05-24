@@ -51,8 +51,7 @@ public class FileIO {
 		try {
 			// use buffering, reading one line at a time
 			// FileReader always assumes default encoding is OK!
-			BufferedReader input = new BufferedReader(new InputStreamReader(
-					fileURL.openStream()));
+			BufferedReader input = new BufferedReader(new InputStreamReader(fileURL.openStream()));
 			try {
 				String line = null; // not declared within while loop
 				/*
@@ -90,8 +89,7 @@ public class FileIO {
 	 * @throws IOException
 	 *             if problem encountered during write.
 	 */
-	public static void writeFile(String fileName, String aContents,
-			boolean append) {
+	public static void writeFile(String fileName, String aContents, boolean append) {
 
 		URL fileURL = FileIO.class.getResource("doc/" + fileName);
 
@@ -171,6 +169,24 @@ public class FileIO {
 
 		System.out.println(msg);
 
+	}
+
+	public static void clearDirectory(String dir) {
+		File directory = new File(dir);
+
+		// Get all files in directory
+
+		File[] files = directory.listFiles();
+
+		if (files.length > 0) {
+			for (File file : files) {
+				// Delete each file
+				if (!file.delete()) {
+					// Failed to delete file
+					System.out.println("Failed to delete " + file);
+				}
+			}
+		}
 	}
 
 }

@@ -3,8 +3,10 @@ package chessGUI;
 import java.awt.BorderLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -14,6 +16,7 @@ import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
 import chessBackend.Side;
+import chessIO.FileIO;
 
 public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;
@@ -23,12 +26,18 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	private JButton resetButton;
 	private JButton undoButton;
 	private JButton redoButton;
+	
+	private JButton saveButton;
 
 	private PlayerContainer game;
 	private boolean paused;
+	
+	private JFileChooser fc = new JFileChooser();
 
 	public ObserverGUI(PlayerContainer game, boolean debug) {
 		this.game = game;
+		
+		fc.setCurrentDirectory(new File("."));
 
 		frame = new JFrame("Observer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,6 +60,11 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		redoButton = new JButton(">|");
 		redoButton.addMouseListener(this);
 		controlPanel.add(redoButton, BorderLayout.EAST);
+		
+		
+		saveButton = new JButton("Save");
+		saveButton.addMouseListener(this);
+		controlPanel.add(saveButton, BorderLayout.EAST);
 
 		// frame.setSize(gameWidth, gameHeight);
 		frame.setResizable(false);
@@ -83,6 +97,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public void makeMove(long move) {
+		game.makeMove(move);
 	}
 
 	@Override
@@ -118,7 +133,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		}
 
 		if (arg0.getSource() == pauseButton) {
-			this.pause();
+			//this.pause();
 			game.pause();
 		}
 
@@ -131,9 +146,21 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 		if (arg0.getSource() == redoButton) {
 			if (boardPanel.canRedo() && paused) {
-				game.makeMove(boardPanel.redoMove());
+				boardPanel.redoMove();
 			}
 		}
+		
+		if (arg0.getSource() == saveButton) {
+			
+			int returnVal = fc.showSaveDialog(frame);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+				FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toXML(true), false);
+
+			}
+		}
+
 
 		if (paused) {
 			undoButton.setEnabled(boardPanel.canUndo());

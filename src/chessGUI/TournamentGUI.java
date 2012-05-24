@@ -11,11 +11,11 @@ import chessAI.AI;
 import chessBackend.Board;
 import chessBackend.Game;
 import chessBackend.GameResults;
+import chessBackend.GameStatus;
 import chessBackend.Player;
 import chessBackend.Side;
 import chessEthernet.EthernetPlayerClient;
 import chessIO.FileIO;
-import chessIO.XMLParser;
 
 public class TournamentGUI {
 	JFrame frame;
@@ -63,9 +63,10 @@ public class TournamentGUI {
 
 		Hashtable<String, Long[]> playerScore = new Hashtable<String, Long[]>();
 
-		// blackwins, whitewins ,winby,numMoves,time,maxTime
-		Long[] temp1 = { 0L, 0L, 0L, 0L, 0L, 0L };
-		Long[] temp2 = { 0L, 0L, 0L, 0L, 0L, 0L };
+		// blackwins, whitewins ,winby,numMoves,time,maxTime,good draws,
+		// bad draws, draw by pts, caused stalemate, caused invalid
+		Long[] temp1 = { 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L };
+		Long[] temp2 = { 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L };
 		playerScore.put(playerNames.get(playerOne), temp1);
 		playerScore.put(playerNames.get(playerTwo), temp2);
 
@@ -75,6 +76,8 @@ public class TournamentGUI {
 		playerTwo.setGame(game);
 		game.addObserver(observer);
 
+		FileIO.clearDirectory(".\\tournament");
+
 		Long[] winnerScore;
 		Long[] loserScore;
 		int numOfGames = 1000;
@@ -83,13 +86,13 @@ public class TournamentGUI {
 			System.out.println("Game#" + i);
 			results = game.newGame(defaultBoard, true);
 
-			if (results.getWinner() != Side.NONE) {
+			winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));
+			loserScore = playerScore.get(playerNames.get(players.get(results.getWinner().otherSide())));
 
-				if (players.get(results.getWinner()) != playerOne) {
-					FileIO.writeFile("tournamentLose.xml", ((AI)playerOne).getBoard().toXML(true), false);
-				}
+			FileIO.writeFile((".\\tournament\\game" + i + "_" + results.getEndGameStatus() + ".xml"), ((AI) playerOne).getBoard().toXML(true), false);
 
-				winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));
+			if (results.getEndGameStatus() == GameStatus.CHECKMATE) {
+
 				winnerScore[results.getWinner().ordinal()]++;
 				winnerScore[2] += results.getWinBy();
 				winnerScore[3] += results.getNumOfMoves() / 2;
@@ -98,55 +101,54 @@ public class TournamentGUI {
 					winnerScore[5] = results.getMaxTime(results.getWinner());
 				}
 
-				loserScore = playerScore.get(playerNames.get(players.get(results.getWinner().otherSide())));
 				loserScore[3] += results.getNumOfMoves() / 2;
 				loserScore[4] += results.getTime(results.getWinner().otherSide());
 				if (loserScore[5] < results.getMaxTime(results.getWinner().otherSide())) {
 					loserScore[5] = results.getMaxTime(results.getWinner().otherSide());
 				}
 			} else {
-				draws++;
+				if (results.getEndGameStatus() == GameStatus.DRAW || results.getEndGameStatus() == GameStatus.STALEMATE) {
+					if (results.getWinBy() < 0) {
+						winnerScore[6]++;
+						loserScore[7]++;
+					} else {
+						winnerScore[7]++;
+						loserScore[6]++;
+					}
+
+					winnerScore[8] += results.getWinBy();
+					loserScore[8] -= results.getWinBy();
+
+					draws++;
+
+					if (results.getEndGameStatus() == GameStatus.STALEMATE) {
+						winnerScore[9]++;
+					}
+
+				} else {
+					if (results.getEndGameStatus() == GameStatus.INVALID) {
+						loserScore[10]++;
+					}
+				}
 			}
 
 			String playerOneName = playerNames.get(playerOne);
 			Long[] playerOneScore = playerScore.get(playerOneName);
 
-			int totalWins1 = (int) (playerOneScore[0] + playerOneScore[1]);
-			double avgWinby1 = (double) playerOneScore[2] / ((double) totalWins1);
-			double avgTimePerMove1 = (double) playerOneScore[4] / (double) (playerOneScore[3]);
-
-			String out1 = "Player: " + playerOneName + "\n";
-			out1 += "Total wins: " + totalWins1 + " (" + playerOneScore[Side.BLACK.ordinal()] + " black, " + playerOneScore[Side.WHITE.ordinal()]
-					+ " white)\n";
-			out1 += "Average pts won by: " + avgWinby1 + "\n";
-			out1 += "Average time per move: " + avgTimePerMove1 + "\n";
-			out1 += "Max time on move: " + playerOneScore[5] + "\n";
-
-			if (playerOne instanceof AI) {
-				out1 += "MaxHashSize = " + ((AI) playerOne).getMaxHashSize() + "\n";
-			}
+			String out1 = getScoreResults(playerOneScore, playerOneName);
 
 			String playerTwoName = playerNames.get(playerTwo);
 			Long[] playerTwoScore = playerScore.get(playerTwoName);
 
-			int totalWins2 = (int) (playerTwoScore[0] + playerTwoScore[1]);
-			double avgWinby2 = (double) playerTwoScore[2] / ((double) totalWins2);
-			double avgTimePerMove2 = (double) playerTwoScore[4] / (double) (playerTwoScore[3]);
+			String out2 = getScoreResults(playerTwoScore, playerTwoName);
+			
+			String outResults = out1 + "\n" + out2 + "Draws: " + draws + "\nGames played: " + (i + 1) + "/" + numOfGames + " - " + (numOfGames - i - 1) + " left";
+			
+			FileIO.writeFile(".\\tournament\\results.txt", outResults, false);
 
-			String out2 = "\nPlayer: " + playerTwoName + "\n";
-			out2 += "Total wins: " + totalWins2 + " (" + playerTwoScore[Side.BLACK.ordinal()] + " black, " + playerTwoScore[Side.WHITE.ordinal()]
-					+ " white)\n";
-			out2 += "Average pts won by: " + avgWinby2 + "\n";
-			out2 += "Average time per move: " + avgTimePerMove2 + "\n";
-			out2 += "Max time on move: " + playerTwoScore[5] + "\n";
+			tournamentGui.setStatusTxt(outResults);
 
-			if (playerTwo instanceof AI) {
-				out2 += "MaxHashSize = " + ((AI) playerTwo).getMaxHashSize() + "\n";
-			}
-
-			tournamentGui.setStatusTxt(out1 + out2 + "Draws: " + draws + "\nGames played: " + (i + 1) + "/" + numOfGames + " - " + (numOfGames - i)
-					+ " left");
-
+			// switch player sides
 			Player whitePlayer = players.get(Side.WHITE);
 			players.put(Side.WHITE, players.get(Side.BLACK));
 			players.put(Side.BLACK, whitePlayer);
@@ -178,4 +180,30 @@ public class TournamentGUI {
 		statusTxt.setText(stats);
 	}
 
+	public static String getScoreResults(Long[] score, String playerName) {
+
+		// score[11] = {
+		// [0]blackwins, [1]whitewins , [2]winby, [3]numMoves, [4]time,
+		// [5]maxTime, [6]good draws,
+		// [7]bad draws, [8]draw by pts, [9]caused stalemate,
+		// [10]caused invalid}
+
+		int totalWins = (int) (score[0] + score[1]);
+		double avgWinby = (double) score[2] / ((double) totalWins);
+		double avgTimePerMove = (double) score[4] / (double) (score[3]);
+		int totalDraws = (int) (score[6] + score[7]);
+		double avgDrawPts = (double) score[8] / ((double) totalDraws);
+
+		String out = "Player: " + playerName + "\n";
+		out += "Total wins: " + totalWins + " (" + score[Side.BLACK.ordinal()] + " black, " + score[Side.WHITE.ordinal()] + " white)\n";
+		out += "Average pts won by: " + avgWinby + "\n";
+		out += "Draws: " + totalDraws + " (" + score[6] + " good, " + score[7] + " bad)\n";
+		out += "Caused Stalemate: " + score[9] + "\n";
+		out += "Caused Invalid: " + score[10] + "\n";
+		out += "Average draw by pts: " + avgDrawPts + "\n";
+		out += "Average time per move: " + avgTimePerMove + "\n";
+		out += "Max time on move: " + score[5] + "\n";
+
+		return out;
+	}
 }

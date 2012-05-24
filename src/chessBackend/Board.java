@@ -305,9 +305,9 @@ public class Board {
 			pieceMoving.setPieceID(PieceID.QUEEN);
 		}
 
-		if (pieceMoving == getKing(turn)) {
-			setCastleRights(turn, 0);
-		}
+		// if (pieceMoving == getKing(turn)) {
+		// setCastleRights(turn, 0);
+		// }
 
 		// add hash of piece at new location
 		hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), toRow, toCol);
@@ -381,6 +381,10 @@ public class Board {
 		} else {
 			// retrieve what the hashCode was before move was made
 			hashCode = hashCodeHistory.pop();
+		}
+
+		if (!castleRightsHistory.empty()) {
+			castleRights = castleRightsHistory.pop();
 		}
 
 		return lastMove;
@@ -610,7 +614,7 @@ public class Board {
 			value = Values.BISHOP_VALUE;
 			break;
 		case KING:
-			value = Values.KING_VALUE + PositionBonus.getKingPositionBonus(row, col, player);
+			value = Values.KING_VALUE; // + PositionBonus.getKingPositionBonus(row, col, player);
 			break;
 		case QUEEN:
 			value = Values.QUEEN_VALUE;
@@ -629,6 +633,7 @@ public class Board {
 
 	public int staticScore() {
 		int ptDiff = 0;
+		int rights = 0;
 
 		ArrayList<Piece> myPieces = getPiecesFor(turn);
 		ArrayList<Piece> otherPieces = getPiecesFor(turn.otherSide());
@@ -639,6 +644,40 @@ public class Board {
 
 		for (int i = 0; i < otherPieces.size(); i++) {
 			ptDiff -= getPieceValue(otherPieces.get(i));
+		}
+
+		if (getCastleRights(turn) == 0x4) {
+			ptDiff += Values.CASTLE_VALUE;
+		} else {
+			rights = calculateCastleRights(turn);
+			if (rights == 0x2) {
+				ptDiff -= Values.CASTLE_ABILITY_LOST_VALUE;
+			}
+
+			if (rights == 0x1) {
+				ptDiff -= Values.CASTLE_ABILITY_LOST_VALUE;
+			}
+
+			if (rights == 0) {
+				ptDiff -= Values.CASTLE_VALUE;
+			}
+		}
+
+		if (getCastleRights(turn.otherSide()) == 0x4) {
+			ptDiff -= Values.CASTLE_VALUE;
+		} else {
+			rights = calculateCastleRights(turn.otherSide());
+			if (rights == 0x2) {
+				ptDiff += Values.CASTLE_ABILITY_LOST_VALUE;
+			}
+
+			if (rights == 0x1) {
+				ptDiff += Values.CASTLE_ABILITY_LOST_VALUE;
+			}
+
+			if (rights == 0) {
+				ptDiff += Values.CASTLE_VALUE;
+			}
 		}
 
 		return ptDiff;
@@ -785,8 +824,12 @@ public class Board {
 		return (boardStatus == GameStatus.DRAW);
 	}
 
+	public boolean isInvalid() {
+		return (boardStatus == GameStatus.INVALID);
+	}
+
 	public boolean isGameOver() {
-		return (isInCheckMate() || isInStaleMate() || isTimeUp() || isDraw());
+		return (isInCheckMate() || isInStaleMate() || isTimeUp() || isDraw() || isInvalid());
 	}
 
 	public void clearBoardStatus() {
@@ -805,11 +848,11 @@ public class Board {
 		int rights = 0;
 
 		if (!kingHasMoved(side)) {
-			if (farRookHasMoved(side)) {
+			if (!farRookHasMoved(side)) {
 				rights |= 0x2;
 			}
 
-			if (nearRookHasMoved(side)) {
+			if (!nearRookHasMoved(side)) {
 				rights |= 0x1;
 			}
 		}
@@ -824,6 +867,14 @@ public class Board {
 		} else {
 			castleRights &= (0x7 << 3);
 			castleRights |= rights;
+		}
+	}
+
+	public int getCastleRights(Side side) {
+		if (side == Side.BLACK) {
+			return (castleRights >> 3);
+		} else {
+			return (castleRights & 0x7);
 		}
 	}
 

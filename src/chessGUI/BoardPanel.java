@@ -359,16 +359,16 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	public long redoMove() {
 		long redoneMove = 0;
 
-		if (adjudicator.hashUndoneMoves()) {
-			boardGUI.makeMove(adjudicator.getLastUndoneMove());
-
+		if (adjudicator.hasUndoneMoves()) {
+			redoneMove = adjudicator.getLastUndoneMove();
+			boardGUI.makeMove(redoneMove);
 		}
 
 		return redoneMove;
 	}
 
 	public boolean canRedo() {
-		return adjudicator.hashUndoneMoves();
+		return adjudicator.hasUndoneMoves();
 	}
 
 	public void refreshTurn() {

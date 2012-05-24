@@ -13,7 +13,7 @@ import chessIO.FileIO;
 import chessIO.MoveBook;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.1.051612";
+	public static String VERSION = "1.2.052312";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -63,9 +63,9 @@ public class AI extends Thread implements Player {
 		// Default levels
 		maxDecisionTreeLevel = 3;
 
-		// processorThreads = new
-		// AIProcessor[Runtime.getRuntime().availableProcessors()];
+		//processorThreads = new AIProcessor[Runtime.getRuntime().availableProcessors()];
 		processorThreads = new AIProcessor[1];
+		
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel);
 			processorThreads[i].start();

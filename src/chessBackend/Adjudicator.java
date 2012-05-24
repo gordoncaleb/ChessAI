@@ -28,10 +28,13 @@ public class Adjudicator {
 
 		long matchingMove = getMatchingMove(move);
 
-		if (board.makeMove(matchingMove)) {
-
-			return true;
-		} else {
+		if (matchingMove != 0) {
+			if (board.makeMove(matchingMove)) {
+				return true;
+			} else {
+				return false;
+			}
+		}else{
 			return false;
 		}
 
@@ -55,7 +58,7 @@ public class Adjudicator {
 
 	public long getLastUndoneMove() {
 
-		if (hashUndoneMoves()) {
+		if (hasUndoneMoves()) {
 			return undoneMoves.peek();
 			// board.makeMove(lastMoveUndone);
 		} else {
@@ -64,7 +67,7 @@ public class Adjudicator {
 
 	}
 
-	public boolean hashUndoneMoves() {
+	public boolean hasUndoneMoves() {
 		return (undoneMoves.size() > 0);
 	}
 
@@ -107,7 +110,7 @@ public class Adjudicator {
 			}
 		}
 
-		System.out.println("ERROR: Adjudicator says " + move + " move is invalid");
+		System.out.println("ERROR: Adjudicator says " + (new Move(move)) + " move is invalid");
 		return 0;
 	}
 
@@ -126,17 +129,12 @@ public class Adjudicator {
 	}
 
 	public boolean isGameOver() {
-
 		return board.isGameOver();
 	}
 
 	public Side getWinner() {
 		if (board.isGameOver()) {
-			if (board.isDraw() || board.isInStaleMate()) {
-				return Side.NONE;
-			} else {
-				return board.getTurn().otherSide();
-			}
+			return board.getTurn().otherSide();
 		} else {
 			return null;
 		}

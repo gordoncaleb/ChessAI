@@ -12,8 +12,10 @@ public class GameResults {
 	private long maxBlackTime;
 
 	private long numOfMoves;
+	
+	private GameStatus endGameStatus;
 
-	public GameResults(Side winner, int winBy, long whiteTime, long blackTime, int numOfMoves, long maxWhiteTime, long maxBlackTime) {
+	public GameResults(GameStatus endGameStatus, Side winner, int winBy, long whiteTime, long blackTime, int numOfMoves, long maxWhiteTime, long maxBlackTime) {
 		this.winner = winner;
 		this.winBy = winBy;
 
@@ -24,6 +26,8 @@ public class GameResults {
 
 		this.maxWhiteTime = maxWhiteTime;
 		this.maxBlackTime = maxBlackTime;
+		
+		this.endGameStatus = endGameStatus;
 	}
 
 	public Side getWinner() {
@@ -66,5 +70,8 @@ public class GameResults {
 		}
 	}
 
+	public GameStatus getEndGameStatus() {
+		return endGameStatus;
+	}
 
 }

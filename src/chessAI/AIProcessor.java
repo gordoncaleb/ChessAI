@@ -18,8 +18,8 @@ public class AIProcessor extends Thread {
 	private final boolean iterativeDeepening = false;
 	private final boolean useHashTable = false;
 
-	private int maxInCheckFrontierLevel = 2;
-	private int maxPieceTakenFrontierLevel = 2;
+	private int maxInCheckFrontierLevel = 3;
+	private int maxPieceTakenFrontierLevel = 3;
 
 	private final boolean pruningEnabled = true;
 	private int aspirationWindowSize;
@@ -126,7 +126,17 @@ public class AIProcessor extends Thread {
 
 			board.undoMove();
 
-			rootNode.addChild(task);
+			if (rootNode.getHeadChild() != null) {
+				if (task.getChosenPathValue() >= rootNode.getHeadChild().getChosenPathValue()) {
+
+					if (task.getChosenPathValue() != rootNode.getHeadChild().getChosenPathValue() || Math.random() > 0.5D) {
+						rootNode.removeAllChildren();
+						rootNode.addChild(task);
+					}
+				}
+			} else {
+				rootNode.addChild(task);
+			}
 
 			ai.taskDone();
 
@@ -168,6 +178,8 @@ public class AIProcessor extends Thread {
 
 		DecisionNode nextChild;
 		DecisionNode currentChild;
+
+		int cpv = 0;
 
 		// if(board.isVoi(voi)){
 		// System.out.println("voi found");
@@ -236,13 +248,30 @@ public class AIProcessor extends Thread {
 
 					}
 
-					branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
-				} else {
-					if (board.isInStaleMate() || board.isDraw()) {
-						branch.setChosenPathValue(board.staticScore());
+					cpv = branch.getHeadChild().getChosenPathValue();
+
+					if ((Math.abs(cpv) & Values.CHECKMATE_MASK) != 0) {
+						if (cpv > 0) {
+							branch.setChosenPathValue(-(cpv - 1));
+						} else {
+							branch.setChosenPathValue(-(cpv + 1));
+						}
 					} else {
-						branch.setChosenPathValue(Values.CHECKMATE_MOVE);
+						branch.setChosenPathValue(-cpv);
 					}
+
+				} else {
+
+					if (board.isInCheckMate()) {
+						branch.setChosenPathValue(Values.CHECKMATE_MOVE);
+					} else {
+						// if (level >= searchDepth - 1) {
+						// branch.setChosenPathValue(board.staticScore());
+						// } else {
+						branch.setChosenPathValue(-((int) (board.staticScore() * 0.9)));
+						// }
+					}
+
 				}
 			} else {
 				branch.setChosenPathValue(-board.staticScore());
