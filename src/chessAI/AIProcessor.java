@@ -135,6 +135,8 @@ public class AIProcessor extends Thread {
 						rootNode.addChild(task);
 					}
 
+				}else{
+					rootNode.addChild(task);
 				}
 			} else {
 				rootNode.addChild(task);
@@ -163,7 +165,7 @@ public class AIProcessor extends Thread {
 		ArrayList<Long> moves = board.generateValidMoves(false);
 
 		for (int m = 0; m < moves.size(); m++) {
-			branch.addChild(new DecisionNode(moves.get(m),Move.getValue(moves.get(m))));
+			branch.addChild(new DecisionNode(moves.get(m), Move.getValue(moves.get(m))));
 		}
 
 	}
@@ -270,7 +272,7 @@ public class AIProcessor extends Thread {
 						// if (level >= searchDepth - 1) {
 						// branch.setChosenPathValue(board.staticScore());
 						// } else {
-						branch.setChosenPathValue(-((int) (board.staticScore() * 0.9)));
+						branch.setChosenPathValue(-board.staticScore());
 						// }
 					}
 
@@ -403,8 +405,8 @@ public class AIProcessor extends Thread {
 		return bestPathValue;
 	}
 
-	public synchronized void setMaxTreeLevel(int maxTreeLevel) {
-		this.searchDepth = maxTreeLevel;
+	public void setSearchDepth(int searchDepth) {
+		this.searchDepth = searchDepth;
 	}
 
 }

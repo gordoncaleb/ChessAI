@@ -20,7 +20,8 @@ public class AI extends Thread implements Player {
 	private MoveBook moveBook;
 	private DecisionNode rootNode;
 
-	private int maxDecisionTreeLevel;
+	private int minSearchDepth;
+	private long maxSearchTime;
 
 	private int[] childNum = new int[200];
 
@@ -54,20 +55,21 @@ public class AI extends Thread implements Player {
 		hashTable = new BoardHashEntry[(int) Math.pow(2, BoardHashEntry.hashIndexSize)];// new
 																						// Hashtable<Long,
 																						// BoardHashEntry>();
-
 		undoMove = new AtomicBoolean();
 
 		moveBook = new MoveBook();
 		moveBook.loadMoveBook();
 
 		// Default levels
-		maxDecisionTreeLevel = 3;
+		minSearchDepth = 3;
+		maxSearchTime = 5000;
 
-		//processorThreads = new AIProcessor[Runtime.getRuntime().availableProcessors()];
+		// processorThreads = new
+		// AIProcessor[Runtime.getRuntime().availableProcessors()];
 		processorThreads = new AIProcessor[1];
-		
+
 		for (int i = 0; i < processorThreads.length; i++) {
-			processorThreads[i] = new AIProcessor(this, maxDecisionTreeLevel);
+			processorThreads[i] = new AIProcessor(this, minSearchDepth);
 			processorThreads[i].start();
 		}
 
@@ -262,23 +264,12 @@ public class AI extends Thread implements Player {
 
 	private void delegateProcessors(DecisionNode root) {
 
-		// This clears ai processors status done flags from previous
-		// tasks.
-		clearTaskDone();
-
 		taskSize = root.getChildrenSize();
 
 		if (taskSize == 0) {
-
 			FileIO.log(this + " didnt see end of game");
 			return;
 		}
-
-		nextTask = root.getHeadChild();
-
-		// detach all children and add them back when they have been processed.
-		// This allows pruning at the root level.
-		root.removeAllChildren();
 
 		if (debug) {
 			FileIO.log("New task");
@@ -286,17 +277,45 @@ public class AI extends Thread implements Player {
 
 		synchronized (processing) {
 
-			// wake all threads up
-			for (int d = 0; d < processorThreads.length; d++) {
-				processorThreads[d].setNewTask();
+			long startTime = System.currentTimeMillis();
+			long projectedEndTime = 0;
+			long[] itTime = new long[100];
+			int it = 2;
+			while (it <= minSearchDepth || projectedEndTime < maxSearchTime) {
+
+				// This clears ai processors status done flags from previous
+				// tasks.
+				taskDone = 0;
+				nextTask = root.getHeadChild();
+				root.removeAllChildren();
+
+				// wake all threads up
+				for (int d = 0; d < processorThreads.length; d++) {
+					processorThreads[d].setSearchDepth(it);
+					processorThreads[d].setNewTask();
+				}
+
+				// Wait for all processors to finish their task
+				try {
+					processing.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				itTime[it] = System.currentTimeMillis() - startTime;
+
+				if (it >= minSearchDepth) {
+					projectedEndTime = itTime[it] + itTime[it] * (itTime[it] / itTime[it - 1]) * 2;
+					System.out.println("Projected " + (it + 1) + " end time = " + projectedEndTime);
+				}
+
+				it++;
 			}
 
-			// Wait for all processors to finish their task
-			try {
-				processing.wait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			for (int i = 0; i < 20; i++) {
+				System.out.println("Search depth time " + i + " = " + itTime[i]);
 			}
+
 		}
 
 	}
@@ -309,9 +328,9 @@ public class AI extends Thread implements Player {
 				FileIO.log(this + " " + taskDone + "/" + taskSize + " done");
 			}
 
-			if (nextTask == null) {
-				processing.notifyAll();
-			}
+			// if (nextTask == null) {
+			// processing.notifyAll();
+			// }
 		}
 	}
 
@@ -327,16 +346,12 @@ public class AI extends Thread implements Player {
 				nextTask = nextTask.getNextSibling();
 			}
 
+			if (task == null) {
+				processing.notifyAll();
+			}
+
 			return task;
 		}
-	}
-
-	public void clearTaskDone() {
-
-		synchronized (processing) {
-			taskDone = 0;
-		}
-
 	}
 
 	public void cleanHashTable() {

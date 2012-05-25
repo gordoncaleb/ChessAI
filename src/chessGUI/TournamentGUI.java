@@ -24,7 +24,7 @@ public class TournamentGUI {
 	public static void main(String[] args) {
 		
 		FileIO.setLogEnabled(false);
-		FileIO.setDebugOutput(true);
+		FileIO.setDebugOutput(false);
 
 		boolean debug = true;
 		Game game;

@@ -593,10 +593,10 @@ public class Board {
 	}
 
 	public int getPieceValue(int row, int col) {
-		return getPieceValue(board[row][col]);
+		return Values.getOpeningPieceValue(board[row][col].getPieceID()) + getOpeningPositionValue(board[row][col]);
 	}
 
-	public int getPieceValue(Piece piece) {
+	private int getOpeningPositionValue(Piece piece) {
 		int value;
 		Side player = piece.getSide();
 		int row = piece.getRow();
@@ -604,23 +604,23 @@ public class Board {
 
 		switch (piece.getPieceID()) {
 		case KNIGHT:
-			int piecesMissing = 32 - (blackPieces.size() + whitePieces.size());
-			value = Values.KNIGHT_VALUE - piecesMissing * Values.KNIGHT_ENDGAME_INC + PositionBonus.getKnightPositionBonus(row, col, player);
+			value = PositionBonus.getKnightPositionBonus(row, col, player);
 			break;
 		case PAWN:
-			value = Values.PAWN_VALUE + PositionBonus.getPawnPositionBonus(row, col, player);
+			value = PositionBonus.getOpeningPawnPositionBonus(row, col, player);
 			break;
 		case BISHOP:
-			value = Values.BISHOP_VALUE;
+			value = 0;
 			break;
 		case KING:
-			value = Values.KING_VALUE; // + PositionBonus.getKingPositionBonus(row, col, player);
+			value = 0;
+			value = PositionBonus.getKingOpeningPositionBonus(row, col, player);
 			break;
 		case QUEEN:
-			value = Values.QUEEN_VALUE;
+			value = 0;
 			break;
 		case ROOK:
-			value = Values.ROOK_VALUE;
+			value = 0;
 			break;
 		default:
 			value = 0;
@@ -631,54 +631,151 @@ public class Board {
 
 	}
 
-	public int staticScore() {
-		int ptDiff = 0;
-		int rights = 0;
+	private int getEndGamePositionValue(Piece piece) {
+		int value;
+		Side player = piece.getSide();
+		int row = piece.getRow();
+		int col = piece.getCol();
 
-		ArrayList<Piece> myPieces = getPiecesFor(turn);
-		ArrayList<Piece> otherPieces = getPiecesFor(turn.otherSide());
+		switch (piece.getPieceID()) {
+		case KNIGHT:
+			value = PositionBonus.getKnightPositionBonus(row, col, player);
+			break;
+		case PAWN:
+			value = PositionBonus.getEndGamePawnPositionBonus(row, col, player);
+			break;
+		case BISHOP:
+			value = 0;
+			break;
+		case KING:
+			value = 0;
+			value = PositionBonus.getKingEndGamePositionBonus(row, col, player);
+			break;
+		case QUEEN:
+			value = 0;
+			break;
+		case ROOK:
+			value = 0;
+			break;
+		default:
+			value = 0;
+			System.out.println("Error: invalid piece value request!");
+		}
+
+		return value;
+
+	}
+
+	private int openingPositionScore(Side side) {
+		int score = 0;
+
+		ArrayList<Piece> myPieces = getPiecesFor(side);
 
 		for (int i = 0; i < myPieces.size(); i++) {
-			ptDiff += getPieceValue(myPieces.get(i));
+			score += getOpeningPositionValue(myPieces.get(i));
 		}
 
-		for (int i = 0; i < otherPieces.size(); i++) {
-			ptDiff -= getPieceValue(otherPieces.get(i));
+		return score;
+	}
+
+	private int endGamePositionScore(Side side) {
+		int score = 0;
+
+		ArrayList<Piece> myPieces = getPiecesFor(side);
+
+		for (int i = 0; i < myPieces.size(); i++) {
+			score += getEndGamePositionValue(myPieces.get(i));
 		}
 
-		if (getCastleRights(turn) == 0x4) {
-			ptDiff += Values.CASTLE_VALUE;
+		return score;
+	}
+
+	private int openingMaterialScore(Side side) {
+		int score = 0;
+
+		ArrayList<Piece> myPieces = getPiecesFor(side);
+
+		for (int i = 0; i < myPieces.size(); i++) {
+			score += Values.getOpeningPieceValue(myPieces.get(i).getPieceID());
+		}
+
+		return score;
+	}
+
+	private int endGameMaterialScore(Side side) {
+		int score = 0;
+
+		ArrayList<Piece> myPieces = getPiecesFor(side);
+
+		for (int i = 0; i < myPieces.size(); i++) {
+			score += Values.getEndGamePieceValue(myPieces.get(i).getPieceID());
+		}
+
+		return score;
+	}
+
+	private int castleScore(Side side) {
+		int score = 0;
+		int castleRights = 0;
+
+		if (getCastleRights(side) == 0x4) {
+			score += Values.CASTLE_VALUE;
 		} else {
-			rights = calculateCastleRights(turn);
-			if (rights == 0x2) {
-				ptDiff -= Values.CASTLE_ABILITY_LOST_VALUE;
+			castleRights = calculateCastleRights(side);
+			if (castleRights == 0x2) {
+				score -= Values.CASTLE_ABILITY_LOST_VALUE;
 			}
 
-			if (rights == 0x1) {
-				ptDiff -= Values.CASTLE_ABILITY_LOST_VALUE;
+			if (castleRights == 0x1) {
+				score -= Values.CASTLE_ABILITY_LOST_VALUE;
 			}
 
-			if (rights == 0) {
-				ptDiff -= Values.CASTLE_VALUE;
+			if (castleRights == 0) {
+				score -= Values.CASTLE_VALUE;
 			}
 		}
 
-		if (getCastleRights(turn.otherSide()) == 0x4) {
-			ptDiff -= Values.CASTLE_VALUE;
-		} else {
-			rights = calculateCastleRights(turn.otherSide());
-			if (rights == 0x2) {
-				ptDiff += Values.CASTLE_ABILITY_LOST_VALUE;
-			}
+		return score;
+	}
 
-			if (rights == 0x1) {
-				ptDiff += Values.CASTLE_ABILITY_LOST_VALUE;
-			}
+	public int calcGamePhase() {
 
-			if (rights == 0) {
-				ptDiff += Values.CASTLE_VALUE;
-			}
+		int phase = Values.TOTALPHASE;
+
+		for (int i = 0; i < whitePieces.size(); i++) {
+			phase -= Values.PIECE_PHASE_VAL[whitePieces.get(i).getPieceID().ordinal()];
 		}
+
+		for (int i = 0; i < blackPieces.size(); i++) {
+			phase -= Values.PIECE_PHASE_VAL[blackPieces.get(i).getPieceID().ordinal()];
+		}
+
+		phase = (phase * 256 + (Values.TOTALPHASE / 2)) / Values.TOTALPHASE;
+
+		return phase;
+	}
+
+	public int staticScore() {
+		int ptDiff = 0;
+
+		int phase = calcGamePhase();
+
+		int openingMyScore = openingMaterialScore(turn);
+		int openingYourScore = openingMaterialScore(turn.otherSide());
+
+		openingMyScore += castleScore(turn) + openingPositionScore(turn);
+		openingYourScore += castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide());
+
+		int endGameMyScore = endGameMaterialScore(turn);
+		int endGameYourScore = endGameMaterialScore(turn.otherSide());
+
+		endGameMyScore += endGamePositionScore(turn);
+		endGameYourScore += endGamePositionScore(turn.otherSide());
+
+		int myScore = ((openingMyScore * (256 - phase)) + (endGameMyScore * phase)) / 256;
+		int yourScore = ((openingYourScore * (256 - phase)) + (endGameYourScore * phase)) / 256;
+
+		ptDiff = myScore - yourScore;
 
 		return ptDiff;
 	}

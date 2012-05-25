@@ -164,6 +164,8 @@ public class Game implements PlayerContainer {
 		if (adjudicator.move(move)) {
 
 			adjudicator.getValidMoves();
+			
+			System.out.println("GamePhase = " + adjudicator.getBoard().calcGamePhase());
 
 			for (int i = 0; i < observers.size(); i++) {
 				observers.elementAt(i).moveMade(move);
