@@ -180,7 +180,7 @@ public class Board {
 			this.castleRightsHistory.push(castelingRightsHistory.elementAt(i).intValue());
 		}
 
-		this.castleRights = castleRights;
+		//this.castleRights = castleRights;
 	}
 
 	public boolean makeMove(long move) {

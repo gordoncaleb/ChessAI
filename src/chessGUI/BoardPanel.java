@@ -110,11 +110,13 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		whiteName = new JLabel("White");
 		whiteTurnPanel.add(whiteName);
 		blackName = new JLabel("Black");
+		blackName.setForeground(Color.WHITE);
 		blackTurnPanel.add(blackName);
 
 		whiteTime = new JLabel("0:0");
 		whiteTurnPanel.add(whiteTime);
 		blackTime = new JLabel("0:0");
+		blackTime.setForeground(Color.WHITE);
 		blackTurnPanel.add(blackTime);
 
 		whiteTurnPanel.setBorder(blackLine);
@@ -159,14 +161,16 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private String getPlayerTimeString(Side side) {
 		long time = boardGUI.getPlayerTime(side);
 		long min = time / 60000;
-		long sec = (time/1000) % 60;
+		long sec = (time / 1000) % 60;
 		return min + ":" + sec;
 	}
 
-	private void setFlipBoard(boolean flipBoard) {
+	public void setFlipBoard(boolean flipBoard) {
 
-		if (this.flipBoard != flipBoard) {
-			this.flipBoard = flipBoard;
+		this.flipBoard = flipBoard;
+
+		if (this.flipBoard != flipBoard && adjudicator != null) {
+
 			refreshBoard();
 
 			updateLastMovedSquare();
@@ -174,6 +178,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			attachValidMoves();
 		}
 
+	}
+
+	public Side getTurn() {
+		return adjudicator.getTurn();
 	}
 
 	public void flipBoard() {
@@ -290,10 +298,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			attachValidMoves();
 
 			setGameSatus(adjudicator.getGameStatus(), adjudicator.getTurn());
-			
+
 			whiteTime.setText(getPlayerTimeString(Side.WHITE));
 			blackTime.setText(getPlayerTimeString(Side.BLACK));
-			
+
 		} else {
 			return false;
 		}
@@ -367,6 +375,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		return redoneMove;
 	}
 
+	public long getLastUndoneMove() {
+		return adjudicator.getLastUndoneMove();
+	}
+
 	public boolean canRedo() {
 		return adjudicator.hasUndoneMoves();
 	}
@@ -382,6 +394,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	}
 
 	public void refreshBoard() {
+
+		if (adjudicator == null) {
+			return;
+		}
 
 		highLightCount = 0;
 
@@ -723,10 +739,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() == highLightTimer) {
-			
+
 			SquarePanel from = getChessSquare(Move.getFromRow(highLightMove), Move.getFromCol(highLightMove));
 			SquarePanel to = getChessSquare(Move.getToRow(highLightMove), Move.getToCol(highLightMove));
-			
+
 			if (highLightCount > 0) {
 				if (highLightCount % 2 == 0) {
 					to.showAsHighLighted(false);

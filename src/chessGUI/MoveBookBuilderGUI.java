@@ -46,6 +46,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton mbRecommendBtn;
 	private JButton aiRecommendBtn;
 	private JButton aiMoveBtn;
+	private JButton aiPlayBtn;
 	private JButton freelyMoveBtn;
 	private JButton clearHashTableBtn;
 	private JButton loadGameBtn;

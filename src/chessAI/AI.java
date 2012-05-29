@@ -11,6 +11,7 @@ import chessBackend.PlayerContainer;
 import chessBackend.Move;
 import chessIO.FileIO;
 import chessIO.MoveBook;
+import chessPieces.Values;
 
 public class AI extends Thread implements Player {
 	public static String VERSION = "1.2.052412";
@@ -281,7 +282,8 @@ public class AI extends Thread implements Player {
 			long projectedEndTime = 0;
 			long[] itTime = new long[100];
 			int it = 2;
-			while (it <= minSearchDepth || projectedEndTime < maxSearchTime) {
+			boolean checkMateFound = false;
+			while ((it <= minSearchDepth || projectedEndTime < maxSearchTime) && !checkMateFound) {
 
 				// This clears ai processors status done flags from previous
 				// tasks.
@@ -307,6 +309,11 @@ public class AI extends Thread implements Player {
 				if (it >= minSearchDepth) {
 					projectedEndTime = itTime[it] + itTime[it] * (itTime[it] / itTime[it - 1]) * 2;
 					System.out.println("Projected " + (it + 1) + " end time = " + projectedEndTime);
+				}
+
+				if ((Math.abs(root.getHeadChild().getChosenPathValue()) & Values.CHECKMATE_MASK) != 0) {
+					checkMateFound = true;
+					
 				}
 
 				it++;

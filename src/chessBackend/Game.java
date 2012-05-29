@@ -112,12 +112,31 @@ public class Game implements PlayerContainer {
 				}
 			}
 
-			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(), clock.getTime(Side.WHITE), clock.getTime(Side.BLACK), adjudicator
-					.getMoveHistory().size(), clock.getMaxTime(Side.WHITE), clock.getMaxTime(Side.BLACK));
+			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(),
+					clock.getTime(Side.WHITE), clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE),
+					clock.getMaxTime(Side.BLACK));
 		}
 
 		return null;
 
+	}
+
+	public synchronized void switchSides() {
+		Player whitePlayer = players.get(Side.WHITE);
+		players.put(Side.WHITE, players.get(Side.BLACK));
+		players.put(Side.BLACK, whitePlayer);
+
+		if (players.get(Side.BOTH) == null) {
+			players.get(turn).makeMove();
+		} else {
+			players.get(Side.BOTH).makeMove();
+		}
+	}
+
+	public synchronized void setSide(Side side, Player player) {
+		if (players.get(side) != player) {
+			switchSides();
+		}
 	}
 
 	public synchronized boolean undoMove() {
@@ -164,7 +183,7 @@ public class Game implements PlayerContainer {
 		if (adjudicator.move(move)) {
 
 			adjudicator.getValidMoves();
-			
+
 			System.out.println("GamePhase = " + adjudicator.getBoard().calcGamePhase());
 
 			for (int i = 0; i < observers.size(); i++) {

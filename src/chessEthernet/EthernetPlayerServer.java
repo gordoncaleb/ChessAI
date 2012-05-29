@@ -171,4 +171,14 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer {
 		return 0;
 	}
 
+	@Override
+	public void switchSides() {
+		sendMessage("<switch>");
+	}
+
+	@Override
+	public void setSide(Side side, Player player) {
+		
+	}
+
 }

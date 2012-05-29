@@ -144,11 +144,11 @@ public class Rook {
 				}
 
 				if (pieceStatus != PositionStatus.OFF_BOARD) {
-					if (board.getPieceID(nextRow, nextCol) == PieceID.KING) {
+					if (board.getPieceID(nextRow, nextCol) == PieceID.KING && board.getPiece(nextRow, nextCol).getSide() != player) {
 						blockingPiece.setBlockingVector(bitAttackCompliment | bitAttackVector | bitPosition);
 					}
 				}
-				
+
 				if (pieceStatus == PositionStatus.FRIEND) {
 					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
 				}
