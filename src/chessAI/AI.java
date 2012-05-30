@@ -20,6 +20,7 @@ public class AI extends Thread implements Player {
 	private PlayerContainer game;
 	private MoveBook moveBook;
 	private DecisionNode rootNode;
+	private int alpha;
 
 	private int minSearchDepth;
 	private long maxSearchTime;
@@ -278,6 +279,9 @@ public class AI extends Thread implements Player {
 
 		synchronized (processing) {
 
+			alpha = this.getBoard().staticScore() - 100;
+			int iniAlpha = alpha;
+
 			long startTime = System.currentTimeMillis();
 			long projectedEndTime = 0;
 			long[] itTime = new long[100];
@@ -313,10 +317,14 @@ public class AI extends Thread implements Player {
 
 				if ((Math.abs(root.getHeadChild().getChosenPathValue()) & Values.CHECKMATE_MASK) != 0) {
 					checkMateFound = true;
-					
+
 				}
 
 				it++;
+			}
+
+			if (rootNode.getHeadChild().getChosenPathValue() < iniAlpha) {
+				System.out.println("Zugzwang?");
 			}
 
 			for (int i = 0; i < 20; i++) {
@@ -333,6 +341,10 @@ public class AI extends Thread implements Player {
 			taskDone++;
 			if (debug) {
 				FileIO.log(this + " " + taskDone + "/" + taskSize + " done");
+			}
+
+			if (rootNode.getHeadChild().getChosenPathValue() > alpha) {
+				alpha = rootNode.getHeadChild().getChosenPathValue();
 			}
 
 			// if (nextTask == null) {
@@ -358,6 +370,12 @@ public class AI extends Thread implements Player {
 			}
 
 			return task;
+		}
+	}
+
+	public int getAlpha() {
+		synchronized (processing) {
+			return alpha;
 		}
 	}
 
