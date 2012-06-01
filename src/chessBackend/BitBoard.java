@@ -36,20 +36,48 @@ public class BitBoard {
 		// System.out.println("Easy takes " + (System.currentTimeMillis() - t1)
 		// + " ms");
 
+		long val;
+
+		long t = System.currentTimeMillis();
+		for (int i = 0; i < 10000000; i++) {
+			for (int r = 0; r < 8; r++) {
+				for (int c = 0; c < 8; c++) {
+					val = getMaskHard(r, c);
+				}
+			}
+		}
+
+		System.out.println("Hard way took " + (System.currentTimeMillis() - t));
+
+		t = System.currentTimeMillis();
+		for (int i = 0; i < 10000000; i++) {
+			for (int r = 0; r < 8; r++) {
+				for (int c = 0; c < 8; c++) {
+					val = getMask(r, c);
+				}
+			}
+		}
+
+		System.out.println("Load way took " + (System.currentTimeMillis() - t));
+
 	}
 
 	public static long getMask(int row, int col) {
-		return bitMask[row][col];
+		return getMaskHard(row, col);
+	}
+
+	public static long getMaskHard(int row, int col) {
+
+		return (1L << (row * 8 + col));
 	}
 
 	public static void loadMasks() {
-		long one = 1;
 
 		bitMask = new long[8][8];
 
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
-				bitMask[r][c] = (one << (r * 8 + c));
+				bitMask[r][c] = getMaskHard(r, c);
 			}
 		}
 
@@ -80,8 +108,8 @@ public class BitBoard {
 					}
 				}
 
-				System.out.println("king foot print " + r + "," + c);
-				System.out.println(printBitBoard(kingFootPrint[r][c]));
+				// System.out.println("king foot print " + r + "," + c);
+				// System.out.println(printBitBoard(kingFootPrint[r][c]));
 			}
 		}
 	}

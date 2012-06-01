@@ -46,7 +46,6 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton mbRecommendBtn;
 	private JButton aiRecommendBtn;
 	private JButton aiMoveBtn;
-	private JButton aiPlayBtn;
 	private JButton freelyMoveBtn;
 	private JButton clearHashTableBtn;
 	private JButton loadGameBtn;
@@ -126,7 +125,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		aiRecommendBtn = new JButton("AI Recommend");
 		aiRecommendBtn.addMouseListener(this);
-		
+
 		aiMoveBtn = new JButton("AI Move");
 		aiMoveBtn.addMouseListener(this);
 
@@ -172,7 +171,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		mbCtrlPanel.add(mbRecommendBtn);
 		aiCtrlPanel.add(aiRecommendBtn);
 		aiCtrlPanel.add(aiMoveBtn);
-		//aiCtrlPanel.add(clearHashTableBtn);
+		// aiCtrlPanel.add(clearHashTableBtn);
 		boardCtrlPanel.add(freelyMoveBtn);
 		boardCtrlPanel.add(flipBoardBtn);
 		gameCtrlPanel.add(loadGameBtn);
@@ -220,10 +219,10 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		long undone = boardPanel.undoMove();
 		ai.undoMove();
 		populateMoveList();
-		
+
 		undoBtn.setEnabled(boardPanel.canUndo());
 		redoBtn.setEnabled(boardPanel.canRedo());
-		
+
 		return undone;
 	}
 
@@ -235,7 +234,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		populateMoveList();
 
 		tempGameSave();
-		
+
 		undoBtn.setEnabled(boardPanel.canUndo());
 		redoBtn.setEnabled(boardPanel.canRedo());
 
@@ -261,7 +260,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		tempGameSave();
 
 		boardPanel.makeMove();
-		
+
 		undoBtn.setEnabled(boardPanel.canUndo());
 		redoBtn.setEnabled(boardPanel.canRedo());
 
@@ -379,24 +378,27 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 				boardPanel.highlightMove(rec);
 			}
 		}
-		
-		if(e.getSource() == aiMoveBtn){
+
+		if (e.getSource() == aiMoveBtn) {
 			if (boardPanel.isFreelyMove()) {
 				ai.newGame(boardPanel.getBoard().getCopy());
 			}
 
 			long rec = ai.makeRecommendation();
-			
+
 			dtgui.setRootDecisionTree(ai.getRootNode());
-			
+
 			boardPanel.moveMade(rec);
 			ai.moveMade(rec);
 
 		}
 
 		if (e.getSource() == moveList) {
-			long move = moveList.getSelectedValue().getMoveLong();
-			boardPanel.highlightMove(move);
+
+			if (moveList.getSelectedIndex() > -1) {
+				long move = moveList.getSelectedValue().getMoveLong();
+				boardPanel.highlightMove(move);
+			}
 		}
 
 		if (e.getSource() == freelyMoveBtn) {

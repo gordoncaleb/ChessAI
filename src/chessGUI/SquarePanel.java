@@ -167,8 +167,10 @@ public class SquarePanel extends JPanel implements PieceGUI{
 		this.selectedSquare = false;
 		this.validMoveSquare = false;
 		this.lastMovedSquare = false;
+		this.highLightedSquare = false;
 
 		updateBorderColor();
+		updateBackgroundColor();
 	}
 
 	public void showChessPiece(PieceID id, Side player) {

@@ -279,9 +279,6 @@ public class AI extends Thread implements Player {
 
 		synchronized (processing) {
 
-			alpha = this.getBoard().staticScore() - 100;
-			int iniAlpha = alpha;
-
 			long startTime = System.currentTimeMillis();
 			long projectedEndTime = 0;
 			long[] itTime = new long[100];
@@ -308,7 +305,7 @@ public class AI extends Thread implements Player {
 					e.printStackTrace();
 				}
 
-				itTime[it] = System.currentTimeMillis() - startTime;
+				itTime[it] = System.currentTimeMillis() - startTime + 1;
 
 				if (it >= minSearchDepth) {
 					projectedEndTime = itTime[it] + itTime[it] * (itTime[it] / itTime[it - 1]) * 2;
@@ -321,10 +318,6 @@ public class AI extends Thread implements Player {
 				}
 
 				it++;
-			}
-
-			if (rootNode.getHeadChild().getChosenPathValue() < iniAlpha) {
-				System.out.println("Zugzwang?");
 			}
 
 			for (int i = 0; i < 20; i++) {
@@ -370,12 +363,6 @@ public class AI extends Thread implements Player {
 			}
 
 			return task;
-		}
-	}
-
-	public int getAlpha() {
-		synchronized (processing) {
-			return alpha;
 		}
 	}
 

@@ -192,6 +192,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		highLightCount = 5;
 		highLightMove = move;
 		highLightTimer.start();
+		colorSquaresDefault();
 
 	}
 

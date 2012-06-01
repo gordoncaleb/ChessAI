@@ -43,7 +43,7 @@ public class MoveBook {
 		Vector<Long> entries = hashMoveBook.get(hashcode);
 
 		if (verboseEntries != null) {
-			verboseEntries.remove(move);
+			verboseEntries.remove(move.getMoveLong());
 
 			if (verboseEntries.size() == 0) {
 				verboseMoveBook.remove(xmlBoard);
@@ -51,7 +51,7 @@ public class MoveBook {
 		}
 
 		if (entries != null) {
-			entries.remove(move);
+			entries.remove(move.getMoveLong());
 
 			if (entries.size() == 0) {
 				hashMoveBook.remove(hashcode);
@@ -129,7 +129,7 @@ public class MoveBook {
 			xmlMoveBook += "<response>\n";
 
 			for (int m = 0; m < moves.size(); m++) {
-				xmlMoveBook += Move.toString(moves.elementAt(m));
+				xmlMoveBook += Move.toXML(moves.elementAt(m));
 			}
 
 			xmlMoveBook += "</response>\n";

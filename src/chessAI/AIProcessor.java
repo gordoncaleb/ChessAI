@@ -107,6 +107,7 @@ public class AIProcessor extends Thread {
 
 	private void executeTask() {
 		DecisionNode task;
+		int alpha = Integer.MIN_VALUE + 100;
 		BoardHashEntry hashOut;
 		boolean hashHit = false;
 
@@ -117,7 +118,7 @@ public class AIProcessor extends Thread {
 			// task.setChosenPathValue(-growDecisionTreeLite(alpha,
 			// Integer.MAX_VALUE-100, searchDepth, task.getMove()));
 
-			growDecisionTree(task, ai.getAlpha(), Integer.MAX_VALUE - 100, searchDepth, 0);
+			growDecisionTree(task, alpha, Integer.MAX_VALUE - 100, searchDepth, 0);
 
 			board.undoMove();
 
