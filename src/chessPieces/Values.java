@@ -17,6 +17,9 @@ public class Values {
 	public static final int STALEMATE_MOVE = 0;
 	public static final int DRAW_DIVISOR = 10;
 	public static final int CHECKMATE_DEPTH_INC = 1000;
+	
+	public static final int BACKED_PAWN_BONUS = 2;
+	public static final int DOUBLED_PAWN_BONUS = -5;
 
 	public static final int PAWNPHASE = 0;
 	public static final int KNIGHTPHASE = 1;

@@ -53,12 +53,40 @@ public class BitBoard {
 		for (int i = 0; i < 10000000; i++) {
 			for (int r = 0; r < 8; r++) {
 				for (int c = 0; c < 8; c++) {
-					val = getMask(r, c);
+					val = (1L << (r * 8 + c));
 				}
 			}
 		}
 
-		System.out.println("Load way took " + (System.currentTimeMillis() - t));
+		System.out.println("NoFunction way took " + (System.currentTimeMillis() - t));
+
+		for (int r = 0; r < 8; r++) {
+			System.out.println("Row mask =\n" + BitBoard.printBitBoard(getRowMask(r)));
+		}
+
+		for (int c = 0; c < 8; c++) {
+			System.out.println("col mask = \n" + BitBoard.printBitBoard(getColMask(c)));
+		}
+
+		for (int r = 0; r < 8; r++) {
+			System.out.println("Bottom Row mask =\n" + BitBoard.printBitBoard(getBottomRows(r)));
+		}
+
+		for (int c = 0; c < 8; c++) {
+			System.out.println("Top Row mask = \n" + BitBoard.printBitBoard(getTopRows(c)));
+		}
+
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				System.out.println("White pawn forward mask =" + r + "," + c + "\n" + BitBoard.printBitBoard(getWhitePawnForward(r, c)));
+			}
+		}
+
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				System.out.println("Black pawn forward mask =" + r + "," + c + "\n" + BitBoard.printBitBoard(getBlackPawnForward(r, c)));
+			}
+		}
 
 	}
 
@@ -69,6 +97,30 @@ public class BitBoard {
 	public static long getMaskHard(int row, int col) {
 
 		return (1L << (row * 8 + col));
+	}
+
+	public static long getColMask(int col) {
+		return (0x0101010101010101L << col);
+	}
+
+	public static long getRowMask(int row) {
+		return (0xFFL << (row * 8));
+	}
+
+	public static long getBottomRows(int r) {
+		return (0xFF00000000000000L >> (r * 8));
+	}
+
+	public static long getTopRows(int r) {
+		return (0xFFFFFFFFFFFFFFFFL >>> ((7 - r) * 8));
+	}
+
+	public static long getWhitePawnForward(int r, int c) {
+		return (0x0080808080808080L >> ((7 - r) * 8 + (7 - c)));
+	}
+
+	public static long getBlackPawnForward(int r, int c) {
+		return (0x0101010101010100L << (r * 8 + c));
 	}
 
 	public static void loadMasks() {
