@@ -61,6 +61,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private boolean record;
 
 	public static void main(String[] args) {
+		
+		FileIO.setLogEnabled(false);
+		FileIO.setDebugOutput(true);
 
 		java.util.Hashtable<Side, Player> players = new java.util.Hashtable<Side, Player>();
 

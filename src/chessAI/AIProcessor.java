@@ -30,6 +30,10 @@ public class AIProcessor extends Thread {
 
 	private BoardHashEntry[] hashTable;
 
+	private long numSearched;
+
+	private boolean stopSearch;
+
 	private Move[] voi = { new Move(1, 5, 2, 7), new Move(4, 7, 2, 5), new Move(6, 0, 6, 7) };
 
 	public AIProcessor(AI ai, int maxTreeLevel) {
@@ -77,6 +81,7 @@ public class AIProcessor extends Thread {
 	}
 
 	public synchronized void setNewTask() {
+		stopSearch = false;
 		this.notifyAll();
 	}
 
@@ -111,12 +116,14 @@ public class AIProcessor extends Thread {
 		BoardHashEntry hashOut;
 		boolean hashHit = false;
 
+		numSearched = 0;
+
 		while ((task = ai.getNextTask()) != null) {
 
 			board.makeMove(task.getMove());
 
 			// task.setChosenPathValue(-growDecisionTreeLite(alpha,
-			// Integer.MAX_VALUE-100, searchDepth, task.getMove()));
+			// Integer.MAX_VALUE - 100, searchDepth, task.getMove(), 0));
 
 			growDecisionTree(task, alpha, Integer.MAX_VALUE - 100, searchDepth, 0);
 
@@ -131,7 +138,7 @@ public class AIProcessor extends Thread {
 						rootNode.addChild(task);
 					}
 
-				}else{
+				} else {
 					rootNode.addChild(task);
 				}
 			} else {
@@ -176,8 +183,14 @@ public class AIProcessor extends Thread {
 	 */
 	private void growDecisionTree(DecisionNode branch, int alpha, int beta, int level, int bonusLevel) {
 
+		if (stopSearch) {
+			return;
+		}
+
 		DecisionNode nextChild;
 		DecisionNode currentChild;
+
+		numSearched++;
 
 		int cpv = 0;
 
@@ -239,7 +252,12 @@ public class AIProcessor extends Thread {
 							}
 
 							if (alpha >= beta) {
-								currentChild.getLastSibling().setNextSibling(nextChild);
+
+								if (nextChild != null) {
+									branch.getTailChild().setNextSibling(nextChild);
+									nextChild.setPreviousSibling(branch.getTailChild());
+								}
+
 								break;
 							}
 						}
@@ -304,7 +322,10 @@ public class AIProcessor extends Thread {
 					}
 
 					if (alpha >= beta) {
-						currentChild.getLastSibling().setNextSibling(nextChild);
+						if (nextChild != null) {
+							branch.getTailChild().setNextSibling(nextChild);
+							nextChild.setPreviousSibling(branch.getTailChild());
+						}
 						break;
 					}
 
@@ -338,6 +359,8 @@ public class AIProcessor extends Thread {
 	private int growDecisionTreeLite(int alpha, int beta, int level, long moveMade, int bonusLevel) {
 		int suggestedPathValue;
 		int bestPathValue = Integer.MIN_VALUE;
+
+		numSearched++;
 
 		board.makeNullMove();
 
@@ -403,6 +426,14 @@ public class AIProcessor extends Thread {
 
 	public void setSearchDepth(int searchDepth) {
 		this.searchDepth = searchDepth;
+	}
+
+	public void stopSearch() {
+		stopSearch = true;
+	}
+
+	public long getNumSearched() {
+		return numSearched;
 	}
 
 }

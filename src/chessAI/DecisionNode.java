@@ -9,6 +9,9 @@ public class DecisionNode {
 	private DecisionNode headChild;
 	private DecisionNode nextSibling;
 
+	private DecisionNode tailChild;
+	private DecisionNode previousSibling;
+
 	// The last move made on the attached board.
 	private long move;
 
@@ -71,11 +74,10 @@ public class DecisionNode {
 		System.out.println("Changed Values");
 		root.printChildrenValues();
 
-		
-		for(int i=0;i<100;i++){
+		for (int i = 0; i < 100; i++) {
 			System.out.println((int) Math.round(Math.random()));
 		}
-		
+
 		// root.sort();
 		//
 		// System.out.println("Resorted Values");
@@ -84,18 +86,7 @@ public class DecisionNode {
 	}
 
 	public DecisionNode(long move) {
-		// this.parent = parent;
-
-		// Linked List data struct pointers
-		this.headChild = null;
-		// this.childrenSize = 0;
-		this.nextSibling = null;
-		this.chosenPathValue = 0;
-		// this.previousSibling = this;
-
-		this.move = move;
-		// this.status = GameStatus.IN_PLAY;
-
+		this(move, 0);
 	}
 
 	public DecisionNode(long move, int chosenPathValue) {
@@ -103,6 +94,10 @@ public class DecisionNode {
 		// Linked List data struct pointers
 		this.headChild = null;
 		this.nextSibling = null;
+
+		this.tailChild = null;
+		this.previousSibling = null;
+
 		this.chosenPathValue = chosenPathValue;
 
 		this.move = move;
@@ -200,20 +195,25 @@ public class DecisionNode {
 	// }
 	//
 	// }
-	
-	public void addChild(DecisionNode newChild){
-		addChild(newChild,newChild.getChosenPathValue());
+
+	public void addChild(DecisionNode newChild) {
+		addChild(newChild, newChild.getChosenPathValue());
 	}
 
 	public synchronized void addChild(DecisionNode newChild, int newChildCPV) {
 
 		DecisionNode currentChild = null;
 		DecisionNode nextChild = headChild;
-		//int newChildCPV = newChild.getChosenPathValue();
+		// int newChildCPV = newChild.getChosenPathValue();
 
 		while (nextChild != null) {
 			if (newChildCPV > nextChild.getChosenPathValue()) {
+
 				newChild.setNextSibling(nextChild);
+				newChild.setPreviousSibling(currentChild);
+
+				nextChild.setPreviousSibling(newChild);
+
 				if (currentChild != null) {
 					currentChild.setNextSibling(newChild);
 				} else {
@@ -227,15 +227,62 @@ public class DecisionNode {
 		}
 
 		if (nextChild == null) {
+
 			newChild.setNextSibling(null);
+			newChild.setPreviousSibling(currentChild);
+
 			if (currentChild != null) {
 				currentChild.setNextSibling(newChild);
+				tailChild = newChild;
 			} else {
 				headChild = newChild;
+				tailChild = newChild;
 			}
 		}
 
 		// childrenSize++;
+
+	}
+
+	public synchronized void addChildTail(DecisionNode newChild, int newChildCPV) {
+
+		DecisionNode currentChild = null;
+		DecisionNode nextChild = tailChild;
+		// int newChildCPV = newChild.getChosenPathValue();
+
+		while (nextChild != null) {
+			if (newChildCPV < nextChild.getChosenPathValue()) {
+
+				newChild.setPreviousSibling(nextChild);
+				newChild.setNextSibling(currentChild);
+
+				nextChild.setNextSibling(newChild);
+
+				if (currentChild != null) {
+					currentChild.setPreviousSibling(newChild);
+				} else {
+					tailChild = newChild;
+				}
+				break;
+			}
+
+			currentChild = nextChild;
+			nextChild = currentChild.getPreviousSibling();
+		}
+
+		if (nextChild == null) {
+
+			newChild.setPreviousSibling(null);
+			newChild.setNextSibling(currentChild);
+
+			if (currentChild != null) {
+				currentChild.setPreviousSibling(newChild);
+				headChild = newChild;
+			} else {
+				headChild = newChild;
+				tailChild = newChild;
+			}
+		}
 
 	}
 
@@ -265,13 +312,28 @@ public class DecisionNode {
 	// }
 	// }
 
+	public DecisionNode getPreviousSibling() {
+		return previousSibling;
+	}
+
+	public void setPreviousSibling(DecisionNode previousSibling) {
+		this.previousSibling = previousSibling;
+
+	}
+
 	public void removeAllChildren() {
 		headChild = null;
+		tailChild = null;
 		// childrenSize = 0;
 	}
 
 	public DecisionNode getHeadChild() {
 		return headChild;
+	}
+
+	public DecisionNode getTailChild() {
+		// return headChild.getLastSibling();
+		return tailChild;
 	}
 
 	public DecisionNode getNextSibling() {

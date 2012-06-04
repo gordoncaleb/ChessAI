@@ -14,7 +14,7 @@ import chessIO.MoveBook;
 import chessPieces.Values;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.2.052412";
+	public static String VERSION = "1.2.060112_withmem";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -39,6 +39,10 @@ public class AI extends Thread implements Player {
 	private int taskSize;
 	private DecisionNode nextTask;
 	private AIProcessor[] processorThreads;
+
+	private long totalSearched;
+	private long maxSearched;
+	private int numSearchReq;
 
 	// private Hashtable<Long, BoardHashEntry> hashTable;
 
@@ -142,7 +146,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (debug) {
-			printRootDebug();
+			// printRootDebug();
 			FileIO.log(getBoard().toString());
 		}
 
@@ -151,6 +155,10 @@ public class AI extends Thread implements Player {
 
 		moveNum = 0;
 		// hashTable.clear();
+
+		maxSearched = 0;
+		numSearchReq = 0;
+		totalSearched = 0;
 
 		FileIO.log("New game");
 
@@ -248,7 +256,7 @@ public class AI extends Thread implements Player {
 		// the values of the move options that the AI has
 		if (debug) {
 			// game.setDecisionTreeRoot(rootNode);
-			printRootDebug();
+			// printRootDebug();
 		}
 
 		// The users decision's chosen child represents the best move based
@@ -277,14 +285,19 @@ public class AI extends Thread implements Player {
 			FileIO.log("New task");
 		}
 
+		if (taskSize == 1) {
+			return;
+		}
+
 		synchronized (processing) {
 
 			long startTime = System.currentTimeMillis();
-			long projectedEndTime = 0;
-			long[] itTime = new long[100];
-			int it = 2;
+			long timeLeft = maxSearchTime;
+			DecisionNode leftOverNode;
+			int it = 3;
 			boolean checkMateFound = false;
-			while ((it <= minSearchDepth || projectedEndTime < maxSearchTime) && !checkMateFound) {
+
+			while (!checkMateFound && timeLeft > 0) {
 
 				// This clears ai processors status done flags from previous
 				// tasks.
@@ -300,29 +313,57 @@ public class AI extends Thread implements Player {
 
 				// Wait for all processors to finish their task
 				try {
-					processing.wait();
+
+					if (it > minSearchDepth) {
+						processing.wait(timeLeft);
+
+						if (nextTask != null) {
+
+							leftOverNode = nextTask;
+							nextTask = null;
+
+							for (int d = 0; d < processorThreads.length; d++) {
+								processorThreads[d].stopSearch();
+							}
+
+							processing.wait();
+
+							leftOverNode.setPreviousSibling(root.getTailChild());
+							root.getTailChild().setNextSibling(leftOverNode);
+
+						}
+
+					} else {
+						processing.wait();
+					}
+
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 
-				itTime[it] = System.currentTimeMillis() - startTime + 1;
-
-				if (it >= minSearchDepth) {
-					projectedEndTime = itTime[it] + itTime[it] * (itTime[it] / itTime[it - 1]) * 2;
-					System.out.println("Projected " + (it + 1) + " end time = " + projectedEndTime);
-				}
+				timeLeft = maxSearchTime - (System.currentTimeMillis() - startTime);
 
 				if ((Math.abs(root.getHeadChild().getChosenPathValue()) & Values.CHECKMATE_MASK) != 0) {
 					checkMateFound = true;
 
 				}
 
+				for (int d = 0; d < processorThreads.length; d++) {
+
+					maxSearched = Math.max(maxSearched, processorThreads[d].getNumSearched());
+
+					totalSearched += processorThreads[d].getNumSearched();
+					System.out.println("Searched " + processorThreads[d].getNumSearched() + " in " + (maxSearchTime - timeLeft));
+					System.out.println((double) processorThreads[d].getNumSearched() / (double) (maxSearchTime - timeLeft) + " nodes/ms");
+				}
+
 				it++;
 			}
 
-			for (int i = 0; i < 20; i++) {
-				System.out.println("Search depth time " + i + " = " + itTime[i]);
-			}
+			numSearchReq++;
+
+			System.out.println("Average searched: " + (totalSearched / numSearchReq));
+			System.out.println("Max Searched " + maxSearched);
 
 		}
 
@@ -414,6 +455,8 @@ public class AI extends Thread implements Player {
 
 	public synchronized long makeRecommendation() {
 		DecisionNode rec = getAIDecision();
+		
+		printRootDebug();
 
 		if (rec != null) {
 			return rec.getMove();
