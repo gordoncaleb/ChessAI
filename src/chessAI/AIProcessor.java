@@ -112,9 +112,6 @@ public class AIProcessor extends Thread {
 
 	private void executeTask() {
 		DecisionNode task;
-		int alpha = Integer.MIN_VALUE + 100;
-		BoardHashEntry hashOut;
-		boolean hashHit = false;
 
 		numSearched = 0;
 
@@ -125,27 +122,11 @@ public class AIProcessor extends Thread {
 			// task.setChosenPathValue(-growDecisionTreeLite(alpha,
 			// Integer.MAX_VALUE - 100, searchDepth, task.getMove(), 0));
 
-			growDecisionTree(task, alpha, Integer.MAX_VALUE - 100, searchDepth, 0);
+			growDecisionTree(task, ai.getAlpha(), Integer.MAX_VALUE - 100, searchDepth, 0);
 
 			board.undoMove();
 
-			if (rootNode.getHeadChild() != null) {
-				if (task.getChosenPathValue() >= rootNode.getHeadChild().getChosenPathValue()) {
-
-					if (task.getChosenPathValue() == rootNode.getHeadChild().getChosenPathValue()) {
-						rootNode.addChild(task, task.getChosenPathValue() + (int) Math.round(Math.random()));
-					} else {
-						rootNode.addChild(task);
-					}
-
-				} else {
-					rootNode.addChild(task);
-				}
-			} else {
-				rootNode.addChild(task);
-			}
-
-			ai.taskDone();
+			ai.taskDone(task);
 
 		}
 
@@ -167,9 +148,13 @@ public class AIProcessor extends Thread {
 
 		ArrayList<Long> moves = board.generateValidMoves(false);
 
+		DecisionNode[] children = new DecisionNode[moves.size()];
+
 		for (int m = 0; m < moves.size(); m++) {
-			branch.addChild(new DecisionNode(moves.get(m), Move.getValue(moves.get(m))));
+			children[m] = (new DecisionNode(moves.get(m), Move.getValue(moves.get(m))));
 		}
+
+		branch.setChildren(children);
 
 	}
 
@@ -187,12 +172,9 @@ public class AIProcessor extends Thread {
 			return;
 		}
 
-		DecisionNode nextChild;
-		DecisionNode currentChild;
-
 		numSearched++;
 
-		int cpv = 0;
+		int cpv = Integer.MIN_VALUE;
 
 		// if(board.isVoi(voi)){
 		// System.out.println("voi found");
@@ -216,57 +198,48 @@ public class AIProcessor extends Thread {
 
 				if (!board.isGameOver()) {
 
-					currentChild = branch.getHeadChild();
-					branch.removeAllChildren();
+					for (int i = 0; i < branch.getChildrenSize(); i++) {
 
-					while (currentChild != null) {
-
-						nextChild = currentChild.getNextSibling();
-
-						board.makeMove(currentChild.getMove());
+						board.makeMove(branch.getChild(i).getMove());
 
 						if (level > 0) {
 
-							growDecisionTree(currentChild, -beta, -alpha, level - 1, bonusLevel);
+							growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
 
 						} else {
 							// bonus depth
 
 							if (twigGrowthEnabled) {
-								currentChild.setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, currentChild.getMove(), bonusLevel));
+								branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
 							} else {
-								growDecisionTree(currentChild, -beta, -alpha, level - 1, bonusLevel);
+								growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
 							}
 
 						}
 
 						board.undoMove();
 
-						branch.addChild(currentChild);
+						cpv = Math.max(cpv, branch.getChild(i).getChosenPathValue());
 
 						// alpha beta pruning
 						if (pruningEnabled) {
 
-							if (currentChild.getChosenPathValue() > alpha) {
-								alpha = currentChild.getChosenPathValue();
+							if (cpv > alpha) {
+								alpha = cpv;
 							}
 
 							if (alpha >= beta) {
-
-								if (nextChild != null) {
-									branch.getTailChild().setNextSibling(nextChild);
-									nextChild.setPreviousSibling(branch.getTailChild());
-								}
-
 								break;
 							}
 						}
 
-						currentChild = nextChild;
-
 					}
 
-					cpv = branch.getHeadChild().getChosenPathValue();
+					if (cpv == Integer.MIN_VALUE) {
+						System.out.println("WTF");
+					}
+
+					branch.sort();
 
 					if ((Math.abs(cpv) & Values.CHECKMATE_MASK) != 0) {
 						if (cpv > 0) {
@@ -299,42 +272,48 @@ public class AIProcessor extends Thread {
 
 			// Node has already been created and has children
 			// int childrenSize = branch.getChildrenSize();
-			currentChild = branch.getHeadChild();
-			branch.removeAllChildren();
-			while (currentChild != null) {
+			for (int i = 0; i < branch.getChildrenSize(); i++) {
 
-				// System.out.println(" next child" + i);
-				nextChild = currentChild.getNextSibling();
+				board.makeMove(branch.getChild(i).getMove());
 
-				board.makeMove(currentChild.getMove());
-
-				growDecisionTree(currentChild, -beta, -alpha, level - 1, bonusLevel);
+				growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
 
 				board.undoMove();
 
-				branch.addChild(currentChild);
+				cpv = Math.max(cpv, branch.getChild(i).getChosenPathValue());
 
 				// alpha beta pruning
 				if (pruningEnabled) {
 
-					if (currentChild.getChosenPathValue() > alpha) {
-						alpha = currentChild.getChosenPathValue();
+					if (cpv > alpha) {
+						alpha = cpv;
 					}
 
 					if (alpha >= beta) {
-						if (nextChild != null) {
-							branch.getTailChild().setNextSibling(nextChild);
-							nextChild.setPreviousSibling(branch.getTailChild());
-						}
 						break;
 					}
 
 				}
 
-				currentChild = nextChild;
+			}
+			
+			if (cpv == Integer.MIN_VALUE) {
+				System.out.println("WTF");
 			}
 
-			branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
+			branch.sort();
+
+			if ((Math.abs(cpv) & Values.CHECKMATE_MASK) != 0) {
+				if (cpv > 0) {
+					branch.setChosenPathValue(-(cpv - 1));
+				} else {
+					branch.setChosenPathValue(-(cpv + 1));
+				}
+			} else {
+				branch.setChosenPathValue(-cpv);
+			}
+
+			// branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
 
 		} // end of node already has children code
 

@@ -25,38 +25,42 @@ public class DecisionNodeLL {
 
 		ArrayList<Integer> nums = new ArrayList<Integer>();
 
-		DecisionNode root = new DecisionNode(0);
+		DecisionNodeLL root = new DecisionNodeLL(0);
 
 		int[][] rands = new int[1000000][30];
 
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < rands.length; i++) {
 			for (int n = 0; n < 30; n++) {
 				rands[i][n] = (int) (Math.random() * 100);
 			}
 		}
 		
 		
-
-		DecisionNode child;
-
-		// functional
-		for (int i = 0; i < 10000; i++) {
-			nums.clear();
-			root.removeAllChildren();
-			for (int n = 0; n < 30; n++) {
-				nums.add(new Integer(rands[i][n]));
-				root.addChild(new DecisionNode(0, rands[i][n]));
-			}
-			Collections.sort(nums, Collections.reverseOrder());
-
-			child = root.getHeadChild();
-			for (int n = 0; n < 30; n++) {
-				if (nums.get(n) != child.getChosenPathValue()) {
-					System.out.println("Sorting error");
-				}
-				child = child.getNextSibling();
-			}
+		for (int i = 0; i < 30; i++) {
+			rands[0][i] = 30 - i;
 		}
+		
+
+		DecisionNodeLL child;
+
+//		// functional
+//		for (int i = 0; i < 10000; i++) {
+//			nums.clear();
+//			root.removeAllChildren();
+//			for (int n = 0; n < 30; n++) {
+//				nums.add(new Integer(rands[i][n]));
+//				root.addChild(new DecisionNodeLL(0, rands[i][n]));
+//			}
+//			Collections.sort(nums, Collections.reverseOrder());
+//
+//			child = root.getHeadChild();
+//			for (int n = 0; n < 30; n++) {
+//				if (nums.get(n) != child.getChosenPathValue()) {
+//					System.out.println("Sorting error");
+//				}
+//				child = child.getNextSibling();
+//			}
+//		}
 
 
 		System.out.println("Random dataset sort");
@@ -74,15 +78,15 @@ public class DecisionNodeLL {
 
 		System.out.println("Arraylist sort took " + (System.currentTimeMillis() - time));
 
-		time = System.currentTimeMillis();
-		for (int i = 0; i < rands.length; i++) {
-			root.removeAllChildren();
-			for (int n = 0; n < 30; n++) {
-				root.addChild(new DecisionNode(0, rands[i][n]));
-			}
-		}
-
-		System.out.println("DecisionNode sort took " + (System.currentTimeMillis() - time));
+//		time = System.currentTimeMillis();
+//		for (int i = 0; i < rands.length; i++) {
+//			root.removeAllChildren();
+//			for (int n = 0; n < 30; n++) {
+//				root.addChild(new DecisionNodeLL(0, rands[i][n]));
+//			}
+//		}
+//
+//		System.out.println("DecisionNode sort took " + (System.currentTimeMillis() - time));
 		
 		
 		System.out.println("Sorted dataset sort");
@@ -99,15 +103,15 @@ public class DecisionNodeLL {
 
 		System.out.println("Arraylist sort took " + (System.currentTimeMillis() - time));
 
-		time = System.currentTimeMillis();
-		for (int i = 0; i < rands.length; i++) {
-			root.removeAllChildren();
-			for (int n = 0; n < 30; n++) {
-				root.addChild(new DecisionNode(0, rands[0][n]));
-			}
-		}
-
-		System.out.println("DecisionNode sort took " + (System.currentTimeMillis() - time));
+//		time = System.currentTimeMillis();
+//		for (int i = 0; i < rands.length; i++) {
+//			root.removeAllChildren();
+//			for (int n = 0; n < 30; n++) {
+//				root.addChild(new DecisionNodeLL(0, rands[0][n]));
+//			}
+//		}
+//
+//		System.out.println("DecisionNode sort took " + (System.currentTimeMillis() - time));
 		
 		
 

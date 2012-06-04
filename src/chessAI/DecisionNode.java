@@ -1,16 +1,21 @@
 package chessAI;
 
-import chessBackend.MoveNote;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 import chessBackend.Move;
 
-public class DecisionNode {
+public class DecisionNode implements Comparable<DecisionNode> {
 
 	// Children which represent all the possible moves of "player
-	private DecisionNode headChild;
-	private DecisionNode nextSibling;
+	// private DecisionNode headChild;
+	// private DecisionNode nextSibling;
+	//
+	// private DecisionNode tailChild;
+	// private DecisionNode previousSibling;
 
-	private DecisionNode tailChild;
-	private DecisionNode previousSibling;
+	private Object[] children;
 
 	// The last move made on the attached board.
 	private long move;
@@ -18,70 +23,96 @@ public class DecisionNode {
 	private int chosenPathValue;
 
 	public static void main(String[] args) {
-		// for (int i = 0; i < 1; i++) {
-		// Runtime.getRuntime().gc();
-		// }
-		// long heapFreeSize = Runtime.getRuntime().freeMemory();
-		//
-		// DecisionNode test = new DecisionNode(null, new Move(0, 0, 0, 0, 100,
-		// MoveNote.NONE, new King(Side.BLACK, 1, 1, false)));
-		//
-		// int nodes = 4000000;
-		// for (int i = 0; i < nodes; i++) {
-		// test.addChild(new DecisionNode(test, new Move(0, 0, 0, 0, 100,
-		// MoveNote.NONE, new King(Side.BLACK, 1, 1, false))));
-		// }
-		//
-		// for (int i = 0; i < 1; i++) {
-		// Runtime.getRuntime().gc();
-		// }
-		//
-		// long objectSize = (heapFreeSize - Runtime.getRuntime().freeMemory())
-		// / nodes;
-		//
-		// System.out.println("Max mem = " + Runtime.getRuntime().maxMemory() /
-		// (1024 * 1024));
-		// System.out.println("used space = " +
-		// (Runtime.getRuntime().maxMemory() -
-		// Runtime.getRuntime().freeMemory()) / (1024 * 1024));
-		// System.out.println(objectSize);
-		//
-		// System.out.println(4000000 / objectSize + " bytes in 4million objs");
-		//
-		// int childSize = test.childrenSize;
-		// System.out.println(childSize + "");
 
-		int[] nums = { 3, 7, 6, 5, 8, 3, 1, 2 };
-		DecisionNode root = new DecisionNode(Move.moveLong(0, 0, 0, 0, 100, MoveNote.NONE));
-		DecisionNode child;
-		for (int i = 0; i < nums.length; i++) {
-			child = new DecisionNode(Move.moveLong(0, 0, 0, 0, nums[i], MoveNote.NONE));
-			child.setChosenPathValue(nums[i]);
-			root.addChild(child);
-		}
-		System.out.println("Sorted Values");
+		ArrayList<Integer> nums = new ArrayList<Integer>();
 
-		root.printChildrenValues();
+		DecisionNode root = new DecisionNode(0);
 
-		DecisionNode currentChild = root.getHeadChild();
-		int c = 0;
-		while (currentChild != null) {
-			currentChild.setChosenPathValue(nums[c]);
-			currentChild = currentChild.getNextSibling();
-			c++;
+		int[][] rands = new int[1000000][30];
+
+		for (int i = 0; i < rands.length; i++) {
+			for (int n = 0; n < 30; n++) {
+				rands[i][n] = (int) (Math.random() * 100);
+			}
 		}
 
-		System.out.println("Changed Values");
-		root.printChildrenValues();
-
-		for (int i = 0; i < 100; i++) {
-			System.out.println((int) Math.round(Math.random()));
+		for (int i = 0; i < 30; i++) {
+			rands[0][i] = 30 - i;
 		}
 
-		// root.sort();
-		//
-		// System.out.println("Resorted Values");
-		// root.printChildrenValues();
+		ArrayList<DecisionNode> nodes = new ArrayList<DecisionNode>();
+
+		for (int i = 0; i < 30; i++) {
+			nodes.add(new DecisionNode(0, rands[1][i]));
+		}
+
+		root.setChildren(nodes.toArray());
+
+		// functional
+		for (int i = 0; i < 10000; i++) {
+			nums.clear();
+			nodes.clear();
+			for (int n = 0; n < 30; n++) {
+				nums.add(new Integer(rands[i][n]));
+				nodes.add(new DecisionNode(0, rands[i][n]));
+			}
+
+			root.setChildren(nodes.toArray());
+
+			Collections.sort(nums, Collections.reverseOrder());
+			root.sort();
+
+			for (int n = 0; n < 30; n++) {
+				if (nums.get(n) != root.getChild(n).getChosenPathValue()) {
+					System.out.println("Sorting error");
+				}
+			}
+		}
+
+		nums.clear();
+		root.removeAllChildren();
+		nodes.clear();
+
+		// /////////////////////////////////
+
+		System.out.println("Random dataset sort");
+		long time;
+
+		// arraylist sort
+		time = System.currentTimeMillis();
+
+		for (int n = 0; n < 30; n++) {
+			nums.add(new Integer(rands[0][n]));
+		}
+
+		for (int i = 0; i < rands.length; i++) {
+			for (int n = 0; n < 30; n++) {
+				nums.set(n, rands[i][n]);
+			}
+			Collections.sort(nums, Collections.reverseOrder());
+		}
+
+		System.out.println("Arraylist sort took " + (System.currentTimeMillis() - time));
+
+		time = System.currentTimeMillis();
+
+		for (int n = 0; n < 30; n++) {
+			nodes.add(new DecisionNode(0, rands[0][n]));
+		}
+
+		root.setChildren(nodes.toArray());
+
+		for (int i = 0; i < rands.length; i++) {
+			for (int n = 0; n < 30; n++) {
+				root.getChild(n).setChosenPathValue(rands[i][n]);
+			}
+
+			root.sort();
+		}
+
+		System.out.println("DecisionNode sort took " + (System.currentTimeMillis() - time));
+
+		System.out.println("Done!");
 
 	}
 
@@ -92,11 +123,13 @@ public class DecisionNode {
 	public DecisionNode(long move, int chosenPathValue) {
 
 		// Linked List data struct pointers
-		this.headChild = null;
-		this.nextSibling = null;
+		// this.headChild = null;
+		// this.nextSibling = null;
+		//
+		// this.tailChild = null;
+		// this.previousSibling = null;
 
-		this.tailChild = null;
-		this.previousSibling = null;
+		children = null;
 
 		this.chosenPathValue = chosenPathValue;
 
@@ -196,95 +229,124 @@ public class DecisionNode {
 	//
 	// }
 
-	public void addChild(DecisionNode newChild) {
-		addChild(newChild, newChild.getChosenPathValue());
+	@Override
+	public int compareTo(DecisionNode o) {
+		return this.chosenPathValue - o.getChosenPathValue();
 	}
 
-	public synchronized void addChild(DecisionNode newChild, int newChildCPV) {
-
-		DecisionNode currentChild = null;
-		DecisionNode nextChild = headChild;
-		// int newChildCPV = newChild.getChosenPathValue();
-
-		while (nextChild != null) {
-			if (newChildCPV > nextChild.getChosenPathValue()) {
-
-				newChild.setNextSibling(nextChild);
-				newChild.setPreviousSibling(currentChild);
-
-				nextChild.setPreviousSibling(newChild);
-
-				if (currentChild != null) {
-					currentChild.setNextSibling(newChild);
-				} else {
-					headChild = newChild;
-				}
-				break;
-			}
-
-			currentChild = nextChild;
-			nextChild = currentChild.getNextSibling();
-		}
-
-		if (nextChild == null) {
-
-			newChild.setNextSibling(null);
-			newChild.setPreviousSibling(currentChild);
-
-			if (currentChild != null) {
-				currentChild.setNextSibling(newChild);
-				tailChild = newChild;
-			} else {
-				headChild = newChild;
-				tailChild = newChild;
-			}
-		}
-
-		// childrenSize++;
-
+	public boolean equals(DecisionNode o) {
+		return (this.chosenPathValue == o.getChosenPathValue());
 	}
 
-	public synchronized void addChildTail(DecisionNode newChild, int newChildCPV) {
-
-		DecisionNode currentChild = null;
-		DecisionNode nextChild = tailChild;
-		// int newChildCPV = newChild.getChosenPathValue();
-
-		while (nextChild != null) {
-			if (newChildCPV < nextChild.getChosenPathValue()) {
-
-				newChild.setPreviousSibling(nextChild);
-				newChild.setNextSibling(currentChild);
-
-				nextChild.setNextSibling(newChild);
-
-				if (currentChild != null) {
-					currentChild.setPreviousSibling(newChild);
-				} else {
-					tailChild = newChild;
-				}
-				break;
-			}
-
-			currentChild = nextChild;
-			nextChild = currentChild.getPreviousSibling();
-		}
-
-		if (nextChild == null) {
-
-			newChild.setPreviousSibling(null);
-			newChild.setNextSibling(currentChild);
-
-			if (currentChild != null) {
-				currentChild.setPreviousSibling(newChild);
-				headChild = newChild;
-			} else {
-				headChild = newChild;
-				tailChild = newChild;
-			}
-		}
-
+	public synchronized void sort() {
+		Arrays.sort(children, Collections.reverseOrder());
 	}
+
+	public synchronized void sort(int toIndex) {
+		Arrays.sort(children, 0, toIndex, Collections.reverseOrder());
+	}
+
+	// public void addChild(DecisionNode newChild) {
+	//
+	// children.add(newChild);
+	// // addChild(newChild, newChild.getChosenPathValue());
+	// }
+
+	public void setChildren(Object[] children) {
+		this.children = children;
+	}
+
+	public Object[] getChildren() {
+		return children;
+	}
+
+	// public synchronized void addChildHead(DecisionNode newChild, int
+	// newChildCPV) {
+	//
+	// DecisionNode currentChild = null;
+	// DecisionNode nextChild = headChild;
+	// // int newChildCPV = newChild.getChosenPathValue();
+	//
+	// while (nextChild != null) {
+	// if (newChildCPV > nextChild.getChosenPathValue()) {
+	//
+	// newChild.setNextSibling(nextChild);
+	// newChild.setPreviousSibling(currentChild);
+	//
+	// nextChild.setPreviousSibling(newChild);
+	//
+	// if (currentChild != null) {
+	// currentChild.setNextSibling(newChild);
+	// } else {
+	// headChild = newChild;
+	// }
+	// break;
+	// }
+	//
+	// currentChild = nextChild;
+	// nextChild = currentChild.getNextSibling();
+	// }
+	//
+	// if (nextChild == null) {
+	//
+	// newChild.setNextSibling(null);
+	// newChild.setPreviousSibling(currentChild);
+	//
+	// if (currentChild != null) {
+	// currentChild.setNextSibling(newChild);
+	// tailChild = newChild;
+	// } else {
+	// headChild = newChild;
+	// tailChild = newChild;
+	// }
+	// }
+	//
+	// // childrenSize++;
+	//
+	// }
+	//
+	// public synchronized void addChild(DecisionNode newChild, int newChildCPV)
+	// {
+	//
+	// DecisionNode currentChild = null;
+	// DecisionNode nextChild = tailChild;
+	// // int newChildCPV = newChild.getChosenPathValue();
+	//
+	// while (nextChild != null) {
+	// if (newChildCPV < nextChild.getChosenPathValue()) {
+	//
+	// newChild.setPreviousSibling(nextChild);
+	// newChild.setNextSibling(currentChild);
+	//
+	// nextChild.setNextSibling(newChild);
+	//
+	// if (currentChild != null) {
+	// currentChild.setPreviousSibling(newChild);
+	// } else {
+	// tailChild = newChild;
+	// }
+	// break;
+	// }
+	//
+	// currentChild = nextChild;
+	// nextChild = currentChild.getPreviousSibling();
+	// }
+	//
+	// if (nextChild == null) {
+	//
+	// newChild.setPreviousSibling(null);
+	// newChild.setNextSibling(currentChild);
+	//
+	// if (currentChild != null) {
+	// currentChild.setPreviousSibling(newChild);
+	// headChild = newChild;
+	// } else {
+	// headChild = newChild;
+	// tailChild = newChild;
+	// }
+	// }
+	//
+	// }
 
 	// private void insertChild(DecisionNode child, DecisionNode previousChild,
 	// DecisionNode nextChild) {
@@ -312,37 +374,44 @@ public class DecisionNode {
 	// }
 	// }
 
-	public DecisionNode getPreviousSibling() {
-		return previousSibling;
-	}
-
-	public void setPreviousSibling(DecisionNode previousSibling) {
-		this.previousSibling = previousSibling;
-
-	}
+	// public DecisionNode getPreviousSibling() {
+	// return previousSibling;
+	// }
+	//
+	// public void setPreviousSibling(DecisionNode previousSibling) {
+	// this.previousSibling = previousSibling;
+	//
+	// }
 
 	public void removeAllChildren() {
-		headChild = null;
-		tailChild = null;
+		// headChild = null;
+		// tailChild = null;
+		children = null;
 		// childrenSize = 0;
 	}
 
+	public DecisionNode getChild(int i) {
+		return (DecisionNode) children[i];
+	}
+
 	public DecisionNode getHeadChild() {
-		return headChild;
+		// return headChild;
+		return (DecisionNode) children[0];
 	}
 
 	public DecisionNode getTailChild() {
 		// return headChild.getLastSibling();
-		return tailChild;
+		// return tailChild;
+		return (DecisionNode) children[children.length];
 	}
 
-	public DecisionNode getNextSibling() {
-		return nextSibling;
-	}
-
-	public void setNextSibling(DecisionNode nextSibling) {
-		this.nextSibling = nextSibling;
-	}
+	// public DecisionNode getNextSibling() {
+	// return nextSibling;
+	// }
+	//
+	// public void setNextSibling(DecisionNode nextSibling) {
+	// this.nextSibling = nextSibling;
+	// }
 
 	// public DecisionNode getPreviousSibling() {
 	// return previousSibling;
@@ -354,26 +423,32 @@ public class DecisionNode {
 
 	public int getChildrenSize() {
 
-		if (!hasChildren()) {
-			return 0;
-		}
+		// if (!hasChildren()) {
+		// return 0;
+		// }
+		//
+		// int childrenSize = 1;
+		// DecisionNode sib = headChild;
+		//
+		// while (sib.getNextSibling() != null) {
+		// sib = sib.getNextSibling();
+		// childrenSize++;
+		// }
 
-		int childrenSize = 1;
-		DecisionNode sib = headChild;
-
-		while (sib.getNextSibling() != null) {
-			sib = sib.getNextSibling();
-			childrenSize++;
-		}
-
-		return childrenSize;
+		return children.length;
 	}
 
 	public boolean hasChildren() {
-		if (headChild != null)
-			return true;
-		else
+		// if (headChild != null)
+		// return true;
+		// else
+		// return false;
+
+		if (children != null) {
+			return (children.length > 0);
+		} else {
 			return false;
+		}
 	}
 
 	public long getMove() {
@@ -393,7 +468,8 @@ public class DecisionNode {
 	// }
 
 	public DecisionNode getChosenChild() {
-		return headChild;
+		// return headChild;
+		return (DecisionNode) children[0];
 	}
 
 	public int getMoveValue() {
@@ -442,19 +518,19 @@ public class DecisionNode {
 		return chosenPathValue;
 	}
 
-	public void setChosenPathValue(Integer chosenPathValue) {
+	public void setChosenPathValue(int chosenPathValue) {
 		this.chosenPathValue = chosenPathValue;
 	}
 
-	public DecisionNode getLastSibling() {
-		DecisionNode sib = this;
-
-		while (sib.getNextSibling() != null) {
-			sib = sib.getNextSibling();
-		}
-
-		return sib;
-	}
+	// public DecisionNode getLastSibling() {
+	// DecisionNode sib = this;
+	//
+	// while (sib.getNextSibling() != null) {
+	// sib = sib.getNextSibling();
+	// }
+	//
+	// return sib;
+	// }
 
 	public void finalize() {
 		// System.out.println("Move (" + this.getMove().toString() +
@@ -511,14 +587,18 @@ public class DecisionNode {
 		if (move != 0)
 			return Move.toString(move) + " Chosen Path Value =" + this.getChosenPathValue();
 		else
-			return "Board Start";
+			return "Chosen Path Value =" + this.getChosenPathValue();
 	}
 
 	public void printChildrenValues() {
-		DecisionNode currentChild = headChild;
-		while (currentChild != null) {
-			System.out.print(currentChild.getChosenPathValue() + ",");
-			currentChild = currentChild.getNextSibling();
+		// DecisionNode currentChild = headChild;
+		// while (currentChild != null) {
+		// System.out.print(currentChild.getChosenPathValue() + ",");
+		// currentChild = currentChild.getNextSibling();
+		// }
+
+		for (int i = 0; i < this.getChildrenSize(); i++) {
+			System.out.print(((DecisionNode) children[i]).getChosenPathValue() + ",");
 		}
 
 		System.out.print("\n");

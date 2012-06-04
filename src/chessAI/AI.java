@@ -37,7 +37,7 @@ public class AI extends Thread implements Player {
 
 	private int taskDone;
 	private int taskSize;
-	private DecisionNode nextTask;
+	private int nextTask;
 	private AIProcessor[] processorThreads;
 
 	private long totalSearched;
@@ -293,7 +293,6 @@ public class AI extends Thread implements Player {
 
 			long startTime = System.currentTimeMillis();
 			long timeLeft = maxSearchTime;
-			DecisionNode leftOverNode;
 			int it = 3;
 			boolean checkMateFound = false;
 
@@ -302,8 +301,9 @@ public class AI extends Thread implements Player {
 				// This clears ai processors status done flags from previous
 				// tasks.
 				taskDone = 0;
-				nextTask = root.getHeadChild();
-				root.removeAllChildren();
+				nextTask = 0;
+				alpha = Integer.MIN_VALUE + 100;
+				// root.removeAllChildren();
 
 				// wake all threads up
 				for (int d = 0; d < processorThreads.length; d++) {
@@ -317,24 +317,25 @@ public class AI extends Thread implements Player {
 					if (it > minSearchDepth) {
 						processing.wait(timeLeft);
 
-						if (nextTask != null) {
-
-							leftOverNode = nextTask;
-							nextTask = null;
+						if (nextTask != taskSize) {
+							
+							nextTask = taskSize;
 
 							for (int d = 0; d < processorThreads.length; d++) {
 								processorThreads[d].stopSearch();
 							}
 
 							processing.wait();
+							
+							rootNode.sort(taskDone);
 
-							leftOverNode.setPreviousSibling(root.getTailChild());
-							root.getTailChild().setNextSibling(leftOverNode);
-
+						}else{
+							rootNode.sort();
 						}
 
 					} else {
 						processing.wait();
+						rootNode.sort();
 					}
 
 				} catch (InterruptedException e) {
@@ -369,7 +370,7 @@ public class AI extends Thread implements Player {
 
 	}
 
-	public void taskDone() {
+	public void taskDone(DecisionNode task) {
 
 		synchronized (processing) {
 			taskDone++;
@@ -377,8 +378,8 @@ public class AI extends Thread implements Player {
 				FileIO.log(this + " " + taskDone + "/" + taskSize + " done");
 			}
 
-			if (rootNode.getHeadChild().getChosenPathValue() > alpha) {
-				alpha = rootNode.getHeadChild().getChosenPathValue();
+			if (task.getChosenPathValue() > alpha) {
+				alpha = task.getChosenPathValue();
 			}
 
 			// if (nextTask == null) {
@@ -393,17 +394,26 @@ public class AI extends Thread implements Player {
 
 			DecisionNode task;
 
-			task = nextTask;
+			if (nextTask < taskSize) {
+				task = rootNode.getChild(nextTask);
+				nextTask++;
 
-			if (nextTask != null) {
-				nextTask = nextTask.getNextSibling();
-			}
+				return task;
 
-			if (task == null) {
+			} else {
+
 				processing.notifyAll();
+
+				return null;
+
 			}
 
-			return task;
+		}
+	}
+
+	public int getAlpha() {
+		synchronized (processing) {
+			return alpha;
 		}
 	}
 
@@ -455,7 +465,7 @@ public class AI extends Thread implements Player {
 
 	public synchronized long makeRecommendation() {
 		DecisionNode rec = getAIDecision();
-		
+
 		printRootDebug();
 
 		if (rec != null) {
@@ -470,7 +480,7 @@ public class AI extends Thread implements Player {
 		rootNode = newRootNode;
 
 		// rootNode.setParent(null);
-		rootNode.setNextSibling(null);
+		// rootNode.setNextSibling(null);
 		// rootNode.setPreviousSibling(rootNode);
 
 		// tell threads about new root node
@@ -508,13 +518,11 @@ public class AI extends Thread implements Player {
 
 	private DecisionNode getMatchingDecisionNode(long goodMove) {
 
-		DecisionNode currentChild = rootNode.getHeadChild();
-		while (currentChild != null) {
-			if (Move.equals(currentChild.getMove(), goodMove)) {
-				return currentChild;
+		for (int i = 0; i < rootNode.getChildrenSize(); i++) {
+			if (Move.equals(rootNode.getChild(i).getMove(), goodMove)) {
+				return rootNode.getChild(i);
 			}
 
-			currentChild = currentChild.getNextSibling();
 		}
 
 		if (debug) {
@@ -544,20 +552,20 @@ public class AI extends Thread implements Player {
 
 		childNum[depth]++;
 
-		DecisionNode currentChild = branch.getHeadChild();
-		while (currentChild != null) {
-			countChildren(currentChild, depth + 1);
-			currentChild = currentChild.getNextSibling();
+		if (branch.hasChildren()) {
+
+			for (int i = 0; i < branch.getChildrenSize(); i++) {
+				countChildren(branch.getChild(i), depth + 1);
+			}
+
 		}
 
 	}
 
 	private void printChildren(DecisionNode parent) {
 
-		DecisionNode currentChild = parent.getHeadChild();
-		while (currentChild != null) {
-			FileIO.log(currentChild.toString());
-			currentChild = currentChild.getNextSibling();
+		for (int i = 0; i < parent.getChildrenSize(); i++) {
+			FileIO.log(parent.getChild(i).toString());
 		}
 
 	}
