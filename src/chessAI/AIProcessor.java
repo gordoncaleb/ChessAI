@@ -174,6 +174,8 @@ public class AIProcessor extends Thread {
 
 		numSearched++;
 
+		int sortTo = 0;
+
 		int cpv = Integer.MIN_VALUE;
 
 		// if(board.isVoi(voi)){
@@ -233,13 +235,11 @@ public class AIProcessor extends Thread {
 							}
 						}
 
+						sortTo = i;
+
 					}
 
-					if (cpv == Integer.MIN_VALUE) {
-						System.out.println("WTF");
-					}
-
-					branch.sort();
+					branch.sort(sortTo);
 
 					if ((Math.abs(cpv) & Values.CHECKMATE_MASK) != 0) {
 						if (cpv > 0) {
@@ -294,14 +294,12 @@ public class AIProcessor extends Thread {
 					}
 
 				}
+				
+				sortTo = i;
 
 			}
-			
-			if (cpv == Integer.MIN_VALUE) {
-				System.out.println("WTF");
-			}
 
-			branch.sort();
+			branch.sort(sortTo);
 
 			if ((Math.abs(cpv) & Values.CHECKMATE_MASK) != 0) {
 				if (cpv > 0) {
