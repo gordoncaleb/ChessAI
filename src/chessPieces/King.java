@@ -48,11 +48,11 @@ public class King {
 						// The player loses points for losing the ability to
 						// castle
 						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
-						validMoves.add(moveLong);
 					} else {
 						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
-						validMoves.add(moveLong);
 					}
+					
+					validMoves.add(moveLong);
 				}
 			}
 

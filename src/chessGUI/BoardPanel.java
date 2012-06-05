@@ -167,10 +167,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	public void setFlipBoard(boolean flipBoard) {
 
-		this.flipBoard = flipBoard;
-
 		if (this.flipBoard != flipBoard && adjudicator != null) {
 
+			this.flipBoard = flipBoard;
+			
 			refreshBoard();
 
 			updateLastMovedSquare();

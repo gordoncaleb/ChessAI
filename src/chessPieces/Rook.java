@@ -33,6 +33,7 @@ public class Rook {
 		Side player = p.getSide();
 		int nextRow;
 		int nextCol;
+		int value;
 		PositionStatus pieceStatus;
 		Long moveLong;
 
@@ -47,10 +48,16 @@ public class Rook {
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
 					if (!p.hasMoved() && !board.kingHasMoved(player)) {
-						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
+						value = Values.CASTLE_ABILITY_LOST_VALUE;
 					} else {
-						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol);
+						value = 0;
 					}
+
+					if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
+						value -= Values.ROOK_VALUE >> 1;
+					}
+
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value);
 
 					validMoves.add(moveLong);
 				}
@@ -65,11 +72,14 @@ public class Rook {
 			if (pieceStatus == PositionStatus.ENEMY) {
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
-					int value;
 					if (!p.hasMoved() && !board.kingHasMoved(player)) {
 						value = board.getPieceValue(nextRow, nextCol) + Values.CASTLE_ABILITY_LOST_VALUE;
 					} else {
 						value = board.getPieceValue(nextRow, nextCol);
+					}
+
+					if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
+						value -= Values.ROOK_VALUE >> 1;
 					}
 
 					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));

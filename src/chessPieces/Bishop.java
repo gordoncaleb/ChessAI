@@ -32,6 +32,8 @@ public class Bishop {
 		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
+		Long moveLong;
+		int value;
 		PositionStatus pieceStatus;
 		Side player = p.getSide();
 
@@ -44,7 +46,16 @@ public class Bishop {
 			while (pieceStatus == PositionStatus.NO_PIECE) {
 
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE));
+
+					if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
+						value = -Values.BISHOP_VALUE >> 1;
+					} else {
+						value = 0;
+					}
+
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE);
+
+					validMoves.add(moveLong);
 				}
 
 				i++;
@@ -56,7 +67,13 @@ public class Bishop {
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					Long moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE, board.getPiece(nextRow, nextCol));
+					value = board.getPieceValue(nextRow, nextCol);
+
+					if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
+						value -= Values.BISHOP_VALUE >> 1;
+					}
+
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
 					validMoves.add(moveLong);
 				}
 			}
@@ -131,7 +148,7 @@ public class Bishop {
 						blockingPiece.setBlockingVector(bitAttackCompliment | bitAttackVector | bitPosition);
 					}
 				}
-				
+
 				if (pieceStatus == PositionStatus.FRIEND) {
 					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
 				}

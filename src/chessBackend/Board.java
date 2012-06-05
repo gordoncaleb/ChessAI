@@ -689,6 +689,11 @@ public class Board {
 	}
 
 	private int getOpeningPositionValue(Piece piece) {
+
+		if (piece == null) {
+			return 0;
+		}
+
 		int value;
 		Side player = piece.getSide();
 		int row = piece.getRow();
@@ -847,10 +852,10 @@ public class Board {
 				occupiedCol++;
 			}
 		}
-		
+
 		int doubledPawns = BitBoard.bitCountLong(pawns) - occupiedCol;
 
-		return backedPawns*Values.BACKED_PAWN_BONUS + doubledPawns*Values.DOUBLED_PAWN_BONUS;
+		return backedPawns * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS;
 	}
 
 	public int calcGamePhase() {

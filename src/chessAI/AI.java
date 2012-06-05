@@ -14,7 +14,7 @@ import chessIO.MoveBook;
 import chessPieces.Values;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.2.060112_withmem";
+	public static String VERSION = "1.2.060512";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -40,16 +40,13 @@ public class AI extends Thread implements Player {
 	private int nextTask;
 	private AIProcessor[] processorThreads;
 
-	private long totalSearched;
 	private long maxSearched;
-	private int numSearchReq;
+	private long searchedThisGame;
 
 	// private Hashtable<Long, BoardHashEntry> hashTable;
 
 	private BoardHashEntry[] hashTable;
 	private int moveNum;
-
-	private int maxHashSize = 0;
 
 	private boolean useBook;
 
@@ -157,8 +154,7 @@ public class AI extends Thread implements Player {
 		// hashTable.clear();
 
 		maxSearched = 0;
-		numSearchReq = 0;
-		totalSearched = 0;
+		searchedThisGame = 0;
 
 		FileIO.log("New game");
 
@@ -177,6 +173,8 @@ public class AI extends Thread implements Player {
 	public long undoMove() {
 		if (canUndo()) {
 			undoMove.set(true);
+			
+			moveNum--;
 
 			synchronized (this) {
 				notifyAll();
@@ -240,7 +238,7 @@ public class AI extends Thread implements Player {
 			// multiple threads. This takes advantage of multicore systems.
 			delegateProcessors(rootNode);
 
-			aiDecision = rootNode.getChosenChild();
+			aiDecision = rootNode.getHeadChild();
 		} else {
 
 			if (debug) {
@@ -275,6 +273,7 @@ public class AI extends Thread implements Player {
 	private void delegateProcessors(DecisionNode root) {
 
 		taskSize = root.getChildrenSize();
+		long totalSearched = 0;
 
 		if (taskSize == 0) {
 			FileIO.log(this + " didnt see end of game");
@@ -354,17 +353,17 @@ public class AI extends Thread implements Player {
 					maxSearched = Math.max(maxSearched, processorThreads[d].getNumSearched());
 
 					totalSearched += processorThreads[d].getNumSearched();
-					System.out.println("Searched " + processorThreads[d].getNumSearched() + " in " + (maxSearchTime - timeLeft));
-					System.out.println((double) processorThreads[d].getNumSearched() / (double) (maxSearchTime - timeLeft) + " nodes/ms");
+					System.out.println("Searched " + totalSearched + " in " + (maxSearchTime - timeLeft));
+					System.out.println((double) totalSearched / (double) (maxSearchTime - timeLeft) + " nodes/ms");
 				}
 
 				it++;
 			}
+			
+			searchedThisGame += totalSearched;
 
-			numSearchReq++;
-
-			System.out.println("Average searched: " + (totalSearched / numSearchReq));
 			System.out.println("Max Searched " + maxSearched);
+			System.out.println("Searched " + searchedThisGame + " this game");
 
 		}
 
@@ -418,30 +417,6 @@ public class AI extends Thread implements Player {
 	}
 
 	public void cleanHashTable() {
-
-		// if(hashTable.size()>maxHashSize){
-		// maxHashSize = hashTable.size();
-		// }
-		//
-		// //hashTable.clear();
-		//
-		// int delFrom = moveNum - 2;
-		// int removed = 0;
-		//
-		// if (delFrom > 0) {
-		// Iterator<BoardHashEntry> it = hashTable.values().iterator();
-		// BoardHashEntry entry;
-		// while(it.hasNext()) {
-		// entry = it.next();
-		// if (entry.getMoveNum() < delFrom) {
-		// it.remove();
-		// removed++;
-		// }
-		//
-		// }
-		// }
-		//
-		// System.out.println("Removed " + removed + " entries from hashtable");
 	}
 
 	private void undoMoveOnSubThreads() {
@@ -616,10 +591,6 @@ public class AI extends Thread implements Player {
 
 	public int getMoveNum() {
 		return moveNum;
-	}
-
-	public int getMaxHashSize() {
-		return maxHashSize;
 	}
 
 	public DecisionNode getRootNode() {

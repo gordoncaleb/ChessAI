@@ -33,6 +33,7 @@ public class Queen {
 		Side player = p.getSide();
 		int nextRow;
 		int nextCol;
+		int value;
 		PositionStatus pieceStatus;
 
 		int i = 1;
@@ -44,7 +45,14 @@ public class Queen {
 			while (pieceStatus == PositionStatus.NO_PIECE) {
 
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, Values.RISK_QUEEN, MoveNote.NONE));
+
+					if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
+						value = -Values.QUEEN_VALUE >> 1;
+					} else {
+						value = 0;
+					}
+
+					validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE));
 				}
 
 				i++;
@@ -56,8 +64,14 @@ public class Queen {
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					Long moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE,
-							board.getPiece(nextRow, nextCol));
+
+					value = board.getPieceValue(nextRow, nextCol);
+
+					if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
+						value -= Values.QUEEN_VALUE >> 1;
+					}
+
+					Long moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
 					validMoves.add(moveLong);
 				}
 			}
