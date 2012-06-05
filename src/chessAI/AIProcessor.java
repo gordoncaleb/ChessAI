@@ -122,6 +122,7 @@ public class AIProcessor extends Thread {
 			// task.setChosenPathValue(-growDecisionTreeLite(alpha,
 			// Integer.MAX_VALUE - 100, searchDepth, task.getMove(), 0));
 
+			System.out.println("Alpha= " + ai.getAlpha());
 			growDecisionTree(task, ai.getAlpha(), Integer.MAX_VALUE - 100, searchDepth, 0);
 
 			board.undoMove();
@@ -155,6 +156,7 @@ public class AIProcessor extends Thread {
 		}
 
 		branch.setChildren(children);
+		branch.sort();
 
 	}
 
@@ -201,6 +203,8 @@ public class AIProcessor extends Thread {
 				if (!board.isGameOver()) {
 
 					for (int i = 0; i < branch.getChildrenSize(); i++) {
+						
+						sortTo = i + 1;
 
 						board.makeMove(branch.getChild(i).getMove());
 
@@ -212,7 +216,8 @@ public class AIProcessor extends Thread {
 							// bonus depth
 
 							if (twigGrowthEnabled) {
-								branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
+								branch.getChild(i).setChosenPathValue(
+										-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
 							} else {
 								growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
 							}
@@ -234,8 +239,6 @@ public class AIProcessor extends Thread {
 								break;
 							}
 						}
-
-						sortTo = i;
 
 					}
 
@@ -273,13 +276,14 @@ public class AIProcessor extends Thread {
 			// Node has already been created and has children
 			// int childrenSize = branch.getChildrenSize();
 			for (int i = 0; i < branch.getChildrenSize(); i++) {
+				sortTo = i + 1;
 
 				board.makeMove(branch.getChild(i).getMove());
 
 				growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
 
 				board.undoMove();
-
+				
 				cpv = Math.max(cpv, branch.getChild(i).getChosenPathValue());
 
 				// alpha beta pruning
@@ -294,8 +298,8 @@ public class AIProcessor extends Thread {
 					}
 
 				}
+
 				
-				sortTo = i;
 
 			}
 
