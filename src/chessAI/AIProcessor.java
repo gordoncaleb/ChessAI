@@ -20,7 +20,7 @@ public class AIProcessor extends Thread {
 	private final boolean useHashTable = false;
 
 	private int maxInCheckFrontierLevel = 3;
-	private int maxPieceTakenFrontierLevel = 3;
+	private int maxPieceTakenFrontierLevel = 20;
 
 	private final boolean pruningEnabled = true;
 	private int aspirationWindowSize;
@@ -37,7 +37,8 @@ public class AIProcessor extends Thread {
 
 	private boolean bonusEnabled = true;
 
-	//private Move[] voi = { new Move(1, 5, 2, 7), new Move(4, 7, 2, 5), new Move(6, 0, 6, 7) };
+	// private Move[] voi = { new Move(1, 5, 2, 7), new Move(4, 7, 2, 5), new
+	// Move(6, 0, 6, 7) };
 
 	public AIProcessor(AI ai, int maxTreeLevel) {
 		this.ai = ai;
@@ -128,7 +129,7 @@ public class AIProcessor extends Thread {
 			// task.setAlpha(ai.getAlpha());
 			// task.setBeta(Values.CHECKMATE_MOVE - 10);
 
-			growDecisionTree(task, -Values.CHECKMATE_MOVE - 1, Values.CHECKMATE_MOVE, searchDepth, 0);
+			growDecisionTree(task, -Values.CHECKMATE_MOVE - 1, -ai.getAlpha(), searchDepth, 0);
 
 			board.undoMove();
 
@@ -194,7 +195,7 @@ public class AIProcessor extends Thread {
 				bonusLevel = Math.min(bonusLevel, level - 2);
 			}
 
-			if ((branch.hasPieceTaken()) && (level > -maxPieceTakenFrontierLevel)) {
+			if (branch.hasPieceTaken() && (level > -maxPieceTakenFrontierLevel)) {
 				bonusLevel = Math.min(bonusLevel, level - 1);
 			}
 
@@ -242,6 +243,7 @@ public class AIProcessor extends Thread {
 
 						if (twigGrowthEnabled) {
 							branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
+							branch.getChild(i).setBound(ValueBounds.EXACT);
 						} else {
 							growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
 						}
@@ -276,7 +278,7 @@ public class AIProcessor extends Thread {
 				} else {
 					branch.setChosenPathValue(-(cpv + 1));
 				}
-			}else{
+			} else {
 				branch.setChosenPathValue(-cpv);
 			}
 

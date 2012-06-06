@@ -140,7 +140,7 @@ public class Board {
 				move = moveHistory.elementAt(i).getMoveLong();
 				this.moveHistory.push(new Move(move));
 				if (Move.hasPieceTaken(move)) {
-					piecesTaken[moveSide.ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide, Move.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
+					piecesTaken[moveSide.otherSide().ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide.otherSide(), Move.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
 				}
 
 				moveSide = moveSide.otherSide();
@@ -822,27 +822,27 @@ public class Board {
 	public int staticScore() {
 		int ptDiff = 0;
 
-//		int phase = calcGamePhase();
-//
-//		int myPawnScore = pawnStructureScore(turn, phase);
-//		int yourPawnScore = pawnStructureScore(turn.otherSide(), phase);
-//
-//		int openingMyScore = openingMaterialScore(turn);
-//		int openingYourScore = openingMaterialScore(turn.otherSide());
-//
-//		openingMyScore += castleScore(turn) + openingPositionScore(turn);
-//		openingYourScore += castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide());
-//
-//		int endGameMyScore = endGameMaterialScore(turn);
-//		int endGameYourScore = endGameMaterialScore(turn.otherSide());
-//
-//		endGameMyScore += endGamePositionScore(turn);
-//		endGameYourScore += endGamePositionScore(turn.otherSide());
-//
-//		int myScore = (((openingMyScore * (256 - phase)) + (endGameMyScore * phase)) / 256) + myPawnScore;
-//		int yourScore = (((openingYourScore * (256 - phase)) + (endGameYourScore * phase)) / 256) + yourPawnScore;
-//
-//		ptDiff = myScore - yourScore;
+		int phase = calcGamePhase();
+
+		int myPawnScore = pawnStructureScore(turn, phase);
+		int yourPawnScore = pawnStructureScore(turn.otherSide(), phase);
+
+		int openingMyScore = openingMaterialScore(turn);
+		int openingYourScore = openingMaterialScore(turn.otherSide());
+
+		openingMyScore += castleScore(turn) + openingPositionScore(turn);
+		openingYourScore += castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide());
+
+		int endGameMyScore = endGameMaterialScore(turn);
+		int endGameYourScore = endGameMaterialScore(turn.otherSide());
+
+		endGameMyScore += endGamePositionScore(turn);
+		endGameYourScore += endGamePositionScore(turn.otherSide());
+
+		int myScore = (((openingMyScore * (256 - phase)) + (endGameMyScore * phase)) / 256) + myPawnScore;
+		int yourScore = (((openingYourScore * (256 - phase)) + (endGameYourScore * phase)) / 256) + yourPawnScore;
+
+		ptDiff = myScore - yourScore;
 
 		return ptDiff;
 	}
