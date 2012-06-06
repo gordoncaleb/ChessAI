@@ -16,8 +16,8 @@ public class DecisionNode implements Comparable<DecisionNode> {
 	private int chosenPathValue;
 	private ValueBounds bound;
 
-	private int alpha;
-	private int beta;
+	//private int alpha;
+	//private int beta;
 
 	public static void main(String[] args) {
 
@@ -235,26 +235,26 @@ public class DecisionNode implements Comparable<DecisionNode> {
 		}
 	}
 
-	public int getAlpha() {
-		return alpha;
-	}
-
-	public void setAlpha(int alpha) {
-		this.alpha = alpha;
-	}
-
-	public int getBeta() {
-		return beta;
-	}
-
-	public void setBeta(int beta) {
-		this.beta = beta;
-	}
+//	public int getAlpha() {
+//		return alpha;
+//	}
+//
+//	public void setAlpha(int alpha) {
+//		this.alpha = alpha;
+//	}
+//
+//	public int getBeta() {
+//		return beta;
+//	}
+//
+//	public void setBeta(int beta) {
+//		this.beta = beta;
+//	}
 
 	public String toString() {
 
 		if (move != 0)
-			return Move.toString(move) + " Chosen Path Value =" + this.getChosenPathValue() + " Bounds=" + bound + " a:" + alpha + " b:" + beta;
+			return Move.toString(move) + " Chosen Path Value =" + this.getChosenPathValue() + " Bounds=" + bound; // + " a:" + alpha + " b:" + beta;
 		else
 			return "Chosen Path Value =" + this.getChosenPathValue() + " Bounds=" + bound;
 	}
