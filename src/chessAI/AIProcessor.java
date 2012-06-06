@@ -20,7 +20,7 @@ public class AIProcessor extends Thread {
 	private final boolean useHashTable = false;
 
 	private int maxInCheckFrontierLevel = 3;
-	private int maxPieceTakenFrontierLevel = 20;
+	private int maxPieceTakenFrontierLevel = 3;
 
 	private final boolean pruningEnabled = true;
 	private int aspirationWindowSize;
@@ -185,6 +185,41 @@ public class AIProcessor extends Thread {
 		int sortTo = 0;
 		boolean pruned = false;
 
+//		int hashIndex = (int) (board.getHashCode() & BoardHashEntry.hashIndexMask);
+//		BoardHashEntry hashOut;
+//		long hashMove = 0;
+
+//		hashOut = hashTable[hashIndex];
+//
+//		if (hashOut != null) {
+//			if (hashOut.getHashCode() == board.getHashCode()) {
+//				
+//				if (hashOut.getLevel() >= (level - bonusLevel)) {
+//					
+//					if (hashOut.getBounds() == ValueBounds.EXACT) {
+//						
+//						branch.setChosenPathValue(-hashOut.getScore());
+//						branch.setBound(ValueBounds.EXACT);
+//						return;
+//					} else {
+//						
+//						if (hashOut.getBounds() == ValueBounds.ATLEAST) {
+//							if (hashOut.getScore() >= beta) {
+//								branch.setChosenPathValue(-hashOut.getScore());
+//								branch.setBound(ValueBounds.ATMOST);
+//								return;
+//							} else {
+//								hashMove = hashOut.getBestMove();
+//							}
+//						} else {
+//							hashMove = hashOut.getBestMove();
+//						}
+//					}
+//				}
+//				
+//			}
+//		}
+
 		int cpv = Integer.MIN_VALUE;
 
 		if (!branch.hasBeenVisited()) {
@@ -274,13 +309,13 @@ public class AIProcessor extends Thread {
 
 			if ((Math.abs(cpv) & Values.CHECKMATE_MASK) != 0) {
 				if (cpv > 0) {
-					branch.setChosenPathValue(-(cpv - 1));
+					cpv--;
 				} else {
-					branch.setChosenPathValue(-(cpv + 1));
+					cpv++;
 				}
-			} else {
-				branch.setChosenPathValue(-cpv);
 			}
+
+			branch.setChosenPathValue(-cpv);
 
 			if (pruned) {
 				branch.setBound(branch.getHeadChild().getBound().opposite());
@@ -291,6 +326,17 @@ public class AIProcessor extends Thread {
 					branch.setBound(branch.getHeadChild().getBound().opposite());
 				}
 			}
+
+//			if (hashOut == null) {
+//				// public BoardHashEntry(long hashCode, int level, int score,
+//				// int moveNum, ValueBounds bounds, long bestMove) {
+//				hashTable[hashIndex] = new BoardHashEntry(board.hashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(), branch.getHeadChild()
+//						.getMove());
+//			} else {
+//				if (hashTableUpdate(hashOut, level - bonusLevel, ai.getMoveNum())) {
+//					hashOut.setAll(board.hashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(), branch.getHeadChild().getMove());
+//				}
+//			}
 
 		}
 
