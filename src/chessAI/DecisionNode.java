@@ -16,8 +16,8 @@ public class DecisionNode implements Comparable<DecisionNode> {
 	private int chosenPathValue;
 	private ValueBounds bound;
 
-	//private int alpha;
-	//private int beta;
+	// private int alpha;
+	// private int beta;
 
 	public static void main(String[] args) {
 
@@ -185,11 +185,23 @@ public class DecisionNode implements Comparable<DecisionNode> {
 	}
 
 	public boolean hasChildren() {
-		if (children != null) {
+		if (hasBeenVisited()) {
 			return (children.length > 0);
 		} else {
 			return false;
 		}
+	}
+
+	public boolean isGameOver() {
+		if (hasBeenVisited()) {
+			return (children.length == 0);
+		} else {
+			return false;
+		}
+	}
+
+	public boolean hasBeenVisited() {
+		return (children != null);
 	}
 
 	public long getMove() {
@@ -235,28 +247,35 @@ public class DecisionNode implements Comparable<DecisionNode> {
 		}
 	}
 
-//	public int getAlpha() {
-//		return alpha;
-//	}
-//
-//	public void setAlpha(int alpha) {
-//		this.alpha = alpha;
-//	}
-//
-//	public int getBeta() {
-//		return beta;
-//	}
-//
-//	public void setBeta(int beta) {
-//		this.beta = beta;
-//	}
+	// public int getAlpha() {
+	// return alpha;
+	// }
+	//
+	// public void setAlpha(int alpha) {
+	// this.alpha = alpha;
+	// }
+	//
+	// public int getBeta() {
+	// return beta;
+	// }
+	//
+	// public void setBeta(int beta) {
+	// this.beta = beta;
+	// }
 
 	public String toString() {
+		String me = "Chosen Path Value = " + bound + " " + this.getChosenPathValue();
 
-		if (move != 0)
-			return Move.toString(move) + " Chosen Path Value =" + this.getChosenPathValue() + " Bounds=" + bound; // + " a:" + alpha + " b:" + beta;
-		else
-			return "Chosen Path Value =" + this.getChosenPathValue() + " Bounds=" + bound;
+		if (move != 0) {
+			me += " " + Move.toString(move);
+		}
+
+		if (isGameOver()) {
+			me += " GAMEOVER";
+		}
+
+		return me;
+
 	}
 
 	public void printChildrenValues() {

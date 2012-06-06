@@ -42,8 +42,9 @@ public class XMLParser {
 	}
 
 	private static Board buildBoard(Element boardElement) {
-		ArrayList<Piece> blackPieces = new ArrayList<Piece>();
-		ArrayList<Piece> whitePieces = new ArrayList<Piece>();
+		ArrayList<Piece>[] pieces = new ArrayList[2];
+		pieces[Side.WHITE.ordinal()] = new ArrayList<Piece>();
+		pieces[Side.BLACK.ordinal()] = new ArrayList<Piece>();
 
 		Stack<Move> moveHistory = new Stack<Move>();
 		Side player;
@@ -65,13 +66,7 @@ public class XMLParser {
 				}
 
 				if (piece != null) {
-
-					if (piece.getSide() == Side.BLACK) {
-						blackPieces.add(piece);
-
-					} else {
-						whitePieces.add(piece);
-					}
+					pieces[piece.getSide().ordinal()].add(piece);
 				}
 
 			}
@@ -101,12 +96,12 @@ public class XMLParser {
 			}
 		}
 
-		if (blackPieces.size() == 0 || whitePieces.size() == 0) {
+		if (pieces[Side.BLACK.ordinal()].size() == 0 || pieces[Side.WHITE.ordinal()].size() == 0) {
 			System.out.println("Error loading xml board!");
 			return null;
 		}
 
-		Board newBoard = new Board(blackPieces, whitePieces, player, moveHistory, new Stack<Integer>(), 0);
+		Board newBoard = new Board(pieces, player, moveHistory, new Stack<Integer>(), 0);
 
 		Stack<Long> redoMoves = new Stack<Long>();
 		while (newBoard.canUndo()) {

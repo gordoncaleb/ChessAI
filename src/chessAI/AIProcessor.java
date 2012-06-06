@@ -37,7 +37,7 @@ public class AIProcessor extends Thread {
 
 	private boolean bonusEnabled = true;
 
-	private Move[] voi = { new Move(1, 5, 2, 7), new Move(4, 7, 2, 5), new Move(6, 0, 6, 7) };
+	//private Move[] voi = { new Move(1, 5, 2, 7), new Move(4, 7, 2, 5), new Move(6, 0, 6, 7) };
 
 	public AIProcessor(AI ai, int maxTreeLevel) {
 		this.ai = ai;
@@ -125,10 +125,10 @@ public class AIProcessor extends Thread {
 			// task.setChosenPathValue(-growDecisionTreeLite(alpha,
 			// Integer.MAX_VALUE - 100, searchDepth, task.getMove(), 0));
 
-//			task.setAlpha(ai.getAlpha());
-//			task.setBeta(Values.CHECKMATE_MOVE - 10);
+			// task.setAlpha(ai.getAlpha());
+			// task.setBeta(Values.CHECKMATE_MOVE - 10);
 
-			growDecisionTree(task, -Values.CHECKMATE_MOVE, Values.CHECKMATE_MOVE - 10, searchDepth, 0);
+			growDecisionTree(task, -Values.CHECKMATE_MOVE - 1, Values.CHECKMATE_MOVE, searchDepth, 0);
 
 			board.undoMove();
 
@@ -186,11 +186,7 @@ public class AIProcessor extends Thread {
 
 		int cpv = Integer.MIN_VALUE;
 
-		// if(board.isVoi(voi)){
-		// System.out.println("voi found");
-		// }
-
-		if (!branch.hasChildren()) {
+		if (!branch.hasBeenVisited()) {
 
 			board.makeNullMove();
 
@@ -206,107 +202,52 @@ public class AIProcessor extends Thread {
 				// check all moves of all pieces
 				attachValidMoves(branch);
 
-				if (!board.isGameOver()) {
-
-					for (int i = 0; i < branch.getChildrenSize(); i++) {
-
-						sortTo = i + 1;
-
-						board.makeMove(branch.getChild(i).getMove());
-
-						if (level > 0) {
-//							branch.getChild(i).setAlpha(alpha);
-//							branch.getChild(i).setBeta(beta);
-
-							growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
-
-						} else {
-							// bonus depth
-
-							if (bonusEnabled) {
-
-								if (twigGrowthEnabled) {
-									branch.getChild(i).setChosenPathValue(
-											-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
-								} else {
-									growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
-								}
-							}
-
-						}
-
-						board.undoMove();
-
-						cpv = Math.max(cpv, branch.getChild(i).getChosenPathValue());
-
-						// alpha beta pruning
-						if (pruningEnabled) {
-
-							if (cpv > alpha) {
-								alpha = cpv;
-							}
-
-							if (alpha >= beta) {
-								pruned = true;
-								break;
-							}
-						}
-
-					}
-
-					branch.sort(sortTo);
-
-					if ((Math.abs(cpv) & Values.CHECKMATE_MASK) != 0) {
-						if (cpv > 0) {
-							branch.setChosenPathValue(-(cpv - 1));
-						} else {
-							branch.setChosenPathValue(-(cpv + 1));
-						}
-					}
-
-					if (pruned) {
-						branch.setChosenPathValue(-beta);
-						branch.setBound(branch.getHeadChild().getBound().opposite());
-					} else {
-						branch.setChosenPathValue(-alpha);
-						if (branch.getHeadChild().getBound() == ValueBounds.EXACT) {
-							branch.setBound(ValueBounds.EXACT);
-						} else {
-							branch.setBound(branch.getHeadChild().getBound().opposite());
-						}
-					}
-
-				} else {
+				if (board.isGameOver()) {
 
 					if (board.isInCheckMate()) {
 						branch.setChosenPathValue(Values.CHECKMATE_MOVE);
 					} else {
-						// if (level >= searchDepth - 1) {
-						// branch.setChosenPathValue(board.staticScore());
-						// } else {
-						//branch.setChosenPathValue(-board.staticScore());
-						// }
 						branch.setChosenPathValue(0);
 					}
 
 					branch.setBound(ValueBounds.EXACT);
 
+					return;
 				}
+
 			} else {
 				branch.setChosenPathValue(-board.staticScore());
 				branch.setBound(ValueBounds.EXACT);
+				return;
 			}
 
-		} else {
+		}
 
-			// Node has already been created and has children
-			// int childrenSize = branch.getChildrenSize();
+		if (!branch.isGameOver()) {
+
 			for (int i = 0; i < branch.getChildrenSize(); i++) {
+
 				sortTo = i + 1;
 
 				board.makeMove(branch.getChild(i).getMove());
 
-				growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
+				if (level > 0) {
+
+					growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
+
+				} else {
+					// bonus depth
+
+					if (bonusEnabled) {
+
+						if (twigGrowthEnabled) {
+							branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
+						} else {
+							growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
+						}
+					}
+
+				}
 
 				board.undoMove();
 
@@ -323,7 +264,6 @@ public class AIProcessor extends Thread {
 						pruned = true;
 						break;
 					}
-
 				}
 
 			}
@@ -336,13 +276,13 @@ public class AIProcessor extends Thread {
 				} else {
 					branch.setChosenPathValue(-(cpv + 1));
 				}
+			}else{
+				branch.setChosenPathValue(-cpv);
 			}
 
 			if (pruned) {
-				branch.setChosenPathValue(-beta);
 				branch.setBound(branch.getHeadChild().getBound().opposite());
 			} else {
-				branch.setChosenPathValue(-alpha);
 				if (branch.getHeadChild().getBound() == ValueBounds.EXACT) {
 					branch.setBound(ValueBounds.EXACT);
 				} else {
@@ -350,9 +290,7 @@ public class AIProcessor extends Thread {
 				}
 			}
 
-			// branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
-
-		} // end of node already has children code
+		}
 
 	}
 

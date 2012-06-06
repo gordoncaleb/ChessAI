@@ -1,5 +1,6 @@
 package chessBackend;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Vector;
@@ -11,22 +12,19 @@ import chessPieces.*;
 public class Board {
 	private Piece[][] board;
 	private GameStatus boardStatus;
-	private ArrayList<Piece> blackPieces;
-	private Stack<Piece> blackPiecesTaken;
-	private ArrayList<Piece> whitePieces;
-	private Stack<Piece> whitePiecesTaken;
+	private ArrayList<Piece>[] pieces = new ArrayList[2];
+	private Stack<Piece>[] piecesTaken = new Stack[2];
 	private int castleRights;
 	private Stack<Integer> castleRightsHistory;
-	private Piece blackKing;
-	private Piece whiteKing;
+	private Piece[] kings = new Piece[2];
 	private Side turn;
 	private RNGTable rngTable;
 	private Stack<Move> moveHistory;
 	private long hashCode;
 	private Stack<Long> hashCodeHistory;
 	private long[] nullMoveInfo;
-	private long[] allPosBitBoard;
 
+	private long[] allPosBitBoard;
 	private long[] pawnPosBitBoard;
 	private long[] kingPosBitBoard;
 
@@ -61,43 +59,14 @@ public class Board {
 		System.out.println("A= " + A + ", B= " + B + " A/B=" + (double) A / (double) B);
 	}
 
-	// public Board(Piece[][] board, Vector<Piece> blackPieces, Vector<Piece>
-	// whitePieces, long[] posBitBoard, Piece blackKing, Piece whiteKing,
-	// Side turn, Stack<Move> moveHistory, Long hashCode) {
-	//
-	// this.board = board;
-	// this.blackPieces = blackPieces;
-	// this.whitePieces = whitePieces;
-	// this.blackPiecesTaken = new Stack<Piece>();
-	// this.whitePiecesTaken = new Stack<Piece>();
-	// this.blackKing = blackKing;
-	// this.whiteKing = whiteKing;
-	// this.posBitBoard = posBitBoard;
-	// this.moveHistory = moveHistory;
-	// this.hashCodeHistory = new Stack<Long>();
-	// this.rngTable = RNGTable.getSingleton();
-	// this.turn = turn;
-	// this.nullMoveInfo = new long[3];
-	//
-	// if (hashCode != null) {
-	// this.hashCode = hashCode;
-	// } else {
-	// this.hashCode = generateHashCode();
-	// }
-	//
-	// }
-
-	// private Board(ArrayList<Piece> blackPieces, ArrayList<Piece> whitePieces,
-	// Side turn) {
-	// this(blackPieces, whitePieces, turn, new Stack<Move>());
-	// }
-
-	public Board(ArrayList<Piece> blackPieces, ArrayList<Piece> whitePieces, Side turn, Stack<Move> moveHistory, Stack<Integer> castelingRightsHistory, int castlingRights) {
+	public Board(ArrayList<Piece>[] pieces, Side turn, Stack<Move> moveHistory, Stack<Integer> castelingRightsHistory, int castlingRights) {
 		this.board = new Piece[8][8];
-		this.blackPieces = new ArrayList<Piece>(blackPieces.size());
-		this.whitePieces = new ArrayList<Piece>(whitePieces.size());
-		this.blackPiecesTaken = new Stack<Piece>();
-		this.whitePiecesTaken = new Stack<Piece>();
+		this.pieces[Side.WHITE.ordinal()] = new ArrayList<Piece>(pieces[Side.WHITE.ordinal()].size());
+		this.pieces[Side.BLACK.ordinal()] = new ArrayList<Piece>(pieces[Side.BLACK.ordinal()].size());
+
+		this.piecesTaken[Side.WHITE.ordinal()] = new Stack<Piece>();
+		this.piecesTaken[Side.BLACK.ordinal()] = new Stack<Piece>();
+
 		this.moveHistory = new Stack<Move>();
 		this.castleRightsHistory = new Stack<Integer>();
 		this.hashCodeHistory = new Stack<Long>();
@@ -109,49 +78,47 @@ public class Board {
 		long[] pawnPosBitboard = { 0, 0 };
 		long[] kingPosBitboard = { 0, 0 };
 
+		int[] pawnRow = new int[2];
+		pawnRow[Side.BLACK.ordinal()] = 1;
+		pawnRow[Side.WHITE.ordinal()] = 6;
+
+		int[] kingRow = new int[2];
+		kingRow[Side.BLACK.ordinal()] = 0;
+		kingRow[Side.WHITE.ordinal()] = 7;
+
 		Piece temp;
-		for (int p = 0; p < blackPieces.size(); p++) {
-			temp = blackPieces.get(p).getCopy();
-			this.blackPieces.add(temp);
-			board[temp.getRow()][temp.getCol()] = temp;
-			posBitBoard[Side.BLACK.ordinal()] |= temp.getBit();
 
-			if (temp.getPieceID() == PieceID.PAWN) {
-				pawnPosBitboard[Side.BLACK.ordinal()] |= temp.getBit();
-				if (temp.getRow() != 1) {
-					temp.setMoved(true);
+		for (int i = 0; i < pieces.length; i++) {
+
+			for (int p = 0; p < pieces[i].size(); p++) {
+				temp = pieces[i].get(p).getCopy();
+
+				this.pieces[i].add(temp);
+
+				board[temp.getRow()][temp.getCol()] = temp;
+
+				posBitBoard[i] |= temp.getBit();
+
+				if (temp.getPieceID() == PieceID.PAWN) {
+
+					pawnPosBitboard[i] |= temp.getBit();
+
+					if (temp.getRow() != pawnRow[i]) {
+						temp.setMoved(true);
+					}
+				}
+
+				if (temp.getPieceID() == PieceID.KING) {
+
+					kingPosBitboard[i] |= temp.getBit();
+					kings[i] = temp;
+
+					if (temp.getRow() != kingRow[i] || temp.getCol() != 4) {
+						temp.setMoved(true);
+					}
 				}
 			}
 
-			if (temp.getPieceID() == PieceID.KING) {
-				kingPosBitboard[Side.BLACK.ordinal()] |= temp.getBit();
-				blackKing = temp;
-				if (blackKing.getRow() != 0 || blackKing.getCol() != 4) {
-					blackKing.setMoved(true);
-				}
-			}
-		}
-
-		for (int p = 0; p < whitePieces.size(); p++) {
-			temp = whitePieces.get(p).getCopy();
-			this.whitePieces.add(temp);
-			board[temp.getRow()][temp.getCol()] = temp;
-			posBitBoard[Side.WHITE.ordinal()] |= temp.getBit();
-
-			if (temp.getPieceID() == PieceID.PAWN) {
-				pawnPosBitboard[Side.WHITE.ordinal()] |= temp.getBit();
-				if (temp.getRow() != 6) {
-					temp.setMoved(true);
-				}
-			}
-
-			if (temp.getPieceID() == PieceID.KING) {
-				kingPosBitboard[Side.WHITE.ordinal()] |= temp.getBit();
-				whiteKing = temp;
-				if (whiteKing.getRow() != 7 || whiteKing.getCol() != 4) {
-					whiteKing.setMoved(true);
-				}
-			}
 		}
 
 		this.allPosBitBoard = posBitBoard;
@@ -173,11 +140,7 @@ public class Board {
 				move = moveHistory.elementAt(i).getMoveLong();
 				this.moveHistory.push(new Move(move));
 				if (Move.hasPieceTaken(move)) {
-					if (moveSide == Side.WHITE) {
-						blackPiecesTaken.push(new Piece(Move.getPieceTakenID(move), Side.BLACK, Move.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
-					} else {
-						whitePiecesTaken.push(new Piece(Move.getPieceTakenID(move), Side.WHITE, Move.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
-					}
+					piecesTaken[moveSide.ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide, Move.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
 				}
 
 				moveSide = moveSide.otherSide();
@@ -222,13 +185,8 @@ public class Board {
 			Piece pieceTaken = board[Move.getPieceTakenRow(move)][Move.getPieceTakenCol(move)];
 
 			// remove pieceTaken from vectors
-			if (turn == Side.WHITE) {
-				blackPieces.remove(pieceTaken);
-				blackPiecesTaken.push(pieceTaken);
-			} else {
-				whitePieces.remove(pieceTaken);
-				whitePiecesTaken.push(pieceTaken);
-			}
+			pieces[turn.otherSide().ordinal()].remove(pieceTaken);
+			piecesTaken[turn.otherSide().ordinal()].push(pieceTaken);
 
 			// remove bit position from appropriate side
 			allPosBitBoard[pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
@@ -372,13 +330,8 @@ public class Board {
 			// add taken piece back to vectors and board
 			Piece pieceTaken;
 
-			if (turn == Side.WHITE) {
-				pieceTaken = blackPiecesTaken.pop();
-				blackPieces.add(pieceTaken);
-			} else {
-				pieceTaken = whitePiecesTaken.pop();
-				whitePieces.add(pieceTaken);
-			}
+			pieceTaken = piecesTaken[turn.otherSide().ordinal()].pop();
+			pieces[turn.otherSide().ordinal()].add(pieceTaken);
 
 			// add piece taken to position bit board
 			allPosBitBoard[pieceTaken.getSide().ordinal()] |= pieceTaken.getBit();
@@ -514,7 +467,7 @@ public class Board {
 		return (moveHistory.size() != 0);
 	}
 
-	public boolean checkPosBitBoard() {
+	private boolean checkPosBitBoard() {
 
 		long[] pos = new long[2];
 
@@ -556,13 +509,11 @@ public class Board {
 		// BitBoard.printBitBoard(nullMoveInfo[1]);
 
 		ArrayList<Long> validMoves = new ArrayList<Long>(30);
-
-		ArrayList<Piece> pieces = getPiecesFor(turn);
 		ArrayList<Long> moves;
 		Long move;
-		for (int p = 0; p < pieces.size(); p++) {
+		for (int p = 0; p < pieces[turn.ordinal()].size(); p++) {
 
-			moves = pieces.get(p).generateValidMoves(this, nullMoveInfo, allPosBitBoard);
+			moves = pieces[turn.ordinal()].get(p).generateValidMoves(this, nullMoveInfo, allPosBitBoard);
 
 			for (int m = 0; m < moves.size(); m++) {
 				move = moves.get(m);
@@ -623,17 +574,15 @@ public class Board {
 		// recalculating check info
 		clearBoardStatus();
 
-		ArrayList<Piece> pieces = getPiecesFor(turn);
-		for (int p = 0; p < pieces.size(); p++) {
-			pieces.get(p).clearBlocking();
+		for (int p = 0; p < pieces[turn.ordinal()].size(); p++) {
+			pieces[turn.ordinal()].get(p).clearBlocking();
 		}
 
-		pieces = getPiecesFor(turn.otherSide());
-		for (int p = 0; p < pieces.size(); p++) {
-			pieces.get(p).getNullMoveInfo(this, nullMoveInfo);
+		for (int p = 0; p < pieces[turn.otherSide().ordinal()].size(); p++) {
+			pieces[turn.otherSide().ordinal()].get(p).getNullMoveInfo(this, nullMoveInfo);
 		}
 
-		if ((getKing(turn).getBit() & nullMoveInfo[0]) != 0) {
+		if ((kings[turn.ordinal()].getBit() & nullMoveInfo[0]) != 0) {
 			setBoardStatus(GameStatus.CHECK);
 		}
 
@@ -657,10 +606,11 @@ public class Board {
 	}
 
 	public PositionStatus checkPiece(int row, int col, Side player) {
-
-		if (row > 7 || row < 0 || col > 7 || col < 0)
+		
+		if (((row | col) & (~0x7)) != 0){
 			return PositionStatus.OFF_BOARD;
-
+		}
+		
 		if (board[row][col] != null) {
 			if (board[row][col].getSide() == player)
 				return PositionStatus.FRIEND;
@@ -765,10 +715,8 @@ public class Board {
 	private int openingPositionScore(Side side) {
 		int score = 0;
 
-		ArrayList<Piece> myPieces = getPiecesFor(side);
-
-		for (int i = 0; i < myPieces.size(); i++) {
-			score += getOpeningPositionValue(myPieces.get(i));
+		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
+			score += getOpeningPositionValue(pieces[side.ordinal()].get(i));
 		}
 
 		return score;
@@ -777,10 +725,8 @@ public class Board {
 	private int endGamePositionScore(Side side) {
 		int score = 0;
 
-		ArrayList<Piece> myPieces = getPiecesFor(side);
-
-		for (int i = 0; i < myPieces.size(); i++) {
-			score += getEndGamePositionValue(myPieces.get(i));
+		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
+			score += getEndGamePositionValue(pieces[side.ordinal()].get(i));
 		}
 
 		return score;
@@ -789,10 +735,8 @@ public class Board {
 	private int openingMaterialScore(Side side) {
 		int score = 0;
 
-		ArrayList<Piece> myPieces = getPiecesFor(side);
-
-		for (int i = 0; i < myPieces.size(); i++) {
-			score += Values.getOpeningPieceValue(myPieces.get(i).getPieceID());
+		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
+			score += Values.getOpeningPieceValue(pieces[side.ordinal()].get(i).getPieceID());
 		}
 
 		return score;
@@ -801,10 +745,8 @@ public class Board {
 	private int endGameMaterialScore(Side side) {
 		int score = 0;
 
-		ArrayList<Piece> myPieces = getPiecesFor(side);
-
-		for (int i = 0; i < myPieces.size(); i++) {
-			score += Values.getEndGamePieceValue(myPieces.get(i).getPieceID());
+		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
+			score += Values.getEndGamePieceValue(pieces[side.ordinal()].get(i).getPieceID());
 		}
 
 		return score;
@@ -834,7 +776,7 @@ public class Board {
 		return score;
 	}
 
-	private int pawnStructureScore(Side side) {
+	private int pawnStructureScore(Side side, int phase) {
 
 		long pawns = pawnPosBitBoard[side.ordinal()];
 
@@ -855,6 +797,10 @@ public class Board {
 
 		int doubledPawns = BitBoard.bitCountLong(pawns) - occupiedCol;
 
+		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
+
+		}
+
 		return backedPawns * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS;
 	}
 
@@ -862,12 +808,10 @@ public class Board {
 
 		int phase = Values.TOTALPHASE;
 
-		for (int i = 0; i < whitePieces.size(); i++) {
-			phase -= Values.PIECE_PHASE_VAL[whitePieces.get(i).getPieceID().ordinal()];
-		}
-
-		for (int i = 0; i < blackPieces.size(); i++) {
-			phase -= Values.PIECE_PHASE_VAL[blackPieces.get(i).getPieceID().ordinal()];
+		for (int i = 0; i < 2; i++) {
+			for (int p = 0; p < pieces[i].size(); p++) {
+				phase -= Values.PIECE_PHASE_VAL[pieces[i].get(i).getPieceID().ordinal()];
+			}
 		}
 
 		phase = (phase * 256 + (Values.TOTALPHASE / 2)) / Values.TOTALPHASE;
@@ -878,27 +822,27 @@ public class Board {
 	public int staticScore() {
 		int ptDiff = 0;
 
-		int phase = calcGamePhase();
-
-		int myPawnScore = pawnStructureScore(turn);
-		int yourPawnScore = pawnStructureScore(turn.otherSide());
-
-		int openingMyScore = openingMaterialScore(turn);
-		int openingYourScore = openingMaterialScore(turn.otherSide());
-
-		openingMyScore += castleScore(turn) + openingPositionScore(turn) + myPawnScore;
-		openingYourScore += castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide()) + yourPawnScore;
-
-		int endGameMyScore = endGameMaterialScore(turn);
-		int endGameYourScore = endGameMaterialScore(turn.otherSide());
-
-		endGameMyScore += endGamePositionScore(turn) + myPawnScore;
-		endGameYourScore += endGamePositionScore(turn.otherSide()) + yourPawnScore;
-
-		int myScore = ((openingMyScore * (256 - phase)) + (endGameMyScore * phase)) / 256;
-		int yourScore = ((openingYourScore * (256 - phase)) + (endGameYourScore * phase)) / 256;
-
-		ptDiff = myScore - yourScore;
+//		int phase = calcGamePhase();
+//
+//		int myPawnScore = pawnStructureScore(turn, phase);
+//		int yourPawnScore = pawnStructureScore(turn.otherSide(), phase);
+//
+//		int openingMyScore = openingMaterialScore(turn);
+//		int openingYourScore = openingMaterialScore(turn.otherSide());
+//
+//		openingMyScore += castleScore(turn) + openingPositionScore(turn);
+//		openingYourScore += castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide());
+//
+//		int endGameMyScore = endGameMaterialScore(turn);
+//		int endGameYourScore = endGameMaterialScore(turn.otherSide());
+//
+//		endGameMyScore += endGamePositionScore(turn);
+//		endGameYourScore += endGamePositionScore(turn.otherSide());
+//
+//		int myScore = (((openingMyScore * (256 - phase)) + (endGameMyScore * phase)) / 256) + myPawnScore;
+//		int yourScore = (((openingYourScore * (256 - phase)) + (endGameYourScore * phase)) / 256) + yourPawnScore;
+//
+//		ptDiff = myScore - yourScore;
 
 		return ptDiff;
 	}
@@ -934,13 +878,13 @@ public class Board {
 		this.turn = turn;
 	}
 
-	private Piece getKing(Side side) {
-		if (side == Side.BLACK) {
-			return blackKing;
-		} else {
-			return whiteKing;
-		}
-	}
+	// private Piece getKing(Side side) {
+	// if (side == Side.BLACK) {
+	// return blackKing;
+	// } else {
+	// return whiteKing;
+	// }
+	// }
 
 	public boolean hasPiece(int row, int col) {
 		return (board[row][col] != null);
@@ -954,20 +898,12 @@ public class Board {
 		}
 	}
 
-	public ArrayList<Piece> getPiecesFor(Side player) {
-		if (player == Side.WHITE) {
-			return whitePieces;
-		} else {
-			return blackPieces;
-		}
-	}
+	// public ArrayList<Piece> getPiecesFor(Side player) {
+	//
+	// }
 
 	public Stack<Piece> getPiecesTakenFor(Side player) {
-		if (player == Side.WHITE) {
-			return whitePiecesTaken;
-		} else {
-			return blackPiecesTaken;
-		}
+		return piecesTaken[player.ordinal()];
 	}
 
 	public void placePiece(Piece piece, int toRow, int toCol) {
@@ -976,44 +912,60 @@ public class Board {
 			// remove where piece was if it was on board
 			allPosBitBoard[piece.getSide().ordinal()] ^= piece.getBit();
 			board[piece.getRow()][piece.getCol()] = null;
+
+			if (piece.getPieceID() == PieceID.PAWN) {
+				pawnPosBitBoard[piece.getSide().ordinal()] ^= piece.getBit();
+			}
+
+			if (piece.getPieceID() == PieceID.KING) {
+				kingPosBitBoard[piece.getSide().ordinal()] ^= piece.getBit();
+			}
+
 		} else {
 
-			// piece is new
-			if (piece.getSide() == Side.WHITE) {
-				whitePieces.add(piece);
-			} else {
-				blackPieces.add(piece);
-			}
+			pieces[piece.getSide().ordinal()].add(piece);
 		}
 
 		if (toRow >= 0) {
 			// remove where piece taken was
 			if (board[toRow][toCol] != null) {
 
+				Piece pieceTaken = board[toRow][toCol];
+
 				// remove bit position of piece taken
-				allPosBitBoard[board[toRow][toCol].getSide().ordinal()] ^= board[toRow][toCol].getBit();
+				allPosBitBoard[pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
+
+				if (pieceTaken.getPieceID() == PieceID.PAWN) {
+					pawnPosBitBoard[pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
+				}
+
+				if (pieceTaken.getPieceID() == PieceID.KING) {
+					kingPosBitBoard[pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
+				}
 
 				// remove ref to piece taken
-				if (board[toRow][toCol].getSide() == Side.WHITE) {
-					whitePieces.remove(board[toRow][toCol]);
-				} else {
-					blackPieces.remove(board[toRow][toCol]);
-				}
+				pieces[pieceTaken.getSide().ordinal()].remove(pieceTaken);
 			}
 
 			// tell piece where it is now
 			piece.setPos(toRow, toCol);
+
 			// reflect new piece in position bitboard
 			allPosBitBoard[piece.getSide().ordinal()] |= piece.getBit();
+
+			if (piece.getPieceID() == PieceID.PAWN) {
+				pawnPosBitBoard[piece.getSide().ordinal()] |= piece.getBit();
+			}
+
+			if (piece.getPieceID() == PieceID.KING) {
+				kingPosBitBoard[piece.getSide().ordinal()] |= piece.getBit();
+			}
+
 			// update board ref to show piece there
 			board[toRow][toCol] = piece;
 		} else {
 			// piece is being taken off the board. Remove
-			if (piece.getSide() == Side.WHITE) {
-				whitePieces.remove(piece);
-			} else {
-				blackPieces.remove(piece);
-			}
+			pieces[piece.getSide().ordinal()].remove(piece);
 		}
 
 		// basically start over with new board
@@ -1115,15 +1067,11 @@ public class Board {
 	}
 
 	public boolean kingHasMoved(Side player) {
-		if (player == Side.BLACK) {
-			return blackKing.hasMoved();
-		} else {
-			return whiteKing.hasMoved();
-		}
+		return kings[player.ordinal()].hasMoved();
 	}
 
 	public Board getCopy() {
-		return new Board(blackPieces, whitePieces, this.turn, moveHistory, castleRightsHistory, castleRights);
+		return new Board(pieces, this.turn, moveHistory, castleRightsHistory, castleRights);
 	}
 
 	public String toString() {
@@ -1267,19 +1215,15 @@ public class Board {
 
 		boolean sufficient = true;
 
-		if (whitePieces.size() <= 2 && blackPieces.size() <= 2) {
+		if (pieces[0].size() <= 2 && pieces[1].size() <= 2) {
 
 			sufficient = false;
 
-			for (int i = 0; i < whitePieces.size(); i++) {
-				if ((whitePieces.get(i).getPieceID() == PieceID.PAWN) || (whitePieces.get(i).getPieceID() == PieceID.QUEEN) || (whitePieces.get(i).getPieceID() == PieceID.ROOK)) {
-					sufficient = true;
-				}
-			}
-
-			for (int i = 0; i < blackPieces.size(); i++) {
-				if ((blackPieces.get(i).getPieceID() == PieceID.PAWN) || (blackPieces.get(i).getPieceID() == PieceID.QUEEN) || (blackPieces.get(i).getPieceID() == PieceID.ROOK)) {
-					sufficient = true;
+			for (int i = 0; i < pieces.length; i++) {
+				for (int p = 0; p < pieces[i].size(); p++) {
+					if ((pieces[i].get(p).getPieceID() == PieceID.PAWN) || (pieces[i].get(p).getPieceID() == PieceID.QUEEN) || (pieces[i].get(p).getPieceID() == PieceID.ROOK)) {
+						sufficient = true;
+					}
 				}
 			}
 
@@ -1290,32 +1234,23 @@ public class Board {
 
 	private void loadPiecesTaken() {
 
-		whitePiecesTaken = getFullPieceSet(Side.WHITE);
+		for (int i = 0; i < pieces.length; i++) {
 
-		Piece piecePresent;
-		for (int p = 0; p < whitePieces.size(); p++) {
-			piecePresent = whitePieces.get(p);
+			piecesTaken[i] = getFullPieceSet(Side.values()[i]);
 
-			for (int t = 0; t < whitePiecesTaken.size(); t++) {
-				if (whitePiecesTaken.elementAt(t).getPieceID() == piecePresent.getPieceID()) {
-					whitePiecesTaken.remove(t);
-					break;
+			Piece piecePresent;
+			for (int p = 0; p < pieces[i].size(); p++) {
+				piecePresent = pieces[i].get(p);
+
+				for (int t = 0; t < piecesTaken[i].size(); t++) {
+					if (piecesTaken[i].elementAt(t).getPieceID() == piecePresent.getPieceID()) {
+						piecesTaken[i].remove(t);
+						break;
+					}
 				}
 			}
 		}
 
-		blackPiecesTaken = getFullPieceSet(Side.BLACK);
-
-		for (int p = 0; p < blackPieces.size(); p++) {
-			piecePresent = blackPieces.get(p);
-
-			for (int t = 0; t < blackPiecesTaken.size(); t++) {
-				if (blackPiecesTaken.elementAt(t).getPieceID() == piecePresent.getPieceID()) {
-					blackPiecesTaken.remove(t);
-					break;
-				}
-			}
-		}
 	}
 
 	public static Stack<Piece> getFullPieceSet(Side player) {
