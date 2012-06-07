@@ -14,7 +14,7 @@ import chessIO.MoveBook;
 import chessPieces.Values;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.2.060612";
+	public static String VERSION = "1.2.060612_withhash_fixed";
 	private boolean debug;
 
 	private PlayerContainer game;
@@ -64,7 +64,7 @@ public class AI extends Thread implements Player {
 		moveBook.loadMoveBook();
 
 		// Default levels
-		minSearchDepth = 3;
+		minSearchDepth = 4;
 		maxSearchTime = 5000;
 
 		// processorThreads = new
@@ -114,6 +114,8 @@ public class AI extends Thread implements Player {
 						game.makeMove(aiDecision.getMove());
 					}
 
+					cleanHashTable();
+
 					makeMove = false;
 				}
 
@@ -136,6 +138,8 @@ public class AI extends Thread implements Player {
 	public synchronized void newGame(Board board) {
 
 		rootNode = new DecisionNode(0);
+
+		clearHashTable();
 
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i].setBoard(board.getCopy());
@@ -173,7 +177,7 @@ public class AI extends Thread implements Player {
 	public long undoMove() {
 		if (canUndo()) {
 			undoMove.set(true);
-			
+
 			moveNum--;
 
 			synchronized (this) {
@@ -292,7 +296,7 @@ public class AI extends Thread implements Player {
 
 			long startTime = System.currentTimeMillis();
 			long timeLeft = maxSearchTime;
-			int it = 3;
+			int it = 4;
 			boolean checkMateFound = false;
 
 			while (!checkMateFound && timeLeft > 0) {
@@ -317,7 +321,7 @@ public class AI extends Thread implements Player {
 						processing.wait(timeLeft);
 
 						if (nextTask != taskSize) {
-							
+
 							nextTask = taskSize;
 
 							for (int d = 0; d < processorThreads.length; d++) {
@@ -325,10 +329,10 @@ public class AI extends Thread implements Player {
 							}
 
 							processing.wait();
-							
+
 							rootNode.sort(taskDone);
 
-						}else{
+						} else {
 							rootNode.sort();
 						}
 
@@ -341,7 +345,7 @@ public class AI extends Thread implements Player {
 					e.printStackTrace();
 				}
 
-				timeLeft = maxSearchTime - (System.currentTimeMillis() - startTime);
+				timeLeft = 0;//maxSearchTime - (System.currentTimeMillis() - startTime);
 
 				if ((Math.abs(root.getHeadChild().getChosenPathValue()) & Values.CHECKMATE_MASK) != 0) {
 					checkMateFound = true;
@@ -359,7 +363,7 @@ public class AI extends Thread implements Player {
 
 				it++;
 			}
-			
+
 			searchedThisGame += totalSearched;
 
 			System.out.println("Max Searched " + maxSearched);
@@ -417,6 +421,24 @@ public class AI extends Thread implements Player {
 	}
 
 	public void cleanHashTable() {
+
+		for (int i = 0; i < hashTable.length; i++) {
+			if (hashTable[i] != null) {
+				if ((moveNum - hashTable[i].getMoveNum()) > 5) {
+					hashTable[i] = null;
+				}
+			}
+		}
+
+		System.gc();
+	}
+
+	public void clearHashTable() {
+		for (int i = 0; i < hashTable.length; i++) {
+			hashTable[i] = null;
+		}
+
+		System.gc();
 	}
 
 	private void undoMoveOnSubThreads() {

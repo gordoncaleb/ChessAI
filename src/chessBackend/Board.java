@@ -810,7 +810,7 @@ public class Board {
 
 		for (int i = 0; i < 2; i++) {
 			for (int p = 0; p < pieces[i].size(); p++) {
-				phase -= Values.PIECE_PHASE_VAL[pieces[i].get(i).getPieceID().ordinal()];
+				phase -= Values.PIECE_PHASE_VAL[pieces[i].get(p).getPieceID().ordinal()];
 			}
 		}
 

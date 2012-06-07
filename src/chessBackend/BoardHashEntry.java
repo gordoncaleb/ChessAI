@@ -1,7 +1,7 @@
 package chessBackend;
 
 public class BoardHashEntry {
-	public static final int hashIndexSize = 10;
+	public static final int hashIndexSize = 23;
 	public static final long hashIndexMask = (long) (Math.pow(2, hashIndexSize) - 1);
 	private int score;
 	private int level;
