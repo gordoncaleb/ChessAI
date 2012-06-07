@@ -2,28 +2,32 @@ package chessAI;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import chessBackend.BitBoard;
 import chessBackend.Board;
 import chessBackend.BoardHashEntry;
 import chessBackend.GameStatus;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
 import chessBackend.Move;
+import chessBackend.ValueBounds;
 import chessIO.FileIO;
 import chessIO.MoveBook;
 import chessPieces.Values;
 
 public class AI extends Thread implements Player {
-	public static String VERSION = "1.2.060612_withhash_fixed";
-	private boolean debug;
+	public static String version = AISettings.version;
+	private boolean debug = AISettings.debugOutput;
 
 	private PlayerContainer game;
 	private MoveBook moveBook;
+
 	private DecisionNode rootNode;
 	private int alpha;
 
-	private int minSearchDepth;
-	private long maxSearchTime;
+	private int minSearchDepth = AISettings.minSearchDepth;
+	private long maxSearchTime = AISettings.maxSearchTime;
+	private boolean useBook = AISettings.useBook;
+	private final boolean useExtraTime = AISettings.useExtraTime;
+	private int staleHashAge = AISettings.staleHashAge;
 
 	private int[] childNum = new int[200];
 
@@ -43,33 +47,22 @@ public class AI extends Thread implements Player {
 	private long maxSearched;
 	private long searchedThisGame;
 
-	// private Hashtable<Long, BoardHashEntry> hashTable;
-
 	private BoardHashEntry[] hashTable;
 	private int moveNum;
 
-	private boolean useBook;
-
 	public AI(PlayerContainer game, boolean debug) {
-		this.debug = debug;
+		this.debug = debug | this.debug;
 		this.game = game;
 		processing = new Object();
 
-		hashTable = new BoardHashEntry[(int) Math.pow(2, BoardHashEntry.hashIndexSize)];// new
-																						// Hashtable<Long,
-																						// BoardHashEntry>();
+		hashTable = new BoardHashEntry[AISettings.hashTableSize];
+
 		undoMove = new AtomicBoolean();
 
 		moveBook = new MoveBook();
 		moveBook.loadMoveBook();
 
-		// Default levels
-		minSearchDepth = 4;
-		maxSearchTime = 5000;
-
-		// processorThreads = new
-		// AIProcessor[Runtime.getRuntime().availableProcessors()];
-		processorThreads = new AIProcessor[1];
+		processorThreads = new AIProcessor[AISettings.numOfThreads];
 
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i] = new AIProcessor(this, minSearchDepth);
@@ -81,8 +74,6 @@ public class AI extends Thread implements Player {
 		}
 
 		active = true;
-
-		BitBoard.loadMasks();
 
 		this.start();
 	}
@@ -279,8 +270,7 @@ public class AI extends Thread implements Player {
 		taskSize = root.getChildrenSize();
 		long totalSearched = 0;
 
-		if (taskSize == 0) {
-			FileIO.log(this + " didnt see end of game");
+		if (taskSize < 2) {
 			return;
 		}
 
@@ -288,15 +278,11 @@ public class AI extends Thread implements Player {
 			FileIO.log("New task");
 		}
 
-		if (taskSize == 1) {
-			return;
-		}
-
 		synchronized (processing) {
 
 			long startTime = System.currentTimeMillis();
 			long timeLeft = maxSearchTime;
-			int it = 4;
+			int it = minSearchDepth;
 			boolean checkMateFound = false;
 
 			while (!checkMateFound && timeLeft > 0) {
@@ -345,11 +331,10 @@ public class AI extends Thread implements Player {
 					e.printStackTrace();
 				}
 
-				timeLeft = 0;//maxSearchTime - (System.currentTimeMillis() - startTime);
+				timeLeft = maxSearchTime - (System.currentTimeMillis() - startTime);
 
 				if ((Math.abs(root.getHeadChild().getChosenPathValue()) & Values.CHECKMATE_MASK) != 0) {
 					checkMateFound = true;
-
 				}
 
 				for (int d = 0; d < processorThreads.length; d++) {
@@ -362,13 +347,44 @@ public class AI extends Thread implements Player {
 				}
 
 				it++;
+
+				if (!useExtraTime) {
+					break;
+				}
 			}
+
+			randomizePath();
 
 			searchedThisGame += totalSearched;
 
-			System.out.println("Max Searched " + maxSearched);
-			System.out.println("Searched " + searchedThisGame + " this game");
+			FileIO.log("Max Searched " + maxSearched);
+			FileIO.log("Searched " + searchedThisGame + " this game");
 
+		}
+
+	}
+
+	public void randomizePath() {
+
+		int topChildCutoff = (int) (rootNode.getHeadChild().getChosenPathValue() * 0.95);
+		int topChildrenSize = 0;
+
+		for (int i = 0; i < rootNode.getChildrenSize(); i++) {
+			if (rootNode.getChild(i).getChosenPathValue() >= topChildCutoff && rootNode.getChild(i).getBound() == ValueBounds.EXACT) {
+				topChildrenSize++;
+			} else {
+				break;
+			}
+		}
+
+		if (topChildrenSize > 1) {
+
+			int swapIndex = (int) (Math.random() * topChildrenSize);
+
+			DecisionNode temp = rootNode.getHeadChild();
+
+			rootNode.setChild(0, rootNode.getChild(swapIndex));
+			rootNode.setChild(swapIndex, temp);
 		}
 
 	}
@@ -424,7 +440,7 @@ public class AI extends Thread implements Player {
 
 		for (int i = 0; i < hashTable.length; i++) {
 			if (hashTable[i] != null) {
-				if ((moveNum - hashTable[i].getMoveNum()) > 5) {
+				if ((moveNum - hashTable[i].getMoveNum()) > staleHashAge) {
 					hashTable[i] = null;
 				}
 			}
@@ -604,7 +620,7 @@ public class AI extends Thread implements Player {
 
 	@Override
 	public String getVersion() {
-		return AI.VERSION;
+		return AI.version;
 	}
 
 	public BoardHashEntry[] getHashTable() {

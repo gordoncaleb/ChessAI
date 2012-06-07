@@ -18,7 +18,6 @@ public class BitBoard {
 	public static long[][] kingFootPrint;
 
 	public static void main(String args[]) {
-		loadMasks();
 
 		// long t1 = System.currentTimeMillis();
 		// for (long i = 0; i < 0xFFFFFFF; i++) {
@@ -38,27 +37,6 @@ public class BitBoard {
 
 		long val;
 
-		long t = System.currentTimeMillis();
-		for (int i = 0; i < 10000000; i++) {
-			for (int r = 0; r < 8; r++) {
-				for (int c = 0; c < 8; c++) {
-					val = getMaskHard(r, c);
-				}
-			}
-		}
-
-		System.out.println("Hard way took " + (System.currentTimeMillis() - t));
-
-		t = System.currentTimeMillis();
-		for (int i = 0; i < 10000000; i++) {
-			for (int r = 0; r < 8; r++) {
-				for (int c = 0; c < 8; c++) {
-					val = (1L << (r * 8 + c));
-				}
-			}
-		}
-
-		System.out.println("NoFunction way took " + (System.currentTimeMillis() - t));
 
 		for (int r = 0; r < 8; r++) {
 			System.out.println("Row mask =\n" + BitBoard.printBitBoard(getRowMask(r)));
@@ -91,11 +69,6 @@ public class BitBoard {
 	}
 
 	public static long getMask(int row, int col) {
-		return getMaskHard(row, col);
-	}
-
-	public static long getMaskHard(int row, int col) {
-
 		return (1L << (row * 8 + col));
 	}
 
@@ -123,67 +96,44 @@ public class BitBoard {
 		return (0x0101010101010100L << (r * 8 + c));
 	}
 
-	public static void loadMasks() {
+//	public static void loadMasks() {
+//
+//		loadKingFootPrints();
+//
+//	}
 
-		bitMask = new long[8][8];
-
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				bitMask[r][c] = getMaskHard(r, c);
-			}
-		}
-
-		loadFromToMask();
-		loadKingFootPrints();
-
-	}
-
-	private static void loadKingFootPrints() {
-
-		int[][] KINGMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
-
-		kingFootPrint = new long[8][8];
-
-		int nextr;
-		int nextc;
-
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				kingFootPrint[r][c] = 0;
-
-				for (int m = 0; m < 8; m++) {
-					nextr = r + KINGMOVES[0][m];
-					nextc = c + KINGMOVES[1][m];
-
-					if (nextr >= 0 && nextr < 8 && nextc >= 0 && nextc < 8) {
-						kingFootPrint[r][c] |= bitMask[nextr][nextc];
-					}
-				}
-
-				// System.out.println("king foot print " + r + "," + c);
-				// System.out.println(printBitBoard(kingFootPrint[r][c]));
-			}
-		}
-	}
+//	private static void loadKingFootPrints() {
+//
+//		int[][] KINGMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
+//
+//		kingFootPrint = new long[8][8];
+//
+//		int nextr;
+//		int nextc;
+//
+//		for (int r = 0; r < 8; r++) {
+//			for (int c = 0; c < 8; c++) {
+//				kingFootPrint[r][c] = 0;
+//
+//				for (int m = 0; m < 8; m++) {
+//					nextr = r + KINGMOVES[0][m];
+//					nextc = c + KINGMOVES[1][m];
+//
+//					if (nextr >= 0 && nextr < 8 && nextc >= 0 && nextc < 8) {
+//						kingFootPrint[r][c] |= bitMask[nextr][nextc];
+//					}
+//				}
+//
+//				// System.out.println("king foot print " + r + "," + c);
+//				// System.out.println(printBitBoard(kingFootPrint[r][c]));
+//			}
+//		}
+//	}
 
 	public static long getKingFootPrint(int row, int col) {
-		return kingFootPrint[row][col];
-	}
-
-	private static void loadFromToMask() {
-		slidFromToMask = new long[8][8][8][8];
-
-		for (int fr = 0; fr < 8; fr++) {
-			for (int fc = 0; fc < 8; fc++) {
-				for (int tr = 0; tr < 8; tr++) {
-					for (int tc = 0; tc < 8; tc++) {
-						if (fr == tr || fc == tc || Math.abs(fc - tc) == Math.abs(fr - tr)) {
-
-						}
-					}
-				}
-			}
-		}
+		//return kingFootPrint[row][col];
+		
+		return 0L;
 	}
 
 	public static String printBitBoard(long bitBoard) {

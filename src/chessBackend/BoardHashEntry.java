@@ -9,23 +9,26 @@ public class BoardHashEntry {
 	private long hashCode;
 	private long bestMove;
 	private ValueBounds bounds;
+	private String stringBoard;
 
-	public BoardHashEntry(long hashCode, int level, int score, int moveNum, ValueBounds bounds, long bestMove) {
+	public BoardHashEntry(long hashCode, int level, int score, int moveNum, ValueBounds bounds, long bestMove,String stringBoard) {
 		this.score = score;
 		this.level = level;
 		this.moveNum = moveNum;
 		this.hashCode = hashCode;
 		this.bounds = bounds;
 		this.bestMove = bestMove;
+		this.stringBoard = stringBoard;
 	}
 
-	public void setAll(long hashCode, int level, int score, int moveNum, ValueBounds bounds, long bestMove) {
+	public void setAll(long hashCode, int level, int score, int moveNum, ValueBounds bounds, long bestMove, String stringBoard) {
 		this.score = score;
 		this.level = level;
 		this.moveNum = moveNum;
 		this.hashCode = hashCode;
 		this.bounds = bounds;
 		this.bestMove = bestMove;
+		this.stringBoard = stringBoard;
 	}
 
 	public int getScore() {
@@ -76,12 +79,12 @@ public class BoardHashEntry {
 		this.bounds = bounds;
 	}
 
-	// public String getBoardString() {
-	// return boardString;
-	// }
-	//
-	// public void setBoardString(String boardString) {
-	// this.boardString = boardString;
-	// }
+	public String getStringBoard() {
+		return stringBoard;
+	}
+
+	public void setStringBoard(String stringBoard) {
+		this.stringBoard = stringBoard;
+	}
 
 }

@@ -166,6 +166,11 @@ public class DecisionNode implements Comparable<DecisionNode> {
 	public DecisionNode getChild(int i) {
 		return (DecisionNode) children[i];
 	}
+	
+	
+	public void setChild(int i, DecisionNode child){
+		children[i] = child;
+	}
 
 	public DecisionNode getHeadChild() {
 		return (DecisionNode) children[0];

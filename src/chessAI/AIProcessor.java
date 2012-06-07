@@ -7,6 +7,7 @@ import chessBackend.GameStatus;
 import chessBackend.BoardHashEntry;
 import chessBackend.Move;
 import chessBackend.ValueBounds;
+import chessIO.FileIO;
 import chessPieces.Values;
 
 public class AIProcessor extends Thread {
@@ -14,15 +15,13 @@ public class AIProcessor extends Thread {
 	private Board board;
 
 	private int searchDepth;
-	private int decisionNodeDepth;
 	private boolean twigGrowthEnabled;
-	private final boolean iterativeDeepening = false;
-	private final boolean useHashTable = true;
+	private final boolean useHashTable = AISettings.useHashTable;
 
 	private int maxInCheckFrontierLevel = 3;
 	private int maxPieceTakenFrontierLevel = 3;
 
-	private final boolean pruningEnabled = true;
+	private final boolean pruningEnabled = AISettings.alphaBetaPruningEnabled;
 	private int aspirationWindowSize;
 
 	private boolean threadActive;
@@ -35,7 +34,7 @@ public class AIProcessor extends Thread {
 
 	private boolean stopSearch;
 
-	private boolean bonusEnabled = false;
+	private boolean bonusEnabled = AISettings.bonusEnable;
 
 	// private Move[] voi = { new Move(1, 5, 2, 7), new Move(4, 7, 2, 5), new
 	// Move(6, 0, 6, 7) };
@@ -44,7 +43,6 @@ public class AIProcessor extends Thread {
 		this.ai = ai;
 		this.searchDepth = maxTreeLevel;
 		twigGrowthEnabled = false;
-		decisionNodeDepth = searchDepth;
 		aspirationWindowSize = 0;
 
 		threadActive = true;
@@ -140,7 +138,7 @@ public class AIProcessor extends Thread {
 	}
 
 	private boolean hashTableUpdate(BoardHashEntry present, int cLevel, int cMoveNum) {
-		if (present.getMoveNum() <= cMoveNum - 2) {
+		if (present.getMoveNum() <= cMoveNum) {
 			return true;
 		} else {
 			if (cLevel > present.getLevel()) {
@@ -184,7 +182,7 @@ public class AIProcessor extends Thread {
 
 		int sortTo = 0;
 		boolean pruned = false;
-		
+
 		int hashIndex = (int) (board.getHashCode() & BoardHashEntry.hashIndexMask);
 		BoardHashEntry hashOut;
 		long hashMove = 0;
@@ -195,13 +193,24 @@ public class AIProcessor extends Thread {
 			if (hashOut != null) {
 				if (hashOut.getHashCode() == board.getHashCode()) {
 
+					if (hashOut.getStringBoard().compareTo(board.toString()) != 0) {
+						FileIO.log(hashOut.getStringBoard() + "\n!=\n" + board.toString());
+						synchronized (this) {
+							try {
+								this.wait();
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+
 					if (hashOut.getLevel() >= (level - bonusLevel)) {
 
 						if (hashOut.getBounds() == ValueBounds.EXACT) {
 
 							branch.setChosenPathValue(-hashOut.getScore());
 							branch.setBound(ValueBounds.EXACT);
-							//branch.setChildren(null);
+							// branch.setChildren(null);
 							// System.out.println("Found hash entry EXACT");
 							return;
 						} else {
@@ -210,7 +219,7 @@ public class AIProcessor extends Thread {
 								if (hashOut.getScore() >= beta) {
 									branch.setChosenPathValue(-hashOut.getScore());
 									branch.setBound(ValueBounds.ATMOST);
-									//branch.setChildren(null);
+									// branch.setChildren(null);
 									// System.out.println("Found hash entry ATLEAST");
 									return;
 								} else {
@@ -232,12 +241,15 @@ public class AIProcessor extends Thread {
 
 			board.makeNullMove();
 
-			if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel)) {
-				bonusLevel = Math.min(bonusLevel, level - 2);
-			}
+			if (bonusEnabled) {
 
-			if (branch.hasPieceTaken() && (level > -maxPieceTakenFrontierLevel)) {
-				bonusLevel = Math.min(bonusLevel, level - 1);
+				if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel)) {
+					bonusLevel = Math.min(bonusLevel, level - 2);
+				}
+
+				if (branch.hasPieceTaken() && (level > -maxPieceTakenFrontierLevel)) {
+					bonusLevel = Math.min(bonusLevel, level - 1);
+				}
 			}
 
 			if (level > bonusLevel) {
@@ -283,8 +295,7 @@ public class AIProcessor extends Thread {
 					if (bonusEnabled) {
 
 						if (twigGrowthEnabled) {
-							branch.getChild(i).setChosenPathValue(
-									-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
+							branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
 							branch.getChild(i).setBound(ValueBounds.EXACT);
 						} else {
 							growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
@@ -339,14 +350,14 @@ public class AIProcessor extends Thread {
 					// public BoardHashEntry(long hashCode, int level, int
 					// score,
 					// int moveNum, ValueBounds bounds, long bestMove) {
-					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild()
-							.getBound(), branch.getHeadChild().getMove());
+					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(), branch
+							.getHeadChild().getMove(), board.toString());
 					// System.out.println("Adding " + hashIndex +
 					// " to hashTable at level " + level);
 				} else {
 					if (hashTableUpdate(hashOut, level - bonusLevel, ai.getMoveNum())) {
-						hashOut.setAll(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(), branch
-								.getHeadChild().getMove());
+						hashOut.setAll(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(), branch.getHeadChild().getMove(),
+								board.toString());
 					}
 				}
 

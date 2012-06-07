@@ -29,7 +29,6 @@ public class Board {
 	private long[] kingPosBitBoard;
 
 	public static void main(String[] args) {
-		BitBoard.loadMasks();
 		Board board = Game.getDefaultBoard();
 
 		ArrayList<Long> moves = board.generateValidMoves(true);

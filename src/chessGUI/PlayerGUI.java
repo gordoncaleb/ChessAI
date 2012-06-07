@@ -92,7 +92,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 		ai = new AI(null, false);
 
-		frame = new JFrame("Oh,Word? " + AI.VERSION);
+		frame = new JFrame("Oh,Word? " + AI.version);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 
