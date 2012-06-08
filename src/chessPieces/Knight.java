@@ -26,8 +26,7 @@ public class Knight {
 		return "N";
 	}
 
-	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
-		ArrayList<Long> validMoves = new ArrayList<Long>();
+	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
 		int nextRow;

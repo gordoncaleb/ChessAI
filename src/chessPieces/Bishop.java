@@ -26,8 +26,7 @@ public class Bishop {
 		return "B";
 	}
 
-	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
-		ArrayList<Long> validMoves = new ArrayList<Long>();
+	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
 		int nextRow;
@@ -54,6 +53,7 @@ public class Bishop {
 					}
 
 					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE);
+					
 
 					validMoves.add(moveLong);
 				}

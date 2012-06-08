@@ -25,8 +25,7 @@ public class Pawn {
 		return "P";
 	}
 
-	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard) {
-		ArrayList<Long> validMoves = new ArrayList<Long>();
+	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
 		Side player = p.getSide();

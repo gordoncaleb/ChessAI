@@ -34,7 +34,7 @@ public class Adjudicator {
 			} else {
 				return false;
 			}
-		}else{
+		} else {
 			return false;
 		}
 
@@ -73,7 +73,7 @@ public class Adjudicator {
 
 	public ArrayList<Long> getValidMoves() {
 		board.makeNullMove();
-		validMoves = board.generateValidMoves(false);
+		validMoves = board.generateValidMoves();
 
 		return validMoves;
 	}

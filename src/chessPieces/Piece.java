@@ -226,24 +226,30 @@ public class Piece {
 		}
 	}
 
-	public ArrayList<Long> generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard) {
+	public void generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
 
 		switch (id) {
 		case ROOK:
-			return Rook.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+			Rook.generateValidMoves(this, board, nullMoveInfo, posBitBoard, validMoves);
+			break;
 		case KNIGHT:
-			return Knight.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+			Knight.generateValidMoves(this, board, nullMoveInfo, posBitBoard, validMoves);
+			break;
 		case BISHOP:
-			return Bishop.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+			Bishop.generateValidMoves(this, board, nullMoveInfo, posBitBoard, validMoves);
+			break;
 		case QUEEN:
-			return Queen.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+			Queen.generateValidMoves(this, board, nullMoveInfo, posBitBoard, validMoves);
+			break;
 		case KING:
-			return King.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+			King.generateValidMoves(this, board, nullMoveInfo, posBitBoard, validMoves);
+			break;
 		case PAWN:
-			return Pawn.generateValidMoves(this, board, nullMoveInfo, posBitBoard);
+			Pawn.generateValidMoves(this, board, nullMoveInfo, posBitBoard, validMoves);
+			break;
 		default:
-			return null;
 		}
+		
 
 	}
 

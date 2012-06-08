@@ -18,8 +18,8 @@ public class AIProcessor extends Thread {
 	private boolean twigGrowthEnabled;
 	private final boolean useHashTable = AISettings.useHashTable;
 
-	private int maxInCheckFrontierLevel = 3;
-	private int maxPieceTakenFrontierLevel = 3;
+	private int maxInCheckFrontierLevel = AISettings.maxInCheckFrontierLevel;
+	private int maxPieceTakenFrontierLevel = AISettings.maxPieceTakenFrontierLevel;
 
 	private final boolean pruningEnabled = AISettings.alphaBetaPruningEnabled;
 	private int aspirationWindowSize;
@@ -106,7 +106,7 @@ public class AIProcessor extends Thread {
 		// if game isnt over make sure tree root shows what next valid moves are
 		if (!this.rootNode.hasChildren()) {
 			board.makeNullMove();
-			attachValidMoves(rootNode);
+			attachValidMoves(rootNode, 0);
 
 		}
 
@@ -121,13 +121,16 @@ public class AIProcessor extends Thread {
 
 			board.makeMove(task.getMove());
 
-			// task.setChosenPathValue(-growDecisionTreeLite(alpha,
-			// Integer.MAX_VALUE - 100, searchDepth, task.getMove(), 0));
+			if (AISettings.useLite) {
 
-			// task.setAlpha(ai.getAlpha());
-			// task.setBeta(Values.CHECKMATE_MOVE - 10);
+				task.setChosenPathValue(-growDecisionTreeLite(-Values.CHECKMATE_MOVE - 1, -ai.getAlpha(), searchDepth, task.getMove(), 0));
 
-			growDecisionTree(task, -Values.CHECKMATE_MOVE - 1, -ai.getAlpha(), searchDepth, 0);
+			} else {
+				// task.setAlpha(ai.getAlpha());
+				// task.setBeta(Values.CHECKMATE_MOVE - 10);
+
+				growDecisionTree(task, -Values.CHECKMATE_MOVE - 1, -ai.getAlpha(), searchDepth, 0);
+			}
 
 			board.undoMove();
 
@@ -149,9 +152,9 @@ public class AIProcessor extends Thread {
 		}
 	}
 
-	public void attachValidMoves(DecisionNode branch) {
+	public void attachValidMoves(DecisionNode branch, long hashMove) {
 
-		ArrayList<Long> moves = board.generateValidMoves(false);
+		ArrayList<Long> moves = board.generateValidMoves(true, hashMove);
 
 		DecisionNode[] children = new DecisionNode[moves.size()];
 
@@ -160,7 +163,7 @@ public class AIProcessor extends Thread {
 		}
 
 		branch.setChildren(children);
-		branch.sort();
+		// branch.sort();
 
 	}
 
@@ -178,10 +181,15 @@ public class AIProcessor extends Thread {
 			return;
 		}
 
+		int a = alpha;
+		int b = beta;
+
+		branch.setAlpha(alpha);
+		branch.setBeta(beta);
+
 		numSearched++;
 
 		int sortTo = 0;
-		boolean pruned = false;
 
 		int hashIndex = (int) (board.getHashCode() & BoardHashEntry.hashIndexMask);
 		BoardHashEntry hashOut;
@@ -193,32 +201,34 @@ public class AIProcessor extends Thread {
 			if (hashOut != null) {
 				if (hashOut.getHashCode() == board.getHashCode()) {
 
-					if (hashOut.getStringBoard().compareTo(board.toString()) != 0) {
-						FileIO.log(hashOut.getStringBoard() + "\n!=\n" + board.toString());
-						synchronized (this) {
-							try {
-								this.wait();
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-					}
+					// if (hashOut.getStringBoard().compareTo(board.toString())
+					// != 0) {
+					// FileIO.log(hashOut.getStringBoard() + "\n!=\n" +
+					// board.toString());
+					// synchronized (this) {
+					// try {
+					// this.wait();
+					// } catch (InterruptedException e) {
+					// e.printStackTrace();
+					// }
+					// }
+					// }
 
 					if (hashOut.getLevel() >= (level - bonusLevel)) {
 
-						if (hashOut.getBounds() == ValueBounds.EXACT) {
+						if (hashOut.getBounds() == ValueBounds.PV) {
 
 							branch.setChosenPathValue(-hashOut.getScore());
-							branch.setBound(ValueBounds.EXACT);
+							branch.setBound(ValueBounds.PV);
 							// branch.setChildren(null);
 							// System.out.println("Found hash entry EXACT");
 							return;
 						} else {
 
-							if (hashOut.getBounds() == ValueBounds.ATLEAST) {
+							if (hashOut.getBounds() == ValueBounds.CUT) {
 								if (hashOut.getScore() >= beta) {
 									branch.setChosenPathValue(-hashOut.getScore());
-									branch.setBound(ValueBounds.ATMOST);
+									branch.setBound(ValueBounds.ALL);
 									// branch.setChildren(null);
 									// System.out.println("Found hash entry ATLEAST");
 									return;
@@ -254,7 +264,7 @@ public class AIProcessor extends Thread {
 
 			if (level > bonusLevel) {
 				// check all moves of all pieces
-				attachValidMoves(branch);
+				attachValidMoves(branch, hashMove);
 
 				if (board.isGameOver()) {
 
@@ -264,14 +274,14 @@ public class AIProcessor extends Thread {
 						branch.setChosenPathValue(0);
 					}
 
-					branch.setBound(ValueBounds.EXACT);
+					branch.setBound(ValueBounds.PV);
 
 					return;
 				}
 
 			} else {
 				branch.setChosenPathValue(-board.staticScore());
-				branch.setBound(ValueBounds.EXACT);
+				branch.setBound(ValueBounds.PV);
 				return;
 			}
 
@@ -296,7 +306,7 @@ public class AIProcessor extends Thread {
 
 						if (twigGrowthEnabled) {
 							branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
-							branch.getChild(i).setBound(ValueBounds.EXACT);
+							branch.getChild(i).setBound(getNodeType(-branch.getChild(i).getChosenPathValue(), -beta, -alpha));
 						} else {
 							growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
 						}
@@ -316,7 +326,6 @@ public class AIProcessor extends Thread {
 					}
 
 					if (alpha >= beta) {
-						pruned = true;
 						break;
 					}
 				}
@@ -334,30 +343,20 @@ public class AIProcessor extends Thread {
 			}
 
 			branch.setChosenPathValue(-cpv);
-
-			if (pruned) {
-				branch.setBound(branch.getHeadChild().getBound().opposite());
-			} else {
-				if (branch.getHeadChild().getBound() == ValueBounds.EXACT) {
-					branch.setBound(ValueBounds.EXACT);
-				} else {
-					branch.setBound(branch.getHeadChild().getBound().opposite());
-				}
-			}
+			branch.setBound(getNodeType(cpv, a, b));
 
 			if (useHashTable) {
 				if (hashOut == null) {
 					// public BoardHashEntry(long hashCode, int level, int
 					// score,
 					// int moveNum, ValueBounds bounds, long bestMove) {
-					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(), branch
-							.getHeadChild().getMove(), board.toString());
+					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getBound(), branch.getHeadChild()
+							.getMove());// , board.toString());
 					// System.out.println("Adding " + hashIndex +
 					// " to hashTable at level " + level);
 				} else {
 					if (hashTableUpdate(hashOut, level - bonusLevel, ai.getMoveNum())) {
-						hashOut.setAll(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(), branch.getHeadChild().getMove(),
-								board.toString());
+						hashOut.setAll(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(), branch.getMove());// ,board.toString());
 					}
 				}
 
@@ -365,6 +364,18 @@ public class AIProcessor extends Thread {
 
 		}
 
+	}
+
+	private ValueBounds getNodeType(int s, int a, int b) {
+		if (s >= b) {
+			return ValueBounds.CUT;
+		}
+
+		if (s < a) {
+			return ValueBounds.ALL;
+		}
+
+		return ValueBounds.PV;
 	}
 
 	/**
@@ -389,14 +400,68 @@ public class AIProcessor extends Thread {
 
 		numSearched++;
 
-		board.makeNullMove();
+		int a = alpha;
+		int b = beta;
+		long bestMove = 0;
 
-		if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel)) {
-			bonusLevel = Math.min(bonusLevel, level - 2);
+		int hashIndex = (int) (board.getHashCode() & BoardHashEntry.hashIndexMask);
+		BoardHashEntry hashOut;
+		long hashMove = 0;
+		hashOut = hashTable[hashIndex];
+
+		if (useHashTable) {
+
+			if (hashOut != null) {
+				if (hashOut.getHashCode() == board.getHashCode()) {
+
+					// if (hashOut.getStringBoard().compareTo(board.toString())
+					// != 0) {
+					// FileIO.log(hashOut.getStringBoard() + "\n!=\n" +
+					// board.toString());
+					// synchronized (this) {
+					// try {
+					// this.wait();
+					// } catch (InterruptedException e) {
+					// e.printStackTrace();
+					// }
+					// }
+					// }
+
+					if (hashOut.getLevel() >= (level - bonusLevel)) {
+
+						if (hashOut.getBounds() == ValueBounds.PV) {
+							return hashOut.getScore();
+						} else {
+
+							if (hashOut.getBounds() == ValueBounds.CUT) {
+								if (hashOut.getScore() >= beta) {
+									return hashOut.getScore();
+								} else {
+									hashMove = hashOut.getBestMove();
+								}
+							} else {
+								hashMove = hashOut.getBestMove();
+							}
+						}
+					} else {
+						hashMove = hashOut.getBestMove();
+					}
+
+				}
+			}
 		}
 
-		if ((Move.hasPieceTaken(moveMade)) && (level > -maxPieceTakenFrontierLevel)) {
-			bonusLevel = Math.min(bonusLevel, level - 1);
+		board.makeNullMove();
+
+		if (bonusEnabled) {
+
+			if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -maxInCheckFrontierLevel)) {
+				bonusLevel = Math.min(bonusLevel, level - 2);
+			}
+
+			if ((Move.hasPieceTaken(moveMade)) && (level > -maxPieceTakenFrontierLevel)) {
+				bonusLevel = Math.min(bonusLevel, level - 1);
+			}
 		}
 
 		if (level > bonusLevel) {
@@ -404,7 +469,7 @@ public class AIProcessor extends Thread {
 			GameStatus tempBoardState;
 			long move;
 
-			ArrayList<Long> moves = board.generateValidMoves(true);
+			ArrayList<Long> moves = new ArrayList<Long>(board.generateValidMoves(true, hashMove));
 
 			if (!board.isGameOver()) {
 
@@ -423,6 +488,7 @@ public class AIProcessor extends Thread {
 
 					if (suggestedPathValue > bestPathValue) {
 						bestPathValue = suggestedPathValue;
+						bestMove = move;
 					}
 
 					if (bestPathValue > alpha) {
@@ -444,8 +510,25 @@ public class AIProcessor extends Thread {
 			bestPathValue = -(Values.CHECKMATE_MOVE - (searchDepth - level));
 		} else {
 			if (board.isInStaleMate() || board.isDraw()) {
-				bestPathValue = -((board.staticScore()) / Values.DRAW_DIVISOR);
+				bestPathValue = 0;
 			}
+		}
+
+		if (useHashTable) {
+			if (hashOut == null) {
+				// public BoardHashEntry(long hashCode, int level, int
+				// score,
+				// int moveNum, ValueBounds bounds, long bestMove) {
+				hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, bestPathValue, ai.getMoveNum(), getNodeType(bestPathValue, a, b), bestMove);// ,
+																																												// board.toString());
+				// System.out.println("Adding " + hashIndex +
+				// " to hashTable at level " + level);
+			} else {
+				if (hashTableUpdate(hashOut, level - bonusLevel, ai.getMoveNum())) {
+					hashOut.setAll(board.getHashCode(), level - bonusLevel, bestPathValue, ai.getMoveNum(), getNodeType(bestPathValue, a, b), bestMove);// ,board.toString());
+				}
+			}
+
 		}
 
 		return bestPathValue;

@@ -2,6 +2,7 @@ package chessBackend;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -12,6 +13,7 @@ import chessPieces.*;
 public class Board {
 	private Piece[][] board;
 	private GameStatus boardStatus;
+	private ArrayList<Long> validMoves = new ArrayList<Long>(50);
 	private ArrayList<Piece>[] pieces = new ArrayList[2];
 	private Stack<Piece>[] piecesTaken = new Stack[2];
 	private int castleRights;
@@ -31,7 +33,7 @@ public class Board {
 	public static void main(String[] args) {
 		Board board = Game.getDefaultBoard();
 
-		ArrayList<Long> moves = board.generateValidMoves(true);
+		ArrayList<Long> moves = board.generateValidMoves(true, 0);
 
 		long m = moves.get(0);
 
@@ -41,7 +43,7 @@ public class Board {
 		for (int i = 0; i < its; i++) {
 			board.makeMove(m);
 			board.makeNullMove();
-			moves = board.generateValidMoves(true);
+			moves = board.generateValidMoves(true, 0);
 			board.undoMove();
 		}
 
@@ -139,7 +141,8 @@ public class Board {
 				move = moveHistory.elementAt(i).getMoveLong();
 				this.moveHistory.push(new Move(move));
 				if (Move.hasPieceTaken(move)) {
-					piecesTaken[moveSide.otherSide().ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide.otherSide(), Move.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
+					piecesTaken[moveSide.otherSide().ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide.otherSide(), Move.getPieceTakenRow(move), Move
+							.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
 				}
 
 				moveSide = moveSide.otherSide();
@@ -175,8 +178,8 @@ public class Board {
 		hashCodeHistory.push(new Long(hashCode));
 
 		// remove previous castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE),
-				this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		// remove taken piece first
 		if (Move.hasPieceTaken(move)) {
@@ -243,8 +246,8 @@ public class Board {
 		}
 
 		// add new castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE),
-				this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		// either remove black and add white or reverse. Same operation.
 		hashCode ^= rngTable.getBlackToMoveRandom();
@@ -496,7 +499,11 @@ public class Board {
 		return match;
 	}
 
-	public ArrayList<Long> generateValidMoves(boolean sort) {
+	public ArrayList<Long> generateValidMoves() {
+		return generateValidMoves(false, 0);
+	}
+
+	public ArrayList<Long> generateValidMoves(boolean sort, long hashMove) {
 
 		// find in check details. i.e. left and right castle info
 		// makeNullMove();
@@ -507,31 +514,35 @@ public class Board {
 		// System.out.println("in check vector");
 		// BitBoard.printBitBoard(nullMoveInfo[1]);
 
-		ArrayList<Long> validMoves = new ArrayList<Long>(30);
-		ArrayList<Long> moves;
+		// ArrayList<Long> validMoves = new ArrayList<Long>(50);
+		validMoves.clear();
+		int prevMovesSize = 0;
+		
+		
 		Long move;
 		for (int p = 0; p < pieces[turn.ordinal()].size(); p++) {
 
-			moves = pieces[turn.ordinal()].get(p).generateValidMoves(this, nullMoveInfo, allPosBitBoard);
+			pieces[turn.ordinal()].get(p).generateValidMoves(this, nullMoveInfo, allPosBitBoard, validMoves);
 
-			for (int m = 0; m < moves.size(); m++) {
-				move = moves.get(m);
+			for (int m = prevMovesSize; m < validMoves.size(); m++) {
+				move = validMoves.get(m);
 
-				if (Move.getPieceTakenID(move) == PieceID.KING) {
+				move = Move.setHadMoved(move, pieces[turn.ordinal()].get(p).hasMoved());
 
-					FileIO.writeFile("bug522.xml", this.toXML(true), false);
-					System.out.println("WTF");
+				if (move == hashMove) {
+					move = Move.setValue(move, 10000);
 				}
+				
+				validMoves.set(m, move);
 
-				move = Move.setHadMoved(move, hasMoved(Move.getFromRow(move), Move.getFromCol(move)));
-
-				if (sort) {
-					addSortValidMove(validMoves, move);
-				} else {
-					validMoves.add(move);
-				}
 			}
+			
+			prevMovesSize = validMoves.size();
 
+		}
+
+		if (sort) {
+			Collections.sort(validMoves, Collections.reverseOrder());
 		}
 
 		if (validMoves.size() == 0) {
@@ -605,11 +616,11 @@ public class Board {
 	}
 
 	public PositionStatus checkPiece(int row, int col, Side player) {
-		
-		if (((row | col) & (~0x7)) != 0){
+
+		if (((row | col) & (~0x7)) != 0) {
 			return PositionStatus.OFF_BOARD;
 		}
-		
+
 		if (board[row][col] != null) {
 			if (board[row][col].getSide() == player)
 				return PositionStatus.FRIEND;
@@ -1151,8 +1162,8 @@ public class Board {
 			}
 		}
 
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE),
-				this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		if (getLastMoveMade() != 0) {
 			if (Move.getNote(getLastMoveMade()) == MoveNote.PAWN_LEAP) {

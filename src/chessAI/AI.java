@@ -291,7 +291,7 @@ public class AI extends Thread implements Player {
 				// tasks.
 				taskDone = 0;
 				nextTask = 0;
-				alpha = Integer.MIN_VALUE + 100;
+				alpha = -Values.CHECKMATE_MOVE;
 				// root.removeAllChildren();
 
 				// wake all threads up
@@ -370,7 +370,7 @@ public class AI extends Thread implements Player {
 		int topChildrenSize = 0;
 
 		for (int i = 0; i < rootNode.getChildrenSize(); i++) {
-			if (rootNode.getChild(i).getChosenPathValue() >= topChildCutoff && rootNode.getChild(i).getBound() == ValueBounds.EXACT) {
+			if (rootNode.getChild(i).getChosenPathValue() >= topChildCutoff && rootNode.getChild(i).getBound() == ValueBounds.PV) {
 				topChildrenSize++;
 			} else {
 				break;
