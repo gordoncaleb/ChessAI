@@ -355,38 +355,11 @@ public class AI extends Thread implements Player {
 				}
 			}
 
-			//randomizePath();
-
 			searchedThisGame += totalSearched;
 
 			FileIO.log("Max Searched " + maxSearched);
 			FileIO.log("Searched " + searchedThisGame + " this game");
 
-		}
-
-	}
-
-	public void randomizePath() {
-
-		int topChildCutoff = (int) (rootNode.getHeadChild().getChosenPathValue() * 0.95);
-		int topChildrenSize = 0;
-
-		for (int i = 0; i < rootNode.getChildrenSize(); i++) {
-			if (rootNode.getChild(i).getChosenPathValue() >= topChildCutoff && rootNode.getChild(i).getBound() == ValueBounds.PV) {
-				topChildrenSize++;
-			} else {
-				break;
-			}
-		}
-
-		if (topChildrenSize > 1) {
-
-			int swapIndex = (int) (Math.random() * topChildrenSize);
-
-			DecisionNode temp = rootNode.getHeadChild();
-
-			rootNode.setChild(0, rootNode.getChild(swapIndex));
-			rootNode.setChild(swapIndex, temp);
 		}
 
 	}

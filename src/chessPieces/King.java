@@ -57,8 +57,7 @@ public class King {
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE,
-							board.getPiece(nextRow, nextCol));
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE, board.getPiece(nextRow, nextCol));
 					validMoves.add(moveLong);
 				}
 			}
@@ -69,15 +68,23 @@ public class King {
 
 		if (!board.isInCheck()) {
 			// add possible castle move
-			if (canCastleFar(board, player, nullMoveInfo, allPosBitBoard)) {
+			if (canCastleFar(p, board, player, nullMoveInfo, allPosBitBoard)) {
 				if (isValidMove(currentRow, 2, nullMoveInfo)) {
-					validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
+					if (currentCol > 3) {
+						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
+					} else {
+						validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 0), currentRow, 3, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
+					}
 				}
 			}
 
-			if (canCastleNear(board, player, nullMoveInfo, allPosBitBoard)) {
+			if (canCastleNear(p, board, player, nullMoveInfo, allPosBitBoard)) {
 				if (isValidMove(currentRow, 6, nullMoveInfo)) {
-					validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 6, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+					if (currentCol < 5) {
+						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 6, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+					} else {
+						validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 1), currentRow, 5, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+					}
 				}
 			}
 		}
@@ -113,22 +120,18 @@ public class King {
 		}
 	}
 
-	public static boolean canCastleFar(Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
+	public static boolean canCastleFar(Piece king, Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
 
 		if (board.kingHasMoved(player) || board.farRookHasMoved(player)) {
 			return false;
 		}
 
-		long kingToCastleMask = BitBoard.getCastleMask(board.getKingStartingCol(player), 2, player);
-		long rookToCastleMask = BitBoard.getCastleMask(board.getRookStartingCol(player, 0), 3, player);
+		long kingToCastleMask = BitBoard.getCastleMask(king.getCol(), 2, player);
 
-		// if (player == Side.BLACK) {
-		// posClearMask = BitBoard.BLACK_CASTLE_FAR;
-		// checkFar = BitBoard.BLACK_CHECK_FAR;
-		// } else {
-		// posClearMask = BitBoard.WHITE_CASTLE_FAR;
-		// checkFar = BitBoard.WHITE_CHECK_FAR;
-		// }
+		int rookCol = board.getRookStartingCol(player, 0);
+		long rookToCastleMask = BitBoard.getCastleMask(rookCol, 3, player);
+
+		allPosBitBoard ^= BitBoard.getMask(king.getRow(), rookCol) | king.getBit();
 
 		if ((kingToCastleMask & nullMoveInfo[0]) == 0) {
 			if (((kingToCastleMask | rookToCastleMask) & allPosBitBoard) == 0) {
@@ -140,25 +143,22 @@ public class King {
 
 	}
 
-	public static boolean canCastleNear(Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
+	public static boolean canCastleNear(Piece king, Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
 
 		if (board.kingHasMoved(player) || board.nearRookHasMoved(player)) {
 			return false;
 		}
 
-		long kingToCastleMask = BitBoard.getCastleMask(board.getKingStartingCol(player), 6, player);
-		long rookToCastleMask = BitBoard.getCastleMask(board.getRookStartingCol(player, 1), 5, player);
+		long kingToCastleMask = BitBoard.getCastleMask(king.getCol(), 6, player);
 
+		int rookCol = board.getRookStartingCol(player, 1);
+		long rookToCastleMask = BitBoard.getCastleMask(rookCol, 5, player);
 
-		// long posClearMask;
-		// long checkNear;
-		// if (player == Side.BLACK) {
-		// posClearMask = BitBoard.BLACK_CASTLE_NEAR;
-		// checkNear = BitBoard.BLACK_CHECK_NEAR;
-		// } else {
-		// posClearMask = BitBoard.WHITE_CASTLE_NEAR;
-		// checkNear = BitBoard.WHITE_CHECK_NEAR;
-		// }
+		allPosBitBoard ^= BitBoard.getMask(king.getRow(), rookCol) | king.getBit();
+
+		// System.out.println(BitBoard.printBitBoard(kingToCastleMask));
+		// System.out.println(BitBoard.printBitBoard(rookToCastleMask));
+		// System.out.println(BitBoard.printBitBoard(allPosBitBoard));
 
 		if ((kingToCastleMask & nullMoveInfo[0]) == 0) {
 			if (((kingToCastleMask | rookToCastleMask) & allPosBitBoard) == 0) {

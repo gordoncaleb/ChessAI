@@ -112,9 +112,8 @@ public class Game implements PlayerContainer {
 				}
 			}
 
-			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(),
-					clock.getTime(Side.WHITE), clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE),
-					clock.getMaxTime(Side.BLACK));
+			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(), clock.getTime(Side.WHITE),
+					clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE), clock.getMaxTime(Side.BLACK));
 		}
 
 		return null;
@@ -135,7 +134,9 @@ public class Game implements PlayerContainer {
 
 	public synchronized void setSide(Side side, Player player) {
 		if (players.get(side) != player) {
-			switchSides();
+			Player whitePlayer = players.get(Side.WHITE);
+			players.put(Side.WHITE, players.get(Side.BLACK));
+			players.put(Side.BLACK, whitePlayer);
 		}
 	}
 
@@ -238,11 +239,19 @@ public class Game implements PlayerContainer {
 	}
 
 	public String getPlayerName(Side side) {
-		return players.get(side).getVersion();
+		if (players.get(side) != null) {
+			return players.get(side).getVersion();
+		} else {
+			return "";
+		}
 	}
 
 	public long getPlayerTime(Side side) {
-		return clock.getTime(side);
+		if (clock != null) {
+			return clock.getTime(side);
+		} else {
+			return 0;
+		}
 	}
 
 	public synchronized void addObserver(Player observer) {
@@ -279,7 +288,7 @@ public class Game implements PlayerContainer {
 		for (int i = 0; i < observers.size(); i++) {
 			observers.elementAt(i).endGame();
 		}
-		
+
 	}
 
 }

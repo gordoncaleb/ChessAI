@@ -44,7 +44,7 @@ public class BitBoard {
 		System.out.println(BitBoard.printBitBoard(WHITE_CHECK_NEAR));
 
 		System.out.println("white check near hardway");
-		System.out.println(BitBoard.printBitBoard(getCastleMask(6, 4, Side.WHITE)));
+		System.out.println(BitBoard.printBitBoard(getCastleMask(4, 2, Side.WHITE)));
 
 		// for (int r = 0; r < 8; r++) {
 		// System.out.println("Row mask =\n" +
@@ -85,7 +85,7 @@ public class BitBoard {
 	public static long getCastleMask(int col1, int col2, Side side) {
 		int lowCol;
 		int highCol;
-		
+
 		if (col1 >= col2) {
 			lowCol = col2;
 			highCol = col1;
@@ -93,11 +93,11 @@ public class BitBoard {
 			lowCol = col1;
 			highCol = col2;
 		}
-		
+
 		if (side == Side.BLACK) {
-			return ((0xFFL >> (9 - highCol + lowCol)) << (lowCol + 1));
+			return ((0xFFL >> (7 - highCol + lowCol)) << (lowCol));
 		} else {
-			return ((0xFFL >> (9 - highCol + lowCol)) << (lowCol + 57));
+			return ((0xFFL >> (7 - highCol + lowCol)) << (lowCol + 56));
 		}
 	}
 

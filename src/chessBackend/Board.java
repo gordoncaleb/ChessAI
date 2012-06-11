@@ -90,7 +90,7 @@ public class Board {
 
 	}
 
-	public Board(ArrayList<Piece>[] pieces, Side turn, Stack<Move> moveHistory, Stack<Integer> castelingRightsHistory, int castlingRights) {
+	public Board(ArrayList<Piece>[] pieces, Side turn, Stack<Move> moveHistory, int[][] rookStartCols, int[] kingCols) {
 		this.board = new Piece[8][8];
 		this.pieces[Side.WHITE.ordinal()] = new ArrayList<Piece>(pieces[Side.WHITE.ordinal()].size());
 		this.pieces[Side.BLACK.ordinal()] = new ArrayList<Piece>(pieces[Side.BLACK.ordinal()].size());
@@ -167,8 +167,8 @@ public class Board {
 				move = moveHistory.elementAt(i).getMoveLong();
 				this.moveHistory.push(new Move(move));
 				if (Move.hasPieceTaken(move)) {
-					piecesTaken[moveSide.otherSide().ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide.otherSide(), Move
-							.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
+					piecesTaken[moveSide.otherSide().ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide.otherSide(), Move.getPieceTakenRow(move), Move
+							.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
 				}
 
 				moveSide = moveSide.otherSide();
@@ -178,11 +178,12 @@ public class Board {
 			loadPiecesTaken();
 		}
 
-		for (int i = 0; i < castelingRightsHistory.size(); i++) {
-			this.castleRightsHistory.push(castelingRightsHistory.elementAt(i).intValue());
+		if (kingCols == null || rookStartCols == null) {
+			initializeCastleSetup();
+		} else {
+			this.kingCols = kingCols;
+			this.rookStartCols = rookStartCols;
 		}
-
-		initializeCastleSetup();
 
 		// this.castleRights = castleRights;
 	}
@@ -206,8 +207,8 @@ public class Board {
 		hashCodeHistory.push(new Long(hashCode));
 
 		// remove previous castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
-				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		// remove taken piece first
 		if (Move.hasPieceTaken(move)) {
@@ -251,6 +252,7 @@ public class Board {
 				movePiece(rook, materialRow[turn.ordinal()], 5, MoveNote.NONE);
 
 				board[materialRow[turn.ordinal()]][6] = king;
+				board[materialRow[turn.ordinal()]][5] = rook;
 
 			} else {
 				rook = board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][0]];
@@ -259,6 +261,7 @@ public class Board {
 				movePiece(rook, materialRow[turn.ordinal()], 3, MoveNote.NONE);
 
 				board[materialRow[turn.ordinal()]][2] = king;
+				board[materialRow[turn.ordinal()]][3] = rook;
 			}
 
 			setCastleRights(turn, 0x4);
@@ -282,8 +285,8 @@ public class Board {
 		}
 
 		// add new castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
-				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		// either remove black and add white or reverse. Same operation.
 		hashCode ^= rngTable.getBlackToMoveRandom();
@@ -294,7 +297,7 @@ public class Board {
 		// move was made, next player's turn
 		turn = turn.otherSide();
 
-		// verifyBitBoards();
+		verifyBitBoards();
 
 		return true;
 
@@ -302,7 +305,7 @@ public class Board {
 
 	private void movePiece(Piece pieceMoving, int toRow, int toCol, MoveNote note) {
 
-		long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) | BitBoard.getMask(toRow, toCol);
+		long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ BitBoard.getMask(toRow, toCol);
 
 		// remove bit position from where piece was and add where it is now
 		allPosBitBoard[pieceMoving.getSide().ordinal()] ^= bitMove;
@@ -310,10 +313,10 @@ public class Board {
 		// remove old hash from where piece was
 		hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), pieceMoving.getRow(), pieceMoving.getCol());
 
-		// update board to reflect piece's new position
-		board[toRow][toCol] = pieceMoving;
 		// remove pieces old position
 		board[pieceMoving.getRow()][pieceMoving.getCol()] = null;
+		// update board to reflect piece's new position
+		board[toRow][toCol] = pieceMoving;
 
 		// tell piece its new position
 		pieceMoving.setPos(toRow, toCol);
@@ -344,7 +347,7 @@ public class Board {
 
 		// if no there is no last move then undoMove is impossible
 		if (moveHistory.empty()) {
-			System.out.println("Can not undo move");
+			// System.out.println("Can not undo move");
 			return 0;
 		}
 
@@ -373,6 +376,7 @@ public class Board {
 				undoMovePiece(rook, materialRow[turn.ordinal()], rookStartCols[turn.ordinal()][0], MoveNote.NONE, false);
 
 				board[materialRow[turn.ordinal()]][kingCols[turn.ordinal()]] = king;
+				board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][0]] = rook;
 
 			} else {
 
@@ -382,6 +386,7 @@ public class Board {
 				undoMovePiece(rook, materialRow[turn.ordinal()], rookStartCols[turn.ordinal()][1], MoveNote.NONE, false);
 
 				board[materialRow[turn.ordinal()]][kingCols[turn.ordinal()]] = king;
+				board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][1]] = rook;
 
 			}
 
@@ -429,7 +434,7 @@ public class Board {
 			castleRights = castleRightsHistory.pop();
 		}
 
-		// verifyBitBoards();
+		verifyBitBoards();
 
 		return lastMove;
 
@@ -437,7 +442,7 @@ public class Board {
 
 	private void undoMovePiece(Piece pieceMoving, int fromRow, int fromCol, MoveNote note, boolean hadMoved) {
 
-		long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) | BitBoard.getMask(fromRow, fromCol);
+		long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ BitBoard.getMask(fromRow, fromCol);
 
 		// remove bit position from where piece was and add where it is now
 		allPosBitBoard[pieceMoving.getSide().ordinal()] ^= bitMove;
@@ -450,10 +455,10 @@ public class Board {
 			kingPosBitBoard[pieceMoving.getSide().ordinal()] ^= bitMove;
 		}
 
-		// put piece in old position
-		board[fromRow][fromCol] = pieceMoving;
 		// remove old position
 		board[pieceMoving.getRow()][pieceMoving.getCol()] = null;
+		// put piece in old position
+		board[fromRow][fromCol] = pieceMoving;
 
 		// tell piece where it was
 		pieceMoving.setPos(fromRow, fromCol);
@@ -504,8 +509,7 @@ public class Board {
 			}
 		}
 
-		if (kingBitBoard[0] != 0 || kingBitBoard[1] != 0 || pawnBitBoard[0] != 0 || pawnBitBoard[1] != 0 || allBitBoard[0] != 0
-				|| allBitBoard[1] != 0) {
+		if (kingBitBoard[0] != 0 || kingBitBoard[1] != 0 || pawnBitBoard[0] != 0 || pawnBitBoard[1] != 0 || allBitBoard[0] != 0 || allBitBoard[1] != 0) {
 			System.out.println("BitBoard Problem!!!");
 		}
 	}
@@ -1084,6 +1088,8 @@ public class Board {
 
 		initializeCastleSetup();
 
+		verifyBitBoards();
+
 		return true;
 
 	}
@@ -1173,8 +1179,8 @@ public class Board {
 	public int getRookStartingCol(Side side, int near) {
 		return rookStartCols[side.ordinal()][near];
 	}
-	
-	public int getKingStartingCol(Side side){
+
+	public int getKingStartingCol(Side side) {
 		return kingCols[side.ordinal()];
 	}
 
@@ -1191,7 +1197,7 @@ public class Board {
 	}
 
 	public Board getCopy() {
-		return new Board(pieces, this.turn, moveHistory, castleRightsHistory, castleRights);
+		return new Board(pieces, this.turn, moveHistory, rookStartCols, kingCols);
 	}
 
 	public String toString() {
@@ -1242,13 +1248,28 @@ public class Board {
 	public String toXML(boolean includeHistory) {
 		String xmlBoard = "<board>\n";
 
-		xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
-		xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
-
 		if (includeHistory) {
+
+			Stack<Move> movesToRedo = new Stack<Move>();
+			long m;
+			while ((m = undoMove()) != 0) {
+				movesToRedo.push(new Move(m));
+			}
+
+			xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
+			xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
+
+			while (!movesToRedo.isEmpty()) {
+				makeMove(movesToRedo.pop().getMoveLong());
+			}
+
 			for (int i = 0; i < moveHistory.size(); i++) {
 				xmlBoard += Move.toXML(moveHistory.elementAt(i).getMoveLong());
 			}
+
+		} else {
+			xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
+			xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
 		}
 
 		xmlBoard += "</board>";
@@ -1272,8 +1293,8 @@ public class Board {
 			}
 		}
 
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
-				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		if (getLastMoveMade() != 0) {
 			if (Move.getNote(getLastMoveMade()) == MoveNote.PAWN_LEAP) {
@@ -1341,8 +1362,7 @@ public class Board {
 
 			for (int i = 0; i < pieces.length; i++) {
 				for (int p = 0; p < pieces[i].size(); p++) {
-					if ((pieces[i].get(p).getPieceID() == PieceID.PAWN) || (pieces[i].get(p).getPieceID() == PieceID.QUEEN)
-							|| (pieces[i].get(p).getPieceID() == PieceID.ROOK)) {
+					if ((pieces[i].get(p).getPieceID() == PieceID.PAWN) || (pieces[i].get(p).getPieceID() == PieceID.QUEEN) || (pieces[i].get(p).getPieceID() == PieceID.ROOK)) {
 						sufficient = true;
 					}
 				}

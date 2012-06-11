@@ -2,6 +2,7 @@ package chessGUI;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 import javax.swing.JFrame;
@@ -9,6 +10,7 @@ import javax.swing.JTextArea;
 
 import chessAI.AI;
 import chessBackend.Board;
+import chessBackend.BoardMaker;
 import chessBackend.Game;
 import chessBackend.GameResults;
 import chessBackend.GameStatus;
@@ -51,9 +53,6 @@ public class TournamentGUI {
 
 		((AI) playerOne).setUseBook(true);
 
-		Board defaultBoard = Game.getDefaultBoard();
-		FileIO.log(defaultBoard.toString());
-
 		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
 
 		players.put(Side.WHITE, playerOne);
@@ -65,6 +64,8 @@ public class TournamentGUI {
 		playerNames.put(playerTwo, playerTwoVersion);
 
 		Hashtable<String, Long[]> playerScore = new Hashtable<String, Long[]>();
+		
+		ArrayList<Long> boardsPlayed = new ArrayList<Long>();
 
 		// blackwins, whitewins ,winby,numMoves,time,maxTime,good draws,
 		// bad draws, draw by pts, caused stalemate, caused invalid
@@ -81,13 +82,24 @@ public class TournamentGUI {
 
 		FileIO.clearDirectory(".\\tournament");
 
+		Board board;
+		
 		Long[] winnerScore;
 		Long[] loserScore;
-		int numOfGames = 1000;
+		int numOfGames = 960;
 		for (int i = 0; i < numOfGames; i++) {
 
 			FileIO.log("Game#" + i);
-			results = game.newGame(defaultBoard, true);
+			
+			board = BoardMaker.getRandomChess960Board();
+			
+			while(boardsPlayed.contains(board.getHashCode())){
+				board = BoardMaker.getRandomChess960Board();
+			}
+			
+			FileIO.log(board.toString());
+			
+			results = game.newGame(board, true);
 
 			winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));
 			loserScore = playerScore.get(playerNames.get(players.get(results.getWinner().otherSide())));

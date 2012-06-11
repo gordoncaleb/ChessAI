@@ -4,7 +4,7 @@ import chessBackend.BoardHashEntry;
 
 public class AISettings {
 	
-	public static final String version = "1.2.060912b";
+	public static final String version = "1.2.061112b";
 	public static boolean debugOutput = true;
 	
 	public static final boolean useLite = false;
@@ -16,7 +16,7 @@ public class AISettings {
 	public static final int maxPieceTakenFrontierLevel = 2;
 	
 	public static final long maxSearchTime = 5000;
-	public static final int minSearchDepth = 4;
+	public static final int minSearchDepth = 3;
 	
 	public static final boolean alphaBetaPruningEnabled = true;
 	public static final boolean useBook = true;

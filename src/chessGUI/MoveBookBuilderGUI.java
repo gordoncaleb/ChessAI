@@ -20,6 +20,7 @@ import javax.swing.ListSelectionModel;
 
 import chessAI.AI;
 import chessBackend.Board;
+import chessBackend.BoardMaker;
 import chessBackend.Game;
 import chessBackend.GameStatus;
 import chessBackend.Move;
@@ -51,6 +52,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton loadGameBtn;
 	private JButton saveGameBtn;
 	private JButton newGameBtn;
+	private JButton new960GameBtn;
 	private JButton flipBoardBtn;
 
 	private JFileChooser fc = new JFileChooser();
@@ -143,6 +145,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		newGameBtn = new JButton("New Game");
 		newGameBtn.addMouseListener(this);
+		
+		new960GameBtn = new JButton("New 960 Game");
+		new960GameBtn.addMouseListener(this);
 
 		clearHashTableBtn = new JButton("Clear Hashtable");
 		clearHashTableBtn.addMouseListener(this);
@@ -151,7 +156,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		flipBoardBtn.addMouseListener(this);
 
 		JPanel gameCtrlPanel = new JPanel();
-		gameCtrlPanel.setPreferredSize(new Dimension(300, 100));
+		gameCtrlPanel.setPreferredSize(new Dimension(300, 150));
 
 		JPanel boardCtrlPanel = new JPanel();
 		boardCtrlPanel.setPreferredSize(new Dimension(300, 100));
@@ -179,6 +184,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		boardCtrlPanel.add(flipBoardBtn);
 		gameCtrlPanel.add(loadGameBtn);
 		gameCtrlPanel.add(newGameBtn);
+		gameCtrlPanel.add(new960GameBtn);
 		gameCtrlPanel.add(saveGameBtn);
 		gameCtrlPanel.add(undoBtn);
 		gameCtrlPanel.add(redoBtn);
@@ -451,6 +457,14 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		if (e.getSource() == newGameBtn) {
 
 			Board board = Game.getDefaultBoard();
+
+			this.newGame(board);
+
+		}
+		
+		if (e.getSource() == new960GameBtn) {
+
+			Board board = BoardMaker.getRandomChess960Board();
 
 			this.newGame(board);
 

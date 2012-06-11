@@ -22,6 +22,7 @@ import javax.swing.JPanel;
 
 import chessAI.AI;
 import chessBackend.Board;
+import chessBackend.BoardMaker;
 import chessBackend.Game;
 import chessBackend.GameResults;
 import chessBackend.GameStatus;
@@ -32,11 +33,21 @@ import chessBackend.Side;
 import chessIO.FileIO;
 import chessIO.XMLParser;
 
-public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListener {
+public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;
+	
 	private JMenuItem newGameMenu;
+	private JMenuItem new960GameMenu;
+	private JMenuItem loadGameMenu;
+	private JMenuItem saveGameMenu;
 	private JMenuItem undoUserMoveMenu;
 	private JMenuItem switchSidesMenu;
+	
+	private JMenuItem boardFreeSetupMenu;
+	private JMenuItem flipBoardMenu;
+
+	private JMenuItem getAIRecommendationMenu;
+	
 	private BoardPanel boardPanel;
 
 	private AI ai;
@@ -46,16 +57,16 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 	private JPanel aiCtrlPanel;
 	private JPanel gameCtrlPanel;
 
-	private JButton loadGameBtn;
-	private JButton saveGameBtn;
-	private JButton newGameBtn;
-	private JButton undoBtn;
-	private JButton switchSidesBtn;
-
-	private JButton boardFreeSetupBtn;
-	private JButton flipBoardBtn;
-
-	private JButton getAIRecommendationBtn;
+//	private JButton loadGameBtn;
+//	private JButton saveGameBtn;
+//	private JButton newGameBtn;
+//	private JButton undoBtn;
+//	private JButton switchSidesBtn;
+//
+//	private JButton boardFreeSetupBtn;
+//	private JButton flipBoardBtn;
+//
+//	private JButton getAIRecommendationBtn;
 
 	private PlayerContainer game;
 
@@ -98,79 +109,50 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 		JMenuBar menuBar = new JMenuBar();
 		JMenu gameMenu = new JMenu("Game");
+		JMenu AIMenu = new JMenu("AI");
+		JMenu boardMenu = new JMenu("Board");
 		gameMenu.setMnemonic(KeyEvent.VK_G);
-
+		
 		newGameMenu = new JMenuItem("New Game");
-		newGameMenu.addActionListener(this);
+		newGameMenu.addMouseListener(this);
 		gameMenu.add(newGameMenu);
+		
+		new960GameMenu = new JMenuItem("New Chess960 Game");
+		new960GameMenu.addMouseListener(this);
+		gameMenu.add(new960GameMenu);
 
 		undoUserMoveMenu = new JMenuItem("Undo Last Move");
-		undoUserMoveMenu.addActionListener(this);
+		undoUserMoveMenu.addMouseListener(this);
 		gameMenu.add(undoUserMoveMenu);
 
 		switchSidesMenu = new JMenuItem("Switch Side");
-		switchSidesMenu.addActionListener(this);
+		switchSidesMenu.addMouseListener(this);
 		gameMenu.add(switchSidesMenu);
 
+		loadGameMenu = new JMenuItem("Load Game");
+		loadGameMenu.addMouseListener(this);
+		gameMenu.add(loadGameMenu);
+
+		saveGameMenu = new JMenuItem("Save Game");
+		saveGameMenu.addMouseListener(this);
+		gameMenu.add(saveGameMenu);
+
+		boardFreeSetupMenu = new JMenuItem("Board Setup");
+		boardFreeSetupMenu.addMouseListener(this);
+		boardMenu.add(boardFreeSetupMenu);
+
+		flipBoardMenu = new JMenuItem("Flip Board");
+		flipBoardMenu.addMouseListener(this);
+		boardMenu.add(flipBoardMenu);
+
+		getAIRecommendationMenu = new JMenuItem("Reccomendation");
+		getAIRecommendationMenu.addMouseListener(this);
+		AIMenu.add(getAIRecommendationMenu);
+		
 		menuBar.add(gameMenu);
+		menuBar.add(boardMenu);
+		menuBar.add(AIMenu);
 		frame.setJMenuBar(menuBar);
-
-		ctrlPanel = new JPanel();
-		ctrlPanel.setPreferredSize(new Dimension(300, 500));
-
-		boardCtrlPanel = new JPanel();
-		boardCtrlPanel.setPreferredSize(new Dimension(300, 100));
-
-		aiCtrlPanel = new JPanel();
-		aiCtrlPanel.setPreferredSize(new Dimension(300, 100));
-
-		gameCtrlPanel = new JPanel();
-		gameCtrlPanel.setPreferredSize(new Dimension(300, 100));
-
-		gameCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Game"));
-		boardCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Board"));
-		aiCtrlPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "AI"));
-
-		loadGameBtn = new JButton("Load Game");
-		loadGameBtn.addMouseListener(this);
-
-		saveGameBtn = new JButton("Save Game");
-		saveGameBtn.addMouseListener(this);
-
-		newGameBtn = new JButton("New Game");
-		newGameBtn.addMouseListener(this);
-
-		undoBtn = new JButton("Undo");
-		undoBtn.addMouseListener(this);
-
-		switchSidesBtn = new JButton("Swith Sides");
-		switchSidesBtn.addMouseListener(this);
-
-		boardFreeSetupBtn = new JButton("Board Setup");
-		boardFreeSetupBtn.addMouseListener(this);
-
-		flipBoardBtn = new JButton("Flip Board");
-		flipBoardBtn.addMouseListener(this);
-
-		getAIRecommendationBtn = new JButton("Reccomendation");
-		getAIRecommendationBtn.addMouseListener(this);
-
-		boardCtrlPanel.add(boardFreeSetupBtn);
-		boardCtrlPanel.add(flipBoardBtn);
-
-		gameCtrlPanel.add(loadGameBtn);
-		gameCtrlPanel.add(saveGameBtn);
-		gameCtrlPanel.add(newGameBtn);
-		gameCtrlPanel.add(undoBtn);
-		gameCtrlPanel.add(switchSidesBtn);
-
-		aiCtrlPanel.add(getAIRecommendationBtn);
-
-		ctrlPanel.add(gameCtrlPanel);
-		ctrlPanel.add(boardCtrlPanel);
-		ctrlPanel.add(aiCtrlPanel);
-
-		frame.add(ctrlPanel, BorderLayout.EAST);
 
 		// frame.setSize(gameWidth, gameHeight);
 		frame.setResizable(false);
@@ -187,8 +169,8 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 		Side playerSide;
 
 		Object[] options = { "White", "Black" };
-		int n = JOptionPane.showOptionDialog(frame, "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+				options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
 			playerSide = Side.WHITE;
@@ -206,14 +188,14 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 		ai.newGame(board);
 		boardPanel.newGame(board);
 
-		undoBtn.setEnabled(boardPanel.canUndo());
+		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
 
 	}
 
 	public void gameOverLose() {
 		Object[] options = { "Yes, please", "Nah" };
-		int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
 			game.newGame(null, false);
@@ -225,8 +207,8 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 	public void gameOverWin() {
 		Object[] options = { "Yeah, why not?", "Nah." };
-		int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+				options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
 			game.newGame(null, false);
@@ -238,8 +220,8 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 	public void gameOverStaleMate() {
 		Object[] options = { "Yes, please", "Nah, maybe later." };
-		int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				options, options[0]);
 		if (n == JOptionPane.YES_OPTION) {
 			game.newGame(null, false);
 		} else {
@@ -257,7 +239,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 		ai.moveMade(move);
 
 		boolean suc = boardPanel.moveMade(move);
-		undoBtn.setEnabled(boardPanel.canUndo());
+		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
 
 		return suc;
 	}
@@ -271,7 +253,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 		ai.undoMove();
 
 		long suc = boardPanel.undoMove();
-		undoBtn.setEnabled(boardPanel.canUndo());
+		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
 
 		return suc;
 	}
@@ -283,23 +265,6 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 	public void makeMove() {
 		boardPanel.makeMove();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		if (arg0.getSource() == newGameMenu) {
-			game.newGame(null, false);
-		}
-
-		if (arg0.getSource() == undoUserMoveMenu) {
-			// boardPanel.undoMove();
-			game.undoMove();
-		}
-
-		if (arg0.getSource() == switchSidesMenu) {
-
-		}
-
 	}
 
 	@Override
@@ -328,12 +293,20 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 	@Override
 	public String getPlayerName(Side side) {
-		return game.getPlayerName(side);
+		if (game != null) {
+			return game.getPlayerName(side);
+		} else {
+			return "";
+		}
 	}
 
 	@Override
 	public long getPlayerTime(Side side) {
-		return game.getPlayerTime(side);
+		if (game != null) {
+			return game.getPlayerTime(side);
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
@@ -373,20 +346,22 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 		//
 		// private JButton getAIRecommendationBtn;
 
-		if (arg0.getSource() == loadGameBtn) {
+		if (arg0.getSource() == loadGameMenu) {
 			int returnVal = fc.showOpenDialog(frame);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 
 				Board board = XMLParser.XMLToBoard(FileIO.readFile(fc.getSelectedFile().getPath()));
 
+				Side side = optionForSide();
+				game.setSide(side, this);
 				game.newGame(board, false);
 
 			}
 
 		}
 
-		if (arg0.getSource() == saveGameBtn) {
+		if (arg0.getSource() == saveGameMenu) {
 			int returnVal = fc.showSaveDialog(frame);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -397,16 +372,25 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 		}
 
-		if (arg0.getSource() == newGameBtn) {
+		if (arg0.getSource() == newGameMenu) {
 			Board board = Game.getDefaultBoard();
 
 			Side side = optionForSide();
-			game.newGame(board, false);
 			game.setSide(side, this);
+			game.newGame(board, false);
+
+		}
+		
+		if (arg0.getSource() == new960GameMenu) {
+			Board board = BoardMaker.getRandomChess960Board();
+
+			Side side = optionForSide();
+			game.setSide(side, this);
+			game.newGame(board, false);
 
 		}
 
-		if (arg0.getSource() == undoBtn) {
+		if (arg0.getSource() == undoUserMoveMenu) {
 			if (boardPanel.canUndo()) {
 				game.undoMove();
 				game.undoMove();
@@ -414,13 +398,13 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 		}
 
-		if (arg0.getSource() == switchSidesBtn) {
+		if (arg0.getSource() == switchSidesMenu) {
 			boardPanel.flipBoard();
 			game.switchSides();
 
 		}
 
-		if (arg0.getSource() == boardFreeSetupBtn) {
+		if (arg0.getSource() == boardFreeSetupMenu) {
 
 			if (boardPanel.isFreelyMove()) {
 				game.newGame(boardPanel.getBoard().getCopy(), false);
@@ -429,20 +413,20 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 			boardPanel.setFreelyMove(!boardPanel.isFreelyMove());
 
 			if (boardPanel.isFreelyMove()) {
-				boardFreeSetupBtn.setText("Set it up!");
+				boardFreeSetupMenu.setText("Set it up!");
 			} else {
-				boardFreeSetupBtn.setText("Board Setup");
+				boardFreeSetupMenu.setText("Board Setup");
 			}
 
 		}
 
-		if (arg0.getSource() == flipBoardBtn) {
+		if (arg0.getSource() == flipBoardMenu) {
 
 			boardPanel.flipBoard();
 
 		}
 
-		if (arg0.getSource() == getAIRecommendationBtn) {
+		if (arg0.getSource() == getAIRecommendationMenu) {
 			if (boardPanel.isFreelyMove()) {
 				ai.newGame(boardPanel.getBoard().getCopy());
 			}
@@ -458,8 +442,7 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 	@Override
 	public void endGame() {
-		
-		
+
 	}
 
 }

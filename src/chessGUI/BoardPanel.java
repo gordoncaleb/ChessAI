@@ -54,6 +54,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private long highLightMove;
 	private Timer highLightTimer;
 
+	private Timer turnTimer;
+
 	private Adjudicator adjudicator;
 
 	private boolean debug;
@@ -96,28 +98,32 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 		JPanel turnPanel = new JPanel();
 		turnPanel.setBackground(Color.GRAY);
-		whiteTurnPanel = new JPanel();
+		whiteTurnPanel = new JPanel(new BorderLayout());
 		whiteTurnPanel.setPreferredSize(new Dimension(200, 50));
 		whiteTurnPanel.setBackground(Color.WHITE);
 		whiteTurnPanel.setOpaque(true);
 		whiteTurnPanel.addMouseListener(this);
-		blackTurnPanel = new JPanel();
+		blackTurnPanel = new JPanel(new BorderLayout());
 		blackTurnPanel.setPreferredSize(new Dimension(200, 50));
 		blackTurnPanel.setBackground(Color.BLACK);
 		blackTurnPanel.setOpaque(true);
 		blackTurnPanel.addMouseListener(this);
 
 		whiteName = new JLabel("White");
-		whiteTurnPanel.add(whiteName);
+		whiteName.setHorizontalAlignment(SwingConstants.CENTER);
+		whiteTurnPanel.add(whiteName,BorderLayout.NORTH);
 		blackName = new JLabel("Black");
 		blackName.setForeground(Color.WHITE);
-		blackTurnPanel.add(blackName);
+		blackName.setHorizontalAlignment(SwingConstants.CENTER);
+		blackTurnPanel.add(blackName,BorderLayout.NORTH);
 
 		whiteTime = new JLabel("0:0");
-		whiteTurnPanel.add(whiteTime);
+		whiteTime.setHorizontalAlignment(SwingConstants.CENTER);
+		whiteTurnPanel.add(whiteTime,BorderLayout.SOUTH);
 		blackTime = new JLabel("0:0");
 		blackTime.setForeground(Color.WHITE);
-		blackTurnPanel.add(blackTime);
+		blackTime.setHorizontalAlignment(SwingConstants.CENTER);
+		blackTurnPanel.add(blackTime,BorderLayout.SOUTH);
 
 		whiteTurnPanel.setBorder(blackLine);
 		blackTurnPanel.setBorder(blackLine);
@@ -130,6 +136,9 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		this.add(turnPanel, BorderLayout.PAGE_END);
 
 		highLightTimer = new Timer(200, this);
+
+		turnTimer = new Timer(1000, this);
+		turnTimer.start();
 
 	}
 
@@ -162,7 +171,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		long time = boardGUI.getPlayerTime(side);
 		long min = time / 60000;
 		long sec = (time / 1000) % 60;
-		return min + ":" + sec;
+		return min + ":" + String.format("%02d", sec);
 	}
 
 	public void setFlipBoard(boolean flipBoard) {
@@ -171,6 +180,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 			this.flipBoard = flipBoard;
 
+			colorSquaresDefault();
+			
 			refreshBoard();
 
 			updateLastMovedSquare();
@@ -307,9 +318,6 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			attachValidMoves();
 
 			setGameSatus(adjudicator.getGameStatus(), adjudicator.getTurn());
-
-			whiteTime.setText(getPlayerTimeString(Side.WHITE));
-			blackTime.setText(getPlayerTimeString(Side.BLACK));
 
 		} else {
 			return false;
@@ -767,6 +775,11 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			}
 
 			highLightCount--;
+		}
+
+		if (e.getSource() == turnTimer) {
+			whiteTime.setText(getPlayerTimeString(Side.WHITE));
+			blackTime.setText(getPlayerTimeString(Side.BLACK));
 		}
 
 	}

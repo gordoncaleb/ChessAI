@@ -53,17 +53,12 @@ public class XMLParser {
 
 		String[] stringPieces = stringBoard.split(",");
 		Piece piece;
-		Piece pawnLeap = null;
 		String stringPiece;
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 
 				stringPiece = stringPieces[8 * row + col].trim();
 				piece = Piece.fromString(stringPiece, row, col);
-
-				if (stringPiece.substring(1, 2) == "3") {
-					pawnLeap = piece;
-				}
 
 				if (piece != null) {
 					pieces[piece.getSide().ordinal()].add(piece);
@@ -87,32 +82,15 @@ public class XMLParser {
 			moveHistory.push(new Move(m));
 		}
 
-		if (moveHistory.size() == 0 && pawnLeap != null) {
-			int col = pawnLeap.getCol();
-			if (pawnLeap.getSide() == Side.BLACK) {
-				moveHistory.push(new Move(Move.moveLong(1, col, 3, col, 0, MoveNote.PAWN_LEAP)));
-			} else {
-				moveHistory.push(new Move(Move.moveLong(6, col, 4, col, 0, MoveNote.PAWN_LEAP)));
-			}
-		}
-
 		if (pieces[Side.BLACK.ordinal()].size() == 0 || pieces[Side.WHITE.ordinal()].size() == 0) {
 			System.out.println("Error loading xml board!");
 			return null;
 		}
 
-		Board newBoard = new Board(pieces, player, moveHistory, new Stack<Integer>(), 0);
+		Board newBoard = new Board(pieces, player, new Stack<Move>(), null, null);
 
-		Stack<Long> redoMoves = new Stack<Long>();
-		while (newBoard.canUndo()) {
-			redoMoves.push(newBoard.undoMove());
-		}
-		
-		newBoard.setCastleRights(Side.BLACK, newBoard.calculateCastleRights(Side.BLACK));
-		newBoard.setCastleRights(Side.WHITE, newBoard.calculateCastleRights(Side.WHITE));
-		
-		while(!redoMoves.empty()){
-			newBoard.makeMove(redoMoves.pop());
+		for (int i = 0; i < moveHistory.size(); i++) {
+			newBoard.makeMove(moveHistory.elementAt(i).getMoveLong());
 		}
 
 		return newBoard;

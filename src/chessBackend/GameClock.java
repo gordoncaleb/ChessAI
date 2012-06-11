@@ -1,5 +1,7 @@
 package chessBackend;
 
+import java.util.Timer;
+
 public class GameClock {
 	private long[] time;
 	private long startTime;
@@ -9,6 +11,8 @@ public class GameClock {
 	private long timeLimit;
 	private boolean paused;
 	private long[] maxTime;
+
+	private Timer timer;
 
 	public GameClock(String whitePlayerName, String blackPlayerName, long whitePlayerTime, long blackPlayerTime, Side turn) {
 
@@ -30,6 +34,7 @@ public class GameClock {
 		maxTime = new long[2];
 		maxTime[0] = 0;
 		maxTime[1] = 0;
+
 	}
 
 	public void setTimeLimit(long timeLimit) {
@@ -76,7 +81,16 @@ public class GameClock {
 			return 0;
 		}
 
-		return time[side.ordinal()];
+		if (active) {
+			if (side != turn) {
+
+				return time[side.ordinal()];
+			} else {
+				return time[side.ordinal()] + (System.currentTimeMillis() - startTime);
+			}
+		} else {
+			return time[side.ordinal()];
+		}
 	}
 
 	public long getMaxTime(Side side) {
@@ -93,6 +107,10 @@ public class GameClock {
 
 	public boolean isActive() {
 		return active;
+	}
+
+	public long getStartTime() {
+		return startTime;
 	}
 
 	public void pause() {
