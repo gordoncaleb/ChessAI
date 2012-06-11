@@ -5,6 +5,7 @@ public interface PlayerContainer {
 	public boolean makeMove(long move);
 
 	public GameResults newGame(Board board, boolean block);
+	public void endGame();
 
 	public boolean undoMove();
 

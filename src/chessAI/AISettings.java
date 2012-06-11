@@ -4,7 +4,7 @@ import chessBackend.BoardHashEntry;
 
 public class AISettings {
 	
-	public static final String version = "1.2.060812_heavy";
+	public static final String version = "1.2.060912b";
 	public static boolean debugOutput = true;
 	
 	public static final boolean useLite = false;

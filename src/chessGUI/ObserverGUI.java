@@ -235,4 +235,10 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		return game.getPlayerTime(side);
 	}
 
+	@Override
+	public void endGame() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

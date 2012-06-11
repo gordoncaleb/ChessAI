@@ -170,7 +170,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		if (this.flipBoard != flipBoard && adjudicator != null) {
 
 			this.flipBoard = flipBoard;
-			
+
 			refreshBoard();
 
 			updateLastMovedSquare();
@@ -224,28 +224,33 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			SquarePanel fromSqr = (SquarePanel) fromComponent;
 			SquarePanel toSqr = (SquarePanel) toComponent;
 
-			if (toSqr.getPieceID() != null) {
-				takePiece(toSqr.getPieceID(), toSqr.getPlayer());
+			Piece piece = adjudicator.getPiece(flipTrans(fromSqr.getRow()), flipTrans(fromSqr.getCol()));
+
+			if (adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()))) {
+				if (toSqr.getPieceID() != null) {
+					takePiece(toSqr.getPieceID(), toSqr.getPlayer());
+				}
+
+				toSqr.showChessPiece(fromSqr.getPieceID(), fromSqr.getPlayer());
+
+				fromSqr.clearChessPiece();
+
 			}
 
-			toSqr.showChessPiece(fromSqr.getPieceID(), fromSqr.getPlayer());
-
-			fromSqr.clearChessPiece();
-
-			Piece piece = adjudicator.getPiece(flipTrans(fromSqr.getRow()), flipTrans(fromSqr.getCol()));
-			adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()));
 		}
 
 		// moving piece from board to side lines
 		if (fromComponent instanceof SquarePanel && !(toComponent instanceof SquarePanel)) {
 			SquarePanel fromSqr = (SquarePanel) fromComponent;
 
-			takePiece(fromSqr.getPieceID(), fromSqr.getPlayer());
-
-			fromSqr.clearChessPiece();
-
 			Piece piece = adjudicator.getPiece(flipTrans(fromSqr.getRow()), flipTrans(fromSqr.getCol()));
-			adjudicator.placePiece(piece, -1, -1);
+
+			if (adjudicator.placePiece(piece, -1, -1)) {
+				takePiece(fromSqr.getPieceID(), fromSqr.getPlayer());
+
+				fromSqr.clearChessPiece();
+
+			}
 		}
 
 		// moving piece from side lines to board
@@ -253,18 +258,21 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			SquarePanel toSqr = (SquarePanel) toComponent;
 			JPieceTakenLabel fromLbl = (JPieceTakenLabel) fromComponent;
 
-			if (toSqr.getPieceID() != null) {
-				takePiece(toSqr.getPieceID(), toSqr.getPlayer());
+			Piece piece = new Piece(fromLbl.getPieceID(), fromLbl.getPlayer(), -1, -1, false);
+
+			if (adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()))) {
+				if (toSqr.getPieceID() != null) {
+					takePiece(toSqr.getPieceID(), toSqr.getPlayer());
+				}
+
+				toSqr.showChessPiece(fromLbl.getPieceID(), fromLbl.getPlayer());
+
+				fromLbl.getParent().remove(fromLbl);
+				lostWhitePiecesPanel.updateUI();
+				lostBlackPiecesPanel.updateUI();
+
 			}
 
-			toSqr.showChessPiece(fromLbl.getPieceID(), fromLbl.getPlayer());
-
-			fromLbl.getParent().remove(fromLbl);
-			lostWhitePiecesPanel.updateUI();
-			lostBlackPiecesPanel.updateUI();
-
-			Piece piece = new Piece(fromLbl.getPieceID(), fromLbl.getPlayer(), -1, -1, false);
-			adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()));
 		}
 
 	}

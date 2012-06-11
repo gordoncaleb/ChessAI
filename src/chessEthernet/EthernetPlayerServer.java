@@ -73,9 +73,9 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer {
 			try {
 				clientSocket = new Socket(dest, port);
 			} catch (UnknownHostException e) {
-				e.printStackTrace();
+				FileIO.log("Problem game host name");
 			} catch (IOException e) {
-				e.printStackTrace();
+				FileIO.log("Connection to game lost");
 			}
 		}
 
@@ -179,6 +179,23 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer {
 	@Override
 	public void setSide(Side side, Player player) {
 		
+	}
+
+	@Override
+	public void connectionReset() {
+		try {
+			clientSocket.close();
+			clientSocket = null;
+			this.endGame();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	@Override
+	public void endGame() {
+		player.endGame();
 	}
 
 }

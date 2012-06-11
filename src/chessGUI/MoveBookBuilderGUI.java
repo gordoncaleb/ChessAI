@@ -503,4 +503,10 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		return 0;
 	}
 
+	@Override
+	public void endGame() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

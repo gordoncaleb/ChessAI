@@ -5,6 +5,7 @@ public interface Player {
 	public long undoMove();
 	
 	public void newGame(Board board);
+	public void endGame();
 	public void setGame(PlayerContainer game);
 	
 	public void makeMove();

@@ -267,4 +267,19 @@ public class Game implements PlayerContainer {
 		return XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 	}
 
+	@Override
+	public void endGame() {
+		if (players.get(Side.BOTH) == null) {
+			players.get(Side.WHITE).endGame();
+			players.get(Side.BLACK).endGame();
+		} else {
+			players.get(Side.BOTH).endGame();
+		}
+
+		for (int i = 0; i < observers.size(); i++) {
+			observers.elementAt(i).endGame();
+		}
+		
+	}
+
 }

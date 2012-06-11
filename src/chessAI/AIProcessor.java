@@ -106,7 +106,7 @@ public class AIProcessor extends Thread {
 		// if game isnt over make sure tree root shows what next valid moves are
 		if (!this.rootNode.hasChildren()) {
 			board.makeNullMove();
-			attachValidMoves(rootNode, 0);
+			attachValidMoves(rootNode, 0, AI.noKillerMoves);
 
 		}
 
@@ -152,9 +152,9 @@ public class AIProcessor extends Thread {
 		}
 	}
 
-	public void attachValidMoves(DecisionNode branch, long hashMove) {
+	public void attachValidMoves(DecisionNode branch, long hashMove, long[] killerMoves) {
 
-		ArrayList<Long> moves = board.generateValidMoves(true, hashMove);
+		ArrayList<Long> moves = board.generateValidMoves(true, hashMove, killerMoves);
 
 		DecisionNode[] children = new DecisionNode[moves.size()];
 
@@ -264,7 +264,7 @@ public class AIProcessor extends Thread {
 
 			if (level > bonusLevel) {
 				// check all moves of all pieces
-				attachValidMoves(branch, hashMove);
+				attachValidMoves(branch, hashMove, AI.noKillerMoves);
 
 				if (board.isGameOver()) {
 
@@ -305,7 +305,8 @@ public class AIProcessor extends Thread {
 					if (bonusEnabled) {
 
 						if (twigGrowthEnabled) {
-							branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
+							branch.getChild(i).setChosenPathValue(
+									-growDecisionTreeLite(-beta, -alpha, level, branch.getChild(i).getMove(), bonusLevel));
 							branch.getChild(i).setBound(getNodeType(-branch.getChild(i).getChosenPathValue(), -beta, -alpha));
 						} else {
 							growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
@@ -350,13 +351,15 @@ public class AIProcessor extends Thread {
 					// public BoardHashEntry(long hashCode, int level, int
 					// score,
 					// int moveNum, ValueBounds bounds, long bestMove) {
-					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getBound(), branch.getHeadChild()
-							.getMove());// , board.toString());
+					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getBound(),
+							branch.getHeadChild().getMove());// ,
+																// board.toString());
 					// System.out.println("Adding " + hashIndex +
 					// " to hashTable at level " + level);
 				} else {
 					if (hashTableUpdate(hashOut, level - bonusLevel, ai.getMoveNum())) {
-						hashOut.setAll(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(), branch.getMove());// ,board.toString());
+						hashOut.setAll(board.getHashCode(), level - bonusLevel, cpv, ai.getMoveNum(), branch.getHeadChild().getBound(),
+								branch.getMove());// ,board.toString());
 					}
 				}
 
@@ -469,7 +472,7 @@ public class AIProcessor extends Thread {
 			GameStatus tempBoardState;
 			long move;
 
-			ArrayList<Long> moves = new ArrayList<Long>(board.generateValidMoves(true, hashMove));
+			ArrayList<Long> moves = new ArrayList<Long>(board.generateValidMoves(true, hashMove, AI.noKillerMoves));
 
 			if (!board.isGameOver()) {
 
@@ -519,13 +522,15 @@ public class AIProcessor extends Thread {
 				// public BoardHashEntry(long hashCode, int level, int
 				// score,
 				// int moveNum, ValueBounds bounds, long bestMove) {
-				hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, bestPathValue, ai.getMoveNum(), getNodeType(bestPathValue, a, b), bestMove);// ,
-																																												// board.toString());
+				hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, bestPathValue, ai.getMoveNum(), getNodeType(
+						bestPathValue, a, b), bestMove);// ,
+														// board.toString());
 				// System.out.println("Adding " + hashIndex +
 				// " to hashTable at level " + level);
 			} else {
 				if (hashTableUpdate(hashOut, level - bonusLevel, ai.getMoveNum())) {
-					hashOut.setAll(board.getHashCode(), level - bonusLevel, bestPathValue, ai.getMoveNum(), getNodeType(bestPathValue, a, b), bestMove);// ,board.toString());
+					hashOut.setAll(board.getHashCode(), level - bonusLevel, bestPathValue, ai.getMoveNum(), getNodeType(bestPathValue, a, b),
+							bestMove);// ,board.toString());
 				}
 			}
 

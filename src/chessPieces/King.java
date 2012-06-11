@@ -50,14 +50,15 @@ public class King {
 					} else {
 						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
 					}
-					
+
 					validMoves.add(moveLong);
 				}
 			}
 
 			if (pieceStatus == PositionStatus.ENEMY) {
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE, board.getPiece(nextRow, nextCol));
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE,
+							board.getPiece(nextRow, nextCol));
 					validMoves.add(moveLong);
 				}
 			}
@@ -66,18 +67,18 @@ public class King {
 
 		long allPosBitBoard = posBitBoard[0] | posBitBoard[1];
 
-		// add possible castle move
-		if (canCastleFar(board, player, nullMoveInfo, allPosBitBoard) && !board.isInCheck()) {
-			if (isValidMove(currentRow, currentCol - 2, nullMoveInfo)) {
-				validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, currentCol - 2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
-			} else {
+		if (!board.isInCheck()) {
+			// add possible castle move
+			if (canCastleFar(board, player, nullMoveInfo, allPosBitBoard)) {
+				if (isValidMove(currentRow, 2, nullMoveInfo)) {
+					validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
+				}
 			}
-		}
 
-		if (canCastleNear(board, player, nullMoveInfo, allPosBitBoard) && !board.isInCheck()) {
-			if (isValidMove(currentRow, currentCol + 2, nullMoveInfo)) {
-				validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, currentCol + 2, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
-			} else {
+			if (canCastleNear(board, player, nullMoveInfo, allPosBitBoard)) {
+				if (isValidMove(currentRow, 6, nullMoveInfo)) {
+					validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 6, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+				}
 			}
 		}
 
@@ -100,10 +101,10 @@ public class King {
 
 	public static boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
 		long mask = BitBoard.getMask(toRow, toCol);
-		
-//		String nullmove0 = BitBoard.printBitBoard(nullMoveInfo[0]);
-//		String nullmove1 = BitBoard.printBitBoard(nullMoveInfo[1]);
-//		String nullmove2 = BitBoard.printBitBoard(nullMoveInfo[2]);
+
+		// String nullmove0 = BitBoard.printBitBoard(nullMoveInfo[0]);
+		// String nullmove1 = BitBoard.printBitBoard(nullMoveInfo[1]);
+		// String nullmove2 = BitBoard.printBitBoard(nullMoveInfo[2]);
 
 		if ((mask & (nullMoveInfo[0] | nullMoveInfo[2])) == 0) {
 			return true;
@@ -118,18 +119,19 @@ public class King {
 			return false;
 		}
 
-		long posClearMask;
-		long checkFar;
-		if (player == Side.BLACK) {
-			posClearMask = BitBoard.BLACK_CASTLE_FAR;
-			checkFar = BitBoard.BLACK_CHECK_FAR;
-		} else {
-			posClearMask = BitBoard.WHITE_CASTLE_FAR;
-			checkFar = BitBoard.WHITE_CHECK_FAR;
-		}
+		long kingToCastleMask = BitBoard.getCastleMask(board.getKingStartingCol(player), 2, player);
+		long rookToCastleMask = BitBoard.getCastleMask(board.getRookStartingCol(player, 0), 3, player);
 
-		if ((posClearMask & allPosBitBoard) == 0) {
-			if ((checkFar & nullMoveInfo[0]) == 0) {
+		// if (player == Side.BLACK) {
+		// posClearMask = BitBoard.BLACK_CASTLE_FAR;
+		// checkFar = BitBoard.BLACK_CHECK_FAR;
+		// } else {
+		// posClearMask = BitBoard.WHITE_CASTLE_FAR;
+		// checkFar = BitBoard.WHITE_CHECK_FAR;
+		// }
+
+		if ((kingToCastleMask & nullMoveInfo[0]) == 0) {
+			if (((kingToCastleMask | rookToCastleMask) & allPosBitBoard) == 0) {
 				return true;
 			}
 		}
@@ -144,18 +146,22 @@ public class King {
 			return false;
 		}
 
-		long posClearMask;
-		long checkNear;
-		if (player == Side.BLACK) {
-			posClearMask = BitBoard.BLACK_CASTLE_NEAR;
-			checkNear = BitBoard.BLACK_CHECK_NEAR;
-		} else {
-			posClearMask = BitBoard.WHITE_CASTLE_NEAR;
-			checkNear = BitBoard.WHITE_CHECK_NEAR;
-		}
+		long kingToCastleMask = BitBoard.getCastleMask(board.getKingStartingCol(player), 6, player);
+		long rookToCastleMask = BitBoard.getCastleMask(board.getRookStartingCol(player, 1), 5, player);
 
-		if ((posClearMask & allPosBitBoard) == 0) {
-			if ((checkNear & nullMoveInfo[0]) == 0) {
+
+		// long posClearMask;
+		// long checkNear;
+		// if (player == Side.BLACK) {
+		// posClearMask = BitBoard.BLACK_CASTLE_NEAR;
+		// checkNear = BitBoard.BLACK_CHECK_NEAR;
+		// } else {
+		// posClearMask = BitBoard.WHITE_CASTLE_NEAR;
+		// checkNear = BitBoard.WHITE_CHECK_NEAR;
+		// }
+
+		if ((kingToCastleMask & nullMoveInfo[0]) == 0) {
+			if (((kingToCastleMask | rookToCastleMask) & allPosBitBoard) == 0) {
 				return true;
 			}
 		}

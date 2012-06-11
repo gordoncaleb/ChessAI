@@ -15,6 +15,8 @@ import chessPieces.Values;
 
 public class AI extends Thread implements Player {
 	public static String version = AISettings.version;
+	public static long[] noKillerMoves = {};
+	
 	private boolean debug = AISettings.debugOutput;
 
 	private PlayerContainer game;
@@ -353,7 +355,7 @@ public class AI extends Thread implements Player {
 				}
 			}
 
-			randomizePath();
+			//randomizePath();
 
 			searchedThisGame += totalSearched;
 
@@ -639,6 +641,15 @@ public class AI extends Thread implements Player {
 	public GameStatus getGameStatus() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void endGame() {
+		nextTask = taskSize;
+		
+		for (int d = 0; d < processorThreads.length; d++) {
+			processorThreads[d].stopSearch();
+		}
 	}
 
 }

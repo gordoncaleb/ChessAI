@@ -456,4 +456,10 @@ public class PlayerGUI implements Player, BoardGUI, ActionListener, MouseListene
 
 	}
 
+	@Override
+	public void endGame() {
+		
+		
+	}
+
 }

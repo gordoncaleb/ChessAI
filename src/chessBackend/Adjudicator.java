@@ -118,8 +118,8 @@ public class Adjudicator {
 		return board.getPiecesTakenFor(player);
 	}
 
-	public void placePiece(Piece piece, int toRow, int toCol) {
-		board.placePiece(piece, toRow, toCol);
+	public boolean placePiece(Piece piece, int toRow, int toCol) {
+		return board.placePiece(piece, toRow, toCol);
 	}
 
 	public GameStatus getGameStatus() {

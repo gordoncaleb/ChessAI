@@ -9,6 +9,7 @@ import chessBackend.GameStatus;
 import chessBackend.Move;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
+import chessIO.FileIO;
 import chessIO.XMLParser;
 
 public class EthernetPlayerClient implements Player, EthernetMsgRxer {
@@ -20,10 +21,9 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 	private int port = 1234;
 	private String dest = "localhost";
 
-	private String version;
+	private String payload;
 
 	public EthernetPlayerClient() {
-		version = "";
 		EthernetMsgServer server = new EthernetMsgServer(this, 2345);
 		server.start();
 
@@ -43,7 +43,7 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
+			FileIO.log("Connection to ethernet player could not be made.");
 		}
 
 		EthernetMsgServer.sendMessage(message, clientSocket);
@@ -78,14 +78,15 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 			game.pause();
 			break;
 		case "<version>":
-			version = payload;
-			this.notifyAll();
+			this.payload = payload;
 			break;
 		default:
 			System.out.println("Client unrecognized command received: \n" + message);
 			break;
 
 		}
+		
+		this.notifyAll();
 
 		// System.out.println("Rx:\n" + message);
 	}
@@ -148,6 +149,11 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 	public String getVersion() {
 		sendMessage("<version>");
 
+		return getResponse();
+	}
+	
+	public String getResponse(){
+		
 		synchronized (this) {
 			try {
 				this.wait();
@@ -155,8 +161,25 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 				e.printStackTrace();
 			}
 		}
+		
+		return payload;
+		
+	}
 
-		return version;
+	@Override
+	public void connectionReset() {
+		game.endGame();
+	}
+
+	@Override
+	public void endGame() {
+		try {
+			clientSocket.close();
+			clientSocket = null;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
