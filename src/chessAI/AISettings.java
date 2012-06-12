@@ -4,27 +4,31 @@ import chessBackend.BoardHashEntry;
 
 public class AISettings {
 	
-	public static final String version = "1.2.061112b";
+	public static String version = "1.2.061112b";
 	public static boolean debugOutput = true;
 	
-	public static final boolean useLite = false;
+	public static boolean useLite = false;
 	
-	public static final boolean useExtraTime = false;
-	public static final boolean bonusEnable = true;
+	public static boolean useExtraTime = false;
+	public static boolean bonusEnable = true;
 	
-	public static final int maxInCheckFrontierLevel = 2;
-	public static final int maxPieceTakenFrontierLevel = 2;
+	public static int maxInCheckFrontierLevel = 2;
+	public static int maxPieceTakenFrontierLevel = 2;
 	
-	public static final long maxSearchTime = 5000;
-	public static final int minSearchDepth = 3;
+	public static long maxSearchTime = 5000;
+	public static int minSearchDepth = 4;
 	
-	public static final boolean alphaBetaPruningEnabled = true;
-	public static final boolean useBook = true;
+	public static boolean alphaBetaPruningEnabled = true;
+	public static boolean useBook = true;
 	
-	public static final boolean useHashTable = true;
-	public static final int hashTableSize = (int) Math.pow(2, BoardHashEntry.hashIndexSize);
-	public static final int staleHashAge = 10;
+	public static boolean useHashTable = true;
+	public static int hashIndexSize = 23;
+	public static int hashTableSize = (int) Math.pow(2, hashIndexSize);
+	public static int staleHashAge = 10;
 	
-	public static final int numOfThreads = 1; //Runtime.getRuntime().availableProcessors()
+	public static int numOfThreads = 1; //Runtime.getRuntime().availableProcessors()
+	
+	public static boolean useKillerMove = true;
+	public static int maxKillerMoves = 100;
 
 }

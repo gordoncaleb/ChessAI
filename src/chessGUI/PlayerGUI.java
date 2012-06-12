@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import chessAI.AI;
+import chessAI.AISettings;
 import chessBackend.Board;
 import chessBackend.BoardMaker;
 import chessBackend.Game;
@@ -52,10 +53,10 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	private AI ai;
 
-	private JPanel ctrlPanel;
-	private JPanel boardCtrlPanel;
-	private JPanel aiCtrlPanel;
-	private JPanel gameCtrlPanel;
+//	private JPanel ctrlPanel;
+//	private JPanel boardCtrlPanel;
+//	private JPanel aiCtrlPanel;
+//	private JPanel gameCtrlPanel;
 
 //	private JButton loadGameBtn;
 //	private JButton saveGameBtn;
@@ -103,7 +104,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 		ai = new AI(null, false);
 
-		frame = new JFrame("Oh,Word? " + AI.version);
+		frame = new JFrame("Oh,Word? " + AISettings.version);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 

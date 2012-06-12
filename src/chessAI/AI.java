@@ -14,10 +14,10 @@ import chessIO.MoveBook;
 import chessPieces.Values;
 
 public class AI extends Thread implements Player {
-	public static String version = AISettings.version;
+	//public static String version = AISettings.version;
 	public static long[] noKillerMoves = {};
-	
-	private boolean debug = AISettings.debugOutput;
+
+	//private boolean debug = AISettings.debugOutput;
 
 	private PlayerContainer game;
 	private MoveBook moveBook;
@@ -25,11 +25,11 @@ public class AI extends Thread implements Player {
 	private DecisionNode rootNode;
 	private int alpha;
 
-	private int minSearchDepth = AISettings.minSearchDepth;
-	private long maxSearchTime = AISettings.maxSearchTime;
-	private boolean useBook = AISettings.useBook;
-	private final boolean useExtraTime = AISettings.useExtraTime;
-	private int staleHashAge = AISettings.staleHashAge;
+	//private int minSearchDepth = AISettings.minSearchDepth;
+	//private long maxSearchTime = AISettings.maxSearchTime;
+	//private boolean useBook = AISettings.useBook;
+	//private final boolean useExtraTime = AISettings.useExtraTime;
+	//private int staleHashAge = AISettings.staleHashAge;
 
 	private int[] childNum = new int[200];
 
@@ -53,7 +53,7 @@ public class AI extends Thread implements Player {
 	private int moveNum;
 
 	public AI(PlayerContainer game, boolean debug) {
-		this.debug = debug | this.debug;
+		//this.debug = debug | this.debug;
 		this.game = game;
 		processing = new Object();
 
@@ -67,7 +67,7 @@ public class AI extends Thread implements Player {
 		processorThreads = new AIProcessor[AISettings.numOfThreads];
 
 		for (int i = 0; i < processorThreads.length; i++) {
-			processorThreads[i] = new AIProcessor(this, minSearchDepth);
+			processorThreads[i] = new AIProcessor(this, AISettings.minSearchDepth);
 			processorThreads[i].start();
 		}
 
@@ -139,7 +139,7 @@ public class AI extends Thread implements Player {
 			processorThreads[i].setRootNode(rootNode);
 		}
 
-		if (debug) {
+		if (AISettings.debugOutput) {
 			// printRootDebug();
 			FileIO.log(getBoard().toString());
 		}
@@ -229,7 +229,7 @@ public class AI extends Thread implements Player {
 		time = System.currentTimeMillis();
 
 		long mb;
-		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == 0 || !useBook) {
+		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == 0 || !AISettings.useBook) {
 
 			// Split the task of looking at all possible AI moves up amongst
 			// multiple threads. This takes advantage of multicore systems.
@@ -238,7 +238,7 @@ public class AI extends Thread implements Player {
 			aiDecision = rootNode.getHeadChild();
 		} else {
 
-			if (debug) {
+			if (AISettings.debugOutput) {
 				FileIO.log("Ai moved based on recommendation");
 			}
 
@@ -249,7 +249,7 @@ public class AI extends Thread implements Player {
 
 		// debug print out of decision tree stats. i.e. the tree size and
 		// the values of the move options that the AI has
-		if (debug) {
+		if (AISettings.debugOutput) {
 			// game.setDecisionTreeRoot(rootNode);
 			// printRootDebug();
 		}
@@ -258,7 +258,7 @@ public class AI extends Thread implements Player {
 		// on the user's move
 		// setRootNode(aiDecision);
 
-		if (debug) {
+		if (AISettings.debugOutput) {
 			// FileIO.log(getBoard().toString());
 		}
 
@@ -276,15 +276,15 @@ public class AI extends Thread implements Player {
 			return;
 		}
 
-		if (debug) {
+		if (AISettings.debugOutput) {
 			FileIO.log("New task");
 		}
 
 		synchronized (processing) {
 
 			long startTime = System.currentTimeMillis();
-			long timeLeft = maxSearchTime;
-			int it = minSearchDepth;
+			long timeLeft = AISettings.maxSearchTime;
+			int it = AISettings.minSearchDepth;
 			boolean checkMateFound = false;
 
 			while (!checkMateFound && timeLeft > 0) {
@@ -305,7 +305,7 @@ public class AI extends Thread implements Player {
 				// Wait for all processors to finish their task
 				try {
 
-					if (it > minSearchDepth) {
+					if (it > AISettings.minSearchDepth) {
 						processing.wait(timeLeft);
 
 						if (nextTask != taskSize) {
@@ -333,7 +333,7 @@ public class AI extends Thread implements Player {
 					e.printStackTrace();
 				}
 
-				timeLeft = maxSearchTime - (System.currentTimeMillis() - startTime);
+				timeLeft = AISettings.maxSearchTime - (System.currentTimeMillis() - startTime);
 
 				if ((Math.abs(root.getHeadChild().getChosenPathValue()) & Values.CHECKMATE_MASK) != 0) {
 					checkMateFound = true;
@@ -344,13 +344,13 @@ public class AI extends Thread implements Player {
 					maxSearched = Math.max(maxSearched, processorThreads[d].getNumSearched());
 
 					totalSearched += processorThreads[d].getNumSearched();
-					System.out.println("Searched " + totalSearched + " in " + (maxSearchTime - timeLeft));
-					System.out.println((double) totalSearched / (double) (maxSearchTime - timeLeft) + " nodes/ms");
+					System.out.println("Searched " + totalSearched + " in " + (AISettings.maxSearchTime - timeLeft));
+					System.out.println((double) totalSearched / (double) (AISettings.maxSearchTime - timeLeft) + " nodes/ms");
 				}
 
 				it++;
 
-				if (!useExtraTime) {
+				if (!AISettings.useExtraTime) {
 					break;
 				}
 			}
@@ -368,12 +368,16 @@ public class AI extends Thread implements Player {
 
 		synchronized (processing) {
 			taskDone++;
-			if (debug) {
+			if (AISettings.debugOutput) {
 				FileIO.log(this + " " + taskDone + "/" + taskSize + " done");
 			}
 
 			if (task.getChosenPathValue() > alpha) {
 				alpha = task.getChosenPathValue();
+			}
+
+			if (alpha >= Values.CHECKMATE_MOVE - 5) {
+				nextTask = taskSize;
 			}
 
 			// if (nextTask == null) {
@@ -415,7 +419,7 @@ public class AI extends Thread implements Player {
 
 		for (int i = 0; i < hashTable.length; i++) {
 			if (hashTable[i] != null) {
-				if ((moveNum - hashTable[i].getMoveNum()) > staleHashAge) {
+				if ((moveNum - hashTable[i].getMoveNum()) > AISettings.staleHashAge) {
 					hashTable[i] = null;
 				}
 			}
@@ -476,7 +480,7 @@ public class AI extends Thread implements Player {
 			processorThreads[i].setRootNode(newRootNode);
 		}
 
-		if (debug) {
+		if (AISettings.debugOutput) {
 			FileIO.log("Board hash code = " + Long.toHexString(getBoard().getHashCode()));
 		}
 
@@ -513,7 +517,7 @@ public class AI extends Thread implements Player {
 
 		}
 
-		if (debug) {
+		if (AISettings.debugOutput) {
 			FileIO.log("Good move (" + Move.toString(goodMove) + ") not found as possibility");
 		}
 
@@ -590,12 +594,12 @@ public class AI extends Thread implements Player {
 	}
 
 	public void setUseBook(boolean useBook) {
-		this.useBook = useBook;
+		AISettings.useBook = useBook;
 	}
 
 	@Override
 	public String getVersion() {
-		return AI.version;
+		return AISettings.version;
 	}
 
 	public BoardHashEntry[] getHashTable() {
@@ -619,7 +623,7 @@ public class AI extends Thread implements Player {
 	@Override
 	public void endGame() {
 		nextTask = taskSize;
-		
+
 		for (int d = 0; d < processorThreads.length; d++) {
 			processorThreads[d].stopSearch();
 		}

@@ -47,6 +47,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton mbRecommendBtn;
 	private JButton aiRecommendBtn;
 	private JButton aiMoveBtn;
+	private JButton showAISettingsBtn;
 	private JButton freelyMoveBtn;
 	private JButton clearHashTableBtn;
 	private JButton loadGameBtn;
@@ -63,7 +64,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private boolean record;
 
 	public static void main(String[] args) {
-		
+
 		FileIO.setLogEnabled(false);
 		FileIO.setDebugOutput(true);
 
@@ -134,6 +135,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		aiMoveBtn = new JButton("AI Move");
 		aiMoveBtn.addMouseListener(this);
 
+		showAISettingsBtn = new JButton("AI Settings");
+		showAISettingsBtn.addMouseListener(this);
+
 		freelyMoveBtn = new JButton("Free Move?");
 		freelyMoveBtn.addMouseListener(this);
 
@@ -145,7 +149,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		newGameBtn = new JButton("New Game");
 		newGameBtn.addMouseListener(this);
-		
+
 		new960GameBtn = new JButton("New 960 Game");
 		new960GameBtn.addMouseListener(this);
 
@@ -401,6 +405,10 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			ai.moveMade(rec);
 
 		}
+		
+		if(e.getSource() == showAISettingsBtn){
+			new AISettingsGUI("MoveBookBuilder AI Settings");
+		}
 
 		if (e.getSource() == moveList) {
 
@@ -461,7 +469,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			this.newGame(board);
 
 		}
-		
+
 		if (e.getSource() == new960GameBtn) {
 
 			Board board = BoardMaker.getRandomChess960Board();
@@ -520,7 +528,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public void endGame() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

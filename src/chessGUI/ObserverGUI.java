@@ -26,17 +26,19 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	private JButton resetButton;
 	private JButton undoButton;
 	private JButton redoButton;
-	
+
 	private JButton saveButton;
+
+	private JButton showSettingsBtn;
 
 	private PlayerContainer game;
 	private boolean paused;
-	
+
 	private JFileChooser fc = new JFileChooser();
 
 	public ObserverGUI(PlayerContainer game, boolean debug) {
 		this.game = game;
-		
+
 		fc.setCurrentDirectory(new File("."));
 
 		frame = new JFrame("Observer");
@@ -60,11 +62,14 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		redoButton = new JButton(">|");
 		redoButton.addMouseListener(this);
 		controlPanel.add(redoButton, BorderLayout.EAST);
-		
-		
+
 		saveButton = new JButton("Save");
 		saveButton.addMouseListener(this);
 		controlPanel.add(saveButton, BorderLayout.EAST);
+
+		showSettingsBtn = new JButton("AI Settings");
+		showSettingsBtn.addMouseListener(this);
+		controlPanel.add(showSettingsBtn, BorderLayout.EAST);
 
 		// frame.setSize(gameWidth, gameHeight);
 		frame.setResizable(false);
@@ -128,47 +133,6 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		if (arg0.getSource() == resetButton) {
-			game.newGame(null, false);
-		}
-
-		if (arg0.getSource() == pauseButton) {
-			//this.pause();
-			game.pause();
-		}
-
-		if (arg0.getSource() == undoButton) {
-			if (boardPanel.canUndo() && paused) {
-				// boardPanel.undoMove();
-				game.undoMove();
-			}
-		}
-
-		if (arg0.getSource() == redoButton) {
-			if (boardPanel.canRedo() && paused) {
-				boardPanel.redoMove();
-			}
-		}
-		
-		if (arg0.getSource() == saveButton) {
-			
-			int returnVal = fc.showSaveDialog(frame);
-
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-				FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toXML(true), false);
-
-			}
-		}
-
-
-		if (paused) {
-			undoButton.setEnabled(boardPanel.canUndo());
-			redoButton.setEnabled(boardPanel.canRedo());
-		} else {
-			undoButton.setEnabled(false);
-			redoButton.setEnabled(false);
-		}
 
 	}
 
@@ -192,7 +156,50 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+		if (arg0.getSource() == resetButton) {
+			game.newGame(null, false);
+		}
+
+		if (arg0.getSource() == pauseButton) {
+			// this.pause();
+			game.pause();
+		}
+
+		if (arg0.getSource() == undoButton) {
+			if (boardPanel.canUndo() && paused) {
+				// boardPanel.undoMove();
+				game.undoMove();
+			}
+		}
+
+		if (arg0.getSource() == redoButton) {
+			if (boardPanel.canRedo() && paused) {
+				boardPanel.redoMove();
+			}
+		}
+
+		if (arg0.getSource() == saveButton) {
+
+			int returnVal = fc.showSaveDialog(frame);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+				FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toXML(true), false);
+
+			}
+		}
+
+		if (arg0.getSource() == showSettingsBtn) {
+			new AISettingsGUI("Observer AI Settings");
+		}
+
+		if (paused) {
+			undoButton.setEnabled(boardPanel.canUndo());
+			redoButton.setEnabled(boardPanel.canRedo());
+		} else {
+			undoButton.setEnabled(false);
+			redoButton.setEnabled(false);
+		}
 
 	}
 
@@ -227,18 +234,26 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public String getPlayerName(Side side) {
-		return game.getPlayerName(side);
+		if (game != null) {
+			return game.getPlayerName(side);
+		} else {
+			return "";
+		}
 	}
 
 	@Override
 	public long getPlayerTime(Side side) {
-		return game.getPlayerTime(side);
+		if (game != null) {
+			return game.getPlayerTime(side);
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
 	public void endGame() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
