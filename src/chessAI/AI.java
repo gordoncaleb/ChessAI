@@ -14,10 +14,10 @@ import chessIO.MoveBook;
 import chessPieces.Values;
 
 public class AI extends Thread implements Player {
-	//public static String version = AISettings.version;
+	// public static String version = AISettings.version;
 	public static long[] noKillerMoves = {};
 
-	//private boolean debug = AISettings.debugOutput;
+	// private boolean debug = AISettings.debugOutput;
 
 	private PlayerContainer game;
 	private MoveBook moveBook;
@@ -25,11 +25,11 @@ public class AI extends Thread implements Player {
 	private DecisionNode rootNode;
 	private int alpha;
 
-	//private int minSearchDepth = AISettings.minSearchDepth;
-	//private long maxSearchTime = AISettings.maxSearchTime;
-	//private boolean useBook = AISettings.useBook;
-	//private final boolean useExtraTime = AISettings.useExtraTime;
-	//private int staleHashAge = AISettings.staleHashAge;
+	// private int minSearchDepth = AISettings.minSearchDepth;
+	// private long maxSearchTime = AISettings.maxSearchTime;
+	// private boolean useBook = AISettings.useBook;
+	// private final boolean useExtraTime = AISettings.useExtraTime;
+	// private int staleHashAge = AISettings.staleHashAge;
 
 	private int[] childNum = new int[200];
 
@@ -53,7 +53,7 @@ public class AI extends Thread implements Player {
 	private int moveNum;
 
 	public AI(PlayerContainer game, boolean debug) {
-		//this.debug = debug | this.debug;
+		// this.debug = debug | this.debug;
 		this.game = game;
 		processing = new Object();
 
@@ -107,7 +107,9 @@ public class AI extends Thread implements Player {
 						game.makeMove(aiDecision.getMove());
 					}
 
-					cleanHashTable();
+					if (AISettings.useHashTable) {
+						cleanHashTable();
+					}
 
 					makeMove = false;
 				}
@@ -435,8 +437,8 @@ public class AI extends Thread implements Player {
 
 		System.gc();
 	}
-	
-	public void resetGameTree(){
+
+	public void resetGameTree() {
 		rootNode = new DecisionNode(0);
 
 		for (int i = 0; i < processorThreads.length; i++) {

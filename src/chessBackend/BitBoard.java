@@ -46,39 +46,35 @@ public class BitBoard {
 		System.out.println("white check near hardway");
 		System.out.println(BitBoard.printBitBoard(getCastleMask(4, 2, Side.WHITE)));
 
-		// for (int r = 0; r < 8; r++) {
-		// System.out.println("Row mask =\n" +
-		// BitBoard.printBitBoard(getRowMask(r)));
-		// }
-		//
-		// for (int c = 0; c < 8; c++) {
-		// System.out.println("col mask = \n" +
-		// BitBoard.printBitBoard(getColMask(c)));
-		// }
-		//
-		// for (int r = 0; r < 8; r++) {
-		// System.out.println("Bottom Row mask =\n" +
-		// BitBoard.printBitBoard(getBottomRows(r)));
-		// }
-		//
-		// for (int c = 0; c < 8; c++) {
-		// System.out.println("Top Row mask = \n" +
-		// BitBoard.printBitBoard(getTopRows(c)));
-		// }
-		//
-		// for (int r = 0; r < 8; r++) {
-		// for (int c = 0; c < 8; c++) {
-		// System.out.println("White pawn forward mask =" + r + "," + c + "\n" +
-		// BitBoard.printBitBoard(getWhitePawnForward(r, c)));
-		// }
-		// }
-		//
-		// for (int r = 0; r < 8; r++) {
-		// for (int c = 0; c < 8; c++) {
-		// System.out.println("Black pawn forward mask =" + r + "," + c + "\n" +
-		// BitBoard.printBitBoard(getBlackPawnForward(r, c)));
-		// }
-		// }
+		for (int r = 0; r < 8; r++) {
+			System.out.println("Row mask =\n" + BitBoard.printBitBoard(getRowMask(r)));
+		}
+
+		for (int c = 0; c < 8; c++) {
+			System.out.println("col mask = \n" + BitBoard.printBitBoard(getColMask(c)));
+		}
+
+		for (int r = 0; r < 8; r++) {
+			System.out.println("Bottom Row mask =\n" + BitBoard.printBitBoard(getBottomRows(r)));
+		}
+
+		for (int c = 0; c < 8; c++) {
+			System.out.println("Top Row mask = \n" + BitBoard.printBitBoard(getTopRows(c)));
+		}
+
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				System.out.println("White pawn forward mask =" + r + "," + c + "\n" + BitBoard.printBitBoard(getWhitePawnForward(r, c)));
+			}
+		}
+
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				System.out.println("Black pawn forward mask =" + r + "," + c + "\n" + BitBoard.printBitBoard(getBlackPawnForward(r, c)));
+			}
+		}
+		
+		System.out.println();
 
 	}
 

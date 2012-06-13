@@ -171,7 +171,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		long time = boardGUI.getPlayerTime(side);
 		long min = time / 60000;
 		long sec = (time / 1000) % 60;
-		return min + ":" + String.format("%02d", sec);
+		return min + "m:" + String.format("%02d", sec) + "s";
 	}
 
 	public void setFlipBoard(boolean flipBoard) {

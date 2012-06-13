@@ -120,7 +120,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 			player.pause();
 			break;
 		case "<version>":
-			sendMessage("<version>" + player.getVersion());
+			sendMessage("<version>" + player.getVersion() + "_ethernet");
 			break;
 		default:
 			System.out.println("Server unrecognized command received: \n" + message);

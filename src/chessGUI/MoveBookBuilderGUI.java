@@ -210,7 +210,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		// frame.add(controlPanel, BorderLayout.NORTH);
 		frame.pack();
 
-		dtgui = new DecisionTreeGUI(boardPanel);
+		dtgui = new DecisionTreeGUI(this);
 
 	}
 

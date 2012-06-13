@@ -24,7 +24,7 @@ public class TournamentGUI {
 	JTextArea statusTxt;
 
 	public static void main(String[] args) {
-		
+
 		FileIO.setLogEnabled(false);
 		FileIO.setDebugOutput(true);
 
@@ -64,7 +64,7 @@ public class TournamentGUI {
 		playerNames.put(playerTwo, playerTwoVersion);
 
 		Hashtable<String, Long[]> playerScore = new Hashtable<String, Long[]>();
-		
+
 		ArrayList<Long> boardsPlayed = new ArrayList<Long>();
 
 		// blackwins, whitewins ,winby,numMoves,time,maxTime,good draws,
@@ -83,90 +83,95 @@ public class TournamentGUI {
 		FileIO.clearDirectory(".\\tournament");
 
 		Board board;
-		
+
 		Long[] winnerScore;
 		Long[] loserScore;
 		int numOfGames = 960;
 		for (int i = 0; i < numOfGames; i++) {
 
-			FileIO.log("Game#" + i);
-			
 			board = BoardMaker.getRandomChess960Board();
-			
-			while(boardsPlayed.contains(board.getHashCode())){
+
+			while (boardsPlayed.contains(board.getHashCode())) {
 				board = BoardMaker.getRandomChess960Board();
 			}
-			
-			FileIO.log(board.toString());
-			
-			results = game.newGame(board, true);
 
-			winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));
-			loserScore = playerScore.get(playerNames.get(players.get(results.getWinner().otherSide())));
+			for (int s = 0; s < 2; s++) {
 
-			FileIO.writeFile((".\\tournament\\game" + i + "_" + results.getEndGameStatus() + ".xml"), ((AI) playerOne).getBoard().toXML(true), false);
+				FileIO.log("Game#" + (i*2 + s));
 
-			if (results.getEndGameStatus() == GameStatus.CHECKMATE) {
+				FileIO.log(board.toString());
 
-				winnerScore[results.getWinner().ordinal()]++;
-				winnerScore[2] += results.getWinBy();
-				winnerScore[3] += results.getNumOfMoves() / 2;
-				winnerScore[4] += results.getTime(results.getWinner());
-				if (winnerScore[5] < results.getMaxTime(results.getWinner())) {
-					winnerScore[5] = results.getMaxTime(results.getWinner());
-				}
+				results = game.newGame(board, true);
 
-				loserScore[3] += results.getNumOfMoves() / 2;
-				loserScore[4] += results.getTime(results.getWinner().otherSide());
-				if (loserScore[5] < results.getMaxTime(results.getWinner().otherSide())) {
-					loserScore[5] = results.getMaxTime(results.getWinner().otherSide());
-				}
-			} else {
-				if (results.getEndGameStatus() == GameStatus.DRAW || results.getEndGameStatus() == GameStatus.STALEMATE) {
-					if (results.getWinBy() < 0) {
-						winnerScore[6]++;
-						loserScore[7]++;
-					} else {
-						winnerScore[7]++;
-						loserScore[6]++;
+				winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));
+				loserScore = playerScore.get(playerNames.get(players.get(results.getWinner().otherSide())));
+
+				FileIO.writeFile((".\\tournament\\game" + (i*2 + s) + "_" + results.getEndGameStatus() + ".xml"), ((AI) playerOne).getBoard().toXML(true), false);
+
+				if (results.getEndGameStatus() == GameStatus.CHECKMATE) {
+
+					winnerScore[results.getWinner().ordinal()]++;
+					winnerScore[2] += results.getWinBy();
+					winnerScore[3] += results.getNumOfMoves() / 2;
+					winnerScore[4] += results.getTime(results.getWinner());
+					if (winnerScore[5] < results.getMaxTime(results.getWinner())) {
+						winnerScore[5] = results.getMaxTime(results.getWinner());
 					}
 
-					winnerScore[8] += results.getWinBy();
-					loserScore[8] -= results.getWinBy();
-
-					draws++;
-
-					if (results.getEndGameStatus() == GameStatus.STALEMATE) {
-						winnerScore[9]++;
+					loserScore[3] += results.getNumOfMoves() / 2;
+					loserScore[4] += results.getTime(results.getWinner().otherSide());
+					if (loserScore[5] < results.getMaxTime(results.getWinner().otherSide())) {
+						loserScore[5] = results.getMaxTime(results.getWinner().otherSide());
 					}
-
 				} else {
-					if (results.getEndGameStatus() == GameStatus.INVALID) {
-						loserScore[10]++;
+					if (results.getEndGameStatus() == GameStatus.DRAW || results.getEndGameStatus() == GameStatus.STALEMATE) {
+						if (results.getWinBy() < 0) {
+							winnerScore[6]++;
+							loserScore[7]++;
+						} else {
+							winnerScore[7]++;
+							loserScore[6]++;
+						}
+
+						winnerScore[8] += results.getWinBy();
+						loserScore[8] -= results.getWinBy();
+
+						draws++;
+
+						if (results.getEndGameStatus() == GameStatus.STALEMATE) {
+							winnerScore[9]++;
+						}
+
+					} else {
+						if (results.getEndGameStatus() == GameStatus.INVALID) {
+							loserScore[10]++;
+						}
 					}
 				}
+
+				String playerOneName = playerNames.get(playerOne);
+				Long[] playerOneScore = playerScore.get(playerOneName);
+
+				String out1 = getScoreResults(playerOneScore, playerOneName);
+
+				String playerTwoName = playerNames.get(playerTwo);
+				Long[] playerTwoScore = playerScore.get(playerTwoName);
+
+				String out2 = getScoreResults(playerTwoScore, playerTwoName);
+
+				String outResults = out1 + "\n" + out2 + "Draws: " + draws + "\nGames played: " + (i*2 + s + 1) + "/" + numOfGames*2 + " - " + (numOfGames * 2 - i*2 - s - 1)
+						+ " left";
+
+				FileIO.writeFile(".\\tournament\\results.txt", outResults, false);
+
+				tournamentGui.setStatusTxt(outResults);
+
+				// switch player sides
+				Player whitePlayer = players.get(Side.WHITE);
+				players.put(Side.WHITE, players.get(Side.BLACK));
+				players.put(Side.BLACK, whitePlayer);
+
 			}
-
-			String playerOneName = playerNames.get(playerOne);
-			Long[] playerOneScore = playerScore.get(playerOneName);
-
-			String out1 = getScoreResults(playerOneScore, playerOneName);
-
-			String playerTwoName = playerNames.get(playerTwo);
-			Long[] playerTwoScore = playerScore.get(playerTwoName);
-
-			String out2 = getScoreResults(playerTwoScore, playerTwoName);
-			
-			String outResults = out1 + "\n" + out2 + "Draws: " + draws + "\nGames played: " + (i + 1) + "/" + numOfGames + " - " + (numOfGames - i - 1) + " left";
-			
-			FileIO.writeFile(".\\tournament\\results.txt", outResults, false);
-
-			tournamentGui.setStatusTxt(outResults);
-
-			// switch player sides
-			Player whitePlayer = players.get(Side.WHITE);
-			players.put(Side.WHITE, players.get(Side.BLACK));
-			players.put(Side.BLACK, whitePlayer);
 
 		}
 

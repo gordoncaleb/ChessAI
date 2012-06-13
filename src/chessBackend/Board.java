@@ -705,7 +705,7 @@ public class Board {
 		return Values.getOpeningPieceValue(board[row][col].getPieceID()) + getOpeningPositionValue(board[row][col]);
 	}
 
-	private int getOpeningPositionValue(Piece piece) {
+	public int getOpeningPositionValue(Piece piece) {
 
 		if (piece == null) {
 			return 0;
@@ -745,7 +745,7 @@ public class Board {
 
 	}
 
-	private int getEndGamePositionValue(Piece piece) {
+	public int getEndGamePositionValue(Piece piece) {
 		int value;
 		Side player = piece.getSide();
 		int row = piece.getRow();
@@ -779,7 +779,7 @@ public class Board {
 
 	}
 
-	private int openingPositionScore(Side side) {
+	public int openingPositionScore(Side side) {
 		int score = 0;
 
 		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
@@ -789,7 +789,7 @@ public class Board {
 		return score;
 	}
 
-	private int endGamePositionScore(Side side) {
+	public int endGamePositionScore(Side side) {
 		int score = 0;
 
 		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
@@ -799,7 +799,7 @@ public class Board {
 		return score;
 	}
 
-	private int openingMaterialScore(Side side) {
+	public int openingMaterialScore(Side side) {
 		int score = 0;
 
 		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
@@ -809,7 +809,7 @@ public class Board {
 		return score;
 	}
 
-	private int endGameMaterialScore(Side side) {
+	public int endGameMaterialScore(Side side) {
 		int score = 0;
 
 		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
@@ -819,7 +819,7 @@ public class Board {
 		return score;
 	}
 
-	private int castleScore(Side side) {
+	public int castleScore(Side side) {
 		int score = 0;
 		int castleRights = 0;
 
@@ -843,9 +843,10 @@ public class Board {
 		return score;
 	}
 
-	private int pawnStructureScore(Side side, int phase) {
+	public int pawnStructureScore(Side side, int phase) {
 
 		long pawns = pawnPosBitBoard[side.ordinal()];
+		long otherPawns = pawnPosBitBoard[side.otherSide().ordinal()];
 
 		int backedPawns;
 
@@ -856,19 +857,19 @@ public class Board {
 		}
 
 		int occupiedCol = 0;
+		int passedPawns = 0;
 		for (int c = 0; c < 8; c++) {
 			if ((BitBoard.getColMask(c) & pawns) != 0) {
 				occupiedCol++;
+				if ((BitBoard.getColMask(c) & otherPawns) == 0) {
+					passedPawns++;
+				}
 			}
 		}
 
 		int doubledPawns = BitBoard.bitCountLong(pawns) - occupiedCol;
 
-		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
-
-		}
-
-		return backedPawns * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS;
+		return backedPawns * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * Values.PASSED_PAWN_BONUS * phase) >> 8);
 	}
 
 	public int calcGamePhase() {
@@ -906,8 +907,8 @@ public class Board {
 		endGameMyScore += endGamePositionScore(turn);
 		endGameYourScore += endGamePositionScore(turn.otherSide());
 
-		int myScore = (((openingMyScore * (256 - phase)) + (endGameMyScore * phase)) / 256) + myPawnScore;
-		int yourScore = (((openingYourScore * (256 - phase)) + (endGameYourScore * phase)) / 256) + yourPawnScore;
+		int myScore = (openingMyScore * (256 - phase) + endGameMyScore * phase) / 256 + myPawnScore;
+		int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + yourPawnScore;
 
 		ptDiff = myScore - yourScore;
 

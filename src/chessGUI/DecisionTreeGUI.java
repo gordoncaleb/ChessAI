@@ -6,53 +6,86 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
 import chessAI.DecisionNode;
 import chessBackend.Game;
+import chessBackend.Player;
+import chessPieces.Values;
 
 public class DecisionTreeGUI implements KeyListener, MouseListener {
-	BoardPanel gui;
+	Player gui;
 
 	// debug components
 	private boolean debug;
 	private JFrame debugFrame;
+	private JPanel ctrlPanel;
+	private JCheckBox enableStepThrough;
+	private JButton refreshBtn;
+
 	private JTree decisionTreeGUI;
 	private DefaultMutableTreeNode rootGUI;
 	private JScrollPane treeView;
 	private DecisionNode rootDecision;
 
-	public DecisionTreeGUI( BoardPanel gui) {
+	private int[] nodeCount = new int[20];
+	private int distanceFromRoot = 0;
+
+	public DecisionTreeGUI(Player gui) {
 		this.gui = gui;
 
 		debugFrame = new JFrame("Decision Tree Observer");
 		debugFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		debugFrame.setLayout(new BorderLayout(1, 1));
-		debugFrame.setSize(800, 800);
-		debugFrame.setVisible(true);
-		buildDebugGUI();
+		debugFrame.setLayout(new BorderLayout());
 
-	}
-
-	private void buildDebugGUI() {
 		rootGUI = new DefaultMutableTreeNode("Current Board");
 		decisionTreeGUI = new JTree(rootGUI);
 		decisionTreeGUI.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		decisionTreeGUI.addKeyListener(this);
 		decisionTreeGUI.addMouseListener(this);
 		treeView = new JScrollPane(decisionTreeGUI);
+
+		ctrlPanel = new JPanel();
+
+		enableStepThrough = new JCheckBox("Step Through", false);
+		ctrlPanel.add(enableStepThrough);
+
+		refreshBtn = new JButton("Refresh");
+		refreshBtn.addMouseListener(this);
+		ctrlPanel.add(refreshBtn);
+
 		debugFrame.add(treeView, BorderLayout.CENTER);
+		debugFrame.add(ctrlPanel, BorderLayout.SOUTH);
+		debugFrame.setSize(800, 800);
+		debugFrame.setVisible(true);
+
 	}
 
 	public void setRootDecisionTree(DecisionNode rootDecision) {
 		this.rootDecision = rootDecision;
+		distanceFromRoot = 0;
+		refreshTree();
+	}
+
+	private void refreshTree() {
 		rootGUI.removeAllChildren();
+		resetNodeCount();
 		buildDecisionTreeGUI(rootGUI, rootDecision, 0);
 		decisionTreeGUI.updateUI();
+	}
+
+	private void resetNodeCount() {
+		for (int i = 0; i < nodeCount.length; i++) {
+			nodeCount[i] = 0;
+		}
 	}
 
 	private void buildDecisionTreeGUI(DefaultMutableTreeNode branchGUI, DecisionNode branch, int level) {
@@ -99,7 +132,6 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 
 		Object nodeInfo = node.getUserObject();
 
-
 	}
 
 	// Listener Methods
@@ -126,8 +158,35 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mouseReleased(MouseEvent e) {
+		if (e.getSource() == refreshBtn) {
+			refreshTree();
+		}
+
+		if (e.getSource() == decisionTreeGUI) {
+
+			
+			if (enableStepThrough.isSelected()) {
+				for (int i = 0; i < distanceFromRoot; i++) {
+					gui.undoMove();
+				}
+				
+				distanceFromRoot = 0;
+
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) decisionTreeGUI.getLastSelectedPathComponent();
+				Object[] path = node.getUserObjectPath();
+
+				for (int i = 1; i < path.length; i++) {
+					gui.moveMade(((DecisionNode) path[i]).getMove());
+					distanceFromRoot++;
+				}
+			}
+			
+			System.out.println(Values.printBoardScoreBreakDown(gui.getBoard()));
+			
+		}
+		
+		
 
 	}
 }

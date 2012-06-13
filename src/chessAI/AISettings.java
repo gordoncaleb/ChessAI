@@ -1,10 +1,8 @@
 package chessAI;
 
-import chessBackend.BoardHashEntry;
-
 public class AISettings {
 	
-	public static String version = "1.2.061112b";
+	public static String version = "1.2.061312";
 	public static boolean debugOutput = true;
 	
 	public static boolean useLite = false;
@@ -16,12 +14,12 @@ public class AISettings {
 	public static int maxPieceTakenFrontierLevel = 2;
 	
 	public static long maxSearchTime = 5000;
-	public static int minSearchDepth = 4;
+	public static int minSearchDepth = 3;
 	
 	public static boolean alphaBetaPruningEnabled = true;
-	public static boolean useBook = true;
+	public static boolean useBook = false;
 	
-	public static boolean useHashTable = true;
+	public static boolean useHashTable = false;
 	public static int hashIndexSize = 23;
 	public static int hashTableSize = (int) Math.pow(2, hashIndexSize);
 	public static int staleHashAge = 10;

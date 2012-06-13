@@ -137,17 +137,19 @@ public class AIProcessor extends Thread {
 
 		}
 
-//			for (int i = 0; i < killerMoves.length; i++) {
-//				System.out.println("Killer move level " + i + " size=" + killerMoveSize[i]);
-//			}
-//			for (int i = 0; i < killerMoveCuts.length; i++) {
-//				System.out.println("Killer move cuts @level " + i + " size=" + killerMoveCuts[i]);
-//			}
-//
-//			for (int i = 0; i < hashMoveCuts.length; i++) {
-//				System.out.println("Hash move cuts @level " + i + " size=" + hashMoveCuts[i]);
-//			}
-		
+		// for (int i = 0; i < killerMoves.length; i++) {
+		// System.out.println("Killer move level " + i + " size=" +
+		// killerMoveSize[i]);
+		// }
+		// for (int i = 0; i < killerMoveCuts.length; i++) {
+		// System.out.println("Killer move cuts @level " + i + " size=" +
+		// killerMoveCuts[i]);
+		// }
+		//
+		// for (int i = 0; i < hashMoveCuts.length; i++) {
+		// System.out.println("Hash move cuts @level " + i + " size=" +
+		// hashMoveCuts[i]);
+		// }
 
 	}
 
@@ -219,12 +221,14 @@ public class AIProcessor extends Thread {
 
 		if (level >= 0) {
 
+			boolean resort = false;
 			long move;
 			for (int i = 0; i < branch.getChildrenSize(); i++) {
 				move = branch.getChild(i).getMove();
 
 				if (move == hashMove) {
 					branch.getChild(i).setChosenPathValue(10000);
+					resort = true;
 					continue;
 				}
 
@@ -232,13 +236,16 @@ public class AIProcessor extends Thread {
 					for (int k = 0; k < killerMoveSize[level]; k++) {
 						if (move == killerMoves[level][k]) {
 							branch.getChild(i).setChosenPathValue(10000 - k);
+							resort = true;
 							break;
 						}
 					}
 				}
 			}
 
-			branch.sort();
+			if (resort) {
+				branch.sort();
+			}
 		}
 	}
 
@@ -263,8 +270,6 @@ public class AIProcessor extends Thread {
 		// branch.setBeta(beta);
 
 		numSearched++;
-
-		int sortTo = 0;
 
 		int hashIndex = (int) (board.getHashCode() & BoardHashEntry.hashIndexMask);
 		BoardHashEntry hashOut;
@@ -374,51 +379,54 @@ public class AIProcessor extends Thread {
 
 			resortChildrenWithKillerMoves(branch, level, hashMove);
 
+			boolean pruned = false;
 			for (int i = 0; i < branch.getChildrenSize(); i++) {
 
-				sortTo = i + 1;
+				if (!pruned) {
+					board.makeMove(branch.getChild(i).getMove());
 
-				board.makeMove(branch.getChild(i).getMove());
+					if (level > 0) {
 
-				if (level > 0) {
+						growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
 
-					growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
+					} else {
+						// bonus depth
 
-				} else {
-					// bonus depth
+						if (AISettings.bonusEnable) {
 
-					if (AISettings.bonusEnable) {
+							if (twigGrowthEnabled) {
+								branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level - 1, branch.getChild(i).getMove(), bonusLevel));
+								// branch.getChild(i).setBound(getNodeType(-branch.getChild(i).getChosenPathValue(),
+								// -beta, -alpha));
+							} else {
+								growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
+							}
+						}
 
-						if (twigGrowthEnabled) {
-							branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level - 1, branch.getChild(i).getMove(), bonusLevel));
-							// branch.getChild(i).setBound(getNodeType(-branch.getChild(i).getChosenPathValue(),
-							// -beta, -alpha));
-						} else {
-							growDecisionTree(branch.getChild(i), -beta, -alpha, level - 1, bonusLevel);
+					}
+
+					board.undoMove();
+
+					cpv = Math.max(cpv, branch.getChild(i).getChosenPathValue());
+
+					// alpha beta pruning
+					if (AISettings.alphaBetaPruningEnabled) {
+
+						if (cpv > alpha) {
+							alpha = cpv;
+						}
+
+						if (alpha >= beta) {
+							pruned = true;;
 						}
 					}
-
-				}
-
-				board.undoMove();
-
-				cpv = Math.max(cpv, branch.getChild(i).getChosenPathValue());
-
-				// alpha beta pruning
-				if (AISettings.alphaBetaPruningEnabled) {
-
-					if (cpv > alpha) {
-						alpha = cpv;
-					}
-
-					if (alpha >= beta) {
-						break;
-					}
+				} else {
+					branch.getChild(i).setChosenPathValue(-10000);
 				}
 
 			}
 
-			branch.sort(sortTo);
+			branch.sort();
 
 			if ((Math.abs(cpv) & Values.CHECKMATE_MASK) != 0) {
 				if (cpv > 0) {
@@ -435,16 +443,16 @@ public class AIProcessor extends Thread {
 				addKillerMove(level, branch.getHeadChild().getMove());
 			}
 
-//			if (getNodeType(cpv, a, b) == ValueBounds.CUT && level >= 0) {
-//				if (branch.getHeadChild().getMove() == hashMove) {
-//					hashMoveCuts[level]++;
-//				} else {
-//					if (isKillerMove(branch.getHeadChild().getMove(), level)) {
-//						killerMoveCuts[level]++;
-//					}
-//				}
-//
-//			}
+			// if (getNodeType(cpv, a, b) == ValueBounds.CUT && level >= 0) {
+			// if (branch.getHeadChild().getMove() == hashMove) {
+			// hashMoveCuts[level]++;
+			// } else {
+			// if (isKillerMove(branch.getHeadChild().getMove(), level)) {
+			// killerMoveCuts[level]++;
+			// }
+			// }
+			//
+			// }
 
 			if (AISettings.useHashTable && level >= 0) {
 				if (hashOut == null) {
