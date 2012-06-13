@@ -435,6 +435,16 @@ public class AI extends Thread implements Player {
 
 		System.gc();
 	}
+	
+	public void resetGameTree(){
+		rootNode = new DecisionNode(0);
+
+		for (int i = 0; i < processorThreads.length; i++) {
+			synchronized (processorThreads[i]) {
+				processorThreads[i].setRootNode(rootNode);
+			}
+		}
+	}
 
 	private void undoMoveOnSubThreads() {
 		if (canUndo()) {

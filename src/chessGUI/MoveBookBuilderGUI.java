@@ -183,7 +183,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		mbCtrlPanel.add(mbRecommendBtn);
 		aiCtrlPanel.add(aiRecommendBtn);
 		aiCtrlPanel.add(aiMoveBtn);
-		// aiCtrlPanel.add(clearHashTableBtn);
+		aiCtrlPanel.add(showAISettingsBtn);
 		boardCtrlPanel.add(freelyMoveBtn);
 		boardCtrlPanel.add(flipBoardBtn);
 		gameCtrlPanel.add(loadGameBtn);
@@ -407,7 +407,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		}
 		
 		if(e.getSource() == showAISettingsBtn){
-			new AISettingsGUI("MoveBookBuilder AI Settings");
+			new AISettingsGUI("MoveBookBuilder AI Settings", ai);
 		}
 
 		if (e.getSource() == moveList) {
@@ -432,10 +432,6 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 				freelyMoveBtn.setText("Free Move?");
 				populateMoveList();
 			}
-		}
-
-		if (e.getSource() == clearHashTableBtn) {
-			ai.cleanHashTable();
 		}
 
 		if (e.getSource() == loadGameBtn) {
