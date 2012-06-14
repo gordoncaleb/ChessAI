@@ -511,8 +511,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public String getPlayerName(Side side) {
-		// TODO Auto-generated method stub
-		return null;
+		return "N/A";
 	}
 
 	@Override

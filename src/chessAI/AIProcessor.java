@@ -105,7 +105,7 @@ public class AIProcessor extends Thread {
 		// if game isnt over make sure tree root shows what next valid moves are
 		if (!this.rootNode.hasChildren()) {
 			board.makeNullMove();
-			attachValidMoves(rootNode, 0, AI.noKillerMoves);
+			attachValidMoves(rootNode, 0, -1);
 
 		}
 
@@ -191,9 +191,15 @@ public class AIProcessor extends Thread {
 		}
 	}
 
-	public void attachValidMoves(DecisionNode branch, long hashMove, long[] killerMoves) {
+	public void attachValidMoves(DecisionNode branch, long hashMove, int level) {
 
-		ArrayList<Long> moves = board.generateValidMoves(true, hashMove, killerMoves);
+		ArrayList<Long> moves;
+
+		if (level >= 0) {
+			moves = board.generateValidMoves(true, hashMove, killerMoves[level]);
+		} else {
+			moves = board.generateValidMoves(true, hashMove, AI.noKillerMoves);
+		}
 
 		DecisionNode[] children = new DecisionNode[moves.size()];
 
@@ -345,11 +351,7 @@ public class AIProcessor extends Thread {
 			if (level > bonusLevel) {
 				// check all moves of all pieces
 
-				if (level >= 0 && AISettings.useKillerMove) {
-					attachValidMoves(branch, hashMove, killerMoves[level]);
-				} else {
-					attachValidMoves(branch, hashMove, AI.noKillerMoves);
-				}
+				attachValidMoves(branch, hashMove, level);
 
 				if (board.isGameOver()) {
 
@@ -374,9 +376,6 @@ public class AIProcessor extends Thread {
 
 		if (!branch.isGameOver()) {
 
-			// resortChildrenWithKillerMoves(DecisionNode branch, long hashMove,
-			// long[] killerMoves)
-
 			resortChildrenWithKillerMoves(branch, level, hashMove);
 
 			boolean pruned = false;
@@ -395,7 +394,8 @@ public class AIProcessor extends Thread {
 						if (AISettings.bonusEnable) {
 
 							if (twigGrowthEnabled) {
-								branch.getChild(i).setChosenPathValue(-growDecisionTreeLite(-beta, -alpha, level - 1, branch.getChild(i).getMove(), bonusLevel));
+								branch.getChild(i).setChosenPathValue(
+										-growDecisionTreeLite(-beta, -alpha, level - 1, branch.getChild(i).getMove(), bonusLevel));
 								// branch.getChild(i).setBound(getNodeType(-branch.getChild(i).getChosenPathValue(),
 								// -beta, -alpha));
 							} else {
@@ -417,7 +417,8 @@ public class AIProcessor extends Thread {
 						}
 
 						if (alpha >= beta) {
-							pruned = true;;
+							pruned = true;
+							;
 						}
 					}
 				} else {
@@ -456,13 +457,8 @@ public class AIProcessor extends Thread {
 
 			if (AISettings.useHashTable && level >= 0) {
 				if (hashOut == null) {
-					// public BoardHashEntry(long hashCode, int level, int
-					// score,
-					// int moveNum, ValueBounds bounds, long bestMove) {
-					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, b), branch.getHeadChild().getMove());// ,
-																																											// board.toString());
-					// System.out.println("Adding " + hashIndex +
-					// " to hashTable at level " + level);
+					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, b), branch
+							.getHeadChild().getMove());
 				} else {
 					if (hashTableUpdate(hashOut, level - bonusLevel, ai.getMoveNum())) {
 						hashOut.setAll(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, b), branch.getHeadChild().getMove());// ,board.toString());
@@ -536,7 +532,7 @@ public class AIProcessor extends Thread {
 					// }
 					// }
 
-					if (hashOut.getLevel() >= (level - bonusLevel)) {
+					if (hashOut.getLevel() >= level) {
 
 						if (hashOut.getBounds() == ValueBounds.PV) {
 							return hashOut.getScore();
@@ -622,19 +618,18 @@ public class AIProcessor extends Thread {
 				bestPathValue = 0;
 			}
 		}
+		
+		if (getNodeType(bestPathValue, a, b) != ValueBounds.ALL && level >= 0 && AISettings.useKillerMove) {
+				addKillerMove(level, bestMove);
+			}
 
-		if (AISettings.useHashTable) {
+		if (AISettings.useHashTable && level >= 0) {
 			if (hashOut == null) {
-				// public BoardHashEntry(long hashCode, int level, int
-				// score,
-				// int moveNum, ValueBounds bounds, long bestMove) {
-				hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level - bonusLevel, bestPathValue, ai.getMoveNum(), getNodeType(bestPathValue, a, b), bestMove);// ,
-																																												// board.toString());
-				// System.out.println("Adding " + hashIndex +
-				// " to hashTable at level " + level);
+				hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level, bestPathValue, ai.getMoveNum(),
+						getNodeType(bestPathValue, a, b), bestMove);
 			} else {
 				if (hashTableUpdate(hashOut, level - bonusLevel, ai.getMoveNum())) {
-					hashOut.setAll(board.getHashCode(), level - bonusLevel, bestPathValue, ai.getMoveNum(), getNodeType(bestPathValue, a, b), bestMove);// ,board.toString());
+					hashOut.setAll(board.getHashCode(), level, bestPathValue, ai.getMoveNum(), getNodeType(bestPathValue, a, b), bestMove);// ,board.toString());
 				}
 			}
 

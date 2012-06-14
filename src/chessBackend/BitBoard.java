@@ -37,44 +37,56 @@ public class BitBoard {
 
 		long val;
 
-		System.out.println("white castle near");
-		System.out.println(BitBoard.printBitBoard(WHITE_CASTLE_NEAR));
-
-		System.out.println("white check near");
-		System.out.println(BitBoard.printBitBoard(WHITE_CHECK_NEAR));
-
-		System.out.println("white check near hardway");
-		System.out.println(BitBoard.printBitBoard(getCastleMask(4, 2, Side.WHITE)));
-
-		for (int r = 0; r < 8; r++) {
-			System.out.println("Row mask =\n" + BitBoard.printBitBoard(getRowMask(r)));
-		}
-
-		for (int c = 0; c < 8; c++) {
-			System.out.println("col mask = \n" + BitBoard.printBitBoard(getColMask(c)));
-		}
-
-		for (int r = 0; r < 8; r++) {
-			System.out.println("Bottom Row mask =\n" + BitBoard.printBitBoard(getBottomRows(r)));
-		}
-
-		for (int c = 0; c < 8; c++) {
-			System.out.println("Top Row mask = \n" + BitBoard.printBitBoard(getTopRows(c)));
-		}
+		// System.out.println("white castle near");
+		// System.out.println(BitBoard.printBitBoard(WHITE_CASTLE_NEAR));
+		//
+		// System.out.println("white check near");
+		// System.out.println(BitBoard.printBitBoard(WHITE_CHECK_NEAR));
+		//
+		// System.out.println("white check near hardway");
+		// System.out.println(BitBoard.printBitBoard(getCastleMask(4, 2,
+		// Side.WHITE)));
+		//
+		// for (int r = 0; r < 8; r++) {
+		// System.out.println("Row mask =\n" +
+		// BitBoard.printBitBoard(getRowMask(r)));
+		// }
+		//
+		// for (int c = 0; c < 8; c++) {
+		// System.out.println("col mask = \n" +
+		// BitBoard.printBitBoard(getColMask(c)));
+		// }
+		//
+		// for (int r = 0; r < 8; r++) {
+		// System.out.println("Bottom Row mask =\n" +
+		// BitBoard.printBitBoard(getBottomRows(r)));
+		// }
+		//
+		// for (int c = 0; c < 8; c++) {
+		// System.out.println("Top Row mask = \n" +
+		// BitBoard.printBitBoard(getTopRows(c)));
+		// }
+		//
+		// for (int r = 0; r < 8; r++) {
+		// for (int c = 0; c < 8; c++) {
+		// System.out.println("White pawn forward mask =" + r + "," + c + "\n" +
+		// BitBoard.printBitBoard(getWhitePawnForward(r, c)));
+		// }
+		// }
+		//
+		// for (int r = 0; r < 8; r++) {
+		// for (int c = 0; c < 8; c++) {
+		// System.out.println("Black pawn forward mask =" + r + "," + c + "\n" +
+		// BitBoard.printBitBoard(getBlackPawnForward(r, c)));
+		// }
+		// }
 
 		for (int r = 0; r < 8; r++) {
 			for (int c = 0; c < 8; c++) {
-				System.out.println("White pawn forward mask =" + r + "," + c + "\n" + BitBoard.printBitBoard(getWhitePawnForward(r, c)));
+				System.out.println("R=" + r + " C=" + c);
+				System.out.println(BitBoard.printBitBoard(getKingFootPrint(r, c)));
 			}
 		}
-
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				System.out.println("Black pawn forward mask =" + r + "," + c + "\n" + BitBoard.printBitBoard(getBlackPawnForward(r, c)));
-			}
-		}
-		
-		System.out.println();
 
 	}
 
@@ -163,7 +175,7 @@ public class BitBoard {
 	public static long getKingFootPrint(int row, int col) {
 		// return kingFootPrint[row][col];
 
-		return 0L;
+		return (0x70507L << (8 * (row - 1) + col - 1)) & ~getColMask(col % 7);
 	}
 
 	public static String printBitBoard(long bitBoard) {
