@@ -181,13 +181,15 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 		frame.add(maxKillerMovesLbl);
 		frame.add(maxKillerMoves);
 
-		clearHashBtn = new JButton("Clear Hashtable");
-		clearHashBtn.addMouseListener(this);
-		frame.add(clearHashBtn);
+		if (ai != null) {
+			clearHashBtn = new JButton("Clear Hashtable");
+			clearHashBtn.addMouseListener(this);
+			frame.add(clearHashBtn);
 
-		resetTreeBtn = new JButton("Reset Game Tree");
-		resetTreeBtn.addMouseListener(this);
-		frame.add(resetTreeBtn);
+			resetTreeBtn = new JButton("Reset Game Tree");
+			resetTreeBtn.addMouseListener(this);
+			frame.add(resetTreeBtn);
+		}
 
 		// frame.setResizable(false);
 		frame.setVisible(true);
@@ -276,6 +278,7 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 		if (arg0.getSource() == resetTreeBtn) {
 			if (ai != null) {
 				ai.resetGameTree();
+				
 			}
 		}
 

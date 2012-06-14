@@ -48,6 +48,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	private JMenuItem flipBoardMenu;
 
 	private JMenuItem getAIRecommendationMenu;
+	private JMenuItem aiSettingsMenu;
 	
 	private BoardPanel boardPanel;
 
@@ -149,6 +150,10 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		getAIRecommendationMenu = new JMenuItem("Reccomendation");
 		getAIRecommendationMenu.addMouseListener(this);
 		AIMenu.add(getAIRecommendationMenu);
+		
+		aiSettingsMenu = new JMenuItem("Ai Settings");
+		aiSettingsMenu.addMouseListener(this);
+		AIMenu.add(aiSettingsMenu);
 		
 		menuBar.add(gameMenu);
 		menuBar.add(boardMenu);
@@ -437,6 +442,10 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 			if (rec != 0) {
 				boardPanel.highlightMove(rec);
 			}
+		}
+		
+		if(arg0.getSource()==aiSettingsMenu){
+			new AISettingsGUI("AI Settings");
 		}
 
 	}

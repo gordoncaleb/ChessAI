@@ -16,6 +16,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
+import chessAI.AI;
 import chessAI.DecisionNode;
 import chessBackend.Game;
 import chessBackend.Player;
@@ -160,6 +161,8 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (e.getSource() == refreshBtn) {
+			
+			rootDecision = ((AI)gui).getRootNode();
 			refreshTree();
 		}
 

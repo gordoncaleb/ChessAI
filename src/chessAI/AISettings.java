@@ -7,17 +7,17 @@ public class AISettings {
 	
 	public static boolean useLite = false;
 	
-	public static boolean useExtraTime = false;
+	public static boolean useExtraTime = true;
 	public static boolean bonusEnable = true;
 	
 	public static int maxInCheckFrontierLevel = 2;
 	public static int maxPieceTakenFrontierLevel = 2;
 	
 	public static long maxSearchTime = 5000;
-	public static int minSearchDepth = 3;
+	public static int minSearchDepth = 4;
 	
 	public static boolean alphaBetaPruningEnabled = true;
-	public static boolean useBook = false;
+	public static boolean useBook = true;
 	
 	public static boolean useHashTable = false;
 	public static int hashIndexSize = 23;

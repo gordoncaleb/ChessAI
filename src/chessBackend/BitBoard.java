@@ -88,6 +88,8 @@ public class BitBoard {
 			}
 		}
 
+		System.out.println(BitBoard.printBitBoard(0x70507L >> 1));
+
 	}
 
 	public static long getCastleMask(int col1, int col2, Side side) {
@@ -172,10 +174,25 @@ public class BitBoard {
 	// }
 	// }
 
+//	public static long getKingFootPrint(int row, int col) {
+//		// return kingFootPrint[row][col];
+//
+//		return (0x70507L << (8 * (row - 1) + col - 1));// & (~getColMask(col ^
+//														// 7) |
+//														// (0x7E7E7E7E7E7E7E7EL));
+//	}
+
 	public static long getKingFootPrint(int row, int col) {
 		// return kingFootPrint[row][col];
 
-		return (0x70507L << (8 * (row - 1) + col - 1)) & ~getColMask(col % 7);
+		int shift = (8 * (row - 1) + col - 1);
+
+		if (shift >= 0){
+			return (0x70507L << shift) & (~getColMask(col ^ 7) | (0x7E7E7E7E7E7E7E7EL));
+		}else{
+			return (0x70507L >> -shift) & (~getColMask(col ^ 7) | (0x7E7E7E7E7E7E7E7EL));
+		}
+		
 	}
 
 	public static String printBitBoard(long bitBoard) {
