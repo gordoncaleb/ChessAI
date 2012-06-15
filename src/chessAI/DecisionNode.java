@@ -13,7 +13,7 @@ public class DecisionNode implements Comparable<DecisionNode> {
 	private long move;
 
 	private int chosenPathValue;
-	//private ValueBounds bound;
+	// private ValueBounds bound;
 
 	private int alpha;
 	private int beta;
@@ -128,7 +128,7 @@ public class DecisionNode implements Comparable<DecisionNode> {
 		children = null;
 
 		this.chosenPathValue = chosenPathValue;
-		//bound = ValueBounds.NA;
+		// bound = ValueBounds.NA;
 
 		this.move = move;
 	}
@@ -196,11 +196,7 @@ public class DecisionNode implements Comparable<DecisionNode> {
 	}
 
 	public boolean isGameOver() {
-		if (hasBeenVisited()) {
-			return (children.length == 0);
-		} else {
-			return false;
-		}
+		return (hasBeenVisited() && (children.length == 0));
 	}
 
 	public boolean hasBeenVisited() {
@@ -230,13 +226,13 @@ public class DecisionNode implements Comparable<DecisionNode> {
 		this.chosenPathValue = chosenPathValue;
 	}
 
-//	public ValueBounds getBound() {
-//		return bound;
-//	}
-//
-//	public void setBound(ValueBounds bound) {
-//		this.bound = bound;
-//	}
+	// public ValueBounds getBound() {
+	// return bound;
+	// }
+	//
+	// public void setBound(ValueBounds bound) {
+	// this.bound = bound;
+	// }
 
 	public boolean hasPieceTaken() {
 		if (move == 0) {
@@ -267,7 +263,7 @@ public class DecisionNode implements Comparable<DecisionNode> {
 	}
 
 	public String toString() {
-		String me = "Chosen Path Value = "  + " " + this.getChosenPathValue();
+		String me = "Chosen Path Value = " + " " + this.getChosenPathValue();
 
 		if (move != 0) {
 			me += " " + Move.toString(move);

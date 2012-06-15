@@ -295,7 +295,7 @@ public class AI extends Thread implements Player {
 				// tasks.
 				taskDone = 0;
 				nextTask = 0;
-				alpha = -Values.CHECKMATE_MOVE;
+				alpha = -Values.CHECKMATE_MOVE + 1;
 				// root.removeAllChildren();
 
 				// wake all threads up

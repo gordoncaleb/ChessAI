@@ -48,6 +48,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton aiRecommendBtn;
 	private JButton aiMoveBtn;
 	private JButton showAISettingsBtn;
+	private JButton showDecisionTreeBtn;
 	private JButton freelyMoveBtn;
 	private JButton clearHashTableBtn;
 	private JButton loadGameBtn;
@@ -57,8 +58,6 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton flipBoardBtn;
 
 	private JFileChooser fc = new JFileChooser();
-
-	private DecisionTreeGUI dtgui;
 
 	private MoveBook moveBook;
 	private boolean record;
@@ -138,6 +137,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		showAISettingsBtn = new JButton("AI Settings");
 		showAISettingsBtn.addMouseListener(this);
 
+		showDecisionTreeBtn = new JButton("Show Decision Tree");
+		showDecisionTreeBtn.addMouseListener(this);
+
 		freelyMoveBtn = new JButton("Free Move?");
 		freelyMoveBtn.addMouseListener(this);
 
@@ -184,6 +186,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		aiCtrlPanel.add(aiRecommendBtn);
 		aiCtrlPanel.add(aiMoveBtn);
 		aiCtrlPanel.add(showAISettingsBtn);
+		aiCtrlPanel.add(showDecisionTreeBtn);
 		boardCtrlPanel.add(freelyMoveBtn);
 		boardCtrlPanel.add(flipBoardBtn);
 		gameCtrlPanel.add(loadGameBtn);
@@ -209,8 +212,6 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		frame.add(eastPanel, BorderLayout.EAST);
 		// frame.add(controlPanel, BorderLayout.NORTH);
 		frame.pack();
-
-		dtgui = new DecisionTreeGUI(this);
 
 	}
 
@@ -385,8 +386,6 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 			long rec = ai.makeRecommendation();
 
-			dtgui.setRootDecisionTree(ai.getRootNode());
-
 			if (rec != 0) {
 				boardPanel.highlightMove(rec);
 			}
@@ -399,15 +398,19 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 			long rec = ai.makeRecommendation();
 
-			dtgui.setRootDecisionTree(ai.getRootNode());
-
-			boardPanel.moveMade(rec);
-			ai.moveMade(rec);
+			moveMade(rec);
+			
+//			boardPanel.moveMade(rec);
+//			ai.moveMade(rec);
 
 		}
-		
-		if(e.getSource() == showAISettingsBtn){
+
+		if (e.getSource() == showAISettingsBtn) {
 			new AISettingsGUI("MoveBookBuilder AI Settings", ai);
+		}
+
+		if (e.getSource() == showDecisionTreeBtn) {
+			new DecisionTreeGUI(ai);
 		}
 
 		if (e.getSource() == moveList) {

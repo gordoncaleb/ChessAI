@@ -721,7 +721,7 @@ public class Board {
 			value = PositionBonus.getKnightPositionBonus(row, col, player);
 			break;
 		case PAWN:
-			value = PositionBonus.getOpeningPawnPositionBonus(row, col, player);
+			value = PositionBonus.getPawnPositionBonus(row, col, player);
 			break;
 		case BISHOP:
 			value = 0;
@@ -734,7 +734,7 @@ public class Board {
 			value = 0;
 			break;
 		case ROOK:
-			value = 0;
+			value = PositionBonus.getRookBonus(row, col);
 			break;
 		default:
 			value = 0;
@@ -756,7 +756,7 @@ public class Board {
 			value = PositionBonus.getKnightPositionBonus(row, col, player);
 			break;
 		case PAWN:
-			value = PositionBonus.getEndGamePawnPositionBonus(row, col, player);
+			value = PositionBonus.getPawnPositionBonus(row, col, player);
 			break;
 		case BISHOP:
 			value = 0;
@@ -768,7 +768,7 @@ public class Board {
 			value = 0;
 			break;
 		case ROOK:
-			value = 0;
+			value = PositionBonus.getRookBonus(row, col);
 			break;
 		default:
 			value = 0;

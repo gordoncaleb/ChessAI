@@ -44,7 +44,7 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 		this.gui = gui;
 
 		debugFrame = new JFrame("Decision Tree Observer");
-		debugFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// debugFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		debugFrame.setLayout(new BorderLayout());
 
 		rootGUI = new DefaultMutableTreeNode("Current Board");
@@ -104,6 +104,10 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 
 		}
 	}
+	
+	public JFrame getFrame(){
+		return debugFrame;
+	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
@@ -161,19 +165,18 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (e.getSource() == refreshBtn) {
-			
-			rootDecision = ((AI)gui).getRootNode();
+
+			rootDecision = ((AI) gui).getRootNode();
 			refreshTree();
 		}
 
 		if (e.getSource() == decisionTreeGUI) {
 
-			
 			if (enableStepThrough.isSelected()) {
 				for (int i = 0; i < distanceFromRoot; i++) {
 					gui.undoMove();
 				}
-				
+
 				distanceFromRoot = 0;
 
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) decisionTreeGUI.getLastSelectedPathComponent();
@@ -184,12 +187,11 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 					distanceFromRoot++;
 				}
 			}
-			
+
 			System.out.println(Values.printBoardScoreBreakDown(gui.getBoard()));
-			
+
 		}
-		
-		
+
 
 	}
 }

@@ -5,8 +5,9 @@ import chessBackend.Side;
 
 public class Values {
 	public static final int CHECKMATE_MASK = (int) Math.pow(2, 19);
+	
 	public static final int KING_VALUE = (int) Math.pow(2, 20) - 1;
-	public static final int QUEEN_VALUE = 1025;
+	public static final int QUEEN_VALUE = 1200;
 	public static final int ROOK_VALUE = 600;
 	public static final int BISHOP_VALUE = 400;
 	public static final int OPEN_KNIGHT_VALUE = 450;
@@ -14,7 +15,6 @@ public class Values {
 	public static final int PAWN_VALUE = 100;
 	public static final int CASTLE_VALUE = 80;
 	public static final int CASTLE_ABILITY_LOST_VALUE = 40;
-	public static final int RISK_QUEEN = 0;
 	public static final int KNIGHT_ENDGAME_INC = 6;
 	public static final int CHECKMATE_MOVE = KING_VALUE;
 	public static final int STALEMATE_MOVE = 0;
