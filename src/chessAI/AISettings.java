@@ -19,7 +19,7 @@ public class AISettings {
 	public static boolean alphaBetaPruningEnabled = true;
 	public static boolean useBook = true;
 	
-	public static boolean useHashTable = false;
+	public static boolean useHashTable = true;
 	public static int hashIndexSize = 23;
 	public static int hashTableSize = (int) Math.pow(2, hashIndexSize);
 	public static int staleHashAge = 10;
