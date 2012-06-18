@@ -33,42 +33,27 @@ import chessBackend.PlayerContainer;
 import chessBackend.Side;
 import chessIO.FileIO;
 import chessIO.XMLParser;
+import chessPieces.PositionBonus;
 
 public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;
-	
+
 	private JMenuItem newGameMenu;
 	private JMenuItem new960GameMenu;
 	private JMenuItem loadGameMenu;
 	private JMenuItem saveGameMenu;
 	private JMenuItem undoUserMoveMenu;
 	private JMenuItem switchSidesMenu;
-	
+
 	private JMenuItem boardFreeSetupMenu;
 	private JMenuItem flipBoardMenu;
 
 	private JMenuItem getAIRecommendationMenu;
 	private JMenuItem aiSettingsMenu;
-	
+
 	private BoardPanel boardPanel;
 
 	private AI ai;
-
-//	private JPanel ctrlPanel;
-//	private JPanel boardCtrlPanel;
-//	private JPanel aiCtrlPanel;
-//	private JPanel gameCtrlPanel;
-
-//	private JButton loadGameBtn;
-//	private JButton saveGameBtn;
-//	private JButton newGameBtn;
-//	private JButton undoBtn;
-//	private JButton switchSidesBtn;
-//
-//	private JButton boardFreeSetupBtn;
-//	private JButton flipBoardBtn;
-//
-//	private JButton getAIRecommendationBtn;
 
 	private PlayerContainer game;
 
@@ -76,6 +61,8 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	public static void main(String[] args) {
 		boolean debug = true;
+
+		PositionBonus.applyScale();
 
 		FileIO.setDebugOutput(true);
 		FileIO.setLogEnabled(false);
@@ -113,23 +100,24 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		JMenu gameMenu = new JMenu("Game");
 		JMenu AIMenu = new JMenu("AI");
 		JMenu boardMenu = new JMenu("Board");
+		JMenu cheatMenu = new JMenu("Cheat");
 		gameMenu.setMnemonic(KeyEvent.VK_G);
-		
+
 		newGameMenu = new JMenuItem("New Game");
 		newGameMenu.addMouseListener(this);
 		gameMenu.add(newGameMenu);
-		
+
 		new960GameMenu = new JMenuItem("New Chess960 Game");
 		new960GameMenu.addMouseListener(this);
 		gameMenu.add(new960GameMenu);
 
 		undoUserMoveMenu = new JMenuItem("Undo Last Move");
 		undoUserMoveMenu.addMouseListener(this);
-		gameMenu.add(undoUserMoveMenu);
+		cheatMenu.add(undoUserMoveMenu);
 
 		switchSidesMenu = new JMenuItem("Switch Side");
 		switchSidesMenu.addMouseListener(this);
-		gameMenu.add(switchSidesMenu);
+		cheatMenu.add(switchSidesMenu);
 
 		loadGameMenu = new JMenuItem("Load Game");
 		loadGameMenu.addMouseListener(this);
@@ -150,14 +138,15 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		getAIRecommendationMenu = new JMenuItem("Reccomendation");
 		getAIRecommendationMenu.addMouseListener(this);
 		AIMenu.add(getAIRecommendationMenu);
-		
+
 		aiSettingsMenu = new JMenuItem("Ai Settings");
 		aiSettingsMenu.addMouseListener(this);
 		AIMenu.add(aiSettingsMenu);
-		
+
 		menuBar.add(gameMenu);
 		menuBar.add(boardMenu);
 		menuBar.add(AIMenu);
+		menuBar.add(cheatMenu);
 		frame.setJMenuBar(menuBar);
 
 		// frame.setSize(gameWidth, gameHeight);
@@ -175,8 +164,8 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		Side playerSide;
 
 		Object[] options = { "White", "Black" };
-		int n = JOptionPane.showOptionDialog(frame, "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-				options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
 			playerSide = Side.WHITE;
@@ -200,38 +189,38 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	public void gameOverLose() {
 		Object[] options = { "Yes, please", "Nah" };
-		int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-				options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
 			game.newGame(null, false);
 		} else {
-			System.exit(0);
+			// System.exit(0);
 		}
 
 	}
 
 	public void gameOverWin() {
 		Object[] options = { "Yeah, why not?", "Nah." };
-		int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-				options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
 			game.newGame(null, false);
 		} else {
-			System.exit(0);
+			// System.exit(0);
 		}
 
 	}
 
-	public void gameOverStaleMate() {
+	public void gameOverDraw() {
 		Object[] options = { "Yes, please", "Nah, maybe later." };
-		int n = JOptionPane.showOptionDialog(frame, "Stalemate...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-				options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "Draw...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 		if (n == JOptionPane.YES_OPTION) {
 			game.newGame(null, false);
 		} else {
-			System.exit(0);
+			// System.exit(0);
 		}
 	}
 
@@ -248,10 +237,6 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
 
 		return suc;
-	}
-
-	public synchronized void getMove() {
-
 	}
 
 	@Override
@@ -386,7 +371,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 			game.newGame(board, false);
 
 		}
-		
+
 		if (arg0.getSource() == new960GameMenu) {
 			Board board = BoardMaker.getRandomChess960Board();
 
@@ -443,9 +428,22 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 				boardPanel.highlightMove(rec);
 			}
 		}
-		
-		if(arg0.getSource()==aiSettingsMenu){
+
+		if (arg0.getSource() == aiSettingsMenu) {
 			new AISettingsGUI("AI Settings");
+		}
+
+	}
+
+	public void gameOver(int winlose) {
+		if(winlose>0){
+			gameOverWin();
+		}else{
+			if(winlose<0){
+				gameOverLose();
+			}else{
+				gameOverDraw();
+			}
 		}
 
 	}

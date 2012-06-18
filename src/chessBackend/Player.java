@@ -6,6 +6,7 @@ public interface Player {
 	
 	public void newGame(Board board);
 	public void endGame();
+	public void gameOver(int winlose);
 	public void setGame(PlayerContainer game);
 	
 	public void makeMove();

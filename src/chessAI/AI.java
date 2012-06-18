@@ -640,5 +640,9 @@ public class AI extends Thread implements Player {
 			processorThreads[d].stopSearch();
 		}
 	}
+	
+	public void gameOver(int winlose){
+		
+	}
 
 }

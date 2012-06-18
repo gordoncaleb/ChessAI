@@ -97,7 +97,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	public void gameOverWin() {
 	}
 
-	public void gameOverStaleMate() {
+	public void gameOverDraw() {
 	}
 
 	@Override
@@ -254,6 +254,12 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	public void endGame() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void gameOver(int winlose) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

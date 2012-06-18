@@ -9,7 +9,7 @@ public interface BoardGUI {
 
 	public void gameOverWin();
 
-	public void gameOverStaleMate();
+	public void gameOverDraw();
 
 	public String getPlayerName(Side side);
 

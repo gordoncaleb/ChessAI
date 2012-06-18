@@ -132,6 +132,10 @@ public class AIProcessor extends Thread {
 			}
 
 			board.undoMove();
+			
+			if(stopSearch){
+				task.setChosenPathValue(-10000);
+			}
 
 			ai.taskDone(task);
 
@@ -277,12 +281,12 @@ public class AIProcessor extends Thread {
 
 		numSearched++;
 
-		if (branch.hasBeenVisited() && !branch.isGameOver()) {
-			if (branch.getHeadChild().isGameOver()) {
-				branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
-				return;
-			}
-		}
+//		if (branch.hasBeenVisited() && !branch.isGameOver()) {
+//			if (branch.getHeadChild().isGameOver()) {
+//				branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
+//				return;
+//			}
+//		}
 
 		int hashIndex = (int) (board.getHashCode() & BoardHashEntry.hashIndexMask);
 		BoardHashEntry hashOut;
@@ -461,7 +465,7 @@ public class AIProcessor extends Thread {
 			//
 			// }
 
-			if (AISettings.useHashTable && level >= 0) {
+			if (AISettings.useHashTable && level >= 0 && !stopSearch) {
 				if (hashOut == null) {
 					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, b), branch.getHeadChild().getMove());
 				} else {

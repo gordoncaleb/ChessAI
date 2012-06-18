@@ -186,9 +186,11 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 					gui.moveMade(((DecisionNode) path[i]).getMove());
 					distanceFromRoot++;
 				}
+				
+				System.out.println(Values.printBoardScoreBreakDown(gui.getBoard()));
 			}
 
-			System.out.println(Values.printBoardScoreBreakDown(gui.getBoard()));
+			
 
 		}
 

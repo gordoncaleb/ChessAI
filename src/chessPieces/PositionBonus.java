@@ -14,7 +14,8 @@ public class PositionBonus {
 	// a, b, c, d, e, f, g, h
 	};
 
-	private static int[][] kingOpeningBonus = { { 25, 25, 35, 0, 10, 0, 40, 35 },// 1
+	private static int[][] kingOpeningBonus = 
+		  { { 25, 25, 35, 0, 10, 0, 40, 35 },// 1
 			{ 10, 10, 5, 0, 0, 5, 10, 15 },// 2
 			{ 5, 0, -10, -10, -10, -10, 0, 5 },// 3
 			{ 0, -15, -20, -25, -25, -20, -15, 0 },// 4
@@ -80,6 +81,24 @@ public class PositionBonus {
 			{ 0, 0, 0, 0, 0, 0, 0, 0 } // 8
 	// a, b, c, d, e, f, g, h
 	};
+	
+	
+	public static void applyScale(){
+		scalePositionBonus(pawnBonus,0.5);
+		scalePositionBonus(rookBonus,0.5);
+		scalePositionBonus(kingEndGameBonus,0.5);
+		scalePositionBonus(kingOpeningBonus,0.5);
+		scalePositionBonus(knightBonus,0.5);
+		
+	}
+	
+	public static void scalePositionBonus(int[][] bonus, double scale){
+		for(int r=0;r<8;r++){
+			for(int c=0;c<8;c++){
+				bonus[r][c] = (int) (bonus[r][c]*scale);
+			}
+		}
+	}
 
 	public static final int getKnightMoveBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
 		int bonus;

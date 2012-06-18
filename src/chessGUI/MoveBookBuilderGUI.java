@@ -30,6 +30,7 @@ import chessBackend.Side;
 import chessIO.FileIO;
 import chessIO.MoveBook;
 import chessIO.XMLParser;
+import chessPieces.PositionBonus;
 
 public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;
@@ -64,6 +65,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 	public static void main(String[] args) {
 
+		PositionBonus.applyScale();
 		FileIO.setLogEnabled(false);
 		FileIO.setDebugOutput(true);
 
@@ -331,7 +333,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public void gameOverStaleMate() {
+	public void gameOverDraw() {
 		// TODO Auto-generated method stub
 
 	}
@@ -527,6 +529,12 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	public void endGame() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void gameOver(int winlose) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

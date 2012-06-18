@@ -112,8 +112,9 @@ public class Game implements PlayerContainer {
 				}
 			}
 
-			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(), clock.getTime(Side.WHITE),
-					clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE), clock.getMaxTime(Side.BLACK));
+			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(),
+					clock.getTime(Side.WHITE), clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE),
+					clock.getMaxTime(Side.BLACK));
 		}
 
 		return null;
@@ -202,20 +203,30 @@ public class Game implements PlayerContainer {
 			adjudicator.getBoard().setBoardStatus(GameStatus.INVALID);
 		}
 
+		if (players.get(Side.BOTH) == null) {
+			players.get(turn).makeMove();
+		} else {
+			players.get(Side.BOTH).makeMove();
+		}
+
 		if (adjudicator.isGameOver()) {
 			System.out.println("Game over");
+
+			if (players.get(Side.BOTH) == null) {
+				if (adjudicator.getGameStatus() == GameStatus.CHECKMATE) {
+					players.get(adjudicator.getWinner()).gameOver(1);
+					players.get(adjudicator.getWinner().otherSide()).gameOver(-1);
+				} else {
+					players.get(Side.WHITE).gameOver(0);
+					players.get(Side.BLACK).gameOver(0);
+				}
+			}
 
 			synchronized (gameActive) {
 				gameActive.notifyAll();
 			}
 
 			return false;
-		}
-
-		if (players.get(Side.BOTH) == null) {
-			players.get(turn).makeMove();
-		} else {
-			players.get(Side.BOTH).makeMove();
 		}
 
 		return true;

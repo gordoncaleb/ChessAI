@@ -85,7 +85,7 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 			break;
 
 		}
-		
+
 		this.notifyAll();
 
 		// System.out.println("Rx:\n" + message);
@@ -116,7 +116,8 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 
 	@Override
 	public long makeRecommendation() {
-		return 0;
+		sendMessage("<recommendation>");
+		return Long.parseLong(getResponse());
 	}
 
 	@Override
@@ -151,9 +152,9 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 
 		return getResponse();
 	}
-	
-	public String getResponse(){
-		
+
+	public String getResponse() {
+
 		synchronized (this) {
 			try {
 				this.wait();
@@ -161,9 +162,9 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return payload;
-		
+
 	}
 
 	@Override
@@ -171,12 +172,24 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 		game.endGame();
 	}
 
+	public void gameOver(int winlose) {
+		if (winlose > 0) {
+			sendMessage("<gameOver>win");
+		} else {
+			if (winlose < 0) {
+				sendMessage("<gameOver>lose");
+			} else {
+				sendMessage("<gameOver>draw");
+			}
+		}
+	}
+
 	@Override
 	public void endGame() {
 		try {
 			clientSocket.close();
 			clientSocket = null;
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

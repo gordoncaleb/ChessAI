@@ -122,6 +122,20 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 		case "<version>":
 			sendMessage("<version>" + player.getVersion() + "_ethernet");
 			break;
+		case "<gameOver>":
+			if (message.equals("win")) {
+				player.gameOver(1);
+			} else {
+				if (message.equals("lose")) {
+					player.gameOver(-1);
+				} else {
+					player.gameOver(0);
+				}
+			}
+			break;
+		case "<recommendation>":
+			sendMessage(player.makeRecommendation() + "");
+			break;
 		default:
 			System.out.println("Server unrecognized command received: \n" + message);
 			break;

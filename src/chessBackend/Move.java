@@ -29,72 +29,86 @@ public class Move {
 		Piece pieceTaken1;
 		Piece pieceTaken2;
 
-		for (int n = 0; n < MoveNote.values().length; n++) {
-			for (int ptid = 0; ptid < PieceID.values().length; ptid++) {
-				for (int ptc = 0; ptc < 8; ptc++) {
-					for (int ptr = 0; ptr < 8; ptr++) {
-						for (int fr = 0; fr < 8; fr++) {
-							for (int fc = 0; fc < 8; fc++) {
-								for (int tr = 0; tr < 8; tr++) {
-									for (int tc = 0; tc < 8; tc++) {
-										pieceTaken1 = new Piece(PieceID.PAWN, Side.WHITE, 1, 2, false);
-										moveLong = Move.moveLong(fr, fc, tr, tc, tr - tc, MoveNote.NONE, pieceTaken1, true);
-
-										pieceTaken2 = new Piece(PieceID.values()[ptid], Side.WHITE, ptr, ptc, true);
-										moveLong = Move.setPieceTaken(moveLong, pieceTaken2);
-
-										moveLong = Move.setNote(moveLong, MoveNote.values()[n]);
-
-										moveLong = Move.setHadMoved(moveLong, false);
-
-										if (Move.getFromRow(moveLong) != fr) {
-											System.out.println("getFromRow");
-										}
-										if (Move.getFromCol(moveLong) != fc) {
-											System.out.println("getFromCol");
-										}
-										if (Move.getToRow(moveLong) != tr) {
-											System.out.println("getToRow");
-										}
-										if (Move.getToCol(moveLong) != tc) {
-											System.out.println("getToCol");
-										}
-										if (Move.getNote(moveLong) != MoveNote.values()[n]) {
-											System.out.println("getNote");
-										}
-
-										if (Move.getPieceTakenID(moveLong) != PieceID.values()[ptid]) {
-											System.out.println("getPieceTakenID");
-										}
-
-										if (Move.getPieceTakenRow(moveLong) != ptr) {
-											System.out.println("getPieceTakenRow");
-										}
-
-										if (Move.getPieceTakenCol(moveLong) != ptc) {
-											System.out.println("getPieceTakenCol");
-										}
-
-										if (!Move.getPieceTakenHasMoved(moveLong)) {
-											System.out.println("getPieceTakenHasMoved");
-										}
-
-										if (Move.hadMoved(moveLong)) {
-											System.out.println("hadMoved");
-										}
-
-										if (Move.getValue(moveLong) != (tr - tc)) {
-											System.out.println("value");
-										}
-
-									}
-								}
-							}
-						}
-					}
-				}
+		for (int i = 0; i < 2000000; i++) {
+			moveLong = Move.moveLong(1, 2, 3, 4, i, MoveNote.NONE, null, true);
+			
+			//moveLong = Move.setValue(moveLong, -i);
+			
+			
+			if (Move.getValue(moveLong) != i) {
+				System.out.println("problem at " + i + "!=" + Move.getValue(moveLong));
+				System.out.println("it is 0x" + Integer.toHexString(Move.getValue(moveLong)));
 			}
 		}
+
+		// for (int n = 0; n < MoveNote.values().length; n++) {
+		// for (int ptid = 0; ptid < PieceID.values().length; ptid++) {
+		// for (int ptc = 0; ptc < 8; ptc++) {
+		// for (int ptr = 0; ptr < 8; ptr++) {
+		// for (int fr = 0; fr < 8; fr++) {
+		// for (int fc = 0; fc < 8; fc++) {
+		// for (int tr = 0; tr < 8; tr++) {
+		// for (int tc = 0; tc < 8; tc++) {
+		// pieceTaken1 = new Piece(PieceID.PAWN, Side.WHITE, 1, 2, false);
+		// moveLong = Move.moveLong(fr, fc, tr, tc, tr - tc, MoveNote.NONE,
+		// pieceTaken1, true);
+		//
+		// pieceTaken2 = new Piece(PieceID.values()[ptid], Side.WHITE, ptr, ptc,
+		// true);
+		// moveLong = Move.setPieceTaken(moveLong, pieceTaken2);
+		//
+		// moveLong = Move.setNote(moveLong, MoveNote.values()[n]);
+		//
+		// moveLong = Move.setHadMoved(moveLong, false);
+		//
+		// if (Move.getFromRow(moveLong) != fr) {
+		// System.out.println("getFromRow");
+		// }
+		// if (Move.getFromCol(moveLong) != fc) {
+		// System.out.println("getFromCol");
+		// }
+		// if (Move.getToRow(moveLong) != tr) {
+		// System.out.println("getToRow");
+		// }
+		// if (Move.getToCol(moveLong) != tc) {
+		// System.out.println("getToCol");
+		// }
+		// if (Move.getNote(moveLong) != MoveNote.values()[n]) {
+		// System.out.println("getNote");
+		// }
+		//
+		// if (Move.getPieceTakenID(moveLong) != PieceID.values()[ptid]) {
+		// System.out.println("getPieceTakenID");
+		// }
+		//
+		// if (Move.getPieceTakenRow(moveLong) != ptr) {
+		// System.out.println("getPieceTakenRow");
+		// }
+		//
+		// if (Move.getPieceTakenCol(moveLong) != ptc) {
+		// System.out.println("getPieceTakenCol");
+		// }
+		//
+		// if (!Move.getPieceTakenHasMoved(moveLong)) {
+		// System.out.println("getPieceTakenHasMoved");
+		// }
+		//
+		// if (Move.hadMoved(moveLong)) {
+		// System.out.println("hadMoved");
+		// }
+		//
+		// if (Move.getValue(moveLong) != (tr - tc)) {
+		// System.out.println("value");
+		// }
+		//
+		// }
+		// }
+		// }
+		// }
+		// }
+		// }
+		// }
+		// }
 
 		System.out.println("Done");
 	}
@@ -202,12 +216,13 @@ public class Move {
 	public static String toString(long moveLong) {
 		String moveString;
 		if (hasPieceTaken(moveLong)) {
-			Piece pieceTaken = new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong), getPieceTakenHasMoved(moveLong));
-			moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong) + " Move Note: " + getNote(moveLong).toString()
-					+ " Value:" + getValue(moveLong) + " PieceTaken: " + pieceTaken.toString();
+			Piece pieceTaken = new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong),
+					getPieceTakenHasMoved(moveLong));
+			moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong)
+					+ " Move Note: " + getNote(moveLong).toString() + " Value:" + getValue(moveLong) + " PieceTaken: " + pieceTaken.toString();
 		} else {
-			moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong) + " Move Note: " + getNote(moveLong).toString()
-					+ " Value:" + getValue(moveLong);
+			moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong)
+					+ " Move Note: " + getNote(moveLong).toString() + " Value:" + getValue(moveLong);
 		}
 		return moveString;
 	}
@@ -234,7 +249,8 @@ public class Move {
 		}
 
 		if (hasPieceTaken(moveLong)) {
-			xmlMove += new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong), getPieceTakenHasMoved(moveLong)).toXML();
+			xmlMove += new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong),
+					getPieceTakenHasMoved(moveLong)).toXML();
 		}
 
 		xmlMove += "</move>\n";
@@ -305,14 +321,15 @@ public class Move {
 	}
 
 	public long setValue(int value) {
-		moveLong = moveLong & 0xFFFFFFFF;
+		moveLong = moveLong & 0xFFFFFFFFL;
 		moveLong |= ((long) value) << 32;
 
 		return moveLong;
 	}
 
 	public static long setValue(long moveLong, int value) {
-		moveLong = moveLong & 0xFFFFFFFF;
+		moveLong = moveLong & 0xFFFFFFFFL;
+		
 		moveLong |= ((long) value) << 32;
 
 		return moveLong;
