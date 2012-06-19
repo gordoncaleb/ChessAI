@@ -25,7 +25,7 @@ public class AI extends Thread implements Player {
 	private DecisionNode rootNode;
 	private int alpha;
 
-	// private int minSearchDepth = AISettings.minSearchDepth;
+	// private int minSearchDepth = AISettings.minSearchDepth;`
 	// private long maxSearchTime = AISettings.maxSearchTime;
 	// private boolean useBook = AISettings.useBook;
 	// private final boolean useExtraTime = AISettings.useExtraTime;
@@ -34,16 +34,17 @@ public class AI extends Thread implements Player {
 	private int[] childNum = new int[200];
 
 	private boolean makeMove;
-	private AtomicBoolean undoMove;
+	private boolean undoMove;
+	private boolean recommend;
 	private boolean paused;
 
 	private Object processing;
 
 	private boolean active;
 
-	private int taskDone;
-	private int taskSize;
-	private int nextTask;
+	// private int taskDone;
+	// private int taskSize;
+	private int nextTaskNum;
 	private AIProcessor[] processorThreads;
 
 	private long maxSearched;
@@ -58,8 +59,6 @@ public class AI extends Thread implements Player {
 		processing = new Object();
 
 		hashTable = new BoardHashEntry[AISettings.hashTableSize];
-
-		undoMove = new AtomicBoolean();
 
 		moveBook = new MoveBook();
 		moveBook.loadMoveBook();
@@ -93,17 +92,16 @@ public class AI extends Thread implements Player {
 					e.printStackTrace();
 				}
 
-				if (undoMove.get()) {
+				if (undoMove) {
 					undoMoveOnSubThreads();
-					undoMove.set(false);
+					undoMove = false;
 				}
 
 				if (makeMove && !paused) {
 
 					aiDecision = getAIDecision();
 
-					if (aiDecision != null && !undoMove.get()) {
-						// setRootNode(aiDecision);
+					if (aiDecision != null && !undoMove) {
 						game.makeMove(aiDecision.getMove());
 					}
 
@@ -112,6 +110,17 @@ public class AI extends Thread implements Player {
 					}
 
 					makeMove = false;
+				}
+
+				if (recommend) {
+					aiDecision = getAIDecision();
+
+					if (aiDecision != null) {
+						printRootDebug();
+						game.recommendationMade(aiDecision.getMove());
+					}
+
+					recommend = false;
 				}
 
 			}
@@ -147,7 +156,8 @@ public class AI extends Thread implements Player {
 		}
 
 		makeMove = false;
-		undoMove.set(false);
+		undoMove = false;
+		recommend = false;
 
 		moveNum = 0;
 		// hashTable.clear();
@@ -164,6 +174,12 @@ public class AI extends Thread implements Player {
 		notifyAll();
 	}
 
+	@Override
+	public synchronized void requestRecommendation() {
+		recommend = true;
+		notifyAll();
+	}
+
 	public synchronized void pause() {
 		paused = !paused;
 		notifyAll();
@@ -171,7 +187,7 @@ public class AI extends Thread implements Player {
 
 	public long undoMove() {
 		if (canUndo()) {
-			undoMove.set(true);
+			undoMove = true;
 
 			moveNum--;
 
@@ -241,17 +257,16 @@ public class AI extends Thread implements Player {
 		} else {
 
 			if (AISettings.debugOutput) {
-				FileIO.log("Ai moved based on recommendation");
+				FileIO.log("Ai decision based on movebook");
 			}
 
 			aiDecision = getMatchingDecisionNode(mb);
 		}
 
-		FileIO.log("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
-
 		// debug print out of decision tree stats. i.e. the tree size and
 		// the values of the move options that the AI has
 		if (AISettings.debugOutput) {
+			FileIO.log("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
 			// game.setDecisionTreeRoot(rootNode);
 			// printRootDebug();
 		}
@@ -269,12 +284,29 @@ public class AI extends Thread implements Player {
 		return aiDecision;
 	}
 
+	private int getProgress(long timeLeft, int iteration) {
+
+		int interationProgress = (int) (100.0 * ((double) (nextTaskNum - 1) / (double) rootNode.getChildrenSize()));
+		int timeProgress = (int) (100.0 * (((double) AISettings.maxSearchTime - (double) timeLeft) / (double) AISettings.maxSearchTime));
+
+		//FileIO.log((nextTaskNum - 1) + "/" + rootNode.getChildrenSize());
+
+		if (AISettings.useExtraTime) {
+			if (iteration > AISettings.minSearchDepth) {
+				return timeProgress;
+			} else {
+				return Math.min(timeProgress, interationProgress);
+			}
+		} else {
+			return interationProgress;
+		}
+	}
+
 	private void delegateProcessors(DecisionNode root) {
 
-		taskSize = root.getChildrenSize();
 		long totalSearched = 0;
 
-		if (taskSize < 2) {
+		if (root.getChildrenSize() < 2) {
 			return;
 		}
 
@@ -293,8 +325,8 @@ public class AI extends Thread implements Player {
 
 				// This clears ai processors status done flags from previous
 				// tasks.
-				taskDone = 0;
-				nextTask = 0;
+				// taskDone = 0;
+				nextTaskNum = 0;
 				alpha = -Values.CHECKMATE_MOVE + 1;
 				// root.removeAllChildren();
 
@@ -307,35 +339,60 @@ public class AI extends Thread implements Player {
 				// Wait for all processors to finish their task
 				try {
 
-					if (it > AISettings.minSearchDepth) {
-						processing.wait(timeLeft);
+					while (nextTaskNum <= rootNode.getChildrenSize()) {
 
-						if (nextTask != taskSize) {
+						processing.wait(Math.max(0, timeLeft));
 
-							nextTask = taskSize;
+						timeLeft = AISettings.maxSearchTime - (System.currentTimeMillis() - startTime);
 
-							for (int d = 0; d < processorThreads.length; d++) {
-								processorThreads[d].stopSearch();
-							}
+						game.showProgress(getProgress(timeLeft, it));
 
-							processing.wait();
+						if (timeLeft <= 0 && nextTaskNum <= rootNode.getChildrenSize() && it > AISettings.minSearchDepth) {
+							break;
+						}
+					}
 
-							rootNode.sort(taskDone);
+					rootNode.sort(nextTaskNum - 1);
 
-						} else {
-							rootNode.sort();
+					if (nextTaskNum <= rootNode.getChildrenSize()) {
+
+						nextTaskNum = rootNode.getChildrenSize();
+
+						for (int d = 0; d < processorThreads.length; d++) {
+							processorThreads[d].stopSearch();
 						}
 
-					} else {
 						processing.wait();
-						rootNode.sort();
+
 					}
+
+					// if (it > AISettings.minSearchDepth) {
+					// processing.wait(timeLeft);
+					//
+					// if (nextTask != taskSize) {
+					//
+					// nextTask = taskSize;
+					//
+					// for (int d = 0; d < processorThreads.length; d++) {
+					// processorThreads[d].stopSearch();
+					// }
+					//
+					// processing.wait();
+					//
+					// rootNode.sort(taskDone);
+					//
+					// } else {
+					// rootNode.sort();
+					// }
+					//
+					// } else {
+					// processing.wait();
+					// rootNode.sort();
+					// }
 
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-
-				timeLeft = AISettings.maxSearchTime - (System.currentTimeMillis() - startTime);
 
 				if ((Math.abs(root.getHeadChild().getChosenPathValue()) & Values.CHECKMATE_MASK) != 0) {
 					checkMateFound = true;
@@ -346,8 +403,8 @@ public class AI extends Thread implements Player {
 					maxSearched = Math.max(maxSearched, processorThreads[d].getNumSearched());
 
 					totalSearched += processorThreads[d].getNumSearched();
-					System.out.println("Searched " + totalSearched + " in " + (AISettings.maxSearchTime - timeLeft));
-					System.out.println((double) totalSearched / (double) (AISettings.maxSearchTime - timeLeft) + " nodes/ms");
+					FileIO.log("Searched " + totalSearched + " in " + (AISettings.maxSearchTime - timeLeft));
+					FileIO.log((double) totalSearched / (double) (AISettings.maxSearchTime - timeLeft) + " nodes/ms");
 				}
 
 				it++;
@@ -362,54 +419,68 @@ public class AI extends Thread implements Player {
 			FileIO.log("Max Searched " + maxSearched);
 			FileIO.log("Searched " + searchedThisGame + " this game");
 
+			game.showProgress(0);
+
 		}
 
 	}
 
-	public void taskDone(DecisionNode task) {
+	public DecisionNode getNewTasking(DecisionNode previousTask) {
 
-		synchronized (processing) {
-			taskDone++;
-			if (AISettings.debugOutput) {
-				FileIO.log(this + " " + taskDone + "/" + taskSize + " done");
-			}
-
-			if (task.getChosenPathValue() > alpha) {
-				alpha = task.getChosenPathValue();
-			}
-
-			if (alpha >= Values.CHECKMATE_MOVE - 5) {
-				nextTask = taskSize;
-			}
-
-			// if (nextTask == null) {
-			// processing.notifyAll();
-			// }
-		}
-	}
-
-	public DecisionNode getNextTask() {
+		DecisionNode nextTask;
 
 		synchronized (processing) {
 
-			DecisionNode task;
-
-			if (nextTask < taskSize) {
-				task = rootNode.getChild(nextTask);
-				nextTask++;
-
-				return task;
-
+			if (nextTaskNum < rootNode.getChildrenSize()) {
+				nextTask = rootNode.getChild(nextTaskNum);
 			} else {
-
-				processing.notifyAll();
-
-				return null;
-
+				nextTask = null;
 			}
 
+			nextTaskNum++;
+
+			//FileIO.log("Tasknum " + nextTaskNum);
+
+			if (previousTask != null) {
+				if (previousTask.getChosenPathValue() > alpha) {
+					alpha = previousTask.getChosenPathValue();
+				}
+
+				if (alpha >= Values.CHECKMATE_MOVE - 5) {
+					nextTask = null;
+					nextTaskNum = rootNode.getChildrenSize() + 1;
+				}
+			}
+
+			processing.notifyAll();
+
 		}
+
+		return nextTask;
 	}
+
+	// public DecisionNode getNextTask() {
+	//
+	// synchronized (processing) {
+	//
+	// DecisionNode task;
+	//
+	// if (nextTask < taskSize) {
+	// task = rootNode.getChild(nextTask);
+	// nextTask++;
+	//
+	// return task;
+	//
+	// } else {
+	//
+	// processing.notifyAll();
+	//
+	// return null;
+	//
+	// }
+	//
+	// }
+	// }
 
 	public int getAlpha() {
 		synchronized (processing) {
@@ -465,18 +536,6 @@ public class AI extends Thread implements Player {
 
 	private boolean canUndo() {
 		return (getBoard().getMoveHistory().size() > 0);
-	}
-
-	public synchronized long makeRecommendation() {
-		DecisionNode rec = getAIDecision();
-
-		printRootDebug();
-
-		if (rec != null) {
-			return rec.getMove();
-		} else {
-			return 0;
-		}
 	}
 
 	private void setRootNode(DecisionNode newRootNode) {
@@ -634,15 +693,24 @@ public class AI extends Thread implements Player {
 
 	@Override
 	public void endGame() {
-		nextTask = taskSize;
+		nextTaskNum = rootNode.getChildrenSize();
 
 		for (int d = 0; d < processorThreads.length; d++) {
 			processorThreads[d].stopSearch();
 		}
 	}
-	
-	public void gameOver(int winlose){
-		
+
+	public void gameOver(int winlose) {
+
+	}
+
+	@Override
+	public void showProgress(int progress) {
+	}
+
+	@Override
+	public void recommendationMade(long move) {
+
 	}
 
 }

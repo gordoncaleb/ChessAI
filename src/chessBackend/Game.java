@@ -102,6 +102,8 @@ public class Game implements PlayerContainer {
 			players.get(Side.BOTH).makeMove();
 		}
 
+		showProgress(0);
+
 		if (block) {
 
 			synchronized (gameActive) {
@@ -112,13 +114,44 @@ public class Game implements PlayerContainer {
 				}
 			}
 
-			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(),
-					clock.getTime(Side.WHITE), clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE),
-					clock.getMaxTime(Side.BLACK));
+			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(), clock.getTime(Side.WHITE),
+					clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE), clock.getMaxTime(Side.BLACK));
 		}
 
 		return null;
 
+	}
+
+	public void showProgress(int progress) {
+		if (players.get(Side.BOTH) == null) {
+			players.get(Side.WHITE).showProgress(progress);
+			players.get(Side.BLACK).showProgress(progress);
+		} else {
+			players.get(Side.BOTH).showProgress(progress);
+		}
+
+	}
+	
+	public void requestRecommendation(){
+		if (players.get(Side.BOTH) == null) {
+			players.get(Side.WHITE).requestRecommendation();
+			players.get(Side.BLACK).requestRecommendation();
+		} else {
+			players.get(Side.BOTH).requestRecommendation();
+		}
+		
+		for (int i = 0; i < observers.size(); i++) {
+			observers.elementAt(i).requestRecommendation();
+		}
+	}
+	
+	public void recommendationMade(long move){
+		if (players.get(Side.BOTH) == null) {
+			players.get(Side.WHITE).recommendationMade(move);
+			players.get(Side.BLACK).recommendationMade(move);
+		} else {
+			players.get(Side.BOTH).recommendationMade(move);
+		}
 	}
 
 	public synchronized void switchSides() {

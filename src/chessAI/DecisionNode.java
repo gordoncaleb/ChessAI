@@ -15,8 +15,8 @@ public class DecisionNode implements Comparable<DecisionNode> {
 	private int chosenPathValue;
 	// private ValueBounds bound;
 
-	private int alpha;
-	private int beta;
+//	private int alpha;
+//	private int beta;
 
 	public static void main(String[] args) {
 
@@ -246,21 +246,21 @@ public class DecisionNode implements Comparable<DecisionNode> {
 		}
 	}
 
-	public int getAlpha() {
-		return alpha;
-	}
-
-	public void setAlpha(int alpha) {
-		this.alpha = alpha;
-	}
-
-	public int getBeta() {
-		return beta;
-	}
-
-	public void setBeta(int beta) {
-		this.beta = beta;
-	}
+//	public int getAlpha() {
+//		return alpha;
+//	}
+//
+//	public void setAlpha(int alpha) {
+//		this.alpha = alpha;
+//	}
+//
+//	public int getBeta() {
+//		return beta;
+//	}
+//
+//	public void setBeta(int beta) {
+//		this.beta = beta;
+//	}
 
 	public String toString() {
 		String me = "Chosen Path Value = " + " " + this.getChosenPathValue();
@@ -273,7 +273,7 @@ public class DecisionNode implements Comparable<DecisionNode> {
 			me += " GAMEOVER";
 		}
 
-		me += "(" + alpha + "," + beta + ")";
+		//me += "(" + alpha + "," + beta + ")";
 
 		return me;
 

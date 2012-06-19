@@ -112,11 +112,11 @@ public class AIProcessor extends Thread {
 	}
 
 	private void executeTask() {
-		DecisionNode task;
+		DecisionNode task = null;
 
 		numSearched = 0;
 
-		while ((task = ai.getNextTask()) != null) {
+		while ((task = ai.getNewTasking(task)) != null) {
 
 			board.makeMove(task.getMove());
 
@@ -132,12 +132,10 @@ public class AIProcessor extends Thread {
 			}
 
 			board.undoMove();
-			
-			if(stopSearch){
+
+			if (stopSearch) {
 				task.setChosenPathValue(-10000);
 			}
-
-			ai.taskDone(task);
 
 		}
 
@@ -276,17 +274,17 @@ public class AIProcessor extends Thread {
 		int a = alpha;
 		int b = beta;
 
-		branch.setAlpha(alpha);
-		branch.setBeta(beta);
+//		branch.setAlpha(alpha);
+//		branch.setBeta(beta);
 
 		numSearched++;
 
-//		if (branch.hasBeenVisited() && !branch.isGameOver()) {
-//			if (branch.getHeadChild().isGameOver()) {
-//				branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
-//				return;
-//			}
-//		}
+		// if (branch.hasBeenVisited() && !branch.isGameOver()) {
+		// if (branch.getHeadChild().isGameOver()) {
+		// branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
+		// return;
+		// }
+		// }
 
 		int hashIndex = (int) (board.getHashCode() & BoardHashEntry.hashIndexMask);
 		BoardHashEntry hashOut;

@@ -98,7 +98,12 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 		int tagStart = message.indexOf("<");
 		int tagEnd = message.indexOf(">");
 
+		if (tagStart < 0 || tagEnd < 0) {
+			return;
+		}
+
 		String tag = message.substring(tagStart, tagEnd + 1);
+		String payload = message.substring(tagEnd + 1, message.length());
 
 		switch (tag) {
 
@@ -133,8 +138,14 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 				}
 			}
 			break;
+		case "<progress>":
+			player.showProgress(Integer.parseInt(payload));
+			break;
+		case "<recommend>":
+			player.requestRecommendation();
+			break;
 		case "<recommendation>":
-			sendMessage(player.makeRecommendation() + "");
+			player.recommendationMade(Long.parseLong(payload));
 			break;
 		default:
 			System.out.println("Server unrecognized command received: \n" + message);
@@ -251,6 +262,21 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 			new AISettingsGUI("Ethernet AI Settings");
 		}
 
+	}
+
+	@Override
+	public void showProgress(int progress) {
+		//sendMessage("<progress>" + progress);
+	}
+
+	@Override
+	public void requestRecommendation() {
+		sendMessage("<recommend>");
+	}
+
+	@Override
+	public void recommendationMade(long move) {
+		sendMessage("<recommendation>" + move);
 	}
 
 }

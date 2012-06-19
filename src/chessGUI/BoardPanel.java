@@ -37,6 +37,9 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private JLabel whiteTime;
 	private JLabel blackTime;
 
+	private JProgressBar whiteProgress;
+	private JProgressBar blackProgress;
+
 	private Border blackLine = BorderFactory.createLineBorder(Color.black);
 	private Border redLine = BorderFactory.createLineBorder(Color.red);
 
@@ -48,7 +51,6 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private boolean makeMove;
 
 	private boolean freelyMove;
-	private Board freelyMoveBoard;
 
 	private int highLightCount;
 	private long highLightMove;
@@ -63,6 +65,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	public BoardPanel(BoardGUI boardGUI, boolean debug) {
 		super(new BorderLayout());
 
+		this.adjudicator = new Adjudicator(null);
 		this.debug = debug;
 		this.boardGUI = boardGUI;
 		this.flipBoard = false;
@@ -98,11 +101,13 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 		JPanel turnPanel = new JPanel();
 		turnPanel.setBackground(Color.GRAY);
+
 		whiteTurnPanel = new JPanel(new BorderLayout());
 		whiteTurnPanel.setPreferredSize(new Dimension(200, 50));
 		whiteTurnPanel.setBackground(Color.WHITE);
 		whiteTurnPanel.setOpaque(true);
 		whiteTurnPanel.addMouseListener(this);
+
 		blackTurnPanel = new JPanel(new BorderLayout());
 		blackTurnPanel.setPreferredSize(new Dimension(200, 50));
 		blackTurnPanel.setBackground(Color.BLACK);
@@ -111,19 +116,39 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 		whiteName = new JLabel("White");
 		whiteName.setHorizontalAlignment(SwingConstants.CENTER);
-		whiteTurnPanel.add(whiteName,BorderLayout.NORTH);
+		whiteTurnPanel.add(whiteName, BorderLayout.NORTH);
+
 		blackName = new JLabel("Black");
 		blackName.setForeground(Color.WHITE);
 		blackName.setHorizontalAlignment(SwingConstants.CENTER);
-		blackTurnPanel.add(blackName,BorderLayout.NORTH);
+		blackTurnPanel.add(blackName, BorderLayout.NORTH);
 
 		whiteTime = new JLabel("0:0");
 		whiteTime.setHorizontalAlignment(SwingConstants.CENTER);
-		whiteTurnPanel.add(whiteTime,BorderLayout.SOUTH);
+		whiteTurnPanel.add(whiteTime, BorderLayout.CENTER);
+
 		blackTime = new JLabel("0:0");
 		blackTime.setForeground(Color.WHITE);
 		blackTime.setHorizontalAlignment(SwingConstants.CENTER);
-		blackTurnPanel.add(blackTime,BorderLayout.SOUTH);
+		blackTurnPanel.add(blackTime, BorderLayout.CENTER);
+
+		whiteProgress = new JProgressBar();
+		whiteProgress.setValue(0);
+		// whiteProgress.setStringPainted(true);
+		whiteProgress.setBackground(Color.WHITE);
+		whiteProgress.setForeground(Color.RED);
+		whiteProgress.setBorderPainted(false);
+		whiteProgress.setPreferredSize(new Dimension(10, 20));
+		whiteTurnPanel.add(whiteProgress, BorderLayout.SOUTH);
+
+		blackProgress = new JProgressBar();
+		blackProgress.setValue(0);
+		// blackProgress.setStringPainted(true);
+		blackProgress.setBackground(Color.BLACK);
+		blackProgress.setForeground(Color.RED);
+		blackProgress.setBorderPainted(false);
+		blackProgress.setPreferredSize(new Dimension(10, 20));
+		blackTurnPanel.add(blackProgress, BorderLayout.SOUTH);
 
 		whiteTurnPanel.setBorder(blackLine);
 		blackTurnPanel.setBorder(blackLine);
@@ -144,7 +169,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	public void newGame(Board board) {
 
-		adjudicator = new Adjudicator(board);
+		adjudicator.newGame(board);
 
 		refreshBoard();
 		refreshPiecesTaken();
@@ -174,19 +199,40 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		return min + "m:" + String.format("%02d", sec) + "s";
 	}
 
+	public void showProgress(int progress) {
+		if (getTurn() == Side.WHITE) {
+			whiteProgress.setValue(progress);
+			if (progress == 0) {
+				whiteProgress.setStringPainted(false);
+			} else {
+				whiteProgress.setStringPainted(true);
+			}
+
+		} else {
+			blackProgress.setValue(progress);
+			if (progress == 0) {
+				blackProgress.setStringPainted(false);
+			} else {
+				blackProgress.setStringPainted(true);
+			}
+		}
+	}
+
 	public void setFlipBoard(boolean flipBoard) {
 
-		if (this.flipBoard != flipBoard && adjudicator != null) {
+		if (this.flipBoard != flipBoard) {
 
 			this.flipBoard = flipBoard;
 
 			colorSquaresDefault();
-			
-			refreshBoard();
 
-			updateLastMovedSquare();
+			if (adjudicator.getBoard() != null) {
+				refreshBoard();
 
-			attachValidMoves();
+				updateLastMovedSquare();
+
+				attachValidMoves();
+			}
 		}
 
 	}
@@ -472,7 +518,11 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		for (int i = 0; i < validMoves.size(); i++) {
 			move = validMoves.elementAt(i);
 
-			getChessSquare(Move.getToRow(move), Move.getToCol(move)).showAsValidMove(valid);
+			if (Move.getNote(move) == MoveNote.CASTLE_FAR || Move.getNote(move) == MoveNote.CASTLE_NEAR) {
+				getChessSquare(Move.getToRow(move), Move.getToCol(move)).showAsValidMove(valid, Color.BLUE);
+			} else {
+				getChessSquare(Move.getToRow(move), Move.getToCol(move)).showAsValidMove(valid);
+			}
 
 			if (debug) {
 				// if (valid && move != null) {

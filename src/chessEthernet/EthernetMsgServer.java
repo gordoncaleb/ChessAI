@@ -44,6 +44,7 @@ public class EthernetMsgServer extends Thread {
 			} catch (Exception e) {
 				rxer.connectionReset();
 				FileIO.log("Connection lost");
+				e.printStackTrace();
 			}
 		}
 

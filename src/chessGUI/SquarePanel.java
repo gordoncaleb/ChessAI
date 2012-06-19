@@ -18,7 +18,7 @@ import chessBackend.Side;
 import chessIO.ChessImages;
 import chessPieces.PieceID;
 
-public class SquarePanel extends JPanel implements PieceGUI{
+public class SquarePanel extends JPanel implements PieceGUI {
 	private static final long serialVersionUID = 1L;
 
 	private int row;
@@ -45,11 +45,15 @@ public class SquarePanel extends JPanel implements PieceGUI{
 
 	private Color darkSelected = new Color(50, 50, 50);
 	private Color lightSelected = new Color(230, 230, 230);
-	
+
 	private JPanel imagePane;
 
+	public static Color validColorDefault = Color.YELLOW;
+
+	public static int borderSize = 3;
+
 	private Color lastMoved = new Color(255, 0, 0);
-	private Color validMove = new Color(255, 255, 0);
+	private Color validColor = Color.YELLOW;
 
 	public SquarePanel(boolean lightSquare, int row, int col, boolean debug) {
 		super(new BorderLayout());
@@ -60,22 +64,19 @@ public class SquarePanel extends JPanel implements PieceGUI{
 
 		this.lightSquare = lightSquare;
 
-		
-
 		picLabel = new JLabel();
 
 		this.debug = debug;
-		
 
 		imagePane = new JPanel(new FlowLayout());
 		imagePane.setBackground(this.getBackground());
 		imagePane.add(picLabel);
-		
+
 		updateBackgroundColor();
 		updateBorderColor();
 
 		this.add(imagePane, BorderLayout.PAGE_START);
-		
+
 		if (debug) {
 			JPanel debugPane = new JPanel(new BorderLayout());
 			debugPane.setBackground(this.getBackground());
@@ -110,7 +111,7 @@ public class SquarePanel extends JPanel implements PieceGUI{
 				this.setBackground(dark);
 			}
 		}
-		
+
 		imagePane.setBackground(this.getBackground());
 
 	}
@@ -118,20 +119,21 @@ public class SquarePanel extends JPanel implements PieceGUI{
 	public void updateBorderColor() {
 
 		if (highLightedSquare) {
-			//this.setBorder(BorderFactory.createLineBorder(Color.ORANGE));
+			// this.setBorder(BorderFactory.createLineBorder(Color.ORANGE));
 			this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		} else {
 			if (validMoveSquare) {
-				this.setBorder(BorderFactory.createLineBorder(validMove));
+
+				this.setBorder(BorderFactory.createLineBorder(validColor, borderSize));
 
 				// this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,validMove,Color.black));
 			} else {
 				if (lastMovedSquare) {
-					this.setBorder(BorderFactory.createLineBorder(lastMoved));
+					this.setBorder(BorderFactory.createLineBorder(lastMoved, borderSize));
 					// this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED,lastMoved,Color.black));
 				} else {
 					if (selectedSquare) {
-						this.setBorder(BorderFactory.createLineBorder(Color.black));
+						this.setBorder(BorderFactory.createLineBorder(Color.black, borderSize));
 					} else {
 						// this.setBorder(BorderFactory.createLineBorder(Color.black));
 						this.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -153,8 +155,15 @@ public class SquarePanel extends JPanel implements PieceGUI{
 		updateBorderColor();
 	}
 
+	public void showAsValidMove(boolean validMoveSquare, Color validColor) {
+		this.validMoveSquare = validMoveSquare;
+		this.validColor = validColor;
+		updateBorderColor();
+	}
+
 	public void showAsValidMove(boolean validMoveSquare) {
 		this.validMoveSquare = validMoveSquare;
+		this.validColor = SquarePanel.validColorDefault;
 		updateBorderColor();
 	}
 

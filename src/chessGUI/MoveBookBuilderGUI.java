@@ -34,8 +34,10 @@ import chessPieces.PositionBonus;
 
 public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;
+	private PlayerContainer game;
 	private AI ai;
 	private boolean paused;
+	private boolean makeRecMove;
 
 	private BoardPanel boardPanel;
 	private JList<Move> moveList;
@@ -71,22 +73,25 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		java.util.Hashtable<Side, Player> players = new java.util.Hashtable<Side, Player>();
 
-		MoveBookBuilderGUI mbBuilder = new MoveBookBuilderGUI();
+		AI ai = new AI(null, true);
+		MoveBookBuilderGUI mbBuilder = new MoveBookBuilderGUI(ai);
 
 		players.put(Side.BOTH, mbBuilder);
 
 		Game game = new Game(players);
+		game.addObserver(ai);
 
 		mbBuilder.setGame(game);
+		ai.setGame(game);
 
 		game.newGame(false);
 	}
 
-	public MoveBookBuilderGUI() {
+	public MoveBookBuilderGUI(AI ai) {
 
+		this.ai = ai;
 		fc.setCurrentDirectory(new File("."));
 
-		this.ai = new AI(null, true);
 		this.moveBook = new MoveBook();
 		moveBook.loadVerboseMoveBook();
 		this.record = false;
@@ -233,7 +238,6 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public long undoMove() {
 		long undone = boardPanel.undoMove();
-		ai.undoMove();
 		populateMoveList();
 
 		undoBtn.setEnabled(boardPanel.canUndo());
@@ -245,7 +249,6 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public void newGame(Board board) {
 		boardPanel.newGame(board.getCopy());
-		ai.newGame(board.getCopy());
 
 		populateMoveList();
 
@@ -258,18 +261,24 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public void setGame(PlayerContainer game) {
-
+		this.game = game;
 	}
 
 	@Override
-	public long makeRecommendation() {
-		return 0;
+	public void recommendationMade(long move) {
+		if (move != 0) {
+			boardPanel.highlightMove(move);
+		}
+
+		if (makeRecMove) {
+			game.makeMove(move);
+			makeRecMove = false;
+		}
 	}
 
 	@Override
 	public boolean moveMade(long move) {
 		boardPanel.moveMade(move);
-		ai.moveMade(move);
 
 		populateMoveList();
 
@@ -296,7 +305,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			moveBook.addEntry(boardPanel.getBoard().toXML(false), boardPanel.getBoard().getHashCode(), move);
 		}
 
-		this.moveMade(move);
+		game.makeMove(move);
 
 	}
 
@@ -352,13 +361,14 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		if (e.getSource() == undoBtn) {
 			if (boardPanel.canUndo()) {
-				this.undoMove();
+				game.undoMove();
 			}
 		}
 
 		if (e.getSource() == redoBtn) {
 			if (boardPanel.canRedo()) {
-				boardPanel.redoMove();
+				// boardPanel.redoMove();
+				game.makeMove(boardPanel.getLastUndoneMove());
 			}
 		}
 
@@ -382,28 +392,15 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		if (e.getSource() == aiRecommendBtn) {
 
-			if (boardPanel.isFreelyMove()) {
-				ai.newGame(boardPanel.getBoard().getCopy());
-			}
+			makeRecMove = false;
+			game.requestRecommendation();
 
-			long rec = ai.makeRecommendation();
-
-			if (rec != 0) {
-				boardPanel.highlightMove(rec);
-			}
 		}
 
 		if (e.getSource() == aiMoveBtn) {
-			if (boardPanel.isFreelyMove()) {
-				ai.newGame(boardPanel.getBoard().getCopy());
-			}
 
-			long rec = ai.makeRecommendation();
-
-			moveMade(rec);
-			
-//			boardPanel.moveMade(rec);
-//			ai.moveMade(rec);
+			makeRecMove = true;
+			game.requestRecommendation();
 
 		}
 
@@ -425,10 +422,6 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		if (e.getSource() == freelyMoveBtn) {
 
-			if (boardPanel.isFreelyMove()) {
-				ai.newGame(boardPanel.getBoard().getCopy());
-			}
-
 			boardPanel.setFreelyMove(!boardPanel.isFreelyMove());
 
 			if (boardPanel.isFreelyMove()) {
@@ -447,7 +440,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 				Board board = XMLParser.XMLToBoard(FileIO.readFile(fc.getSelectedFile().getPath()));
 
-				this.newGame(board);
+				game.newGame(board, false);
 
 			}
 		}
@@ -467,7 +460,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 			Board board = Game.getDefaultBoard();
 
-			this.newGame(board);
+			game.newGame(board, false);
 
 		}
 
@@ -475,7 +468,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 			Board board = BoardMaker.getRandomChess960Board();
 
-			this.newGame(board);
+			game.newGame(board, false);
 
 		}
 
@@ -534,7 +527,16 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public void gameOver(int winlose) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	@Override
+	public void showProgress(int progress) {
+		boardPanel.showProgress(progress);
+	}
+
+	@Override
+	public void requestRecommendation() {
 	}
 
 }

@@ -115,11 +115,6 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		return boardPanel.undoMove();
 	}
 
-	@Override
-	public long makeRecommendation() {
-		return 0;
-	}
-
 	public void makeMove() {
 
 	}
@@ -259,7 +254,20 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public void gameOver(int winlose) {
 		// TODO Auto-generated method stub
-		
+	}
+	
+	@Override
+	public void showProgress(int progress) {
+		boardPanel.showProgress(progress);
+	}
+
+	@Override
+	public void requestRecommendation() {
+
+	}
+
+	@Override
+	public void recommendationMade(long move) {
 	}
 
 }

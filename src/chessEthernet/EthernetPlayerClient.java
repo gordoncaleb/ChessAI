@@ -54,6 +54,10 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 
 		int tagStart = message.indexOf("<");
 		int tagEnd = message.indexOf(">");
+		
+		if (tagStart < 0 || tagEnd < 0) {
+			return;
+		}
 
 		String tag = message.substring(tagStart, tagEnd + 1);
 		String payload = message.substring(tagEnd + 1, message.length());
@@ -79,6 +83,15 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 			break;
 		case "<version>":
 			this.payload = payload;
+			break;
+		case "<progress>":
+			game.showProgress(Integer.parseInt(payload));
+			break;
+		case "<recommendation>":
+			game.recommendationMade(Long.parseLong(payload));
+			break;
+		case "<recommend>":
+			game.requestRecommendation();
 			break;
 		default:
 			System.out.println("Client unrecognized command received: \n" + message);
@@ -112,12 +125,6 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 	public void makeMove() {
 		sendMessage("<makeMove>");
 
-	}
-
-	@Override
-	public long makeRecommendation() {
-		sendMessage("<recommendation>");
-		return Long.parseLong(getResponse());
 	}
 
 	@Override
@@ -193,6 +200,21 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void showProgress(int progress) {
+		//sendMessage("<progress>" + progress);
+	}
+
+	@Override
+	public void requestRecommendation() {
+		sendMessage("<recommend>");
+	}
+
+	@Override
+	public void recommendationMade(long move) {
+		sendMessage("<recommendation>" + move);
 	}
 
 }

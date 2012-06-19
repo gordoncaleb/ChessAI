@@ -16,6 +16,12 @@ public class Adjudicator {
 		this.board = board;
 	}
 
+	public void newGame(Board board) {
+		undoneMoves = new Stack<Long>();
+		validMoves = new ArrayList<Long>();
+		this.board = board;
+	}
+
 	public boolean move(long move) {
 
 		if (undoneMoves.size() > 0) {

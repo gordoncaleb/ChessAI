@@ -53,7 +53,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	private BoardPanel boardPanel;
 
-	private AI ai;
+	//private AI ai;
 
 	private PlayerContainer game;
 
@@ -89,8 +89,6 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	public PlayerGUI(PlayerContainer game, boolean debug) {
 		this.game = game;
-
-		ai = new AI(null, false);
 
 		frame = new JFrame("Oh,Word? " + AISettings.version);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -164,8 +162,8 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		Side playerSide;
 
 		Object[] options = { "White", "Black" };
-		int n = JOptionPane.showOptionDialog(frame, "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+				options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
 			playerSide = Side.WHITE;
@@ -180,17 +178,15 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	public synchronized void newGame(Board board) {
-		ai.newGame(board);
 		boardPanel.newGame(board);
 
 		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
-
 	}
 
 	public void gameOverLose() {
 		Object[] options = { "Yes, please", "Nah" };
-		int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "You just got schooled homie.\nWanna try again?", "Ouch!", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
 			game.newGame(null, false);
@@ -202,8 +198,8 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	public void gameOverWin() {
 		Object[] options = { "Yeah, why not?", "Nah." };
-		int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "Nicely done boss.\nWanna rematch?", "Ouch!", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+				options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
 			game.newGame(null, false);
@@ -215,8 +211,8 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	public void gameOverDraw() {
 		Object[] options = { "Yes, please", "Nah, maybe later." };
-		int n = JOptionPane.showOptionDialog(frame, "Draw...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int n = JOptionPane.showOptionDialog(frame, "Draw...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+				options[0]);
 		if (n == JOptionPane.YES_OPTION) {
 			game.newGame(null, false);
 		} else {
@@ -231,7 +227,6 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public synchronized boolean moveMade(long move) {
-		ai.moveMade(move);
 
 		boolean suc = boardPanel.moveMade(move);
 		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
@@ -239,9 +234,12 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		return suc;
 	}
 
+	public void makeMove() {
+		boardPanel.makeMove();
+	}
+
 	@Override
 	public long undoMove() {
-		ai.undoMove();
 
 		long suc = boardPanel.undoMove();
 		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
@@ -250,12 +248,10 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public long makeRecommendation() {
-		return 0;
-	}
-
-	public void makeMove() {
-		boardPanel.makeMove();
+	public void recommendationMade(long move) {
+		if (move != 0) {
+			boardPanel.highlightMove(move);
+		}
 	}
 
 	@Override
@@ -412,21 +408,11 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		}
 
 		if (arg0.getSource() == flipBoardMenu) {
-
 			boardPanel.flipBoard();
-
 		}
 
 		if (arg0.getSource() == getAIRecommendationMenu) {
-			if (boardPanel.isFreelyMove()) {
-				ai.newGame(boardPanel.getBoard().getCopy());
-			}
-
-			long rec = ai.makeRecommendation();
-
-			if (rec != 0) {
-				boardPanel.highlightMove(rec);
-			}
+			game.requestRecommendation();
 		}
 
 		if (arg0.getSource() == aiSettingsMenu) {
@@ -436,12 +422,12 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	public void gameOver(int winlose) {
-		if(winlose>0){
+		if (winlose > 0) {
 			gameOverWin();
-		}else{
-			if(winlose<0){
+		} else {
+			if (winlose < 0) {
 				gameOverLose();
-			}else{
+			} else {
 				gameOverDraw();
 			}
 		}
@@ -451,6 +437,15 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public void endGame() {
 
+	}
+
+	@Override
+	public void showProgress(int progress) {
+		boardPanel.showProgress(progress);
+	}
+
+	@Override
+	public void requestRecommendation() {
 	}
 
 }
