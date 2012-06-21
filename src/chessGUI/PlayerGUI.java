@@ -189,9 +189,10 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 				options, options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
+			promtSaveGame();
 			game.newGame(null, false);
 		} else {
-			// System.exit(0);
+			promtSaveGame();
 		}
 
 	}
@@ -202,9 +203,10 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 				options[0]);
 
 		if (n == JOptionPane.YES_OPTION) {
+			promtSaveGame();
 			game.newGame(null, false);
 		} else {
-			// System.exit(0);
+			promtSaveGame();
 		}
 
 	}
@@ -214,9 +216,10 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		int n = JOptionPane.showOptionDialog(frame, "Draw...hmmm close call.\nWanna try again?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
 				options[0]);
 		if (n == JOptionPane.YES_OPTION) {
+			promtSaveGame();
 			game.newGame(null, false);
 		} else {
-			// System.exit(0);
+			promtSaveGame();
 		}
 	}
 
@@ -295,6 +298,27 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 			return 0;
 		}
 	}
+	
+	private void saveGame(){
+		int returnVal = fc.showSaveDialog(frame);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+			FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toXML(true), false);
+
+		}
+	}
+	
+	private void promtSaveGame(){
+		Object[] options = { "Yes, please", "Nope" };
+		int n = JOptionPane.showOptionDialog(frame, "Would you like to save this game?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+				options[0]);
+		if (n == JOptionPane.YES_OPTION) {
+			saveGame();
+		} else {
+			// System.exit(0);
+		}
+	}
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
@@ -349,14 +373,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		}
 
 		if (arg0.getSource() == saveGameMenu) {
-			int returnVal = fc.showSaveDialog(frame);
-
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-				FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toXML(true), false);
-
-			}
-
+			saveGame();
 		}
 
 		if (arg0.getSource() == newGameMenu) {
