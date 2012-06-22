@@ -89,6 +89,7 @@ public class BitBoard {
 		}
 
 		System.out.println(BitBoard.printBitBoard(0x70507L >> 1));
+		
 
 	}
 

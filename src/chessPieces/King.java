@@ -71,9 +71,9 @@ public class King {
 			if (canCastleFar(p, board, player, nullMoveInfo, allPosBitBoard)) {
 				if (isValidMove(currentRow, 2, nullMoveInfo)) {
 					if (currentCol > 3) {
-						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 2, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
+						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 2, Values.FAR_CASTLE_VALUE, MoveNote.CASTLE_FAR));
 					} else {
-						validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 0), currentRow, 3, Values.CASTLE_VALUE, MoveNote.CASTLE_FAR));
+						validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 0), currentRow, 3, Values.FAR_CASTLE_VALUE, MoveNote.CASTLE_FAR));
 					}
 				}
 			}
@@ -81,9 +81,9 @@ public class King {
 			if (canCastleNear(p, board, player, nullMoveInfo, allPosBitBoard)) {
 				if (isValidMove(currentRow, 6, nullMoveInfo)) {
 					if (currentCol < 5) {
-						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 6, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 6, Values.NEAR_CASTLE_VALUE, MoveNote.CASTLE_NEAR));
 					} else {
-						validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 1), currentRow, 5, Values.CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+						validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 1), currentRow, 5, Values.NEAR_CASTLE_VALUE, MoveNote.CASTLE_NEAR));
 					}
 				}
 			}

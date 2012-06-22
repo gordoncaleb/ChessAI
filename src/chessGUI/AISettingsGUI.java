@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 
 import chessAI.AI;
 import chessAI.AISettings;
+import chessBackend.BoardHashEntry;
 
 public class AISettingsGUI implements MouseListener, KeyListener {
 
@@ -217,6 +218,22 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 		maxKillerMoves.setText(AISettings.maxKillerMoves + "");
 	}
 
+	private void updateHashTableSize() {
+
+		int newSize = Integer.parseInt(hashIndexSize.getText());
+
+		if (newSize != AISettings.hashIndexSize) {
+			AISettings.hashIndexSize = newSize;
+			AISettings.hashTableSize = (int) Math.pow(2, AISettings.hashIndexSize);
+			AISettings.hashIndexMask = (long) (Math.pow(2, AISettings.hashIndexSize) - 1);
+			if (ai != null) {
+				ai.setHashTable(null);
+				System.gc();
+				ai.setHashTable(new BoardHashEntry[AISettings.hashTableSize]);
+			}
+		}
+	}
+
 	public void updateSettings() {
 
 		try {
@@ -232,12 +249,12 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 			AISettings.alphaBetaPruningEnabled = alphaBetaPruningEnabled.isSelected();
 			AISettings.useBook = useBook.isSelected();
 			AISettings.useHashTable = useHashTable.isSelected();
-			AISettings.hashIndexSize = Integer.parseInt(hashIndexSize.getText());
-			AISettings.hashTableSize = (int) Math.pow(2, AISettings.hashIndexSize);
 			AISettings.staleHashAge = Integer.parseInt(staleHashAge.getText());
 			AISettings.numOfThreads = Integer.parseInt(numOfThreads.getText());
 			AISettings.useKillerMove = useKillerMove.isSelected();
 			AISettings.maxKillerMoves = Integer.parseInt(maxKillerMoves.getText());
+
+			updateHashTableSize();
 		} catch (Exception e) {
 			System.out.println("Input Error");
 		}
@@ -278,7 +295,7 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 		if (arg0.getSource() == resetTreeBtn) {
 			if (ai != null) {
 				ai.resetGameTree();
-				
+
 			}
 		}
 

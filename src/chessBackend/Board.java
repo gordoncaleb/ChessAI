@@ -1,12 +1,12 @@
 package chessBackend;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 import java.util.Vector;
 
 import chessAI.AI;
+import chessAI.AISettings;
 import chessIO.FileIO;
 import chessIO.XMLParser;
 import chessPieces.*;
@@ -17,8 +17,7 @@ public class Board {
 	private ArrayList<Long> validMoves = new ArrayList<Long>(100);
 	private ArrayList<Piece>[] pieces = new ArrayList[2];
 	private Stack<Piece>[] piecesTaken = new Stack[2];
-	private int castleRights;
-	private Stack<Integer> castleRightsHistory;
+	private int[] castleRights = new int[2];
 
 	private Piece[] kings = new Piece[2];
 	private int[][] rookStartCols = new int[2][2];
@@ -76,7 +75,6 @@ public class Board {
 		this.piecesTaken[Side.BLACK.ordinal()] = new Stack<Piece>();
 
 		this.moveHistory = new Stack<Move>();
-		this.castleRightsHistory = new Stack<Integer>();
 		this.hashCodeHistory = new Stack<Long>();
 		this.rngTable = RNGTable.getSingleton();
 		this.turn = Side.WHITE;
@@ -99,7 +97,6 @@ public class Board {
 		this.piecesTaken[Side.BLACK.ordinal()] = new Stack<Piece>();
 
 		this.moveHistory = new Stack<Move>();
-		this.castleRightsHistory = new Stack<Integer>();
 		this.hashCodeHistory = new Stack<Long>();
 		this.rngTable = RNGTable.getSingleton();
 		this.turn = turn;
@@ -201,8 +198,6 @@ public class Board {
 			return false;
 		}
 
-		castleRightsHistory.push(castleRights);
-
 		// save off hashCode
 		hashCodeHistory.push(new Long(hashCode));
 
@@ -254,6 +249,7 @@ public class Board {
 				board[materialRow[turn.ordinal()]][6] = king;
 				board[materialRow[turn.ordinal()]][5] = rook;
 
+				castleRights[turn.ordinal()] = 2;
 			} else {
 				rook = board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][0]];
 
@@ -262,9 +258,9 @@ public class Board {
 
 				board[materialRow[turn.ordinal()]][2] = king;
 				board[materialRow[turn.ordinal()]][3] = rook;
-			}
 
-			setCastleRights(turn, 0x4);
+				castleRights[turn.ordinal()] = 1;
+			}
 
 		} else {
 
@@ -297,7 +293,7 @@ public class Board {
 		// move was made, next player's turn
 		turn = turn.otherSide();
 
-		verifyBitBoards();
+		//verifyBitBoards();
 
 		return true;
 
@@ -390,6 +386,8 @@ public class Board {
 
 			}
 
+			castleRights[turn.ordinal()] = 0;
+
 		} else {
 			undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, Move.hadMoved(lastMove));
 		}
@@ -430,11 +428,7 @@ public class Board {
 			hashCode = hashCodeHistory.pop();
 		}
 
-		if (!castleRightsHistory.empty()) {
-			castleRights = castleRightsHistory.pop();
-		}
-
-		verifyBitBoards();
+		//verifyBitBoards();
 
 		return lastMove;
 
@@ -821,22 +815,25 @@ public class Board {
 
 	public int castleScore(Side side) {
 		int score = 0;
-		int castleRights = 0;
+		int castleRights = this.castleRights[side.ordinal()];
 
-		if (getCastleRights(side) == 0x4) {
-			score += Values.CASTLE_VALUE;
+		if (castleRights != 0) {
+			if (castleRights == 1) {
+				score += Values.FAR_CASTLE_VALUE;
+			} else {
+				score += Values.NEAR_CASTLE_VALUE;
+			}
 		} else {
-			castleRights = calculateCastleRights(side);
-			if (castleRights == 0x2) {
-				score -= Values.CASTLE_ABILITY_LOST_VALUE;
-			}
+			if (!kingHasMoved(side)) {
+				if (farRookHasMoved(side)) {
+					score -= Values.FAR_CASTLE_ABILITY_LOST_VALUE;
+				}
 
-			if (castleRights == 0x1) {
+				if (nearRookHasMoved(side)) {
+					score -= Values.NEAR_CASTLE_ABILITY_LOST_VALUE;
+				}
+			} else {
 				score -= Values.CASTLE_ABILITY_LOST_VALUE;
-			}
-
-			if (castleRights == 0) {
-				score -= Values.CASTLE_VALUE;
 			}
 		}
 
@@ -1135,40 +1132,6 @@ public class Board {
 		this.boardStatus = boardStatus;
 	}
 
-	public int calculateCastleRights(Side side) {
-		int rights = 0;
-
-		if (!kingHasMoved(side)) {
-			if (!farRookHasMoved(side)) {
-				rights |= 0x2;
-			}
-
-			if (!nearRookHasMoved(side)) {
-				rights |= 0x1;
-			}
-		}
-
-		return rights;
-	}
-
-	public void setCastleRights(Side side, int rights) {
-		if (side == Side.BLACK) {
-			castleRights &= 0x7;
-			castleRights |= (rights << 3);
-		} else {
-			castleRights &= (0x7 << 3);
-			castleRights |= rights;
-		}
-	}
-
-	public int getCastleRights(Side side) {
-		if (side == Side.BLACK) {
-			return (castleRights >> 3);
-		} else {
-			return (castleRights & 0x7);
-		}
-	}
-
 	public boolean farRookHasMoved(Side player) {
 		return hasMoved(materialRow[player.ordinal()], rookStartCols[player.ordinal()][0]);
 	}
@@ -1307,7 +1270,7 @@ public class Board {
 	}
 
 	public int getHashIndex() {
-		return (int) (hashCode & BoardHashEntry.hashIndexMask);
+		return (int) (hashCode & AISettings.hashIndexMask);
 	}
 
 	public long getHashCode() {

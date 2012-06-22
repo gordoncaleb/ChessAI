@@ -286,7 +286,7 @@ public class AIProcessor extends Thread {
 		// }
 		// }
 
-		int hashIndex = (int) (board.getHashCode() & BoardHashEntry.hashIndexMask);
+		int hashIndex = board.getHashIndex();
 		BoardHashEntry hashOut;
 		long hashMove = 0;
 		hashOut = hashTable[hashIndex];
@@ -516,7 +516,7 @@ public class AIProcessor extends Thread {
 		int b = beta;
 		long bestMove = 0;
 
-		int hashIndex = (int) (board.getHashCode() & BoardHashEntry.hashIndexMask);
+		int hashIndex = board.getHashIndex();
 		BoardHashEntry hashOut;
 		long hashMove = 0;
 		hashOut = hashTable[hashIndex];

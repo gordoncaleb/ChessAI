@@ -1,9 +1,7 @@
 package chessBackend;
 
-import chessAI.AISettings;
-
 public class BoardHashEntry {
-	public static final long hashIndexMask = (long) (Math.pow(2, AISettings.hashIndexSize) - 1);
+	
 	private int score;
 	private int level;
 	private int moveNum;

@@ -676,6 +676,10 @@ public class AI extends Thread implements Player {
 	public BoardHashEntry[] getHashTable() {
 		return hashTable;
 	}
+	
+	public void setHashTable(BoardHashEntry[] newHashTable){
+		this.hashTable = newHashTable;
+	}
 
 	public int getMoveNum() {
 		return moveNum;

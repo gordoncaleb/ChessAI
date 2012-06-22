@@ -18,40 +18,6 @@ public class Game implements PlayerContainer {
 
 	private Boolean gameActive;
 
-	// public Game(GameType gameType) {
-	//
-	// debug = true;
-	//
-	// paused = false;
-	//
-	// observers = new Vector<Player>();
-	// players = new Player[2];
-	//
-	// switch (gameType) {
-	// case GUI_VS_AI:
-	// players[0] = new PlayerGUI(this, debug);
-	// players[1] = new AI(this, debug);
-	// break;
-	// case AI_VS_AI:
-	// players[0] = new AI(this, debug);
-	// players[1] = new AI(this, debug);
-	// break;
-	// case TWO_GUI:
-	// players[0] = new PlayerGUI(this, debug);
-	// players[1] = new PlayerGUI(this, debug);
-	// case ONE_GUI:
-	// players[0] = new PlayerGUI(this, debug);
-	// players[1] = players[0];
-	// }
-	//
-	// if (debug) {
-	// // decisionTreeGUI = new DecisionTreeGUI(this, players[1]);
-	// }
-	//
-	// gameActive = new Boolean(true);
-	//
-	// }
-
 	public Game(Hashtable<Side, Player> players) {
 
 		paused = false;
@@ -131,21 +97,21 @@ public class Game implements PlayerContainer {
 		}
 
 	}
-	
-	public void requestRecommendation(){
+
+	public void requestRecommendation() {
 		if (players.get(Side.BOTH) == null) {
 			players.get(Side.WHITE).requestRecommendation();
 			players.get(Side.BLACK).requestRecommendation();
 		} else {
 			players.get(Side.BOTH).requestRecommendation();
 		}
-		
+
 		for (int i = 0; i < observers.size(); i++) {
 			observers.elementAt(i).requestRecommendation();
 		}
 	}
-	
-	public void recommendationMade(long move){
+
+	public void recommendationMade(long move) {
 		if (players.get(Side.BOTH) == null) {
 			players.get(Side.WHITE).recommendationMade(move);
 			players.get(Side.BLACK).recommendationMade(move);

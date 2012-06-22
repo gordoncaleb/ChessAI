@@ -2,7 +2,7 @@ package chessAI;
 
 public class AISettings {
 	
-	public static String version = "1.2.061912";
+	public static String version = "1.2.062012";
 	public static boolean debugOutput = true;
 	
 	public static boolean useLite = false;
@@ -19,9 +19,10 @@ public class AISettings {
 	public static boolean alphaBetaPruningEnabled = true;
 	public static boolean useBook = true;
 	
-	public static boolean useHashTable = true;
-	public static int hashIndexSize = 23;
+	public static boolean useHashTable = false;
+	public static int hashIndexSize = 20;
 	public static int hashTableSize = (int) Math.pow(2, hashIndexSize);
+	public static long hashIndexMask = (long) (Math.pow(2, AISettings.hashIndexSize) - 1);
 	public static int staleHashAge = 10;
 	
 	public static int numOfThreads = 1; //Runtime.getRuntime().availableProcessors()

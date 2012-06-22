@@ -5,7 +5,7 @@ import chessBackend.Side;
 
 public class Values {
 	public static final int CHECKMATE_MASK = (int) Math.pow(2, 19);
-	
+
 	public static final int KING_VALUE = (int) Math.pow(2, 20) - 1;
 	public static final int QUEEN_VALUE = 1200;
 	public static final int ROOK_VALUE = 600;
@@ -13,13 +13,12 @@ public class Values {
 	public static final int OPEN_KNIGHT_VALUE = 450;
 	public static final int END_KNIGHT_VALUE = 300;
 	public static final int PAWN_VALUE = 100;
-	public static final int CASTLE_VALUE = 80;
-	public static final int CASTLE_ABILITY_LOST_VALUE = 40;
-	public static final int KNIGHT_ENDGAME_INC = 6;
+	public static final int NEAR_CASTLE_VALUE = 90;
+	public static final int FAR_CASTLE_VALUE = 80;
+	public static final int NEAR_CASTLE_ABILITY_LOST_VALUE = 50;
+	public static final int FAR_CASTLE_ABILITY_LOST_VALUE = 40;
+	public static final int CASTLE_ABILITY_LOST_VALUE = FAR_CASTLE_ABILITY_LOST_VALUE + NEAR_CASTLE_ABILITY_LOST_VALUE;
 	public static final int CHECKMATE_MOVE = KING_VALUE;
-	public static final int STALEMATE_MOVE = 0;
-	public static final int DRAW_DIVISOR = 10;
-	public static final int CHECKMATE_DEPTH_INC = 1000;
 
 	public static final int BACKED_PAWN_BONUS = 2;
 	public static final int DOUBLED_PAWN_BONUS = -5;
@@ -120,7 +119,7 @@ public class Values {
 
 		int myscore = (myopen * (256 - phase) + myend * phase) / 256 + b.pawnStructureScore(turn, phase);
 
-		int yourscore = (youropen * (256 - phase) + yourend * phase) /256 + b.pawnStructureScore(turn.otherSide(), phase);
+		int yourscore = (youropen * (256 - phase) + yourend * phase) / 256 + b.pawnStructureScore(turn.otherSide(), phase);
 
 		score += ("int myScore = " + myscore + "\n");
 		score += ("int yourScore = " + yourscore + "\n");
