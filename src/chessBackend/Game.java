@@ -80,8 +80,9 @@ public class Game implements PlayerContainer {
 				}
 			}
 
-			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(), clock.getTime(Side.WHITE),
-					clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE), clock.getMaxTime(Side.BLACK));
+			return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -adjudicator.getBoard().staticScore(),
+					clock.getTime(Side.WHITE), clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE),
+					clock.getMaxTime(Side.BLACK));
 		}
 
 		return null;
@@ -202,12 +203,6 @@ public class Game implements PlayerContainer {
 			adjudicator.getBoard().setBoardStatus(GameStatus.INVALID);
 		}
 
-		if (players.get(Side.BOTH) == null) {
-			players.get(turn).makeMove();
-		} else {
-			players.get(Side.BOTH).makeMove();
-		}
-
 		if (adjudicator.isGameOver()) {
 			System.out.println("Game over");
 
@@ -226,6 +221,12 @@ public class Game implements PlayerContainer {
 			}
 
 			return false;
+		} else {
+			if (players.get(Side.BOTH) == null) {
+				players.get(turn).makeMove();
+			} else {
+				players.get(Side.BOTH).makeMove();
+			}
 		}
 
 		return true;

@@ -38,8 +38,6 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 	private String dest = "localhost";
 	private Socket clientSocket;
 
-	private String payload;
-
 	public EthernetPlayerServer(Player player) {
 		this.player = player;
 		EthernetMsgServer server = new EthernetMsgServer(this, 1234);
@@ -71,7 +69,6 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 
 	public static void main(String[] args) {
 		FileIO.setLogEnabled(false);
-		FileIO.setDebugOutput(true);
 		AI ai = new AI(null, true);
 		ai.setUseBook(true);
 		EthernetPlayerServer server = new EthernetPlayerServer(ai);
@@ -79,7 +76,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 
 	}
 
-	private synchronized void sendMessage(String message) {
+	private void sendMessage(String message) {
 
 		if (clientSocket == null) {
 			try {
@@ -91,56 +88,41 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 			}
 		}
 
-		System.out.println("tx message " + message);
 		EthernetMsgServer.sendMessage(message, clientSocket);
 	}
 
-	public synchronized void newMessage(String message) {
+	public void newMessage(String message) {
 
 		updateStatus();
-
-		System.out.println("Rx message = " + message);
-
-		if (message.trim().equals("ACK")) {
-			payload = message;
-			notifyAll();
-			return;
-		}
 
 		int tagStart = message.indexOf("<");
 		int tagEnd = message.indexOf(">");
 
 		if (tagStart < 0 || tagEnd < 0) {
-			FileIO.log("Server unrecognized mesage received: \n" + message);
 			return;
 		}
 
 		String tag = message.substring(tagStart, tagEnd + 1);
-		payload = message.substring(tagEnd + 1, message.length());
+		String payload = message.substring(tagEnd + 1, message.length());
 
 		switch (tag) {
 
 		case "<makeMove>":
 			player.makeMove();
-			sendMessage("ACK");
 			break;
 		case "<board>":
 			Board board = XMLParser.XMLToBoard(message);
-			FileIO.log("got new board:\n" + board.toString());
+			System.out.println("got new board:\n" + board.toString());
 			player.newGame(board);
-			sendMessage("ACK");
 			break;
 		case "<move>":
 			player.moveMade(XMLParser.XMLToMove(message));
-			sendMessage("ACK");
 			break;
 		case "<undoMove>":
 			player.undoMove();
-			sendMessage("ACK");
 			break;
 		case "<pause>":
 			player.pause();
-			sendMessage("ACK");
 			break;
 		case "<version>":
 			sendMessage("<version>" + player.getVersion() + "_ethernet");
@@ -155,40 +137,21 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 					player.gameOver(0);
 				}
 			}
-			sendMessage("ACK");
 			break;
 		case "<progress>":
 			player.showProgress(Integer.parseInt(payload));
-			sendMessage("ACK");
 			break;
 		case "<recommend>":
 			player.requestRecommendation();
-			sendMessage("ACK");
 			break;
 		case "<recommendation>":
 			player.recommendationMade(Long.parseLong(payload));
-			sendMessage("ACK");
 			break;
 		default:
-			FileIO.log("Server unrecognized tag received: \n" + message);
-			sendMessage("NACK");
+			System.out.println("Server unrecognized command received: \n" + message);
 			break;
 
 		}
-
-		notifyAll();
-	}
-
-	public String getResponse() {
-
-		try {
-			this.wait(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		return payload;
-
 	}
 
 	private void updateStatus() {
@@ -197,11 +160,8 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 	}
 
 	@Override
-	public synchronized boolean makeMove(long move) {
+	public boolean makeMove(long move) {
 		sendMessage(Move.toXML(move));
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("MakeMove command didn't receive an ACK");
-		}
 		return true;
 	}
 
@@ -213,29 +173,19 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 		} else {
 			sendMessage("<newGame>");
 		}
-
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("Board new game command didn't receive an ACK");
-		}
-
 		return null;
 	}
 
 	@Override
-	public synchronized boolean undoMove() {
+	public boolean undoMove() {
 		sendMessage("<undoMove>");
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("UndoMove command didn't receive an ACK");
-		}
 		return false;
 	}
 
 	@Override
-	public synchronized void pause() {
+	public void pause() {
 		sendMessage("<pause>");
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("Pause command didn't receive an ACK");
-		}
+
 	}
 
 	@Override
@@ -256,11 +206,8 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 	}
 
 	@Override
-	public synchronized void switchSides() {
+	public void switchSides() {
 		sendMessage("<switch>");
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("SwitchSides command didn't receive an ACK");
-		}
 	}
 
 	@Override
@@ -282,9 +229,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 
 	@Override
 	public void endGame() {
-		if (player != null) {
-			player.endGame();
-		}
+		player.endGame();
 	}
 
 	@Override
@@ -321,23 +266,17 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 
 	@Override
 	public void showProgress(int progress) {
-		// sendMessage("<progress>" + progress);
+		//sendMessage("<progress>" + progress);
 	}
 
 	@Override
-	public synchronized void requestRecommendation() {
+	public void requestRecommendation() {
 		sendMessage("<recommend>");
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("RequestRecommendation command didn't receive an ACK");
-		}
 	}
 
 	@Override
-	public synchronized void recommendationMade(long move) {
+	public void recommendationMade(long move) {
 		sendMessage("<recommendation>" + move);
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("RecommendationMade command didn't receive an ACK");
-		}
 	}
 
 }

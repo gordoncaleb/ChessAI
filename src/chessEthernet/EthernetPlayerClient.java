@@ -3,7 +3,6 @@ package chessEthernet;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 import chessBackend.Board;
 import chessBackend.GameStatus;
@@ -13,7 +12,7 @@ import chessBackend.PlayerContainer;
 import chessIO.FileIO;
 import chessIO.XMLParser;
 
-public class EthernetPlayerClient extends Thread implements Player, EthernetMsgRxer {
+public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 
 	private PlayerContainer game;
 
@@ -24,30 +23,10 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 
 	private String payload;
 
-	private ArrayList<String> messages = new ArrayList<String>();
-
 	public EthernetPlayerClient() {
 		EthernetMsgServer server = new EthernetMsgServer(this, 2345);
 		server.start();
-		this.start();
-	}
 
-	public void run() {
-		synchronized (this) {
-			while (true) {
-
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				while (messages.size() > 0) {
-					processMessage(messages.get(0));
-					messages.remove(0);
-				}
-			}
-		}
 	}
 
 	private void sendMessage(String message) {
@@ -67,100 +46,73 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 			FileIO.log("Connection to ethernet player could not be made.");
 		}
 
-		System.out.println("tx message " + message);
 		EthernetMsgServer.sendMessage(message, clientSocket);
 
 	}
 
 	public synchronized void newMessage(String message) {
 
-		if (message.equals("ACK")) {
-			payload = message;
-		} else {
-			this.messages.add(message);
-		}
-		
-		
-		System.out.println("Rx message = " + message);
-		notifyAll();
-	}
-
-	public void processMessage(String message) {
-
 		int tagStart = message.indexOf("<");
 		int tagEnd = message.indexOf(">");
-
+		
 		if (tagStart < 0 || tagEnd < 0) {
-			FileIO.log("Client unrecognized message received: \n" + message);
 			return;
 		}
 
 		String tag = message.substring(tagStart, tagEnd + 1);
-		payload = message.substring(tagEnd + 1, message.length());
+		String payload = message.substring(tagEnd + 1, message.length());
 
 		// System.out.println("Message tag = " + tag);
 
 		switch (tag) {
 
 		case "<move>":
-			sendMessage("ACK");
 			game.makeMove(XMLParser.XMLToMove(message));
 			break;
 		case "<newGame>":
-			sendMessage("ACK");
 			game.newGame(null, false);
 			break;
 		case "<board>":
-			sendMessage("ACK");
 			game.newGame(XMLParser.XMLToBoard(message), false);
 			break;
 		case "<undoMove>":
-			sendMessage("ACK");
 			game.undoMove();
 			break;
 		case "<pause>":
-			sendMessage("ACK");
 			game.pause();
 			break;
 		case "<version>":
-			notifyAll();
+			this.payload = payload;
 			break;
 		case "<progress>":
-			sendMessage("ACK");
 			game.showProgress(Integer.parseInt(payload));
 			break;
 		case "<recommendation>":
-			sendMessage("ACK");
 			game.recommendationMade(Long.parseLong(payload));
 			break;
 		case "<recommend>":
-			sendMessage("ACK");
 			game.requestRecommendation();
 			break;
 		default:
-			FileIO.log("Client unrecognized tag received: \n" + message);
+			System.out.println("Client unrecognized command received: \n" + message);
 			break;
 
 		}
+
+		this.notifyAll();
 
 		// System.out.println("Rx:\n" + message);
 	}
 
 	@Override
-	public synchronized long undoMove() {
+	public long undoMove() {
 		sendMessage("<undoMove>");
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("UndoMove command didn't receive an ACK");
-		}
 		return 0;
 	}
 
 	@Override
-	public synchronized void newGame(Board board) {
+	public void newGame(Board board) {
 		sendMessage(board.toXML(true));
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("Board new game command didn't receive an ACK");
-		}
 	}
 
 	@Override
@@ -170,33 +122,28 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 	}
 
 	@Override
-	public synchronized void makeMove() {
+	public void makeMove() {
 		sendMessage("<makeMove>");
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("MakeMove command didn't receive an ACK");
-		}
 
 	}
 
 	@Override
-	public synchronized boolean moveMade(long move) {
+	public boolean moveMade(long move) {
 		sendMessage(Move.toXML(move));
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("Move command didn't receive an ACK. Payload =" + payload);
-		}
+		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public synchronized void pause() {
+	public void pause() {
 		sendMessage("<pause>");
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("Pause command didn't receive an ACK");
-		}
+		// TODO Auto-generated method stub
+
 	}
 
 	@Override
 	public GameStatus getGameStatus() {
+
 		return null;
 	}
 
@@ -207,17 +154,20 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 	}
 
 	@Override
-	public synchronized String getVersion() {
+	public String getVersion() {
 		sendMessage("<version>");
+
 		return getResponse();
 	}
 
 	public String getResponse() {
 
-		try {
-			this.wait(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		synchronized (this) {
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return payload;
@@ -226,12 +176,10 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 
 	@Override
 	public void connectionReset() {
-		if (game != null) {
-			game.endGame();
-		}
+		game.endGame();
 	}
 
-	public synchronized void gameOver(int winlose) {
+	public void gameOver(int winlose) {
 		if (winlose > 0) {
 			sendMessage("<gameOver>win");
 		} else {
@@ -240,10 +188,6 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 			} else {
 				sendMessage("<gameOver>draw");
 			}
-		}
-
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("Gameover command didn't receive an ACK");
 		}
 	}
 
@@ -260,23 +204,17 @@ public class EthernetPlayerClient extends Thread implements Player, EthernetMsgR
 
 	@Override
 	public void showProgress(int progress) {
-		// sendMessage("<progress>" + progress);
+		//sendMessage("<progress>" + progress);
 	}
 
 	@Override
-	public synchronized void requestRecommendation() {
+	public void requestRecommendation() {
 		sendMessage("<recommend>");
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("RequestRecommendation command didn't receive an ACK");
-		}
 	}
 
 	@Override
-	public synchronized void recommendationMade(long move) {
+	public void recommendationMade(long move) {
 		sendMessage("<recommendation>" + move);
-		if (!getResponse().equals("ACK")) {
-			FileIO.log("RecommendationMade command didn't receive an ACK");
-		}
 	}
 
 }

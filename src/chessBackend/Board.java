@@ -559,6 +559,12 @@ public class Board {
 
 		// ArrayList<Long> validMoves = new ArrayList<Long>(50);
 		validMoves.clear();
+		
+		if (!hasSufficientMaterial() || drawByThreeRule()) {
+			setBoardStatus(GameStatus.DRAW);
+			return validMoves;
+		}
+		
 		int prevMovesSize = 0;
 
 		Long move;
@@ -602,10 +608,6 @@ public class Board {
 			} else {
 				setBoardStatus(GameStatus.STALEMATE);
 			}
-		}
-
-		if (!hasSufficientMaterial() || drawByThreeRule()) {
-			setBoardStatus(GameStatus.DRAW);
 		}
 
 		return validMoves;
