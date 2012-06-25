@@ -512,36 +512,6 @@ public class Board {
 		return (moveHistory.size() != 0);
 	}
 
-	private boolean checkPosBitBoard() {
-
-		long[] pos = new long[2];
-
-		pos[0] = 0;
-		pos[1] = 0;
-
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				if (board[r][c] != null) {
-					pos[board[r][c].getSide().ordinal()] |= BitBoard.getMask(r, c);
-				}
-			}
-		}
-
-		boolean match = true;
-
-		if (pos[Side.WHITE.ordinal()] != allPosBitBoard[Side.WHITE.ordinal()]) {
-			match = false;
-			FileIO.log("White error");
-		}
-
-		if (pos[Side.BLACK.ordinal()] != allPosBitBoard[Side.BLACK.ordinal()]) {
-			match = false;
-			FileIO.log("Black error");
-		}
-
-		return match;
-	}
-
 	public ArrayList<Long> generateValidMoves() {
 		return generateValidMoves(false, 0, AI.noKillerMoves);
 	}
@@ -1289,7 +1259,7 @@ public class Board {
 		}
 	}
 
-	private boolean drawByThreeRule() {
+	public boolean drawByThreeRule() {
 
 		int count = 0;
 		int fiftyMove = 0;

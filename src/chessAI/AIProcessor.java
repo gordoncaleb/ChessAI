@@ -274,8 +274,8 @@ public class AIProcessor extends Thread {
 		int a = alpha;
 		int b = beta;
 
-//		branch.setAlpha(alpha);
-//		branch.setBeta(beta);
+		// branch.setAlpha(alpha);
+		// branch.setBeta(beta);
 
 		numSearched++;
 
@@ -309,29 +309,31 @@ public class AIProcessor extends Thread {
 					// }
 					// }
 
+					hashMove = hashOut.getBestMove();
+
 					if (hashOut.getLevel() >= level) {
 
 						if (hashOut.getBounds() == ValueBounds.PV) {
 
-							branch.setChosenPathValue(-hashOut.getScore());
-							// branch.setBound(ValueBounds.PV);
-							// branch.setChildren(null);
-							// System.out.println("Found hash entry EXACT");
+							if (!board.drawByThreeRule()) {
+								branch.setChosenPathValue(-hashOut.getScore());
+							} else {
+								branch.setChosenPathValue(0);
+							}
+
 							return;
 						} else {
 
 							if (hashOut.getBounds() == ValueBounds.CUT) {
 								if (hashOut.getScore() >= beta) {
-									branch.setChosenPathValue(-hashOut.getScore());
-									// branch.setBound(ValueBounds.ALL);
-									// branch.setChildren(null);
-									// System.out.println("Found hash entry ATLEAST");
+									
+									if (!board.drawByThreeRule()) {
+										branch.setChosenPathValue(-hashOut.getScore());
+									} else {
+										branch.setChosenPathValue(0);
+									}
 									return;
-								} else {
-									hashMove = hashOut.getBestMove();
 								}
-							} else {
-								hashMove = hashOut.getBestMove();
 							}
 						}
 					}
