@@ -13,16 +13,22 @@ public class BoardMaker {
 	 */
 	public static void main(String[] args) {
 		System.out.println(BoardMaker.getRandomChess960Board().toString());
+		
+		System.out.println(BoardMaker.getStandardChessBoard().toString());
 
 	}
 
 	public static Board getStandardChessBoard() {
 
-		return null;
+		return makeBoard(1, 2, 2, 1, 2);
 	}
 
 	public static Board getRandomChess960Board() {
 
+		return makeBoard(rollDie(4), rollDie(4), rollDie(6), rollDie(5), rollDie(4));
+	}
+
+	public static Board makeBoard(int r1, int r2, int r3, int r4, int r5) {
 		ArrayList<Piece>[] pieces = new ArrayList[2];
 		pieces[0] = new ArrayList<Piece>();
 		pieces[1] = new ArrayList<Piece>();
@@ -47,13 +53,13 @@ public class BoardMaker {
 
 		PieceID[] setup = new PieceID[8];
 
-		setup[rollDie(4) * 2] = PieceID.BISHOP;
-		setup[rollDie(4) * 2 + 1] = PieceID.BISHOP;
+		setup[r1 * 2] = PieceID.BISHOP;
+		setup[r2 * 2 + 1] = PieceID.BISHOP;
 
-		setup[ithEmptyPosition(rollDie(6) + 1, setup)] = PieceID.QUEEN;
+		setup[ithEmptyPosition(r3 + 1, setup)] = PieceID.QUEEN;
 
-		setup[ithEmptyPosition(rollDie(5) + 1, setup)] = PieceID.KNIGHT;
-		setup[ithEmptyPosition(rollDie(4) + 1, setup)] = PieceID.KNIGHT;
+		setup[ithEmptyPosition(r4 + 1, setup)] = PieceID.KNIGHT;
+		setup[ithEmptyPosition(r5 + 1, setup)] = PieceID.KNIGHT;
 
 		setup[ithEmptyPosition(2, setup)] = PieceID.KING;
 
@@ -66,9 +72,9 @@ public class BoardMaker {
 				pieces[s].add(temp);
 			}
 		}
-		
+
 		Board board = new Board(pieces, Side.WHITE, new Stack<Move>(), null, null);
-		
+
 		return board;
 	}
 

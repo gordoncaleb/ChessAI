@@ -123,30 +123,9 @@ public class Piece {
 		}
 
 		PieceID id;
-		char type = stringPiece.toLowerCase().charAt(0);
+		char type = stringPiece.toUpperCase().charAt(0);
 
-		switch (type) {
-		case 'r':
-			id = PieceID.ROOK;
-			break;
-		case 'n':
-			id = PieceID.KNIGHT;
-			break;
-		case 'b':
-			id = PieceID.BISHOP;
-			break;
-		case 'q':
-			id = PieceID.QUEEN;
-			break;
-		case 'k':
-			id = PieceID.KING;
-			break;
-		case 'p':
-			id = PieceID.PAWN;
-			break;
-		default:
-			id = null;
-		}
+		id = charIDtoPieceID(type);
 
 		if (id != null) {
 			return new Piece(id, player, row, col, hasMoved);
@@ -154,6 +133,36 @@ public class Piece {
 			return null;
 		}
 
+	}
+	
+	public static PieceID charIDtoPieceID(char type){
+		
+		PieceID id;
+		
+		switch (type) {
+		case 'R':
+			id = PieceID.ROOK;
+			break;
+		case 'N':
+			id = PieceID.KNIGHT;
+			break;
+		case 'B':
+			id = PieceID.BISHOP;
+			break;
+		case 'Q':
+			id = PieceID.QUEEN;
+			break;
+		case 'K':
+			id = PieceID.KING;
+			break;
+		case 'P':
+			id = PieceID.PAWN;
+			break;
+		default:
+			id = null;
+		}
+		
+		return id;
 	}
 
 	public boolean equals(Piece piece) {

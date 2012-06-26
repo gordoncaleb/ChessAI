@@ -1,8 +1,11 @@
 package chessIO;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import chessBackend.Board;
+import chessBackend.BoardMaker;
 import chessBackend.Move;
 
 public class MoveBook {
@@ -13,6 +16,10 @@ public class MoveBook {
 
 	public MoveBook() {
 
+	}
+
+	public static void main(String[] args) {
+		MoveBook.moveBookFromPGNFile("book.pgn");
 	}
 
 	public long getRecommendation(Long hashCode) {
@@ -66,6 +73,10 @@ public class MoveBook {
 	public void loadVerboseMoveBook() {
 		verboseMoveBook = XMLParser.XMLToVerboseMoveBook(FileIO.readFile("verboseMoveBook.xml"));
 		loadMoveBook();
+	}
+
+	public void loadPGNMoveBook() {
+
 	}
 
 	public void saveMoveBook() {
@@ -175,6 +186,98 @@ public class MoveBook {
 
 		xmlMoveBook += "</moveBook>";
 		return xmlMoveBook;
+	}
+
+	public static Hashtable<Long, Vector<Long>> moveBookFromPGNFile(String fileName) {
+
+		Hashtable<Long, Vector<Long>> moveBook = new Hashtable<Long, Vector<Long>>();
+
+		String contents = FileIO.readFile(fileName);
+
+		String[] lines = contents.split("\n");
+
+		ArrayList<String> gameLines = new ArrayList<String>();
+		String gameLine = "";
+		boolean gameLineStarted = false;
+
+		for (int i = 0; i < lines.length; i++) {
+			if (!lines[i].trim().startsWith("[") && !lines[i].trim().equals("")) {
+				gameLine += lines[i].trim();
+				gameLineStarted = true;
+			} else {
+				if (gameLineStarted) {
+					gameLines.add(gameLine);
+					gameLine = "";
+				}
+				gameLineStarted = false;
+			}
+		}
+
+		if (gameLineStarted) {
+			gameLines.add(gameLine);
+		}
+
+		Board board = BoardMaker.getStandardChessBoard();
+
+		ArrayList<String> notations = new ArrayList<String>();
+		String[] tokens;
+		String token;
+		for (int i = 0; i < gameLines.size(); i++) {
+
+			tokens = gameLines.get(i).split(" ");
+
+			for (int n = 0; n < tokens.length; n++) {
+
+				token = tokens[n].trim();
+
+				if (token.contains(".")) {
+					token= token.substring(token.indexOf(".") + 1);
+				}
+
+				if (!token.equals("O-O") && !token.equals("O-O-O")) {
+					while (token.length() > 1) {
+						if (!Character.isLowerCase(token.charAt(token.length() - 2)) || !Character.isDigit(token.charAt(token.length() - 1))) {
+							token = token.substring(0, token.length() - 1);
+						} else {
+							break;
+						}
+					}
+				}
+
+				if (!token.equals("") && token.length() > 1) {
+					notations.add(token);
+				}
+			}
+
+			long move;
+			Vector<Long> moves;
+			for (int n = 0; n < notations.size(); n++) {
+
+				move = board.resolveAlgebraicNotation(notations.get(n));
+
+				System.out.println(notations.get(n) + " => " + (new Move(move)));
+
+				moves = moveBook.get(board.getHashCode());
+				if (moves != null) {
+					moves.add(move);
+				} else {
+					moves = new Vector<Long>();
+					moves.add(move);
+					moveBook.put(board.getHashCode(), moves);
+				}
+
+				board.makeMove(move);
+			}
+
+			while (board.canUndo()) {
+				board.undoMove();
+			}
+
+			notations.clear();
+
+		}
+
+		return null;
 	}
 
 }

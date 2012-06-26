@@ -293,7 +293,7 @@ public class Board {
 		// move was made, next player's turn
 		turn = turn.otherSide();
 
-		//verifyBitBoards();
+		// verifyBitBoards();
 
 		return true;
 
@@ -428,7 +428,7 @@ public class Board {
 			hashCode = hashCodeHistory.pop();
 		}
 
-		//verifyBitBoards();
+		// verifyBitBoards();
 
 		return lastMove;
 
@@ -529,12 +529,12 @@ public class Board {
 
 		// ArrayList<Long> validMoves = new ArrayList<Long>(50);
 		validMoves.clear();
-		
+
 		if (!hasSufficientMaterial() || drawByThreeRule()) {
 			setBoardStatus(GameStatus.DRAW);
 			return validMoves;
 		}
-		
+
 		int prevMovesSize = 0;
 
 		Long move;
@@ -1328,6 +1328,141 @@ public class Board {
 			}
 		}
 
+	}
+
+	public long resolveAlgebraicNotation(String notation) {
+
+		this.makeNullMove();
+		ArrayList<Long> moves = this.generateValidMoves();
+
+		int fromRow = -1;
+		int fromCol = -1;
+		int toRow = -1;
+		int toCol = -1;
+
+		MoveNote note = null;
+		PieceID pieceMovingID = null;
+		boolean pieceTaken = false;
+
+		if (notation.equals("O-O")) {
+			note = MoveNote.CASTLE_NEAR;
+		} else {
+
+			if (notation.equals("O-O-O")) {
+				note = MoveNote.CASTLE_FAR;
+			} else {
+
+				if (notation.length() > 2) {
+
+					if (notation.length() == 3) {
+						pieceMovingID = Piece.charIDtoPieceID(notation.charAt(0));
+						toRow = 7 - (notation.charAt(2) - 49);
+						toCol = notation.charAt(1) - 97;
+					} else {
+						if (notation.contains("x")) {
+							pieceTaken = true;
+							String[] leftRight = notation.split("x");
+
+							toRow = 7 - (leftRight[1].charAt(1) - 49);
+							toCol = leftRight[1].charAt(0) - 97;
+
+							pieceMovingID = Piece.charIDtoPieceID(leftRight[0].charAt(0));
+
+							if (pieceMovingID == null) {
+								pieceMovingID = PieceID.PAWN;
+								fromCol = leftRight[0].charAt(0) - 97;
+							}
+
+							if (leftRight[0].length() > 1) {
+								if (leftRight[0].charAt(1) >= 97) {
+									fromCol = leftRight[0].charAt(1) - 97;
+								} else {
+									fromRow = 7 - (leftRight[0].charAt(1) - 49);
+								}
+							}
+						} else {
+							toRow = 7 - (notation.charAt(notation.length() - 1) - 49);
+							toCol = notation.charAt(notation.length() - 2) - 97;
+
+							pieceMovingID = Piece.charIDtoPieceID(notation.charAt(0));
+
+							if (notation.charAt(1) >= 97) {
+								fromCol = notation.charAt(1) - 97;
+							} else {
+								fromRow = 7 - (notation.charAt(1) - 49);
+							}
+
+						}
+					}
+
+				} else {
+					if (notation.length() == 2) {
+						toRow = 7 - (notation.charAt(1) - 49);
+						toCol = notation.charAt(0) - 97;
+						pieceMovingID = PieceID.PAWN;
+					} else {
+						System.out.println("Error resolving notation " + notation);
+					}
+				}
+
+			}
+		}
+
+		ArrayList<Long> matchMoves = new ArrayList<Long>();
+		boolean match;
+
+		for (int i = 0; i < moves.size(); i++) {
+
+			match = true;
+
+			if (note != null) {
+				if (Move.getNote(moves.get(i)) != note) {
+					match = false;
+				}
+			}
+
+			if (fromRow >= 0) {
+				if (Move.getFromRow(moves.get(i)) != fromRow) {
+					match = false;
+				}
+			}
+
+			if (fromCol >= 0) {
+				if (Move.getFromCol(moves.get(i)) != fromCol) {
+					match = false;
+				}
+			}
+
+			if (toCol >= 0) {
+				if (Move.getToCol(moves.get(i)) != toCol) {
+					match = false;
+				}
+			}
+
+			if (toRow >= 0) {
+				if (Move.getToRow(moves.get(i)) != toRow) {
+					match = false;
+				}
+			}
+
+			if (pieceMovingID != null) {
+				if (board[Move.getFromRow(moves.get(i))][Move.getFromCol(moves.get(i))].getPieceID() != pieceMovingID) {
+					match = false;
+				}
+			}
+
+			if (match) {
+				// System.out.println(new Move(moves.get(i)));
+				matchMoves.add(moves.get(i));
+			}
+		}
+
+		if (matchMoves.size() != 1) {
+			System.out.println("ERROR resolving algebraic notation " + notation);
+			return 0;
+		}
+
+		return matchMoves.get(0);
 	}
 
 	public static Stack<Piece> getFullPieceSet(Side player) {
