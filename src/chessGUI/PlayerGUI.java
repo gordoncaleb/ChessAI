@@ -83,7 +83,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		playerOne.setGame(game);
 		playerTwo.setGame(game);
 
-		game.newGame(Game.getDefaultBoard(), false);
+		game.newGame(BoardMaker.getStandardChessBoard(), false);
 
 	}
 
@@ -377,7 +377,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		}
 
 		if (arg0.getSource() == newGameMenu) {
-			Board board = Game.getDefaultBoard();
+			Board board = BoardMaker.getStandardChessBoard();
 
 			Side side = optionForSide();
 			game.setSide(side, this);

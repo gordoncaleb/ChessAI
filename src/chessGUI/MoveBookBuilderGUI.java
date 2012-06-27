@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -93,7 +94,8 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		fc.setCurrentDirectory(new File("."));
 
 		this.moveBook = new MoveBook();
-		moveBook.loadVerboseMoveBook();
+		//moveBook.loadVerboseMoveBook();
+		moveBook.loadMoveBook();
 		this.record = false;
 
 		frame = new JFrame("Move Book Builder");
@@ -225,11 +227,11 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private void populateMoveList() {
 		listModel.removeAllElements();
 
-		Vector<Long> moves = moveBook.getAllRecommendations(boardPanel.getBoard().getHashCode());
+		ArrayList<Long> moves = moveBook.getAllRecommendations(boardPanel.getBoard().getHashCode());
 
 		if (moves != null) {
 			for (int i = 0; i < moves.size(); i++) {
-				listModel.addElement(new Move(moves.elementAt(i)));
+				listModel.addElement(new Move(moves.get(i)));
 			}
 		}
 
@@ -459,7 +461,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		if (e.getSource() == newGameBtn) {
 
-			Board board = Game.getDefaultBoard();
+			Board board = BoardMaker.getStandardChessBoard();
 
 			game.newGame(board, false);
 

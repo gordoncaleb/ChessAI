@@ -82,22 +82,26 @@ public class TournamentGUI {
 
 		FileIO.clearDirectory(".\\tournament");
 
-		Board board;
+		boolean play960 = false;
 
+		Board board;
 		Long[] winnerScore;
 		Long[] loserScore;
 		int numOfGames = 960;
 		for (int i = 0; i < numOfGames; i++) {
 
-			board = BoardMaker.getRandomChess960Board();
-
-			while (boardsPlayed.contains(board.getHashCode())) {
+			if (play960) {
 				board = BoardMaker.getRandomChess960Board();
+				while (boardsPlayed.contains(board.getHashCode())) {
+					board = BoardMaker.getRandomChess960Board();
+				}
+			} else {
+				board = BoardMaker.getStandardChessBoard();
 			}
 
 			for (int s = 0; s < 2; s++) {
 
-				FileIO.log("Game#" + (i*2 + s));
+				FileIO.log("Game#" + (i * 2 + s));
 
 				FileIO.log(board.toString());
 
@@ -106,7 +110,7 @@ public class TournamentGUI {
 				winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));
 				loserScore = playerScore.get(playerNames.get(players.get(results.getWinner().otherSide())));
 
-				FileIO.writeFile((".\\tournament\\game" + (i*2 + s) + "_" + results.getEndGameStatus() + ".xml"), ((AI) playerOne).getBoard().toXML(true), false);
+				FileIO.writeFile((".\\tournament\\game" + (i * 2 + s) + "_" + results.getEndGameStatus() + ".xml"), ((AI) playerOne).getBoard().toXML(true), false);
 
 				if (results.getEndGameStatus() == GameStatus.CHECKMATE) {
 
@@ -159,8 +163,8 @@ public class TournamentGUI {
 
 				String out2 = getScoreResults(playerTwoScore, playerTwoName);
 
-				String outResults = out1 + "\n" + out2 + "Draws: " + draws + "\nGames played: " + (i*2 + s + 1) + "/" + numOfGames*2 + " - " + (numOfGames * 2 - i*2 - s - 1)
-						+ " left";
+				String outResults = out1 + "\n" + out2 + "Draws: " + draws + "\nGames played: " + (i * 2 + s + 1) + "/" + numOfGames * 2 + " - "
+						+ (numOfGames * 2 - i * 2 - s - 1) + " left";
 
 				FileIO.writeFile(".\\tournament\\results.txt", outResults, false);
 

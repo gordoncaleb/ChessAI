@@ -3,7 +3,9 @@ package chessPieces;
 import chessBackend.Side;
 
 public class PositionBonus {
-	private static int[][] knightBonus = { { -30, -20, -10, -10, -10, -10, -20, -30 },// 1
+	private static int[][] knightBonus = 
+		
+		{ { -30, -20, -10, -10, -10, -10, -20, -30 },// 1
 			{ -20, 10, 10, 10, 10, 10, 10, -20 },// 2
 			{ -10, 10, 20, 20, 20, 20, 10, -10 },// 3
 			{ -10, 10, 20, 25, 25, 20, 10, -10 },// 4
@@ -15,7 +17,7 @@ public class PositionBonus {
 	};
 
 	private static int[][] kingOpeningBonus = 
-		  { { 25, 25, 35, 0, 10, 0, 40, 35 },// 1
+		{ { 25, 25, 35, 0, 10, 0, 40, 35 },// 1
 			{ 10, 10, 5, 0, 0, 5, 10, 15 },// 2
 			{ 5, 0, -10, -10, -10, -10, 0, 5 },// 3
 			{ 0, -15, -20, -25, -25, -20, -15, 0 },// 4
@@ -26,7 +28,8 @@ public class PositionBonus {
 	// a, b, c, d, e, f, g, h
 	};
 
-	private static int[][] kingEndGameBonus = { { -10, -5, 0, 0, 0, 0, -5, -10 },// 1
+	private static int[][] kingEndGameBonus = 
+		{ { -10, -5, 0, 0, 0, 0, -5, -10 },// 1
 			{ -5, 20, 20, 20, 20, 20, 20, -5 },// 2
 			{ 0, 20, 40, 40, 40, 40, 20, 0 },// 3
 			{ 0, 20, 40, 45, 45, 40, 20, 0 },// 4
@@ -81,21 +84,38 @@ public class PositionBonus {
 			{ 0, 0, 0, 0, 0, 0, 0, 0 } // 8
 	// a, b, c, d, e, f, g, h
 	};
-	
-	
-	public static void applyScale(){
-		scalePositionBonus(pawnBonus,0.5);
-		scalePositionBonus(rookBonus,0.5);
-		scalePositionBonus(kingEndGameBonus,0.5);
-		scalePositionBonus(kingOpeningBonus,0.5);
-		scalePositionBonus(knightBonus,0.5);
-		
+
+	public static void applyScale() {
+		scalePositionBonus(pawnBonus, 0.5);
+		scalePositionBonus(rookBonus, 0.5);
+		scalePositionBonus(kingEndGameBonus, 0.5);
+		scalePositionBonus(kingOpeningBonus, 0.5);
+		scalePositionBonus(knightBonus, 0.5);
+
+		printBonus(pawnBonus, "pawn");
+		printBonus(rookBonus, "rook");
+		printBonus(kingEndGameBonus, "king endgame");
+		printBonus(kingOpeningBonus, "king opening");
+		printBonus(knightBonus, "knight");
 	}
-	
-	public static void scalePositionBonus(int[][] bonus, double scale){
-		for(int r=0;r<8;r++){
-			for(int c=0;c<8;c++){
-				bonus[r][c] = (int) (bonus[r][c]*scale);
+
+	private static void printBonus(int[][] bonus, String name) {
+
+		System.out.println(name + " Bonus{");
+		for (int i = 0; i < bonus.length; i++) {
+			for (int y = 0; y < bonus[i].length; y++) {
+				System.out.print(String.format("%3d", bonus[i][y]) + ",");
+			}
+			System.out.println("\n");
+		}
+
+		System.out.println("}");
+	}
+
+	public static void scalePositionBonus(int[][] bonus, double scale) {
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				bonus[r][c] = (int) (bonus[r][c] * scale);
 			}
 		}
 	}

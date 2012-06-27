@@ -144,6 +144,8 @@ public class AI extends Thread implements Player {
 		rootNode = new DecisionNode(0);
 
 		clearHashTable();
+		
+		moveBook.setStillValid(true);
 
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i].setBoard(board.getCopy());
@@ -190,6 +192,8 @@ public class AI extends Thread implements Player {
 			undoMove = true;
 
 			moveNum--;
+			
+			moveBook.setStillValid(true);
 
 			synchronized (this) {
 				notifyAll();

@@ -219,11 +219,11 @@ public class XMLParser {
 		return moveBook;
 	}
 
-	public static Hashtable<String, Vector<Long>> XMLToVerboseMoveBook(String xmlVerboseMoveBook) {
+	public static Hashtable<String, ArrayList<Long>> XMLToVerboseMoveBook(String xmlVerboseMoveBook) {
 		Document doc = XMLParser.getDocument(xmlVerboseMoveBook);
 
-		Hashtable<String, Vector<Long>> moveBook = new Hashtable<String, Vector<Long>>();
-		Vector<Long> moves;
+		Hashtable<String, ArrayList<Long>> moveBook = new Hashtable<String, ArrayList<Long>>();
+		ArrayList<Long> moves;
 
 		NodeList main = doc.getElementsByTagName("moveBook");
 
@@ -244,7 +244,7 @@ public class XMLParser {
 			responseTag = ((Element) entries.item(i)).getElementsByTagName("response");
 
 			moveTags = ((Element) responseTag.item(0)).getElementsByTagName("move");
-			moves = new Vector<Long>(moveTags.getLength());
+			moves = new ArrayList<Long>(moveTags.getLength());
 			for (int m = 0; m < moveTags.getLength(); m++) {
 				moves.add(buildMove((Element) moveTags.item(m)));
 			}

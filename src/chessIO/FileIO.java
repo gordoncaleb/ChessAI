@@ -52,7 +52,8 @@ public class FileIO {
 		try {
 			// use buffering, reading one line at a time
 			// FileReader always assumes default encoding is OK!
-			BufferedReader input = new BufferedReader(new InputStreamReader(fileURL.openStream()));
+			InputStreamReader is = new InputStreamReader(fileURL.openStream());
+			BufferedReader input = new BufferedReader(is);
 			try {
 				String line = null; // not declared within while loop
 				/*
@@ -73,6 +74,58 @@ public class FileIO {
 		}
 
 		return contents.toString();
+	}
+
+	public static DataInputStream getDataInputStream(String fileName) {
+		URL fileURL = FileIO.class.getResource("doc/" + fileName);
+		File aFile = null;
+
+		if (fileURL == null) {
+			try {
+				aFile = new File(fileName);
+				fileURL = aFile.toURI().toURL();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+
+		}
+
+		if (fileURL == null) {
+			return null;
+		} else {
+			if (aFile != null) {
+				if (!aFile.canRead()) {
+					return null;
+				}
+			}
+		}
+
+		try {
+			DataInputStream din = new DataInputStream(fileURL.openStream());
+
+			return din;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+
+	}
+	
+	public static DataOutputStream getDataOutputStream(String fileName) {
+
+		try {
+			
+			FileOutputStream fos = new FileOutputStream(fileName);
+			DataOutputStream dout = new DataOutputStream(fos);
+
+			return dout;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+
 	}
 
 	/**
@@ -140,7 +193,7 @@ public class FileIO {
 	public static void setLogEnabled(boolean enable) {
 		useLogFile = enable;
 	}
-	
+
 	public static void setDebugOutput(boolean enable) {
 		debugOutput = enable;
 	}

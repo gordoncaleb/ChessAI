@@ -36,7 +36,7 @@ public class Board {
 	private long[] kingPosBitBoard = { 0, 0 };
 
 	public static void main(String[] args) {
-		Board board = Game.getDefaultBoard();
+		Board board = BoardMaker.getStandardChessBoard();
 
 		ArrayList<Long> moves = board.generateValidMoves(true, 0, AI.noKillerMoves);
 
@@ -838,7 +838,7 @@ public class Board {
 
 		int doubledPawns = BitBoard.bitCountLong(pawns) - occupiedCol;
 
-		return backedPawns * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * Values.PASSED_PAWN_BONUS * phase) >> 8);
+		return backedPawns * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * Values.PASSED_PAWN_BONUS * phase) / 256);
 	}
 
 	public int calcGamePhase() {
@@ -1459,7 +1459,7 @@ public class Board {
 
 		if (matchMoves.size() != 1) {
 			ArrayList<Move> movesDetailed = new ArrayList<Move>();
-			for(int i=0;i<moves.size();i++){
+			for (int i = 0; i < moves.size(); i++) {
 				movesDetailed.add(new Move(moves.get(i)));
 			}
 			System.out.println("ERROR resolving algebraic notation " + notation);

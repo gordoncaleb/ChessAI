@@ -12,14 +12,14 @@ public class Move {
 	 * moveValue
 	 */
 
-	private static final int hadMovedMask = 1 << 15;
-	private static final int hasPieceTakenMask = 1 << 16;
-	private static final int pieceTakenHasMoved = 1 << 26;
-	private static final int fromToMask = 0xFFF;
-	private static final int fromMask = 0xFC0;
-	private static final int toMask = 0x3F;
-	private static final int notNoteMask = ~(0x7000);
-	private static final int notPieceTaken = ~(0x7FF << 16);
+	public static final int hadMovedMask = 1 << 15;
+	public static final int hasPieceTakenMask = 1 << 16;
+	public static final int pieceTakenHasMoved = 1 << 26;
+	public static final int fromToMask = 0xFFF;
+	public static final int fromMask = 0xFC0;
+	public static final int toMask = 0x3F;
+	public static final int notNoteMask = ~(0x7000);
+	public static final int notPieceTaken = ~(0x7FF << 16);
 
 	private long moveLong;
 

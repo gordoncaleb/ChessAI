@@ -35,7 +35,7 @@ public class Game implements PlayerContainer {
 		String xmlBoard = FileIO.readFile("tempSave.xml");
 
 		if (xmlBoard == null) {
-			return newGame(Game.getDefaultBoard(), block);
+			return newGame(BoardMaker.getStandardChessBoard(), block);
 		} else {
 			return newGame(XMLParser.XMLToBoard(xmlBoard), block);
 		}
@@ -281,10 +281,6 @@ public class Game implements PlayerContainer {
 
 	public boolean isPaused() {
 		return paused;
-	}
-
-	public static Board getDefaultBoard() {
-		return XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
 	}
 
 	@Override
