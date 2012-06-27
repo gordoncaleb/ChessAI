@@ -1458,6 +1458,10 @@ public class Board {
 		}
 
 		if (matchMoves.size() != 1) {
+			ArrayList<Move> movesDetailed = new ArrayList<Move>();
+			for(int i=0;i<moves.size();i++){
+				movesDetailed.add(new Move(moves.get(i)));
+			}
 			System.out.println("ERROR resolving algebraic notation " + notation);
 			return 0;
 		}

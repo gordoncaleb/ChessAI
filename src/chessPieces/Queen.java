@@ -157,6 +157,7 @@ public class Queen {
 
 			if (inCheck) {
 				nullMoveInfo[2] |= bitAttackCompliment;
+				inCheck = false;
 			}
 
 			bitAttackCompliment = 0;

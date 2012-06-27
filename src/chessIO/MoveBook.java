@@ -67,7 +67,8 @@ public class MoveBook {
 	}
 
 	public void loadMoveBook() {
-		hashMoveBook = XMLParser.XMLToMoveBook(FileIO.readFile("moveBook.xml"));
+		//hashMoveBook = XMLParser.XMLToMoveBook(FileIO.readFile("moveBook.xml"));
+		hashMoveBook = moveBookFromPGNFile("book.pgn");
 	}
 
 	public void loadVerboseMoveBook() {
@@ -190,6 +191,8 @@ public class MoveBook {
 
 	public static Hashtable<Long, Vector<Long>> moveBookFromPGNFile(String fileName) {
 
+		
+		long time1 = System.currentTimeMillis();
 		Hashtable<Long, Vector<Long>> moveBook = new Hashtable<Long, Vector<Long>>();
 
 		String contents = FileIO.readFile(fileName);
@@ -224,6 +227,7 @@ public class MoveBook {
 		String token;
 		for (int i = 0; i < gameLines.size(); i++) {
 
+			//System.out.println("NEW GAME " + gameLines.get(i));
 			tokens = gameLines.get(i).split(" ");
 
 			for (int n = 0; n < tokens.length; n++) {
@@ -231,7 +235,15 @@ public class MoveBook {
 				token = tokens[n].trim();
 
 				if (token.contains(".")) {
-					token= token.substring(token.indexOf(".") + 1);
+					token = token.substring(token.indexOf(".") + 1);
+				}
+
+				if (token.contains("O-O-O")) {
+					token = "O-O-O";
+				} else {
+					if (token.contains("O-O")) {
+						token = "O-O";
+					}
 				}
 
 				if (!token.equals("O-O") && !token.equals("O-O-O")) {
@@ -255,7 +267,7 @@ public class MoveBook {
 
 				move = board.resolveAlgebraicNotation(notations.get(n));
 
-				System.out.println(notations.get(n) + " => " + (new Move(move)));
+				//System.out.println(notations.get(n) + " => " + (new Move(move)));
 
 				moves = moveBook.get(board.getHashCode());
 				if (moves != null) {
@@ -276,8 +288,15 @@ public class MoveBook {
 			notations.clear();
 
 		}
+		
+		System.out.println("Move book loaded!!!!");
+		System.out.println("Took " + (System.currentTimeMillis()-time1) + "ms to load");
 
-		return null;
+		return moveBook;
+	}
+	
+	public void saveCompiledMoveBook(){
+		
 	}
 
 }

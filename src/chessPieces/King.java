@@ -34,6 +34,11 @@ public class King {
 		int nextCol;
 		PositionStatus pieceStatus;
 		Long moveLong;
+		
+//		System.out.println("King null move info");
+//		System.out.println(BitBoard.printBitBoard(nullMoveInfo[0]));
+//		System.out.println(BitBoard.printBitBoard(nullMoveInfo[1]));
+//		System.out.println(BitBoard.printBitBoard(nullMoveInfo[2]));
 
 		for (int d = 0; d < 8; d++) {
 			nextRow = currentRow + KINGMOVES[0][d];

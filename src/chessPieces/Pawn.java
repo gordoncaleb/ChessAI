@@ -34,7 +34,13 @@ public class Pawn {
 		int value;
 		int myValue = board.getPieceValue(p.getRow(), p.getCol());
 		Long moveLong;
-
+		
+		
+//		System.out.println("pawn " + p.getCol() + " null move info");
+//		System.out.println(BitBoard.printBitBoard(nullMoveInfo[0]));
+//		System.out.println(BitBoard.printBitBoard(nullMoveInfo[1]));
+//		System.out.println(BitBoard.printBitBoard(nullMoveInfo[2]));
+		
 		int[] lr = { 1, -1 };
 
 		if (player == Side.WHITE) {
@@ -66,20 +72,21 @@ public class Pawn {
 
 				validMoves.add(moveLong);
 
-				if (!p.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == PositionStatus.NO_PIECE) {
-					if (p.isValidMove(currentRow + 2 * dir, currentCol, nullMoveInfo)) {
+			}
+			
+			if (!p.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == PositionStatus.NO_PIECE) {
+				
+				if (p.isValidMove(currentRow + 2 * dir, currentCol, nullMoveInfo)) {
 
-						value = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, p.getSide());
+					value = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, p.getSide());
 
-						if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + 2 * dir, currentCol)) != 0) {
-							value = -myValue >> 1;
-						}
-
-						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow + 2 * dir, currentCol, value, MoveNote.PAWN_LEAP));
-
+					if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + 2 * dir, currentCol)) != 0) {
+						value = -myValue >> 1;
 					}
-				}
 
+					validMoves.add(Move.moveLong(currentRow, currentCol, currentRow + 2 * dir, currentCol, value, MoveNote.PAWN_LEAP));
+
+				}
 			}
 
 		}

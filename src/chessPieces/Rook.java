@@ -168,6 +168,7 @@ public class Rook {
 
 			if (inCheck) {
 				nullMoveInfo[2] |= bitAttackCompliment;
+				inCheck = false;
 			}
 
 			bitAttackCompliment = 0;

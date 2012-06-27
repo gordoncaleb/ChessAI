@@ -159,6 +159,7 @@ public class Bishop {
 
 			if (inCheck) {
 				nullMoveInfo[2] |= bitAttackCompliment;
+				inCheck = false;
 			}
 
 			bitAttackCompliment = 0;

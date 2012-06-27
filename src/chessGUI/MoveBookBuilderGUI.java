@@ -427,6 +427,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 			if (boardPanel.isFreelyMove()) {
 				freelyMoveBtn.setText("Moving Freely");
 			} else {
+				game.newGame(boardPanel.getBoard(), false);
 				freelyMoveBtn.setText("Free Move?");
 				populateMoveList();
 			}
