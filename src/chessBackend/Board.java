@@ -668,7 +668,7 @@ public class Board {
 	}
 
 	public int getPieceValue(int row, int col) {
-		return Values.getOpeningPieceValue(board[row][col].getPieceID()) + getOpeningPositionValue(board[row][col]);
+		return Values.getPieceValue(board[row][col].getPieceID()) + getOpeningPositionValue(board[row][col]);
 	}
 
 	public int getOpeningPositionValue(Piece piece) {
@@ -765,21 +765,11 @@ public class Board {
 		return score;
 	}
 
-	public int openingMaterialScore(Side side) {
+	public int materialScore(Side side) {
 		int score = 0;
 
 		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
-			score += Values.getOpeningPieceValue(pieces[side.ordinal()].get(i).getPieceID());
-		}
-
-		return score;
-	}
-
-	public int endGameMaterialScore(Side side) {
-		int score = 0;
-
-		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
-			score += Values.getEndGamePieceValue(pieces[side.ordinal()].get(i).getPieceID());
+			score += Values.getPieceValue(pieces[side.ordinal()].get(i).getPieceID());
 		}
 
 		return score;
@@ -864,20 +854,14 @@ public class Board {
 		int myPawnScore = pawnStructureScore(turn, phase);
 		int yourPawnScore = pawnStructureScore(turn.otherSide(), phase);
 
-		int openingMyScore = openingMaterialScore(turn);
-		int openingYourScore = openingMaterialScore(turn.otherSide());
+		int openingMyScore = castleScore(turn) + openingPositionScore(turn);
+		int openingYourScore = castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide());
 
-		openingMyScore += castleScore(turn) + openingPositionScore(turn);
-		openingYourScore += castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide());
+		int endGameMyScore = endGamePositionScore(turn);
+		int endGameYourScore = endGamePositionScore(turn.otherSide());
 
-		int endGameMyScore = endGameMaterialScore(turn);
-		int endGameYourScore = endGameMaterialScore(turn.otherSide());
-
-		endGameMyScore += endGamePositionScore(turn);
-		endGameYourScore += endGamePositionScore(turn.otherSide());
-
-		int myScore = (openingMyScore * (256 - phase) + endGameMyScore * phase) / 256 + myPawnScore;
-		int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + yourPawnScore;
+		int myScore = (openingMyScore * (256 - phase) + endGameMyScore * phase) / 256 + materialScore(turn) + myPawnScore;
+		int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + materialScore(turn.otherSide()) + yourPawnScore;
 
 		ptDiff = myScore - yourScore;
 

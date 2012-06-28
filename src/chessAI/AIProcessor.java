@@ -272,7 +272,6 @@ public class AIProcessor extends Thread {
 		}
 
 		int a = alpha;
-		int b = beta;
 
 		// branch.setAlpha(alpha);
 		// branch.setBeta(beta);
@@ -286,10 +285,9 @@ public class AIProcessor extends Thread {
 		// }
 		// }
 
-		int hashIndex = board.getHashIndex();
 		BoardHashEntry hashOut;
 		long hashMove = 0;
-		hashOut = hashTable[hashIndex];
+		hashOut = hashTable[board.getHashIndex()];
 
 		if (AISettings.useHashTable) {
 
@@ -450,7 +448,7 @@ public class AIProcessor extends Thread {
 			branch.setChosenPathValue(-cpv);
 			// branch.setBound(getNodeType(cpv, a, b));
 
-			if (getNodeType(cpv, a, b) != ValueBounds.ALL && level >= 0 && AISettings.useKillerMove) {
+			if (getNodeType(cpv, a, beta) != ValueBounds.ALL && level >= 0 && AISettings.useKillerMove) {
 				addKillerMove(level, branch.getHeadChild().getMove());
 			}
 
@@ -467,10 +465,10 @@ public class AIProcessor extends Thread {
 
 			if (AISettings.useHashTable && level >= 0 && !stopSearch) {
 				if (hashOut == null) {
-					hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, b), branch.getHeadChild().getMove());
+					hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, beta), branch.getHeadChild().getMove());
 				} else {
 					if (hashTableUpdate(hashOut, level, ai.getMoveNum())) {
-						hashOut.setAll(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, b), branch.getHeadChild().getMove());// ,board.toString());
+						hashOut.setAll(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, beta), branch.getHeadChild().getMove());// ,board.toString());
 					}
 				}
 

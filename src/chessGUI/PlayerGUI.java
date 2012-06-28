@@ -53,7 +53,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	private BoardPanel boardPanel;
 
-	//private AI ai;
+	// private AI ai;
 
 	private PlayerContainer game;
 
@@ -180,7 +180,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	public synchronized void newGame(Board board) {
 		boardPanel.newGame(board);
 
-		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
+		undoUserMoveMenu.setEnabled(boardPanel.canUndo() && (boardPanel.getBoard().getMoveHistory().size() > 1));
 	}
 
 	public void gameOverLose() {
@@ -232,7 +232,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	public synchronized boolean moveMade(long move) {
 
 		boolean suc = boardPanel.moveMade(move);
-		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
+		undoUserMoveMenu.setEnabled(boardPanel.canUndo() && (boardPanel.getBoard().getMoveHistory().size() > 1));
 
 		return suc;
 	}
@@ -245,7 +245,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	public long undoMove() {
 
 		long suc = boardPanel.undoMove();
-		undoUserMoveMenu.setEnabled(boardPanel.canUndo());
+		undoUserMoveMenu.setEnabled(boardPanel.canUndo() && (boardPanel.getBoard().getMoveHistory().size() > 1));
 
 		return suc;
 	}
@@ -298,8 +298,8 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 			return 0;
 		}
 	}
-	
-	private void saveGame(){
+
+	private void saveGame() {
 		int returnVal = fc.showSaveDialog(frame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -308,8 +308,8 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 		}
 	}
-	
-	private void promtSaveGame(){
+
+	private void promtSaveGame() {
 		Object[] options = { "Yes, please", "Nope" };
 		int n = JOptionPane.showOptionDialog(frame, "Would you like to save this game?", "", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
 				options[0]);
@@ -395,7 +395,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		}
 
 		if (arg0.getSource() == undoUserMoveMenu) {
-			if (boardPanel.canUndo()) {
+			if (boardPanel.canUndo() && (boardPanel.getBoard().getMoveHistory().size() > 1)) {
 				game.undoMove();
 				game.undoMove();
 			}

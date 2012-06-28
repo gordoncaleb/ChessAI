@@ -10,8 +10,7 @@ public class Values {
 	public static final int QUEEN_VALUE = 1200;
 	public static final int ROOK_VALUE = 600;
 	public static final int BISHOP_VALUE = 400;
-	public static final int OPEN_KNIGHT_VALUE = 450;
-	public static final int END_KNIGHT_VALUE = 300;
+	public static final int KNIGHT_VALUE = 450;
 	public static final int PAWN_VALUE = 100;
 	public static final int NEAR_CASTLE_VALUE = 90;
 	public static final int FAR_CASTLE_VALUE = 80;
@@ -33,60 +32,10 @@ public class Values {
 	public static final int TOTALPHASE = PAWNPHASE * 16 + KNIGHTPHASE * 4 + BISHOPPHASE * 4 + ROOKPHASE * 4 + QUEENPHASE * 2;
 	public static final int[] PIECE_PHASE_VAL = { ROOKPHASE, KNIGHTPHASE, BISHOPPHASE, QUEENPHASE, 0, PAWNPHASE };
 
-	public static final int getOpeningPieceValue(PieceID id) {
-		int value;
-		switch (id) {
-		case KING:
-			value = KING_VALUE;
-			break;
-		case QUEEN:
-			value = QUEEN_VALUE;
-			break;
-		case ROOK:
-			value = ROOK_VALUE;
-			break;
-		case BISHOP:
-			value = BISHOP_VALUE;
-			break;
-		case KNIGHT:
-			value = OPEN_KNIGHT_VALUE;
-			break;
-		case PAWN:
-			value = PAWN_VALUE;
-			break;
-		default:
-			value = 0;
-			break;
-		}
-		return value;
-	}
-
-	public static final int getEndGamePieceValue(PieceID id) {
-		int value;
-		switch (id) {
-		case KING:
-			value = KING_VALUE;
-			break;
-		case QUEEN:
-			value = QUEEN_VALUE;
-			break;
-		case ROOK:
-			value = ROOK_VALUE;
-			break;
-		case BISHOP:
-			value = BISHOP_VALUE;
-			break;
-		case KNIGHT:
-			value = END_KNIGHT_VALUE;
-			break;
-		case PAWN:
-			value = PAWN_VALUE;
-			break;
-		default:
-			value = 0;
-			break;
-		}
-		return value;
+	public static final int[] PIECE_VALUE = {ROOK_VALUE,KNIGHT_VALUE,BISHOP_VALUE,QUEEN_VALUE,KING_VALUE,PAWN_VALUE};
+	
+	public static final int getPieceValue(PieceID id){
+		return PIECE_VALUE[id.ordinal()];
 	}
 
 	public static String printBoardScoreBreakDown(Board b) {
@@ -101,21 +50,21 @@ public class Values {
 		score += ("int myPawnScore = " + b.pawnStructureScore(turn, phase)) + "\n";
 		score += ("int yourPawnScore = " + b.pawnStructureScore(turn.otherSide(), phase)) + "\n";
 
-		score += ("int openingMyScore = " + b.openingMaterialScore(turn) + "(openingMaterialScore)+" + b.castleScore(turn) + "(castleScore)+" + b.openingPositionScore(turn))
+		score += ("int openingMyScore = " + b.materialScore(turn) + "(openingMaterialScore)+" + b.castleScore(turn) + "(castleScore)+" + b.openingPositionScore(turn))
 				+ "(openPositionScore)" + "\n";
-		score += ("int openingYourScore = " + b.openingMaterialScore(turn.otherSide()) + "(openMaterialScore)+" + b.castleScore(turn.otherSide()) + "(castleScore)+"
+		score += ("int openingYourScore = " + b.materialScore(turn.otherSide()) + "(openMaterialScore)+" + b.castleScore(turn.otherSide()) + "(castleScore)+"
 				+ b.openingPositionScore(turn.otherSide()) + "(openPositionScore)")
 				+ "\n";
 
-		score += ("int endGameMyScore = " + b.endGameMaterialScore(turn) + "(endGameMaterial)+" + b.endGamePositionScore(turn) + "(endGamePosition)") + "\n";
-		score += ("int endGameYourScore = " + b.endGameMaterialScore(turn.otherSide()) + "(endGameMaterial)+" + b.endGamePositionScore(turn.otherSide()) + "(endGamePosition)")
+		score += ("int endGameMyScore = " + b.materialScore(turn) + "(endGameMaterial)+" + b.endGamePositionScore(turn) + "(endGamePosition)") + "\n";
+		score += ("int endGameYourScore = " + b.materialScore(turn.otherSide()) + "(endGameMaterial)+" + b.endGamePositionScore(turn.otherSide()) + "(endGamePosition)")
 				+ "\n";
 
-		int myopen = b.openingMaterialScore(turn) + b.castleScore(turn) + b.openingPositionScore(turn);
-		int youropen = b.openingMaterialScore(turn.otherSide()) + b.castleScore(turn.otherSide()) + b.openingPositionScore(turn.otherSide());
+		int myopen = b.materialScore(turn) + b.castleScore(turn) + b.openingPositionScore(turn);
+		int youropen = b.materialScore(turn.otherSide()) + b.castleScore(turn.otherSide()) + b.openingPositionScore(turn.otherSide());
 
-		int myend = b.endGameMaterialScore(turn) + b.endGamePositionScore(turn);
-		int yourend = b.endGameMaterialScore(turn.otherSide()) + b.endGamePositionScore(turn.otherSide());
+		int myend = b.materialScore(turn) + b.endGamePositionScore(turn);
+		int yourend = b.materialScore(turn.otherSide()) + b.endGamePositionScore(turn.otherSide());
 
 		int myscore = (myopen * (256 - phase) + myend * phase) / 256 + b.pawnStructureScore(turn, phase);
 
