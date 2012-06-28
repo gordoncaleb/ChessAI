@@ -19,8 +19,6 @@ public class MoveBook {
 
 	Hashtable<String, ArrayList<Long>> verboseMoveBook;
 
-	boolean stillValid = true;
-
 	public MoveBook() {
 
 	}
@@ -44,6 +42,10 @@ public class MoveBook {
 				loadedMoves = loadedMoveBook.get(hashCodes.get(i));
 
 				if (loadedMoves != null) {
+
+					if (loadedMoves.size() == 0) {
+						System.out.println("Zero entries!");
+					}
 
 					if (moves.get(i).size() == loadedMoves.size()) {
 						maxMove = Math.max(moves.get(i).size(), maxMove);
@@ -85,18 +87,14 @@ public class MoveBook {
 	public long getRecommendation(Long hashCode) {
 		long move = 0;
 
-		if (stillValid) {
-			ArrayList<Long> moves = hashMoveBook.get(hashCode);
+		ArrayList<Long> moves = hashMoveBook.get(hashCode);
 
-			if (moves != null && moves.size() > 0) {
-				double maxIndex = (double) (moves.size() - 1);
-				double randDouble = Math.random();
-				double randIndexDouble = randDouble * maxIndex;
-				long randIndex = Math.round(randIndexDouble);
-				move = moves.get((int) randIndex);
-			} else {
-				stillValid = false;
-			}
+		if (moves != null && moves.size() > 0) {
+			double maxIndex = (double) (moves.size() - 1);
+			double randDouble = Math.random();
+			double randIndexDouble = randDouble * maxIndex;
+			long randIndex = Math.round(randIndexDouble);
+			move = moves.get((int) randIndex);
 		}
 
 		return move;
@@ -140,11 +138,6 @@ public class MoveBook {
 		verboseMoveBook = XMLParser.XMLToVerboseMoveBook(FileIO.readFile("verboseMoveBook.xml"));
 		loadMoveBook();
 	}
-	
-	public void setStillValid(boolean stillValid){
-		this.stillValid = stillValid;
-	}
-
 
 	public void saveMoveBook() {
 
@@ -257,6 +250,7 @@ public class MoveBook {
 
 	public static Hashtable<Long, ArrayList<Long>> moveBookFromPGNFile(String fileName) {
 
+		int moveCount = 0;
 		long time1 = System.currentTimeMillis();
 		Hashtable<Long, ArrayList<Long>> moveBook = new Hashtable<Long, ArrayList<Long>>();
 
@@ -284,6 +278,8 @@ public class MoveBook {
 		if (gameLineStarted) {
 			gameLines.add(gameLine);
 		}
+
+		System.out.println(gameLines.size() + " game lines");
 
 		Board board = BoardMaker.getStandardChessBoard();
 
@@ -339,10 +335,22 @@ public class MoveBook {
 				if (moves != null) {
 					if (!moves.contains(move)) {
 						moves.add(move);
+						moveCount++;
+						if (-6875275062907683923L == board.getHashCode()) {
+							System.out.println(board.getHashCode() + " size = " + moves.size());
+							System.out.println(new Move(move));
+						}
 					}
 				} else {
 					moves = new ArrayList<Long>();
 					moves.add(move);
+					moveCount++;
+
+					if (-6875275062907683923L == board.getHashCode()) {
+						System.out.println(board.getHashCode() + " size = " + moves.size());
+						System.out.println(new Move(move));
+					}
+
 					moveBook.put(board.getHashCode(), moves);
 				}
 
@@ -358,6 +366,7 @@ public class MoveBook {
 		}
 
 		System.out.println("Move book loaded!!!!");
+		System.out.println("Move count " + moveCount);
 		System.out.println("Took " + (System.currentTimeMillis() - time1) + "ms to load");
 		System.out.println("Hash Count = " + moveBook.size());
 
