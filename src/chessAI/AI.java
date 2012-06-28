@@ -144,8 +144,6 @@ public class AI extends Thread implements Player {
 		rootNode = new DecisionNode(0);
 
 		clearHashTable();
-		
-		moveBook.setStillValid(true);
 
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i].setBoard(board.getCopy());
@@ -161,7 +159,7 @@ public class AI extends Thread implements Player {
 		undoMove = false;
 		recommend = false;
 
-		moveNum = 0;
+		moveNum = board.getMoveHistory().size();
 		// hashTable.clear();
 
 		maxSearched = 0;
@@ -192,8 +190,6 @@ public class AI extends Thread implements Player {
 			undoMove = true;
 
 			moveNum--;
-			
-			moveBook.setStillValid(true);
 
 			synchronized (this) {
 				notifyAll();
@@ -250,8 +246,9 @@ public class AI extends Thread implements Player {
 
 		time = System.currentTimeMillis();
 
+		System.out.println("maxMoveBookMove=" +AISettings.maxMoveBookMove + " moveNum=" +moveNum); 
 		long mb;
-		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == 0 || !AISettings.useBook) {
+		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == 0 || !AISettings.useBook || (moveNum > AISettings.maxMoveBookMove)) {
 
 			// Split the task of looking at all possible AI moves up amongst
 			// multiple threads. This takes advantage of multicore systems.
@@ -293,7 +290,7 @@ public class AI extends Thread implements Player {
 		int interationProgress = (int) (100.0 * ((double) (nextTaskNum - 1) / (double) rootNode.getChildrenSize()));
 		int timeProgress = (int) (100.0 * (((double) AISettings.maxSearchTime - (double) timeLeft) / (double) AISettings.maxSearchTime));
 
-		//FileIO.log((nextTaskNum - 1) + "/" + rootNode.getChildrenSize());
+		// FileIO.log((nextTaskNum - 1) + "/" + rootNode.getChildrenSize());
 
 		if (AISettings.useExtraTime) {
 			if (iteration > AISettings.minSearchDepth) {
@@ -443,7 +440,7 @@ public class AI extends Thread implements Player {
 
 			nextTaskNum++;
 
-			//FileIO.log("Tasknum " + nextTaskNum);
+			// FileIO.log("Tasknum " + nextTaskNum);
 
 			if (previousTask != null) {
 				if (previousTask.getChosenPathValue() > alpha) {
@@ -680,8 +677,8 @@ public class AI extends Thread implements Player {
 	public BoardHashEntry[] getHashTable() {
 		return hashTable;
 	}
-	
-	public void setHashTable(BoardHashEntry[] newHashTable){
+
+	public void setHashTable(BoardHashEntry[] newHashTable) {
 		this.hashTable = newHashTable;
 	}
 

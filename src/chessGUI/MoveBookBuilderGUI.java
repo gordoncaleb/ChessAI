@@ -281,6 +281,8 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public boolean moveMade(long move) {
 		boardPanel.moveMade(move);
+		
+		System.out.println("hash = " + boardPanel.getBoard().getHashCode());
 
 		populateMoveList();
 

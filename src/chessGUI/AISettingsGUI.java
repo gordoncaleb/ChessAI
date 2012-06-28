@@ -30,6 +30,7 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 	private JTextField minSearchDepth;
 	private JCheckBox alphaBetaPruningEnabled;
 	private JCheckBox useBook;
+	private JTextField maxMoveBookMove;
 	private JCheckBox useHashTable;
 	private JTextField hashIndexSize;
 	private JTextField staleHashAge;
@@ -136,6 +137,13 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 		frame.add(useBookLbl);
 		frame.add(useBook);
 
+		JLabel maxMoveBookMoveLbl = new JLabel("maxMoveBookMove");
+		maxMoveBookMoveLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+		maxMoveBookMove = new JTextField(AISettings.maxMoveBookMove + "");
+		maxMoveBookMove.addMouseListener(this);
+		frame.add(maxMoveBookMoveLbl);
+		frame.add(maxMoveBookMove);
+
 		JLabel useHashTableLbl = new JLabel("");
 		useHashTableLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		useHashTable = new JCheckBox("useHashTable", AISettings.useHashTable);
@@ -210,6 +218,7 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 		minSearchDepth.setText(AISettings.minSearchDepth + "");
 		alphaBetaPruningEnabled.setSelected(AISettings.alphaBetaPruningEnabled);
 		useBook.setSelected(AISettings.useBook);
+		maxMoveBookMove.setText(AISettings.maxMoveBookMove + "");
 		useHashTable.setSelected(AISettings.useHashTable);
 		hashIndexSize.setText(AISettings.hashIndexSize + "");
 		staleHashAge.setText(AISettings.staleHashAge + "");
@@ -248,6 +257,7 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 			AISettings.minSearchDepth = Integer.parseInt(minSearchDepth.getText());
 			AISettings.alphaBetaPruningEnabled = alphaBetaPruningEnabled.isSelected();
 			AISettings.useBook = useBook.isSelected();
+			AISettings.maxMoveBookMove = Integer.parseInt(maxMoveBookMove.getText());
 			AISettings.useHashTable = useHashTable.isSelected();
 			AISettings.staleHashAge = Integer.parseInt(staleHashAge.getText());
 			AISettings.numOfThreads = Integer.parseInt(numOfThreads.getText());
