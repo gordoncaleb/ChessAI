@@ -26,6 +26,39 @@ public class Queen {
 		return "Q";
 	}
 
+	public static void generateMoves(Piece p, Board board, ArrayList<Long> moves) {
+		int currentRow = p.getRow();
+		int currentCol = p.getCol();
+		int nextRow;
+		int nextCol;
+		PositionStatus pieceStatus;
+
+		int i = 1;
+		for (int d = 0; d < 8; d++) {
+			nextRow = currentRow + i * QUEENMOVES[0][d];
+			nextCol = currentCol + i * QUEENMOVES[1][d];
+			pieceStatus = board.checkPiece(nextRow, nextCol, p.getSide());
+
+			while (pieceStatus == PositionStatus.NO_PIECE) {
+
+				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE));
+
+				i++;
+				nextRow = currentRow + i * QUEENMOVES[0][d];
+				nextCol = currentCol + i * QUEENMOVES[1][d];
+				pieceStatus = board.checkPiece(nextRow, nextCol, p.getSide());
+
+			}
+
+			if (pieceStatus == PositionStatus.ENEMY) {
+				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE,
+						board.getPiece(nextRow, nextCol)));
+			}
+
+			i = 1;
+		}
+	}
+
 	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();

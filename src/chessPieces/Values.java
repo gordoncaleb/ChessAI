@@ -10,7 +10,7 @@ public class Values {
 	public static final int QUEEN_VALUE = 1200;
 	public static final int ROOK_VALUE = 600;
 	public static final int BISHOP_VALUE = 400;
-	public static final int KNIGHT_VALUE = 450;
+	public static final int KNIGHT_VALUE = 390;
 	public static final int PAWN_VALUE = 100;
 	public static final int NEAR_CASTLE_VALUE = 90;
 	public static final int FAR_CASTLE_VALUE = 80;

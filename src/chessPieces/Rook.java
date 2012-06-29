@@ -26,6 +26,60 @@ public class Rook {
 		return "R";
 	}
 
+	public static void generateMoves(Piece p, Board board, ArrayList<Long> moves) {
+		int currentRow = p.getRow();
+		int currentCol = p.getCol();
+		Side player = p.getSide();
+		int nextRow;
+		int nextCol;
+		int value;
+		PositionStatus pieceStatus;
+		Long moveLong;
+
+		int i = 1;
+		for (int d = 0; d < 4; d++) {
+			nextRow = currentRow + i * ROOKMOVES[0][d];
+			nextCol = currentCol + i * ROOKMOVES[1][d];
+			pieceStatus = board.checkPiece(nextRow, nextCol, player);
+
+			while (pieceStatus == PositionStatus.NO_PIECE) {
+
+				if (!p.hasMoved() && !board.kingHasMoved(player)) {
+					value = Values.CASTLE_ABILITY_LOST_VALUE;
+				} else {
+					value = 0;
+				}
+
+				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value);
+
+				moves.add(moveLong);
+
+				i++;
+				nextRow = currentRow + i * ROOKMOVES[0][d];
+				nextCol = currentCol + i * ROOKMOVES[1][d];
+				pieceStatus = board.checkPiece(nextRow, nextCol, player);
+
+			}
+
+			if (pieceStatus == PositionStatus.ENEMY) {
+
+				if (!p.hasMoved() && !board.kingHasMoved(player)) {
+					value = board.getPieceValue(nextRow, nextCol) + Values.CASTLE_ABILITY_LOST_VALUE;
+				} else {
+					value = board.getPieceValue(nextRow, nextCol);
+				}
+
+				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
+
+				moves.add(moveLong);
+
+			}
+
+			i = 1;
+		}
+
+	}
+
 	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();

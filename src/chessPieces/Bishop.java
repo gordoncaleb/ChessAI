@@ -9,7 +9,7 @@ import chessBackend.Side;
 import chessBackend.Move;
 
 public class Bishop {
-	private static int[][] BISHOPMOVES = { { 1, 1, -1, -1 }, { 1, -1, 1, -1 } };
+	private static final int[][] BISHOPMOVES = { { 1, 1, -1, -1 }, { 1, -1, 1, -1 } };
 
 	public Bishop() {
 	}
@@ -24,6 +24,44 @@ public class Bishop {
 
 	public static String getStringID() {
 		return "B";
+	}
+
+	public static void generateMoves(Piece p, Board board, ArrayList<Long> moves) {
+		int currentRow = p.getRow();
+		int currentCol = p.getCol();
+		int nextRow;
+		int nextCol;
+		Long moveLong;
+		int value;
+		PositionStatus pieceStatus;
+		Side player = p.getSide();
+
+		int i = 1;
+		for (int d = 0; d < 4; d++) {
+			nextRow = currentRow + i * BISHOPMOVES[0][d];
+			nextCol = currentCol + i * BISHOPMOVES[1][d];
+			pieceStatus = board.checkPiece(nextRow, nextCol, player);
+
+			while (pieceStatus == PositionStatus.NO_PIECE) {
+
+				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
+				moves.add(moveLong);
+
+				i++;
+				nextRow = currentRow + i * BISHOPMOVES[0][d];
+				nextCol = currentCol + i * BISHOPMOVES[1][d];
+				pieceStatus = board.checkPiece(nextRow, nextCol, player);
+
+			}
+
+			if (pieceStatus == PositionStatus.ENEMY) {
+				value = board.getPieceValue(nextRow, nextCol);
+				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
+				moves.add(moveLong);
+			}
+
+			i = 1;
+		}
 	}
 
 	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
@@ -53,7 +91,6 @@ public class Bishop {
 					}
 
 					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE);
-					
 
 					validMoves.add(moveLong);
 				}
