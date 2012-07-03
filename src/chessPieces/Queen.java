@@ -9,7 +9,7 @@ import chessBackend.Side;
 import chessBackend.Move;
 
 public class Queen {
-	private static int[][] QUEENMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
+	public static int[][] QUEENMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
 
 	public Queen() {
 	}

@@ -15,7 +15,8 @@ public class BitBoard {
 	public static long[][] bitMask;
 	public static long[][][][] slidFromToMask;
 
-	public static long[][] kingFootPrint;
+	public static long[] kingFootPrint;
+	public static long[] knightFootPrint;
 
 	public static void main(String args[]) {
 
@@ -81,15 +82,55 @@ public class BitBoard {
 		// }
 		// }
 
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				System.out.println("R=" + r + " C=" + c);
-				System.out.println(BitBoard.printBitBoard(getKingFootPrint(r, c)));
+		// loadKnightFootPrints();
+
+		long t1 = System.currentTimeMillis();
+		for (int i = 0; i < 1000000; i++) {
+			for (int r = 0; r < 8; r++) {
+				for (int c = 0; c < 8; c++) {
+					getBackedPawns(0x1234567812345678L);
+				}
 			}
 		}
 
-		System.out.println(BitBoard.printBitBoard(0x70507L >> 1));
+		System.out.println("hardway " + (System.currentTimeMillis() - t1));
+
+		t1 = System.currentTimeMillis();
+		for (int i = 0; i < 1000000; i++) {
+			for (int r = 0; r < 8; r++) {
+				for (int c = 0; c < 8; c++) {
+
+				}
+			}
+		}
+
+		System.out.println("safeway " + (System.currentTimeMillis() - t1));
+
+		// for (int r = 0; r < 8; r++) {
+		// for (int c = 0; c < 8; c++) {
+		// System.out.println(r + "," + c);
+		// System.out.println(BitBoard.printBitBoard(getKnightFootPrint(r, c)));
+		//
+		// if (getKnightFootPrint(r, c) != getKnightFootPrintMem(r, c)) {
+		// System.out.println("Error");
+		// }
+		// }
+		// }
+
+		System.out.println(BitBoard.printBitBoard(0x7F7F7F7F7F7F7F7FL));
+
+		String bitBoard = "0,0,0,0,0,0,0,0,\n" +
+						  "0,0,0,0,0,0,0,0,\n" +
+						  "0,1,0,1,0,0,1,0,\n" +
+						  "0,0,1,0,0,0,1,0,\n" +
+						  "0,0,0,0,0,1,0,0,\n" +
+						  "0,0,0,0,0,0,0,0,\n" +
+						  "0,0,0,0,0,0,0,0,\n" +
+						  "0,0,0,0,0,0,0,0,\n";
 		
+		long bb = parseBitBoard(bitBoard);
+		
+		System.out.println(printBitBoard(getPawnAttacks(bb,Side.WHITE)));
 
 	}
 
@@ -113,7 +154,16 @@ public class BitBoard {
 	}
 
 	public static long getMask(int row, int col) {
-		return (1L << (row * 8 + col));
+		return (1L << ((row << 3) + col));
+	}
+
+	public static long getMaskSafe(int row, int col) {
+		if (((row | col) & ~7) == 0) {
+			return (1L << ((row << 3) + col));
+		} else {
+			return 0;
+		}
+
 	}
 
 	public static long getColMask(int col) {
@@ -132,11 +182,11 @@ public class BitBoard {
 		return (0xFFFFFFFFFFFFFFFFL >>> ((7 - r) * 8));
 	}
 
-	public static long getWhitePawnForward(int r, int c) {
+	private static long getWhitePawnForward(int r, int c) {
 		return (0x0080808080808080L >> ((7 - r) * 8 + (7 - c)));
 	}
 
-	public static long getBlackPawnForward(int r, int c) {
+	private static long getBlackPawnForward(int r, int c) {
 		return (0x0101010101010100L << (r * 8 + c));
 	}
 
@@ -146,54 +196,104 @@ public class BitBoard {
 	//
 	// }
 
-	// private static void loadKingFootPrints() {
-	//
-	// int[][] KINGMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0,
-	// 0, 1, -1 } };
-	//
-	// kingFootPrint = new long[8][8];
-	//
-	// int nextr;
-	// int nextc;
-	//
-	// for (int r = 0; r < 8; r++) {
-	// for (int c = 0; c < 8; c++) {
-	// kingFootPrint[r][c] = 0;
-	//
-	// for (int m = 0; m < 8; m++) {
-	// nextr = r + KINGMOVES[0][m];
-	// nextc = c + KINGMOVES[1][m];
-	//
-	// if (nextr >= 0 && nextr < 8 && nextc >= 0 && nextc < 8) {
-	// kingFootPrint[r][c] |= bitMask[nextr][nextc];
-	// }
-	// }
-	//
-	// // System.out.println("king foot print " + r + "," + c);
-	// // System.out.println(printBitBoard(kingFootPrint[r][c]));
-	// }
-	// }
-	// }
+	public static int getBackedPawns(long pawns) {
+		return Long.bitCount(((pawns & 0x7F7F7F7F7F7F7F7FL) << 7) & pawns) + Long.bitCount(((pawns & 0xFEFEFEFEFEFEFEFEL) << 9));
+	}
 
-//	public static long getKingFootPrint(int row, int col) {
-//		// return kingFootPrint[row][col];
-//
-//		return (0x70507L << (8 * (row - 1) + col - 1));// & (~getColMask(col ^
-//														// 7) |
-//														// (0x7E7E7E7E7E7E7E7EL));
-//	}
+	public static long getPawnAttacks(long pawns, Side side) {
+		if (side == Side.BLACK) {
+			return ((pawns & 0x7F7F7F7F7F7F7F7FL) << 7) | ((pawns & 0xFEFEFEFEFEFEFEFEL) << 9);
+		} else {
+			return ((pawns & 0x7F7F7F7F7F7F7F7FL) >> 7) | ((pawns & 0xFEFEFEFEFEFEFEFEL) >> 9);
+		}
+	}
+
+	private static void loadKingFootPrints() {
+
+		int[][] KINGMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
+
+		kingFootPrint = new long[64];
+
+		int nextr;
+		int nextc;
+
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				kingFootPrint[r * 8 + c] = 0;
+
+				for (int m = 0; m < 8; m++) {
+					nextr = r + KINGMOVES[0][m];
+					nextc = c + KINGMOVES[1][m];
+
+					if (nextr >= 0 && nextr < 8 && nextc >= 0 && nextc < 8) {
+						kingFootPrint[r * 8 + c] |= getMask(nextr, nextc);
+					}
+				}
+
+				// System.out.println("king foot print " + r + "," + c);
+				// System.out.println(printBitBoard(kingFootPrint[r][c]));
+			}
+		}
+	}
+
+	public static long getKingFootPrintMem(int row, int col) {
+
+		return kingFootPrint[(row << 3) + col];
+
+	}
 
 	public static long getKingFootPrint(int row, int col) {
-		// return kingFootPrint[row][col];
 
-		int shift = (8 * (row - 1) + col - 1);
+		int shift = ((row - 1) << 3 + col - 1);
 
-		if (shift >= 0){
+		if (shift >= 0) {
 			return (0x70507L << shift) & (~getColMask(col ^ 7) | (0x7E7E7E7E7E7E7E7EL));
-		}else{
+		} else {
 			return (0x70507L >> -shift) & (~getColMask(col ^ 7) | (0x7E7E7E7E7E7E7E7EL));
 		}
-		
+
+	}
+
+	private static void loadKnightFootPrints() {
+
+		int[][] KNIGHTMOVES = { { 2, 2, -2, -2, 1, -1, 1, -1 }, { 1, -1, 1, -1, 2, -2, -2, 2 } };
+
+		knightFootPrint = new long[64];
+
+		int nextr;
+		int nextc;
+
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				knightFootPrint[r * 8 + c] = 0;
+
+				for (int m = 0; m < 8; m++) {
+					nextr = r + KNIGHTMOVES[0][m];
+					nextc = c + KNIGHTMOVES[1][m];
+
+					if (nextr >= 0 && nextr < 8 && nextc >= 0 && nextc < 8) {
+						knightFootPrint[r * 8 + c] |= getMask(nextr, nextc);
+					}
+				}
+
+				// System.out.println("king foot print " + r + "," + c);
+				// System.out.println(printBitBoard(kingFootPrint[r][c]));
+			}
+		}
+	}
+
+	public static long getKnightFootPrintMem(int row, int col) {
+		return knightFootPrint[(row << 3) + col];
+	}
+
+	public static long getKnightFootPrint(int row, int col) {
+		int shift = (((row - 2) << 3) + col - 2);
+
+		if (shift >= 0) {
+			return (0x0A1100110AL << shift) & (~(0xC0C0C0C0C0C0C0C0L >>> (col & 6)) | (0x3c3c3c3c3c3c3c3cL));
+		} else {
+			return (0x0A1100110AL >> -shift) & (~(0xC0C0C0C0C0C0C0C0L >>> (col & 6)) | (0x3c3c3c3c3c3c3c3cL));
+		}
 	}
 
 	public static String printBitBoard(long bitBoard) {
@@ -215,49 +315,19 @@ public class BitBoard {
 		return bitBoardString;
 	}
 
-	// public static void loadBitCount() {
-	// bitCount = new int[256];
-	//
-	// for (int i = 0; i < bitCount.length; i++) {
-	// bitCount[i] = bitCountByte(i);
-	// }
-	// }
+	public static long parseBitBoard(String bitBoard) {
 
-	// public static int bitCountLong(long val) {
-	//
-	// int count = 0;
-	//
-	// for (int i = 0; i < 64; i += 8) {
-	// count += bitCount[(int) ((val >> i) & 0xFF)];
-	// }
-	//
-	// return count;
-	// }
+		String[] tokens = bitBoard.split(",");
 
-	public static int bitCountLong(long val) {
-		int count = 0;
-		int size = 64;
-
-		for (int i = 0; i < size; i++) {
-			if ((val & (1L << i)) != 0) {
-				count++;
+		long bb = 0;
+		for (int i = 0; i < 64; i++) {
+			if (tokens[i].trim().equals("1")) {
+				bb |= (1L << i);
 			}
 		}
 
-		return count;
+		return bb;
+
 	}
 
-	public static int bitCountByte(int val) {
-
-		int count = 0;
-		int size = 8;
-
-		for (int i = 0; i < size; i++) {
-			if ((val & (1L << i)) != 0) {
-				count++;
-			}
-		}
-
-		return count;
-	}
 }
