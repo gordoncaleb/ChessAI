@@ -13,7 +13,8 @@ public class Perft {
 
 	public int[] sizes = { 1, 20, 400, 8902, 197281, 4865609 };
 	
-	//7978ms@5
+	//7978ms@5 home
+	//3189ms@5 work
 
 	public static void main(String[] args) {
 		Perft p = new Perft();

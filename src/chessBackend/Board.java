@@ -166,8 +166,8 @@ public class Board {
 				move = moveHistory.elementAt(i).getMoveLong();
 				this.moveHistory.push(new Move(move));
 				if (Move.hasPieceTaken(move)) {
-					piecesTaken[moveSide.otherSide().ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide.otherSide(), Move
-							.getPieceTakenRow(move), Move.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
+					piecesTaken[moveSide.otherSide().ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide.otherSide(), Move.getPieceTakenRow(move), Move
+							.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
 				}
 
 				moveSide = moveSide.otherSide();
@@ -204,8 +204,8 @@ public class Board {
 		hashCodeHistory.push(new Long(hashCode));
 
 		// remove previous castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
-				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		// remove taken piece first
 		if (Move.hasPieceTaken(move)) {
@@ -288,8 +288,8 @@ public class Board {
 		}
 
 		// add new castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
-				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		// either remove black and add white or reverse. Same operation.
 		hashCode ^= rngTable.getBlackToMoveRandom();
@@ -586,13 +586,13 @@ public class Board {
 	}
 
 	public void makeNullMove() {
-		long nullMoveAttacks = 0;
-		long inCheckVector = BitBoard.ALL_ONES;
-		long bitAttackCompliment = 0;
-
-		nullMoveInfo[0] = nullMoveAttacks;
-		nullMoveInfo[1] = inCheckVector;
-		nullMoveInfo[2] = bitAttackCompliment;
+//		long nullMoveAttacks = 0;
+//		long inCheckVector = BitBoard.ALL_ONES;
+//		long bitAttackCompliment = 0;
+//
+//		nullMoveInfo[0] = nullMoveAttacks;
+//		nullMoveInfo[1] = inCheckVector;
+//		nullMoveInfo[2] = bitAttackCompliment;
 
 		// recalculating check info
 		clearBoardStatus();
@@ -601,9 +601,26 @@ public class Board {
 			pieces[turn.ordinal()].get(p).clearBlocking();
 		}
 
+		nullMoveInfo[0] = BitBoard.getPawnAttacks(posBitBoard[PieceID.PAWN.ordinal()][turn.otherSide().ordinal()], turn.otherSide());
+		nullMoveInfo[0] |= BitBoard.getKnightAttacks(posBitBoard[PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()]);
+		nullMoveInfo[0] |= BitBoard.getKingAttacks(posBitBoard[PieceID.KING.ordinal()][turn.otherSide().ordinal()]);
+
+		nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()], turn)
+								& posBitBoard[PieceID.PAWN.ordinal()][turn.otherSide().ordinal()];
+		
+		nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()])
+								& posBitBoard[PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()];
+
+		if (nullMoveInfo[1] == 0) {
+			nullMoveInfo[1] = BitBoard.ALL_ONES;
+		}
+
+		nullMoveInfo[2] = 0;
+
 		for (int p = 0; p < pieces[turn.otherSide().ordinal()].size(); p++) {
 			pieces[turn.otherSide().ordinal()].get(p).getNullMoveInfo(this, nullMoveInfo);
 		}
+
 
 		if ((kings[turn.ordinal()].getBit() & nullMoveInfo[0]) != 0) {
 			setBoardStatus(GameStatus.CHECK);
@@ -810,8 +827,7 @@ public class Board {
 
 		int doubledPawns = Long.bitCount(pawns) - occupiedCol;
 
-		return BitBoard.getBackedPawns(pawns) * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS
-				+ ((passedPawns * Values.PASSED_PAWN_BONUS * phase) / 256);
+		return BitBoard.getBackedPawns(pawns) * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * Values.PASSED_PAWN_BONUS * phase) / 256);
 	}
 
 	public int calcGamePhase() {
@@ -1175,8 +1191,8 @@ public class Board {
 			}
 		}
 
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK),
-				this.kingHasMoved(Side.BLACK), this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
 		if (getLastMoveMade() != 0) {
 			if (Move.getNote(getLastMoveMade()) == MoveNote.PAWN_LEAP) {
@@ -1244,8 +1260,7 @@ public class Board {
 
 			for (int i = 0; i < pieces.length; i++) {
 				for (int p = 0; p < pieces[i].size(); p++) {
-					if ((pieces[i].get(p).getPieceID() == PieceID.PAWN) || (pieces[i].get(p).getPieceID() == PieceID.QUEEN)
-							|| (pieces[i].get(p).getPieceID() == PieceID.ROOK)) {
+					if ((pieces[i].get(p).getPieceID() == PieceID.PAWN) || (pieces[i].get(p).getPieceID() == PieceID.QUEEN) || (pieces[i].get(p).getPieceID() == PieceID.ROOK)) {
 						sufficient = true;
 					}
 				}

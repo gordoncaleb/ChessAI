@@ -268,7 +268,7 @@ public class Piece {
 			Rook.getNullMoveInfo(this, board, nullMoveBitBoards);
 			break;
 		case KNIGHT:
-			Knight.getNullMoveInfo(this, board, nullMoveBitBoards);
+			//Knight.getNullMoveInfo(this, board, nullMoveBitBoards);
 			break;
 		case BISHOP:
 			Bishop.getNullMoveInfo(this, board, nullMoveBitBoards);
@@ -277,10 +277,10 @@ public class Piece {
 			Queen.getNullMoveInfo(this, board, nullMoveBitBoards);
 			break;
 		case KING:
-			King.getNullMoveInfo(this, board, nullMoveBitBoards);
+			//King.getNullMoveInfo(this, board, nullMoveBitBoards);
 			break;
 		case PAWN:
-			Pawn.getNullMoveInfo(this, board, nullMoveBitBoards);
+			//Pawn.getNullMoveInfo(this, board, nullMoveBitBoards);
 			break;
 		}
 	}

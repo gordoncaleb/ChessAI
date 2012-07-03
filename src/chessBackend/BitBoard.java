@@ -88,7 +88,7 @@ public class BitBoard {
 		for (int i = 0; i < 1000000; i++) {
 			for (int r = 0; r < 8; r++) {
 				for (int c = 0; c < 8; c++) {
-					getBackedPawns(0x1234567812345678L);
+					//getKingFootPrint(r, c);
 				}
 			}
 		}
@@ -99,7 +99,7 @@ public class BitBoard {
 		for (int i = 0; i < 1000000; i++) {
 			for (int r = 0; r < 8; r++) {
 				for (int c = 0; c < 8; c++) {
-
+					//getKingAttacks(getMask(r, c));
 				}
 			}
 		}
@@ -117,20 +117,34 @@ public class BitBoard {
 		// }
 		// }
 
-		System.out.println(BitBoard.printBitBoard(0x7F7F7F7F7F7F7F7FL));
+		// System.out.println(BitBoard.printBitBoard(0x7F7F7F7F7F7F7F7FL));
 
-		String bitBoard = "0,0,0,0,0,0,0,0,\n" +
-						  "0,0,0,0,0,0,0,0,\n" +
-						  "0,1,0,1,0,0,1,0,\n" +
-						  "0,0,1,0,0,0,1,0,\n" +
-						  "0,0,0,0,0,1,0,0,\n" +
-						  "0,0,0,0,0,0,0,0,\n" +
-						  "0,0,0,0,0,0,0,0,\n" +
-						  "0,0,0,0,0,0,0,0,\n";
-		
+		String bitBoard = 	"0,0,0,0,0,0,0,0,\n" + 
+							"1,1,1,0,1,1,1,1,\n" + 
+							"0,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n" + 
+							"1,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n";
+
 		long bb = parseBitBoard(bitBoard);
+
+//		for (int r = 0; r < 8; r++) {
+//			for (int c = 0; c < 8; c++) {
+//				if (getKnightFootPrint(r, c) != getKnightAttacks(getMask(r, c))) {
+//
+//					System.out.println(r + "," + c);
+//					System.out.println(BitBoard.printBitBoard(getKnightFootPrint(r, c)));
+//					System.out.println("!=");
+//					System.out.println(BitBoard.printBitBoard(getKnightAttacks(getMask(r, c))));
+//
+//					System.out.println("Error!");
+//				}
+//			}
+//		}
 		
-		System.out.println(printBitBoard(getPawnAttacks(bb,Side.WHITE)));
+		System.out.println(printBitBoard(getPawnAttacks(bb,Side.BLACK)));
 
 	}
 
@@ -182,11 +196,11 @@ public class BitBoard {
 		return (0xFFFFFFFFFFFFFFFFL >>> ((7 - r) * 8));
 	}
 
-	private static long getWhitePawnForward(int r, int c) {
+	private static long getWhitePawnPassedForward(int r, int c) {
 		return (0x0080808080808080L >> ((7 - r) * 8 + (7 - c)));
 	}
 
-	private static long getBlackPawnForward(int r, int c) {
+	private static long getBlackPawnPassedForward(int r, int c) {
 		return (0x0101010101010100L << (r * 8 + c));
 	}
 
@@ -202,9 +216,9 @@ public class BitBoard {
 
 	public static long getPawnAttacks(long pawns, Side side) {
 		if (side == Side.BLACK) {
-			return ((pawns & 0x7F7F7F7F7F7F7F7FL) << 7) | ((pawns & 0xFEFEFEFEFEFEFEFEL) << 9);
+			return ((pawns & 0x7F7F7F7F7F7F7F7FL) << 9) | ((pawns & 0xFEFEFEFEFEFEFEFEL) << 7);
 		} else {
-			return ((pawns & 0x7F7F7F7F7F7F7F7FL) >> 7) | ((pawns & 0xFEFEFEFEFEFEFEFEL) >> 9);
+			return ((pawns & 0x7F7F7F7F7F7F7F7FL) >> 7) | ((pawns & 0xFEFEFEFEFEFEFEFEL) >>> 9);
 		}
 	}
 
@@ -244,7 +258,7 @@ public class BitBoard {
 
 	public static long getKingFootPrint(int row, int col) {
 
-		int shift = ((row - 1) << 3 + col - 1);
+		int shift = ((row - 1) * 8 + col - 1);
 
 		if (shift >= 0) {
 			return (0x70507L << shift) & (~getColMask(col ^ 7) | (0x7E7E7E7E7E7E7E7EL));
@@ -252,6 +266,17 @@ public class BitBoard {
 			return (0x70507L >> -shift) & (~getColMask(col ^ 7) | (0x7E7E7E7E7E7E7E7EL));
 		}
 
+	}
+
+	public static long getKingAttacks(long king) {
+		return (king << 8) | // down 1
+				(king >>> 8) | // up 1
+				((king & 0xFEFEFEFEFEFEFEFEL) >>> 1) | // left 1
+				((king & 0x7F7F7F7F7F7F7F7FL) << 1) | // right 1
+				((king & 0x7F7F7F7F7F7F7F7FL) >>> 7) | // up 1 right 1
+				((king & 0x7F7F7F7F7F7F7F7FL) << 9) | // down 1 right 1
+				((king & 0xFEFEFEFEFEFEFEFEL) >>> 9) | // up 1 left 1
+				((king & 0xFEFEFEFEFEFEFEFEL) << 7); // down 1 left 1
 	}
 
 	private static void loadKnightFootPrints() {
@@ -287,13 +312,24 @@ public class BitBoard {
 	}
 
 	public static long getKnightFootPrint(int row, int col) {
-		int shift = (((row - 2) << 3) + col - 2);
+		int shift = (((row - 2) * 8) + col - 2);
 
 		if (shift >= 0) {
 			return (0x0A1100110AL << shift) & (~(0xC0C0C0C0C0C0C0C0L >>> (col & 6)) | (0x3c3c3c3c3c3c3c3cL));
 		} else {
 			return (0x0A1100110AL >> -shift) & (~(0xC0C0C0C0C0C0C0C0L >>> (col & 6)) | (0x3c3c3c3c3c3c3c3cL));
 		}
+	}
+
+	public static long getKnightAttacks(long knights) {
+		return ((knights & 0xFCFCFCFCFCFCFCFCL) << 6) | // down 1 left 2
+				((knights & 0xFCFCFCFCFCFCFCFCL) >>> 10) | // up 1 left 2
+				((knights & 0xFEFEFEFEFEFEFEFEL) << 15) | // down 2 left 1
+				((knights & 0xFEFEFEFEFEFEFEFEL) >>> 17) | // up 2 left 1
+				((knights & 0x3F3F3F3F3F3F3F3FL) >>> 6) | // up 1 right 2
+				((knights & 0x3F3F3F3F3F3F3F3FL) << 10) | // down 1 right 2
+				((knights & 0x7F7F7F7F7F7F7F7FL) >>> 15) | // up 2 right 1
+				((knights & 0x7F7F7F7F7F7F7F7FL) << 17);
 	}
 
 	public static String printBitBoard(long bitBoard) {

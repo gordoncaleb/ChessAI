@@ -28,8 +28,8 @@ public class AIProcessor extends Thread {
 
 	private boolean stopSearch;
 
-	private long[][] killerMoves = new long[20][AISettings.maxKillerMoves];
-	private int[] killerMoveSize = new int[20];
+	private long[][] killerMoves = new long[100][AISettings.maxKillerMoves];
+	private int[] killerMoveSize = new int[100];
 
 	// private int[] hashMoveCuts = new int[10];
 	// private int[] killerMoveCuts = new int[10];
