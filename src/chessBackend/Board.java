@@ -585,14 +585,22 @@ public class Board {
 		validMoves.add(move);
 	}
 
-	public void makeNullMove() {
-//		long nullMoveAttacks = 0;
-//		long inCheckVector = BitBoard.ALL_ONES;
-//		long bitAttackCompliment = 0;
-//
-//		nullMoveInfo[0] = nullMoveAttacks;
-//		nullMoveInfo[1] = inCheckVector;
-//		nullMoveInfo[2] = bitAttackCompliment;
+	public long[] getAllPosBitBoard() {
+		return allPosBitBoard;
+	}
+
+	public long[][] getPosBitBoard() {
+		return posBitBoard;
+	}
+
+	public long[] makeNullMove() {
+		// long nullMoveAttacks = 0;
+		// long inCheckVector = BitBoard.ALL_ONES;
+		// long bitAttackCompliment = 0;
+		//
+		// nullMoveInfo[0] = nullMoveAttacks;
+		// nullMoveInfo[1] = inCheckVector;
+		// nullMoveInfo[2] = bitAttackCompliment;
 
 		// recalculating check info
 		clearBoardStatus();
@@ -605,11 +613,9 @@ public class Board {
 		nullMoveInfo[0] |= BitBoard.getKnightAttacks(posBitBoard[PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()]);
 		nullMoveInfo[0] |= BitBoard.getKingAttacks(posBitBoard[PieceID.KING.ordinal()][turn.otherSide().ordinal()]);
 
-		nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()], turn)
-								& posBitBoard[PieceID.PAWN.ordinal()][turn.otherSide().ordinal()];
-		
-		nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()])
-								& posBitBoard[PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()];
+		nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()], turn) & posBitBoard[PieceID.PAWN.ordinal()][turn.otherSide().ordinal()];
+
+		nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()]) & posBitBoard[PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()];
 
 		if (nullMoveInfo[1] == 0) {
 			nullMoveInfo[1] = BitBoard.ALL_ONES;
@@ -617,14 +623,26 @@ public class Board {
 
 		nullMoveInfo[2] = 0;
 
+		long updown = ~(allPosBitBoard[0] | allPosBitBoard[1]);
+		long left = 0xFEFEFEFEFEFEFEFEL & updown;
+		long right = 0x7F7F7F7F7F7F7F7FL & updown;
+
 		for (int p = 0; p < pieces[turn.otherSide().ordinal()].size(); p++) {
-			pieces[turn.otherSide().ordinal()].get(p).getNullMoveInfo(this, nullMoveInfo);
+
+			pieces[turn.otherSide().ordinal()].get(p).getNullMoveInfo(this, nullMoveInfo, updown, left, right, posBitBoard[PieceID.KING.ordinal()][turn.ordinal()],
+					King.getKingCheckVectors(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()], updown, left, right), allPosBitBoard[turn.ordinal()]);
+
 		}
 
+		// for (int i = 0; i < 3; i++) {
+		// System.out.println(BitBoard.printBitBoard(nullMoveInfo[i]));
+		// }
 
 		if ((kings[turn.ordinal()].getBit() & nullMoveInfo[0]) != 0) {
 			setBoardStatus(GameStatus.CHECK);
 		}
+
+		return nullMoveInfo;
 
 	}
 
@@ -1296,6 +1314,22 @@ public class Board {
 
 		this.makeNullMove();
 		ArrayList<Long> moves = this.generateValidMoves();
+
+		// Board board2 = this.getCopy();
+		// board2.makeNullMove(false);
+		// ArrayList<Long> moves2 = board2.generateValidMoves();
+		//
+		// if (moves.size() == moves2.size()) {
+		// for (int i = 0; i < moves.size(); i++) {
+		// if (!moves.contains(moves2.get(i))) {
+		// System.out.println("Board\n" + board.toString());
+		//
+		// System.out.println("Missing " + (new Move(moves2.get(i))));
+		// }
+		// }
+		// }else{
+		// System.out.println("Board Problem \n" + board.toString());
+		// }
 
 		int fromRow = -1;
 		int fromCol = -1;

@@ -336,20 +336,11 @@ public class MoveBook {
 					if (!moves.contains(move)) {
 						moves.add(move);
 						moveCount++;
-						if (-6875275062907683923L == board.getHashCode()) {
-							System.out.println(board.getHashCode() + " size = " + moves.size());
-							System.out.println(new Move(move));
-						}
 					}
 				} else {
 					moves = new ArrayList<Long>();
 					moves.add(move);
 					moveCount++;
-
-					if (-6875275062907683923L == board.getHashCode()) {
-						System.out.println(board.getHashCode() + " size = " + moves.size());
-						System.out.println(new Move(move));
-					}
 
 					moveBook.put(board.getHashCode(), moves);
 				}

@@ -121,8 +121,8 @@ public class BitBoard {
 
 		// System.out.println(BitBoard.printBitBoard(0x7F7F7F7F7F7F7F7FL));
 
-		String bitBoard = "0,0,0,0,0,0,0,0,\n" + "1,1,1,0,1,1,1,1,\n" + "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n" + "1,0,0,0,0,0,0,0,\n"
-				+ "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n";
+		String bitBoard = "0,0,0,0,0,0,0,0,\n" + "1,1,1,0,1,1,1,1,\n" + "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n" + "1,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n"
+				+ "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n";
 
 		long bb = parseBitBoard(bitBoard);
 
@@ -141,7 +141,19 @@ public class BitBoard {
 		// }
 		// }
 
-		System.out.println(printBitBoard(getPosSlope(1, 7)));
+		for (int r = 0; r < 8; r++) {
+			for (int c = 0; c < 8; c++) {
+				System.out.println(r + "," + c);
+				System.out.println(printBitBoard(getPosSlope(r, c)));
+			}
+		}
+
+//		for (int r = 0; r < 8; r++) {
+//			for (int c = 0; c < 8; c++) {
+//				System.out.println(r + "," + c);
+//				System.out.println(printBitBoard(getNegSlope(r, c)));
+//			}
+//		}
 
 	}
 
@@ -177,6 +189,10 @@ public class BitBoard {
 
 	}
 
+	public static long rotateLeft(long bb, int r) {
+		return ((bb << r) | (bb >> (-r)));
+	}
+
 	public static long getColMask(int col) {
 		return (0x0101010101010101L << col);
 	}
@@ -191,27 +207,19 @@ public class BitBoard {
 
 	public static long getNegSlope(int row, int col) {
 		int s = row - col;
-		if (s > 0) {
-			return ((0x8040201008040201L & ~getBottomRows(s - 1)) << (s << 3));
+		if (s >= 0) {
+			return ((0x8040201008040201L) << (s << 3));
 		} else {
-			if (s < 0) {
-				return ((0x8040201008040201L & ~getBottomRows(-s - 1)) << -s);
-			} else {
-				return (0x8040201008040201L);
-			}
+			return ((0x8040201008040201L) >>> (-s << 3));
 		}
 	}
 
 	public static long getPosSlope(int row, int col) {
-		int s = 7 - col - row;
-		if (s > 0) {
-			return ((0x0102040810204080L & ~getBottomRows(s - 1)) >>> s);
+		int s = col + row - 7;
+		if (s >= 0) {
+			return ((0x0102040810204080L) << (s << 3));
 		} else {
-			if (s < 0) {
-				return ((0x0102040810204080L & ~getBottomRows(-s - 1)) >>> -s * 8);
-			} else {
-				return (0x0102040810204080L);
-			}
+			return ((0x0102040810204080L) >>> (-s << 3));
 		}
 	}
 
@@ -224,14 +232,8 @@ public class BitBoard {
 	}
 
 	private static long getBlackPawnPassedForward(int r, int c) {
-		return (0x0101010101010100L << (r * 8 + c));
+		return (0x0101010101010100L << (r << 8 + c));
 	}
-
-	// public static void loadMasks() {
-	//
-	// loadKingFootPrints();
-	//
-	// }
 
 	public static int getBackedPawns(long pawns) {
 		return Long.bitCount(((pawns & 0x7F7F7F7F7F7F7F7FL) << 7) & pawns) + Long.bitCount(((pawns & 0xFEFEFEFEFEFEFEFEL) << 9));

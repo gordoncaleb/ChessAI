@@ -2,7 +2,7 @@ package chessAI;
 
 public class AISettings {
 
-	public static String version = "1.2.062712";
+	public static String version = "1.2.070512";
 	public static boolean debugOutput = true;
 
 	public static boolean useLite = false;

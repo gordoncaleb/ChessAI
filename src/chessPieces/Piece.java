@@ -261,6 +261,29 @@ public class Piece {
 		
 
 	}
+	
+	public void getNullMoveInfo(Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors, long friendly){
+		switch (id) {
+		case ROOK:
+			Rook.getNullMoveInfo(this, board, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
+			break;
+		case KNIGHT:
+			//Knight.getNullMoveInfo(this, board, nullMoveBitBoards);
+			break;
+		case BISHOP:
+			Bishop.getNullMoveInfo(this, board, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
+			break;
+		case QUEEN:
+			Queen.getNullMoveInfo(this, board, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
+			break;
+		case KING:
+			//King.getNullMoveInfo(this, board, nullMoveBitBoards);
+			break;
+		case PAWN:
+			//Pawn.getNullMoveInfo(this, board, nullMoveBitBoards);
+			break;
+		}
+	}
 
 	public void getNullMoveInfo(Board board, long[] nullMoveBitBoards) {
 		switch (id) {

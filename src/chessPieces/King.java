@@ -192,7 +192,7 @@ public class King {
 		temp = king;
 
 		// going left
-		if ((king & 0x8080808080808080L) != 0) {
+		if ((king & 0x0101010101010101L) == 0) {
 
 			while ((temp = (temp >>> 1 & left)) != 0) {
 				checkVectors |= temp;
@@ -215,7 +215,7 @@ public class King {
 		}
 
 		// going right
-		if ((king & 0x0101010101010101L) != 0) {
+		if ((king & 0x8080808080808080L) == 0) {
 
 			while ((temp = (temp << 1 & right)) != 0) {
 				checkVectors |= temp;

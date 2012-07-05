@@ -51,8 +51,7 @@ public class Queen {
 			}
 
 			if (pieceStatus == PositionStatus.ENEMY) {
-				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE,
-						board.getPiece(nextRow, nextCol)));
+				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE, board.getPiece(nextRow, nextCol)));
 			}
 
 			i = 1;
@@ -149,8 +148,8 @@ public class Queen {
 		System.out.println("[2]\n" + BitBoard.printBitBoard(nullMoveInfo[2]));
 	}
 
-	public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard,
-			long kingCheckVectors, long friendly) {
+	public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors,
+			long friendly) {
 
 		long bitPiece = piece.getBit();
 
@@ -190,7 +189,6 @@ public class Queen {
 		temp = bitPiece;
 		temp2 = bitPiece;
 		r = piece.getRow();
-		c = piece.getCol();
 		attackVector = 0;
 
 		while ((temp2 = (temp2 << 8 & updown)) != 0) {
@@ -217,68 +215,206 @@ public class Queen {
 				}
 			}
 		}
+		
+		// going westward -----------------------------------------------------
+		if ((bitPiece & 0x0101010101010101L) == 0) {
 
-		// going left -----------------------------------------------------
-		if ((bitPiece & 0x8080808080808080L) != 0) {
-
-			temp2 = bitPiece;
+			// west
 			temp = bitPiece;
+			temp2 = bitPiece;
+			r = piece.getRow();
+			attackVector = 0;
 
 			while ((temp2 = (temp2 >>> 1 & left)) != 0) {
-				nullMoveInfo[0] |= temp2;
+				attackVector |= temp2;
 				temp = temp2;
+				c--;
 			}
-			nullMoveInfo[0] |= temp >>> 1;
 
+			temp = temp >>> 1;
+			nullMoveInfo[0] |= attackVector | temp;
+
+			// check to see if king collision is possible
+			if ((BitBoard.getRowMask(r) & kingBitBoard) != 0) {
+
+				if ((temp & kingBitBoard) != 0) {
+					nullMoveInfo[1] &= attackVector | bitPiece;
+					nullMoveInfo[2] |= temp >>> 1;
+				} else {
+					if ((temp & friendly) != 0) {
+						temp = temp >>> 1;
+						if ((temp & kingCheckVectors) != 0) {
+							board.getPiece(r, c - 1).setBlockingVector(BitBoard.getRowMask(r));
+						}
+					}
+				}
+			}
+
+			// northwest
 			temp2 = bitPiece;
 			temp = bitPiece;
+			c = piece.getCol();
+			attackVector = 0;
 
 			while ((temp2 = (temp2 >>> 9 & left)) != 0) {
-				nullMoveInfo[0] |= temp2;
+				attackVector |= temp2;
 				temp = temp2;
+				r--;
+				c--;
 			}
-			nullMoveInfo[0] |= temp >>> 9;
+			temp = temp >>> 9;
+			nullMoveInfo[0] |= attackVector | temp;
 
-			temp2 = bitPiece;
+			// check to see if king collision is possible
+			if ((BitBoard.getNegSlope(r, c) & kingBitBoard) != 0) {
+
+				if ((temp & kingBitBoard) != 0) {
+					nullMoveInfo[1] &= attackVector | bitPiece;
+					nullMoveInfo[2] |= temp >>> 9;
+				} else {
+					if ((temp & friendly) != 0) {
+						temp = temp >>> 9;
+						if ((temp & kingCheckVectors) != 0) {
+							board.getPiece(r - 1, c - 1).setBlockingVector(BitBoard.getNegSlope(r, c));
+						}
+					}
+				}
+			}
+
+			// south west
 			temp = bitPiece;
+			temp2 = bitPiece;
+			r = piece.getRow();
+			c = piece.getCol();
+			attackVector = 0;
 
 			while ((temp2 = (temp2 << 7 & left)) != 0) {
-				nullMoveInfo[0] |= temp2;
+				attackVector |= temp2;
 				temp = temp2;
+				r++;
+				c--;
 			}
-			nullMoveInfo[0] |= temp << 7;
 
-			temp2 = bitPiece;
-			temp = bitPiece;
+			temp = temp << 7;
+			nullMoveInfo[0] |= attackVector | temp;
+
+			// check to see if king collision is possible
+			if ((BitBoard.getPosSlope(r, c) & kingBitBoard) != 0) {
+
+				if ((temp & kingBitBoard) != 0) {
+					nullMoveInfo[1] &= attackVector | bitPiece;
+					nullMoveInfo[2] |= temp << 7;
+				} else {
+					if ((temp & friendly) != 0) {
+						temp = temp << 7;
+						if ((temp & kingCheckVectors) != 0) {
+							board.getPiece(r + 1, c - 1).setBlockingVector(BitBoard.getPosSlope(r, c));
+						}
+					}
+				}
+			}
 
 		}
 
-		// going right
-		if ((bitPiece & 0x0101010101010101L) != 0) {
+		// going eastward
+		if ((bitPiece & 0x8080808080808080L) == 0) {
+
+			// east
+			temp = bitPiece;
+			temp2 = bitPiece;
+			r = piece.getRow();
+			c = piece.getCol();
+			attackVector = 0;
 
 			while ((temp2 = (temp2 << 1 & right)) != 0) {
-				nullMoveInfo[0] |= temp2;
+				attackVector |= temp2;
 				temp = temp2;
+				c++;
 			}
-			nullMoveInfo[0] |= temp << 1;
 
-			temp2 = bitPiece;
+			temp = temp << 1;
+			nullMoveInfo[0] |= attackVector | temp;
+
+			// check to see if king collision is possible
+			if ((BitBoard.getRowMask(r) & kingBitBoard) != 0) {
+
+				if ((temp & kingBitBoard) != 0) {
+					nullMoveInfo[1] &= attackVector | bitPiece;
+					nullMoveInfo[2] |= temp << 1;
+				} else {
+					if ((temp & friendly) != 0) {
+						temp = temp << 1;
+						if ((temp & kingCheckVectors) != 0) {
+							board.getPiece(r, c + 1).setBlockingVector(BitBoard.getRowMask(r));
+						}
+					}
+				}
+			}
+
+			// northeast
 			temp = bitPiece;
+			temp2 = bitPiece;
+			c = piece.getCol();
+			attackVector = 0;
 
 			while ((temp2 = (temp2 >> 7 & right)) != 0) {
-				nullMoveInfo[0] |= temp2;
+				attackVector |= temp2;
 				temp = temp2;
+				c++;
+				r--;
 			}
-			nullMoveInfo[0] |= temp >> 7;
 
-			temp2 = bitPiece;
+			temp = temp >> 7;
+			nullMoveInfo[0] |= attackVector | temp;
+
+			// check to see if king collision is possible
+			if ((BitBoard.getPosSlope(r, c) & kingBitBoard) != 0) {
+
+				if ((temp & kingBitBoard) != 0) {
+					nullMoveInfo[1] &= attackVector | bitPiece;
+					nullMoveInfo[2] |= temp >> 7;
+				} else {
+					if ((temp & friendly) != 0) {
+						temp = temp >> 7;
+						if ((temp & kingCheckVectors) != 0) {
+							board.getPiece(r - 1, c + 1).setBlockingVector(BitBoard.getPosSlope(r, c));
+						}
+					}
+				}
+			}
+
+			// southeast
 			temp = bitPiece;
+			temp2 = bitPiece;
+			c = piece.getCol();
+			r = piece.getRow();
+			attackVector = 0;
 
 			while ((temp2 = (temp2 << 9 & right)) != 0) {
-				nullMoveInfo[0] |= temp2;
+				attackVector |= temp2;
 				temp = temp2;
+				c++;
+				r++;
 			}
-			nullMoveInfo[0] |= temp << 9;
+
+			temp = temp << 9;
+			nullMoveInfo[0] |= attackVector | temp;
+
+			// check to see if king collision is possible
+			if ((BitBoard.getNegSlope(r, c) & kingBitBoard) != 0) {
+
+				if ((temp & kingBitBoard) != 0) {
+					nullMoveInfo[1] &= attackVector | bitPiece;
+					nullMoveInfo[2] |= temp << 9;
+				} else {
+					if ((temp & friendly) != 0) {
+						temp = temp << 9;
+						if ((temp & kingCheckVectors) != 0) {
+							board.getPiece(r + 1, c + 1).setBlockingVector(BitBoard.getNegSlope(r, c));
+						}
+					}
+				}
+			}
 
 		}
 
