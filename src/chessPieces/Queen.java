@@ -115,6 +115,175 @@ public class Queen {
 
 	}
 
+	public static void main(String[] args) {
+		long[] nullMoveInfo = new long[3];
+
+		nullMoveInfo[1] = -1L;
+
+		Piece queen = new Piece(PieceID.QUEEN, Side.WHITE, 6, 0, false);
+		long piece = queen.getBit();
+		long kingBitBoard = BitBoard.getMask(1, 0);
+
+		long friendly = kingBitBoard | BitBoard.getMask(1, 5);// |
+																// BitBoard.getMask(4,
+																// 0);
+		long enemy = piece | BitBoard.getMask(4, 4);
+		long bb = friendly | enemy;
+
+		long updown = ~bb;
+		long left = 0xFEFEFEFEFEFEFEFEL & ~bb;
+		long right = 0x7F7F7F7F7F7F7F7FL & ~bb;
+
+		System.out.println("pos\n" + BitBoard.printBitBoard(bb));
+
+		long kingCheckVectors = King.getKingCheckVectors(kingBitBoard, updown, left, right);
+
+		System.out.println("king check\n" + BitBoard.printBitBoard(kingCheckVectors));
+
+		Queen.getNullMoveInfo(queen, null, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
+
+		System.out.println("king\n" + BitBoard.printBitBoard(kingBitBoard));
+
+		System.out.println("[0]\n" + BitBoard.printBitBoard(nullMoveInfo[0]));
+		System.out.println("[1]\n" + BitBoard.printBitBoard(nullMoveInfo[1]));
+		System.out.println("[2]\n" + BitBoard.printBitBoard(nullMoveInfo[2]));
+	}
+
+	public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard,
+			long kingCheckVectors, long friendly) {
+
+		long bitPiece = piece.getBit();
+
+		// up ------------------------------------------------------------
+		long temp = bitPiece;
+		long temp2 = bitPiece;
+		int r = piece.getRow();
+		int c = piece.getCol();
+		long attackVector = 0;
+
+		while ((temp2 = (temp2 >>> 8 & updown)) != 0) {
+			attackVector |= temp2;
+			temp = temp2;
+			r--;
+		}
+
+		temp = temp >>> 8;
+		nullMoveInfo[0] |= attackVector | temp;
+
+		// check to see if king collision is possible
+		if ((BitBoard.getColMask(c) & kingBitBoard) != 0) {
+
+			if ((temp & kingBitBoard) != 0) {
+				nullMoveInfo[1] &= attackVector | bitPiece;
+				nullMoveInfo[2] |= temp >>> 8;
+			} else {
+				if ((temp & friendly) != 0) {
+					temp = temp >>> 8;
+					if ((temp & kingCheckVectors) != 0) {
+						board.getPiece(r - 1, c).setBlockingVector(BitBoard.getColMask(c));
+					}
+				}
+			}
+		}
+
+		// down-----------------------------------------------------------
+		temp = bitPiece;
+		temp2 = bitPiece;
+		r = piece.getRow();
+		c = piece.getCol();
+		attackVector = 0;
+
+		while ((temp2 = (temp2 << 8 & updown)) != 0) {
+			attackVector |= temp2;
+			temp = temp2;
+			r++;
+		}
+
+		temp = temp << 8;
+		nullMoveInfo[0] |= attackVector | temp;
+
+		// check to see if king collision is possible
+		if ((BitBoard.getColMask(c) & kingBitBoard) != 0) {
+
+			if ((temp & kingBitBoard) != 0) {
+				nullMoveInfo[1] &= attackVector | bitPiece;
+				nullMoveInfo[2] |= temp << 8;
+			} else {
+				if ((temp & friendly) != 0) {
+					temp = temp << 8;
+					if ((temp & kingCheckVectors) != 0) {
+						board.getPiece(r + 1, c).setBlockingVector(BitBoard.getColMask(c));
+					}
+				}
+			}
+		}
+
+		// going left -----------------------------------------------------
+		if ((bitPiece & 0x8080808080808080L) != 0) {
+
+			temp2 = bitPiece;
+			temp = bitPiece;
+
+			while ((temp2 = (temp2 >>> 1 & left)) != 0) {
+				nullMoveInfo[0] |= temp2;
+				temp = temp2;
+			}
+			nullMoveInfo[0] |= temp >>> 1;
+
+			temp2 = bitPiece;
+			temp = bitPiece;
+
+			while ((temp2 = (temp2 >>> 9 & left)) != 0) {
+				nullMoveInfo[0] |= temp2;
+				temp = temp2;
+			}
+			nullMoveInfo[0] |= temp >>> 9;
+
+			temp2 = bitPiece;
+			temp = bitPiece;
+
+			while ((temp2 = (temp2 << 7 & left)) != 0) {
+				nullMoveInfo[0] |= temp2;
+				temp = temp2;
+			}
+			nullMoveInfo[0] |= temp << 7;
+
+			temp2 = bitPiece;
+			temp = bitPiece;
+
+		}
+
+		// going right
+		if ((bitPiece & 0x0101010101010101L) != 0) {
+
+			while ((temp2 = (temp2 << 1 & right)) != 0) {
+				nullMoveInfo[0] |= temp2;
+				temp = temp2;
+			}
+			nullMoveInfo[0] |= temp << 1;
+
+			temp2 = bitPiece;
+			temp = bitPiece;
+
+			while ((temp2 = (temp2 >> 7 & right)) != 0) {
+				nullMoveInfo[0] |= temp2;
+				temp = temp2;
+			}
+			nullMoveInfo[0] |= temp >> 7;
+
+			temp2 = bitPiece;
+			temp = bitPiece;
+
+			while ((temp2 = (temp2 << 9 & right)) != 0) {
+				nullMoveInfo[0] |= temp2;
+				temp = temp2;
+			}
+			nullMoveInfo[0] |= temp << 9;
+
+		}
+
+	}
+
 	public static void getNullMoveInfo(Piece p, Board board, long[] nullMoveInfo) {
 		long bitAttackVector = 0;
 		long bitAttackCompliment = 0;

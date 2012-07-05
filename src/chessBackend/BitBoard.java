@@ -12,6 +12,8 @@ public class BitBoard {
 	public static final long BLACK_CHECK_NEAR = 0x20L;
 	public static final long BLACK_CHECK_FAR = 0x8L;
 
+	public static final long noAG = 0x7E7E7E7E7E7E7E7EL;
+
 	public static long[][] bitMask;
 	public static long[][][][] slidFromToMask;
 
@@ -88,7 +90,7 @@ public class BitBoard {
 		for (int i = 0; i < 1000000; i++) {
 			for (int r = 0; r < 8; r++) {
 				for (int c = 0; c < 8; c++) {
-					//getKingFootPrint(r, c);
+					// getKingFootPrint(r, c);
 				}
 			}
 		}
@@ -99,7 +101,7 @@ public class BitBoard {
 		for (int i = 0; i < 1000000; i++) {
 			for (int r = 0; r < 8; r++) {
 				for (int c = 0; c < 8; c++) {
-					//getKingAttacks(getMask(r, c));
+					// getKingAttacks(getMask(r, c));
 				}
 			}
 		}
@@ -119,32 +121,27 @@ public class BitBoard {
 
 		// System.out.println(BitBoard.printBitBoard(0x7F7F7F7F7F7F7F7FL));
 
-		String bitBoard = 	"0,0,0,0,0,0,0,0,\n" + 
-							"1,1,1,0,1,1,1,1,\n" + 
-							"0,0,0,0,0,0,0,0,\n" + 
-							"0,0,0,0,0,0,0,0,\n" + 
-							"1,0,0,0,0,0,0,0,\n" + 
-							"0,0,0,0,0,0,0,0,\n" + 
-							"0,0,0,0,0,0,0,0,\n" + 
-							"0,0,0,0,0,0,0,0,\n";
+		String bitBoard = "0,0,0,0,0,0,0,0,\n" + "1,1,1,0,1,1,1,1,\n" + "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n" + "1,0,0,0,0,0,0,0,\n"
+				+ "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n";
 
 		long bb = parseBitBoard(bitBoard);
 
-//		for (int r = 0; r < 8; r++) {
-//			for (int c = 0; c < 8; c++) {
-//				if (getKnightFootPrint(r, c) != getKnightAttacks(getMask(r, c))) {
-//
-//					System.out.println(r + "," + c);
-//					System.out.println(BitBoard.printBitBoard(getKnightFootPrint(r, c)));
-//					System.out.println("!=");
-//					System.out.println(BitBoard.printBitBoard(getKnightAttacks(getMask(r, c))));
-//
-//					System.out.println("Error!");
-//				}
-//			}
-//		}
-		
-		System.out.println(printBitBoard(getPawnAttacks(bb,Side.BLACK)));
+		// for (int r = 0; r < 8; r++) {
+		// for (int c = 0; c < 8; c++) {
+		// if (getKnightFootPrint(r, c) != getKnightAttacks(getMask(r, c))) {
+		//
+		// System.out.println(r + "," + c);
+		// System.out.println(BitBoard.printBitBoard(getKnightFootPrint(r, c)));
+		// System.out.println("!=");
+		// System.out.println(BitBoard.printBitBoard(getKnightAttacks(getMask(r,
+		// c))));
+		//
+		// System.out.println("Error!");
+		// }
+		// }
+		// }
+
+		System.out.println(printBitBoard(getPosSlope(1, 7)));
 
 	}
 
@@ -189,7 +186,33 @@ public class BitBoard {
 	}
 
 	public static long getBottomRows(int r) {
-		return (0xFF00000000000000L >> (r * 8));
+		return (0xFF00000000000000L >> (r << 3));
+	}
+
+	public static long getNegSlope(int row, int col) {
+		int s = row - col;
+		if (s > 0) {
+			return ((0x8040201008040201L & ~getBottomRows(s - 1)) << (s << 3));
+		} else {
+			if (s < 0) {
+				return ((0x8040201008040201L & ~getBottomRows(-s - 1)) << -s);
+			} else {
+				return (0x8040201008040201L);
+			}
+		}
+	}
+
+	public static long getPosSlope(int row, int col) {
+		int s = 7 - col - row;
+		if (s > 0) {
+			return ((0x0102040810204080L & ~getBottomRows(s - 1)) >>> s);
+		} else {
+			if (s < 0) {
+				return ((0x0102040810204080L & ~getBottomRows(-s - 1)) >>> -s * 8);
+			} else {
+				return (0x0102040810204080L);
+			}
+		}
 	}
 
 	public static long getTopRows(int r) {

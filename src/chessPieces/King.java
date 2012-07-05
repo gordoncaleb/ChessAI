@@ -171,6 +171,72 @@ public class King {
 		}
 
 	}
+	
+	public static long getKingCheckVectors(long king, long updown, long left, long right){
+		long temp = king;
+
+		long checkVectors = king;
+
+		// up
+		while ((temp = (temp >>> 8 & updown)) != 0) {
+			checkVectors |= temp;
+		}
+
+		temp = king;
+
+		// down
+		while ((temp = (temp << 8 & updown)) != 0) {
+			checkVectors |= temp;
+		}
+
+		temp = king;
+
+		// going left
+		if ((king & 0x8080808080808080L) != 0) {
+
+			while ((temp = (temp >>> 1 & left)) != 0) {
+				checkVectors |= temp;
+			}
+
+			temp = king;
+
+			while ((temp = (temp >>> 9 & left)) != 0) {
+				checkVectors |= temp;
+			}
+
+			temp = king;
+
+			while ((temp = (temp << 7 & left)) != 0) {
+				checkVectors |= temp;
+			}
+
+			temp = king;
+
+		}
+
+		// going right
+		if ((king & 0x0101010101010101L) != 0) {
+
+			while ((temp = (temp << 1 & right)) != 0) {
+				checkVectors |= temp;
+			}
+			
+			temp = king;
+
+			while ((temp = (temp >> 7 & right)) != 0) {
+				checkVectors |= temp;
+			}
+
+			temp = king;
+
+			while ((temp = (temp << 9 & right)) != 0) {
+				checkVectors |= temp;
+			}
+
+		}
+		
+		return checkVectors;
+	}
 
 	public static boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
 		long mask = BitBoard.getMask(toRow, toCol);
