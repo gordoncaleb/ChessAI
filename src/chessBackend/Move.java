@@ -126,7 +126,7 @@ public class Move {
 	}
 
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken) {
-		this(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, pieceTaken, false);
+		this(fromRow, fromCol, toRow, toCol, 0, note, pieceTaken, false);
 	}
 
 	public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {

@@ -941,23 +941,21 @@ public class Board {
 		int[][] rookCols = { { -1, -1 }, { -1, -1 } };
 		this.rookStartCols = rookCols;
 
-		int sideOrd;
 		for (int s = 0; s < 2; s++) {
-			sideOrd = Side.values()[s].ordinal();
-			for (int c = kings[sideOrd].getCol() - 1; c >= 0; c--) {
+			for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
-				if (board[materialRow[sideOrd]][c] != null) {
-					if (board[materialRow[sideOrd]][c].getPieceID() == PieceID.ROOK) {
-						rookCols[sideOrd][0] = c;
+				if (board[materialRow[s]][c] != null) {
+					if (board[materialRow[s]][c].getPieceID() == PieceID.ROOK) {
+						rookCols[s][0] = c;
 						break;
 					}
 				}
 			}
 
-			for (int c = kings[sideOrd].getCol() + 1; c < 8; c++) {
-				if (board[materialRow[sideOrd]][c] != null) {
-					if (board[materialRow[sideOrd]][c].getPieceID() == PieceID.ROOK) {
-						rookCols[sideOrd][1] = c;
+			for (int c = kings[s].getCol() + 1; c < 8; c++) {
+				if (board[materialRow[s]][c] != null) {
+					if (board[materialRow[s]][c].getPieceID() == PieceID.ROOK) {
+						rookCols[s][1] = c;
 						break;
 					}
 				}
