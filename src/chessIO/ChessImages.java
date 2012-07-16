@@ -44,6 +44,21 @@ public class ChessImages {
 			chessPieceIcons[1][i] = new ImageIcon(chessPieceGraphics[1][i]);
 		}
 	}
+	
+	public static void scaleIcons(int screenHeight){
+
+		int gameHeight = (int) ((double) screenHeight * 0.8);
+		int imageHeight = (int) ((double) gameHeight * 0.10);
+		int imageWidth = (int) ((double) imageHeight * 0.6);
+
+		chessPieceIcons = new ImageIcon[2][6];
+
+		for (int i = 0; i < 6; i++) {
+
+			chessPieceIcons[0][i] = new ImageIcon(chessPieceGraphics[0][i].getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH));
+			chessPieceIcons[1][i] = new ImageIcon(chessPieceGraphics[1][i].getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH));
+		}
+	}
 
 	public static Image getChessImage(PieceID id, Side player) {
 		

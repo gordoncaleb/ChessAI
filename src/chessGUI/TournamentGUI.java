@@ -82,7 +82,7 @@ public class TournamentGUI {
 
 		FileIO.clearDirectory(".\\tournament");
 
-		boolean play960 = false;
+		boolean play960 = true;
 
 		Board board;
 		Long[] winnerScore;

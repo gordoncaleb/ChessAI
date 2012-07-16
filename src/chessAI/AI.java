@@ -8,7 +8,6 @@ import chessBackend.GameStatus;
 import chessBackend.Player;
 import chessBackend.PlayerContainer;
 import chessBackend.Move;
-import chessBackend.ValueBounds;
 import chessIO.FileIO;
 import chessIO.MoveBook;
 import chessPieces.Values;
@@ -52,6 +51,8 @@ public class AI extends Thread implements Player {
 
 	private BoardHashEntry[] hashTable;
 	private int moveNum;
+
+	private int depthInMemory = 0;
 
 	public AI(PlayerContainer game, boolean debug) {
 		// this.debug = debug | this.debug;
@@ -144,6 +145,7 @@ public class AI extends Thread implements Player {
 		rootNode = new DecisionNode(0);
 
 		clearHashTable();
+		depthInMemory = 0;
 
 		for (int i = 0; i < processorThreads.length; i++) {
 			processorThreads[i].setBoard(board.getCopy());
@@ -220,6 +222,8 @@ public class AI extends Thread implements Player {
 
 			moveNum++;
 
+			depthInMemory = Math.max(0, depthInMemory - 1);
+
 			return true;
 
 		} else {
@@ -246,7 +250,7 @@ public class AI extends Thread implements Player {
 
 		time = System.currentTimeMillis();
 
-		System.out.println("maxMoveBookMove=" +AISettings.maxMoveBookMove + " moveNum=" +moveNum); 
+		System.out.println("maxMoveBookMove=" + AISettings.maxMoveBookMove + " moveNum=" + moveNum);
 		long mb;
 		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == 0 || !AISettings.useBook || (moveNum > AISettings.maxMoveBookMove)) {
 
@@ -319,10 +323,9 @@ public class AI extends Thread implements Player {
 
 			long startTime = System.currentTimeMillis();
 			long timeLeft = AISettings.maxSearchTime;
-			int it = AISettings.minSearchDepth;
 			boolean checkMateFound = false;
 
-			while (!checkMateFound && timeLeft > 0) {
+			while (!checkMateFound && timeLeft > 0 && depthInMemory < 50) {
 
 				// This clears ai processors status done flags from previous
 				// tasks.
@@ -333,7 +336,7 @@ public class AI extends Thread implements Player {
 
 				// wake all threads up
 				for (int d = 0; d < processorThreads.length; d++) {
-					processorThreads[d].setSearchDepth(it);
+					processorThreads[d].setSearchDepth(depthInMemory);
 					processorThreads[d].setNewTask();
 				}
 
@@ -346,9 +349,9 @@ public class AI extends Thread implements Player {
 
 						timeLeft = AISettings.maxSearchTime - (System.currentTimeMillis() - startTime);
 
-						game.showProgress(getProgress(timeLeft, it));
+						game.showProgress(getProgress(timeLeft, depthInMemory));
 
-						if (timeLeft <= 0 && nextTaskNum <= rootNode.getChildrenSize() && it > AISettings.minSearchDepth) {
+						if (timeLeft <= 0 && nextTaskNum <= rootNode.getChildrenSize() && depthInMemory > AISettings.minSearchDepth) {
 							break;
 						}
 					}
@@ -365,6 +368,8 @@ public class AI extends Thread implements Player {
 
 						processing.wait();
 
+					} else {
+						depthInMemory++;
 					}
 
 					// if (it > AISettings.minSearchDepth) {
@@ -406,9 +411,8 @@ public class AI extends Thread implements Player {
 					totalSearched += processorThreads[d].getNumSearched();
 					FileIO.log("Searched " + totalSearched + " in " + (AISettings.maxSearchTime - timeLeft));
 					FileIO.log((double) totalSearched / (double) (AISettings.maxSearchTime - timeLeft) + " nodes/ms");
+					FileIO.log("Depth in memory = " + depthInMemory);
 				}
-
-				it++;
 
 				if (!AISettings.useExtraTime) {
 					break;
@@ -524,6 +528,7 @@ public class AI extends Thread implements Player {
 		if (canUndo()) {
 
 			rootNode = new DecisionNode(0);
+			depthInMemory = 0;
 
 			for (int i = 0; i < processorThreads.length; i++) {
 				synchronized (processorThreads[i]) {

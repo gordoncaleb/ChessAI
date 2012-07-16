@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -196,6 +198,13 @@ public class SquarePanel extends JPanel implements PieceGUI {
 		picLabel.setIcon(ChessImages.getChessIcon(id, player));
 		picLabel.updateUI();
 
+	}
+
+	public void updateIcon() {
+		if (id != null && player != null) {
+			picLabel.setIcon(ChessImages.getChessIcon(id, player));
+			picLabel.updateUI();
+		}
 	}
 
 	public void addValidMove(long move) {

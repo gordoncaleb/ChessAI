@@ -3,6 +3,8 @@ package chessGUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 import chessBackend.*;
-import chessBackend.Adjudicator;
+import chessIO.ChessImages;
 import chessPieces.Piece;
 import chessPieces.PieceID;
 
@@ -64,6 +66,44 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	public BoardPanel(BoardGUI boardGUI, boolean debug) {
 		super(new BorderLayout());
+
+		this.addComponentListener(new ComponentListener() {
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				// ImageIcon icon = ChessImages.getChessIcon(id, player);
+				// Image img = icon.getImage();
+				// Image newImage =
+				// img.getScaledInstance(e.getComponent().getWidth(),
+				// e.getComponent().getHeight(), Image.SCALE_SMOOTH);
+				// picLabel.setIcon(new ImageIcon(newImage));
+				ChessImages.scaleIcons((int)(e.getComponent().getHeight()*1.25));
+				for (int r = 0; r < 8; r++) {
+					for (int c = 0; c < 8; c++) {
+						chessSquares[r][c].updateIcon();
+					}
+				}
+			}
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+		});
 
 		this.adjudicator = new Adjudicator(null);
 		this.debug = debug;

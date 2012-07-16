@@ -148,7 +148,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		frame.setJMenuBar(menuBar);
 
 		// frame.setSize(gameWidth, gameHeight);
-		frame.setResizable(false);
+		//frame.setResizable(false);
 		frame.setVisible(true);
 
 		boardPanel = new BoardPanel(this, debug);
