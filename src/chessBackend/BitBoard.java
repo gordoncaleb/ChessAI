@@ -243,7 +243,7 @@ public class BitBoard {
 		if (side == Side.BLACK) {
 			return ((pawns & 0x7F7F7F7F7F7F7F7FL) << 9) | ((pawns & 0xFEFEFEFEFEFEFEFEL) << 7);
 		} else {
-			return ((pawns & 0x7F7F7F7F7F7F7F7FL) >> 7) | ((pawns & 0xFEFEFEFEFEFEFEFEL) >>> 9);
+			return ((pawns & 0x7F7F7F7F7F7F7F7FL) >>> 7) | ((pawns & 0xFEFEFEFEFEFEFEFEL) >>> 9);
 		}
 	}
 

@@ -561,30 +561,6 @@ public class Board {
 		return validMoves;
 	}
 
-	public boolean isAttacked(int r, int c) {
-		long allNot = ~(allPosBitBoard[1] | allPosBitBoard[0]);
-
-		// long kingPos = posBitBoard[PieceID.KING][]
-
-		for (int i = 0; i < 8; i++) {
-
-		}
-
-		return false;
-	}
-
-	private void addSortValidMove(ArrayList<Long> validMoves, Long move) {
-		int moveValue = Move.getValue(move);
-		for (int m = 0; m < validMoves.size(); m++) {
-			if (moveValue >= Move.getValue(validMoves.get(m))) {
-				validMoves.add(m, move);
-				return;
-			}
-		}
-
-		validMoves.add(move);
-	}
-
 	public long[] getAllPosBitBoard() {
 		return allPosBitBoard;
 	}
@@ -883,6 +859,17 @@ public class Board {
 		ptDiff = myScore - yourScore;
 
 		return ptDiff;
+	}
+
+	public boolean canQueen() {
+		long p = posBitBoard[PieceID.PAWN.ordinal()][turn.ordinal()];
+		long o = allPosBitBoard[turn.otherSide().ordinal()];
+
+		if (turn == Side.WHITE) {
+			return (((((p >>> 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFFL) != 0);
+		} else {
+			return (((((p << 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFF00000000000000L) != 0);
+		}
 	}
 
 	public Piece getPiece(int row, int col) {

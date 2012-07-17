@@ -9,6 +9,7 @@ import chessBackend.Move;
 import chessBackend.ValueBounds;
 import chessPieces.Values;
 
+
 public class AIProcessor extends Thread {
 	private DecisionNode rootNode;
 	private Board board;
@@ -324,7 +325,7 @@ public class AIProcessor extends Thread {
 
 							if (hashOut.getBounds() == ValueBounds.CUT) {
 								if (hashOut.getScore() >= beta) {
-									
+
 									if (!board.drawByThreeRule()) {
 										branch.setChosenPathValue(-hashOut.getScore());
 									} else {
@@ -350,6 +351,15 @@ public class AIProcessor extends Thread {
 
 				if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -AISettings.maxInCheckFrontierLevel)) {
 					bonusLevel = Math.min(bonusLevel, level - 2);
+				} else {
+					if (board.canQueen()) {
+						//System.out.println("Can Queen \n" + board.toString());
+						bonusLevel = Math.min(bonusLevel, level - 1);
+					}
+				}
+				
+				if (branch.isQueenPromotion()) {
+					bonusLevel = Math.min(bonusLevel, level - 1);
 				}
 
 				if (branch.hasPieceTaken() && (level > -AISettings.maxPieceTakenFrontierLevel)) {
@@ -465,7 +475,8 @@ public class AIProcessor extends Thread {
 
 			if (AISettings.useHashTable && level >= 0 && !stopSearch) {
 				if (hashOut == null) {
-					hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, beta), branch.getHeadChild().getMove());
+					hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, beta), branch.getHeadChild()
+							.getMove());
 				} else {
 					if (hashTableUpdate(hashOut, level, ai.getMoveNum())) {
 						hashOut.setAll(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, beta), branch.getHeadChild().getMove());// ,board.toString());

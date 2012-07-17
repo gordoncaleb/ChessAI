@@ -46,6 +46,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private Border redLine = BorderFactory.createLineBorder(Color.red);
 
 	private SquarePanel[][] chessSquares;
+	private ImageIcon[][] pieceIcons;
 	private PieceGUI selectedComponent;
 	private SquarePanel lastMovedSquare;
 
@@ -65,6 +66,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	private boolean debug;
 
 	public BoardPanel(BoardGUI boardGUI, boolean debug) {
+		this(boardGUI, debug, false);
+	}
+
+	public BoardPanel(BoardGUI boardGUI, boolean debug, boolean showOnlyBoard) {
 		super(new BorderLayout());
 
 		this.addComponentListener(new ComponentListener() {
@@ -89,7 +94,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 				// img.getScaledInstance(e.getComponent().getWidth(),
 				// e.getComponent().getHeight(), Image.SCALE_SMOOTH);
 				// picLabel.setIcon(new ImageIcon(newImage));
-				ChessImages.scaleIcons((int)(e.getComponent().getHeight()*1.25));
+
+				pieceIcons = ChessImages.getScaledIcons((int) (e.getComponent().getHeight() * 1.25));
 				for (int r = 0; r < 8; r++) {
 					for (int c = 0; c < 8; c++) {
 						chessSquares[r][c].updateIcon();
@@ -122,7 +128,9 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		lostBlackPiecesPanel.setBackground(Color.GRAY);
 		lostBlackPiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
 		lostBlackPiecesPanel.addMouseListener(this);
-		this.add(lostBlackPiecesPanel, BorderLayout.WEST);
+		if (!showOnlyBoard) {
+			this.add(lostBlackPiecesPanel, BorderLayout.WEST);
+		}
 
 		squaresGUIPanel = new JPanel(new GridLayout(8, 8));
 		squaresGUIPanel.setBackground(Color.GRAY);
@@ -135,7 +143,11 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		lostWhitePiecesPanel.setBackground(Color.GRAY);
 		lostWhitePiecesPanel.setPreferredSize(new Dimension(sidebarWidth, gameHeight));
 		lostWhitePiecesPanel.addMouseListener(this);
-		this.add(lostWhitePiecesPanel, BorderLayout.EAST);
+		if (!showOnlyBoard) {
+			this.add(lostWhitePiecesPanel, BorderLayout.EAST);
+		}
+
+		pieceIcons = ChessImages.getScaledIcons(gameHeight);
 
 		this.setBackground(Color.GRAY);
 
@@ -198,7 +210,9 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		turnPanel.add(whiteTurnPanel);
 		turnPanel.add(blackTurnPanel);
 
-		this.add(turnPanel, BorderLayout.PAGE_END);
+		if (!showOnlyBoard) {
+			this.add(turnPanel, BorderLayout.PAGE_END);
+		}
 
 		highLightTimer = new Timer(200, this);
 
@@ -225,18 +239,24 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	}
 
 	private void updateTurnPanels() {
-		whiteName.setText("Name: " + boardGUI.getPlayerName(Side.WHITE));
-		blackName.setText("Name: " + boardGUI.getPlayerName(Side.BLACK));
+		if (boardGUI != null) {
+			whiteName.setText("Name: " + boardGUI.getPlayerName(Side.WHITE));
+			blackName.setText("Name: " + boardGUI.getPlayerName(Side.BLACK));
 
-		whiteTime.setText(getPlayerTimeString(Side.WHITE));
-		blackTime.setText(getPlayerTimeString(Side.BLACK));
+			whiteTime.setText(getPlayerTimeString(Side.WHITE));
+			blackTime.setText(getPlayerTimeString(Side.BLACK));
+		}
 	}
 
 	private String getPlayerTimeString(Side side) {
-		long time = boardGUI.getPlayerTime(side);
-		long min = time / 60000;
-		long sec = (time / 1000) % 60;
-		return min + "m:" + String.format("%02d", sec) + "s";
+		if (boardGUI != null) {
+			long time = boardGUI.getPlayerTime(side);
+			long min = time / 60000;
+			long sec = (time / 1000) % 60;
+			return min + "m:" + String.format("%02d", sec) + "s";
+		} else {
+			return "";
+		}
 	}
 
 	public void showProgress(int progress) {
@@ -256,6 +276,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 				blackProgress.setStringPainted(true);
 			}
 		}
+	}
+
+	public ImageIcon getChessIcon(PieceID id, Side player) {
+		return pieceIcons[player.ordinal()][id.ordinal()];
 	}
 
 	public void setFlipBoard(boolean flipBoard) {
@@ -380,7 +404,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		SquarePanel square;
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
-				square = new SquarePanel(col % 2 == row % 2, row, col, debug);
+				square = new SquarePanel(this, col % 2 == row % 2, row, col, debug);
 				square.addMouseListener(this);
 
 				chessSquares[row][col] = square;

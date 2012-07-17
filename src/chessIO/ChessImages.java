@@ -10,14 +10,14 @@ import chessBackend.Side;
 import chessPieces.PieceID;
 
 public class ChessImages {
-	
+
 	private static Image[][] chessPieceGraphics;
 	private static ImageIcon[][] chessPieceIcons;
-	
+
 	private static boolean loaded;
-	
+
 	private static void loadChessImages() {
-		
+
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 		int gameHeight = (int) ((double) screenSize.height * 0.8);
@@ -44,8 +44,12 @@ public class ChessImages {
 			chessPieceIcons[1][i] = new ImageIcon(chessPieceGraphics[1][i]);
 		}
 	}
-	
-	public static void scaleIcons(int screenHeight){
+
+	public static void scaleIcons(int screenHeight) {
+
+		if (chessPieceGraphics == null) {
+			return;
+		}
 
 		int gameHeight = (int) ((double) screenHeight * 0.8);
 		int imageHeight = (int) ((double) gameHeight * 0.10);
@@ -61,21 +65,43 @@ public class ChessImages {
 	}
 
 	public static Image getChessImage(PieceID id, Side player) {
-		
-		if(!loaded){
+
+		if (!loaded) {
 			loadChessImages();
 			loaded = true;
 		}
 		return chessPieceGraphics[player.ordinal()][id.ordinal()];
 	}
 
-	public static ImageIcon getChessIcon(PieceID id, Side player) {
+	public static ImageIcon[][] getScaledIcons(int height) {
 		
-		if(!loaded){
+		if (!loaded) {
 			loadChessImages();
 			loaded = true;
 		}
+
+		int gameHeight = (int) ((double) height * 0.8);
+		int imageHeight = (int) ((double) gameHeight * 0.10);
+		int imageWidth = (int) ((double) imageHeight * 0.6);
+
+		ImageIcon[][] icons = new ImageIcon[2][6];
+
+		for (int i = 0; i < 6; i++) {
+
+			icons[0][i] = new ImageIcon(chessPieceGraphics[0][i].getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH));
+			icons[1][i] = new ImageIcon(chessPieceGraphics[1][i].getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH));
+		}
 		
+		return icons;
+	}
+
+	public static ImageIcon getChessIcon(PieceID id, Side player) {
+
+		if (!loaded) {
+			loadChessImages();
+			loaded = true;
+		}
+
 		return chessPieceIcons[player.ordinal()][id.ordinal()];
 	}
 

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import chessBackend.Move;
+import chessBackend.MoveNote;
 
 public class DecisionNode implements Comparable<DecisionNode> {
 
@@ -13,10 +14,11 @@ public class DecisionNode implements Comparable<DecisionNode> {
 	private long move;
 
 	private int chosenPathValue;
+
 	// private ValueBounds bound;
 
-//	private int alpha;
-//	private int beta;
+	// private int alpha;
+	// private int beta;
 
 	public static void main(String[] args) {
 
@@ -246,21 +248,33 @@ public class DecisionNode implements Comparable<DecisionNode> {
 		}
 	}
 
-//	public int getAlpha() {
-//		return alpha;
-//	}
-//
-//	public void setAlpha(int alpha) {
-//		this.alpha = alpha;
-//	}
-//
-//	public int getBeta() {
-//		return beta;
-//	}
-//
-//	public void setBeta(int beta) {
-//		this.beta = beta;
-//	}
+	public boolean isQueenPromotion() {
+		if (move == 0) {
+			return false;
+		} else {
+			if (Move.getNote(move) == MoveNote.NEW_QUEEN) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	// public int getAlpha() {
+	// return alpha;
+	// }
+	//
+	// public void setAlpha(int alpha) {
+	// this.alpha = alpha;
+	// }
+	//
+	// public int getBeta() {
+	// return beta;
+	// }
+	//
+	// public void setBeta(int beta) {
+	// this.beta = beta;
+	// }
 
 	public String toString() {
 		String me = "Chosen Path Value = " + " " + this.getChosenPathValue();
@@ -273,7 +287,7 @@ public class DecisionNode implements Comparable<DecisionNode> {
 			me += " GAMEOVER";
 		}
 
-		//me += "(" + alpha + "," + beta + ")";
+		// me += "(" + alpha + "," + beta + ")";
 
 		return me;
 

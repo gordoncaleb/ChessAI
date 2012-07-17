@@ -56,9 +56,14 @@ public class SquarePanel extends JPanel implements PieceGUI {
 
 	private Color lastMoved = new Color(255, 0, 0);
 	private Color validColor = Color.YELLOW;
+	
+	
+	private BoardPanel boardPanel;
 
-	public SquarePanel(boolean lightSquare, int row, int col, boolean debug) {
+	public SquarePanel(BoardPanel boardPanel, boolean lightSquare, int row, int col, boolean debug) {
 		super(new BorderLayout());
+		
+		this.boardPanel = boardPanel;
 
 		validMoves = new Vector<Long>();
 		this.row = row;
@@ -195,14 +200,14 @@ public class SquarePanel extends JPanel implements PieceGUI {
 
 		// Image image = gui.getChessImage(id, player);
 		// ImageIcon icon = new ImageIcon(image);
-		picLabel.setIcon(ChessImages.getChessIcon(id, player));
+		picLabel.setIcon(boardPanel.getChessIcon(id, player));
 		picLabel.updateUI();
 
 	}
 
 	public void updateIcon() {
 		if (id != null && player != null) {
-			picLabel.setIcon(ChessImages.getChessIcon(id, player));
+			picLabel.setIcon(boardPanel.getChessIcon(id, player));
 			picLabel.updateUI();
 		}
 	}

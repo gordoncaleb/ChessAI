@@ -53,6 +53,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	private JButton aiMoveBtn;
 	private JButton showAISettingsBtn;
 	private JButton showDecisionTreeBtn;
+	private JButton showAIPossibilitiesBtn;
 	private JButton freelyMoveBtn;
 	private JButton clearHashTableBtn;
 	private JButton loadGameBtn;
@@ -94,7 +95,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		fc.setCurrentDirectory(new File("."));
 
 		this.moveBook = new MoveBook();
-		//moveBook.loadVerboseMoveBook();
+		// moveBook.loadVerboseMoveBook();
 		moveBook.loadMoveBook();
 		this.record = false;
 
@@ -149,6 +150,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		showDecisionTreeBtn = new JButton("Show Decision Tree");
 		showDecisionTreeBtn.addMouseListener(this);
 
+		showAIPossibilitiesBtn = new JButton("Show Possibilities");
+		showAIPossibilitiesBtn.addMouseListener(this);
+
 		freelyMoveBtn = new JButton("Free Move?");
 		freelyMoveBtn.addMouseListener(this);
 
@@ -196,6 +200,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		aiCtrlPanel.add(aiMoveBtn);
 		aiCtrlPanel.add(showAISettingsBtn);
 		aiCtrlPanel.add(showDecisionTreeBtn);
+		aiCtrlPanel.add(showAIPossibilitiesBtn);
 		boardCtrlPanel.add(freelyMoveBtn);
 		boardCtrlPanel.add(flipBoardBtn);
 		gameCtrlPanel.add(loadGameBtn);
@@ -213,7 +218,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		eastPanel.add(controlBtnsPanel, BorderLayout.SOUTH);
 
 		// frame.setSize(gameWidth, gameHeight);
-		frame.setResizable(false);
+		// frame.setResizable(false);
 		frame.setVisible(true);
 
 		boardPanel = new BoardPanel(this, false);
@@ -281,7 +286,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public boolean moveMade(long move) {
 		boardPanel.moveMade(move);
-		
+
 		System.out.println("hash = " + boardPanel.getBoard().getHashCode());
 
 		populateMoveList();
@@ -479,6 +484,10 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
 		if (e.getSource() == flipBoardBtn) {
 			boardPanel.flipBoard();
+		}
+
+		if (e.getSource() == showAIPossibilitiesBtn) {
+			new PossibleBoardDisplay(ai, 4);
 		}
 
 	}
