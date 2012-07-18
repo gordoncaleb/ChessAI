@@ -121,11 +121,33 @@ public class BitBoard {
 
 		// System.out.println(BitBoard.printBitBoard(0x7F7F7F7F7F7F7F7FL));
 
-		String bitBoard = "0,0,0,0,0,0,0,0,\n" + "1,1,1,0,1,1,1,1,\n" + "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n" + "1,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n"
-				+ "0,0,0,0,0,0,0,0,\n" + "0,0,0,0,0,0,0,0,\n";
+		String blackPawn = 	"0,0,0,0,0,0,0,0,\n" + 
+							"0,0,1,0,1,0,1,0,\n" + 
+							"0,0,0,1,0,0,0,0,\n" + 
+							"0,1,0,0,0,0,0,0,\n" + 
+							"1,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n";
+		
+		String whitePawn = 	"0,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n" + 
+							"0,1,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,1,0,0,0,\n" + 
+							"0,0,1,1,0,0,0,0,\n" + 
+							"1,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n";
 
-		long bb = parseBitBoard(bitBoard);
-
+		long bp = parseBitBoard(blackPawn);
+		
+		long wp = parseBitBoard(whitePawn);
+		
+		System.out.println(BitBoard.printBitBoard(wp));
+		System.out.println(BitBoard.printBitBoard(wp | BitBoard.getPawnAttacks(wp,Side.WHITE)));
+		System.out.println(BitBoard.printBitBoard(BitBoard.southFill(wp | BitBoard.getPawnAttacks(wp,Side.WHITE))));
+		System.out.println(BitBoard.printBitBoard(~BitBoard.southFill(wp | BitBoard.getPawnAttacks(wp,Side.WHITE))&bp));
+		
 		// for (int r = 0; r < 8; r++) {
 		// for (int c = 0; c < 8; c++) {
 		// if (getKnightFootPrint(r, c) != getKnightAttacks(getMask(r, c))) {
@@ -141,12 +163,12 @@ public class BitBoard {
 		// }
 		// }
 
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				System.out.println(r + "," + c);
-				System.out.println(printBitBoard(getPosSlope(r, c)));
-			}
-		}
+//		for (int r = 0; r < 8; r++) {
+//			for (int c = 0; c < 8; c++) {
+//				System.out.println(r + "," + c);
+//				System.out.println(printBitBoard(getPosSlope(r, c)));
+//			}
+//		}
 
 //		for (int r = 0; r < 8; r++) {
 //			for (int c = 0; c < 8; c++) {
@@ -155,6 +177,31 @@ public class BitBoard {
 //			}
 //		}
 
+	}
+	
+	public static long northFill(long gen) {
+		   gen |= (gen <<  8);
+		   gen |= (gen << 16);
+		   gen |= (gen << 32);
+		   return gen;
+	}
+		 
+	public static long southFill(long gen) {
+		   gen |= (gen >>  8);
+		   gen |= (gen >> 16);
+		   gen |= (gen >> 32);
+		   return gen;
+	}
+	
+	public static long fillUpOccluded(long g, long p) {
+		
+		   g |= p & (g <<  8);
+		   p &=     (p <<  8);
+		   g |= p & (g << 16);
+		   p &=     (p << 16);
+		   g |= p & (g << 32);
+		   
+		   return g;
 	}
 
 	public static long getCastleMask(int col1, int col2, Side side) {
