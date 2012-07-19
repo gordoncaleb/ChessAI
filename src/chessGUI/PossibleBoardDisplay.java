@@ -87,7 +87,7 @@ public class PossibleBoardDisplay implements MouseListener {
 				tempBoard.makeMove(pvMoves.get(m).getMoveLong());
 			}
 			boardPanels.get(i).newGame(tempBoard);
-			boardLabels.get(i).setText("Score = " + tempBoard.staticScore());
+			boardLabels.get(i).setText("Score = " + tempBoard.staticScore() + " Depth =" + pvMoves.size());
 		}
 
 	}

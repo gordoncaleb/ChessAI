@@ -20,8 +20,11 @@ public class Board {
 
 	private Piece[] kings = new Piece[2];
 	private int[][] rookStartCols = new int[2][2];
-	private int[] kingCols = new int[2];
+	private int[] kingStartCols = new int[2];
 	private int[] materialRow = { 0, 7 };
+
+	private long openFiles = 0;
+	private boolean revisitedState = false;
 
 	private Side turn;
 	private RNGTable rngTable;
@@ -180,7 +183,7 @@ public class Board {
 		if (kingCols == null || rookStartCols == null) {
 			initializeCastleSetup();
 		} else {
-			this.kingCols = kingCols;
+			this.kingStartCols = kingCols;
 			this.rookStartCols = rookStartCols;
 		}
 
@@ -369,20 +372,20 @@ public class Board {
 			if (note == MoveNote.CASTLE_FAR) {
 				rook = board[materialRow[turn.ordinal()]][3];
 
-				undoMovePiece(king, materialRow[turn.ordinal()], kingCols[turn.ordinal()], MoveNote.NONE, false);
+				undoMovePiece(king, materialRow[turn.ordinal()], kingStartCols[turn.ordinal()], MoveNote.NONE, false);
 				undoMovePiece(rook, materialRow[turn.ordinal()], rookStartCols[turn.ordinal()][0], MoveNote.NONE, false);
 
-				board[materialRow[turn.ordinal()]][kingCols[turn.ordinal()]] = king;
+				board[materialRow[turn.ordinal()]][kingStartCols[turn.ordinal()]] = king;
 				board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][0]] = rook;
 
 			} else {
 
 				rook = board[materialRow[turn.ordinal()]][5];
 
-				undoMovePiece(king, materialRow[turn.ordinal()], kingCols[turn.ordinal()], MoveNote.NONE, false);
+				undoMovePiece(king, materialRow[turn.ordinal()], kingStartCols[turn.ordinal()], MoveNote.NONE, false);
 				undoMovePiece(rook, materialRow[turn.ordinal()], rookStartCols[turn.ordinal()][1], MoveNote.NONE, false);
 
-				board[materialRow[turn.ordinal()]][kingCols[turn.ordinal()]] = king;
+				board[materialRow[turn.ordinal()]][kingStartCols[turn.ordinal()]] = king;
 				board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][1]] = rook;
 
 			}
@@ -678,71 +681,45 @@ public class Board {
 			return 0;
 		}
 
-		int value;
-		Side player = piece.getSide();
-		int row = piece.getRow();
-		int col = piece.getCol();
-
 		switch (piece.getPieceID()) {
 		case KNIGHT:
-			value = PositionBonus.getKnightPositionBonus(row, col, player);
-			break;
+			return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
 		case PAWN:
-			value = PositionBonus.getPawnPositionBonus(row, col, player);
-			break;
+			return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
 		case BISHOP:
-			value = 0;
-			break;
+			return 0;
 		case KING:
-			value = 0;
-			value = PositionBonus.getKingOpeningPositionBonus(row, col, player);
-			break;
+			return PositionBonus.getKingOpeningPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
 		case QUEEN:
-			value = 0;
-			break;
+			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE : 0;
 		case ROOK:
-			value = PositionBonus.getRookBonus(row, col);
-			break;
+			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE : 0;
 		default:
-			value = 0;
 			System.out.println("Error: invalid piece value request!");
+			return 0;
 		}
-
-		return value;
 
 	}
 
 	public int getEndGamePositionValue(Piece piece) {
-		int value;
-		Side player = piece.getSide();
-		int row = piece.getRow();
-		int col = piece.getCol();
 
 		switch (piece.getPieceID()) {
 		case KNIGHT:
-			value = PositionBonus.getKnightPositionBonus(row, col, player);
-			break;
+			return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
 		case PAWN:
-			value = PositionBonus.getPawnPositionBonus(row, col, player);
-			break;
+			return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
 		case BISHOP:
-			value = 50;
-			break;
+			return 50;
 		case KING:
-			value = PositionBonus.getKingEndGamePositionBonus(row, col, player);
-			break;
+			return PositionBonus.getKingEndGamePositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
 		case QUEEN:
-			value = 100;
-			break;
+			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE + 100 : 0;
 		case ROOK:
-			value = PositionBonus.getRookBonus(row, col);
-			break;
+			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE + 50 : 0;
 		default:
-			value = 0;
 			System.out.println("Error: invalid piece value request!");
+			return 0;
 		}
-
-		return value;
 
 	}
 
@@ -808,20 +785,32 @@ public class Board {
 		long pawns = posBitBoard[PieceID.PAWN.ordinal()][side.ordinal()];
 		long otherPawns = posBitBoard[PieceID.PAWN.ordinal()][side.otherSide().ordinal()];
 
+		long files = 0x0101010101010101L;
+
 		int occupiedCol = 0;
-		int passedPawns = 0;
 		for (int c = 0; c < 8; c++) {
-			if ((BitBoard.getColMask(c) & pawns) != 0) {
+			if ((files & pawns) != 0) {
+
 				occupiedCol++;
-				if ((BitBoard.getColMask(c) & otherPawns) == 0) {
-					passedPawns++;
+
+				if ((files & otherPawns) == 0) {
+					openFiles |= files;
 				}
 			}
+			files = files << 1;
 		}
 
 		int doubledPawns = Long.bitCount(pawns) - occupiedCol;
 
-		return BitBoard.getBackedPawns(pawns) * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * Values.PASSED_PAWN_BONUS * phase) / 256);
+		long passedBB = BitBoard.getPassedPawns(pawns, otherPawns, side);
+
+		int passedPawns = 0;
+
+		for (int i = 0; i < 8; i++) {
+			passedPawns += Long.bitCount(passedBB & BitBoard.getRowMask(i)) * Values.PASSED_PAWN_BONUS[side.ordinal()][i];
+		}
+
+		return BitBoard.getBackedPawns(pawns) * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * phase) / 256);
 	}
 
 	public int calcGamePhase() {
@@ -949,8 +938,8 @@ public class Board {
 			}
 		}
 
-		kingCols[Side.BLACK.ordinal()] = kings[Side.BLACK.ordinal()].getCol();
-		kingCols[Side.WHITE.ordinal()] = kings[Side.WHITE.ordinal()].getCol();
+		kingStartCols[Side.BLACK.ordinal()] = kings[Side.BLACK.ordinal()].getCol();
+		kingStartCols[Side.WHITE.ordinal()] = kings[Side.WHITE.ordinal()].getCol();
 
 	}
 
@@ -1082,7 +1071,7 @@ public class Board {
 	}
 
 	public int getKingStartingCol(Side side) {
-		return kingCols[side.ordinal()];
+		return kingStartCols[side.ordinal()];
 	}
 
 	public boolean kingHasMoved(Side player) {
@@ -1098,7 +1087,7 @@ public class Board {
 	}
 
 	public Board getCopy() {
-		return new Board(pieces, this.turn, moveHistory, rookStartCols, kingCols);
+		return new Board(pieces, this.turn, moveHistory, rookStartCols, kingStartCols);
 	}
 
 	public String toString() {
@@ -1224,10 +1213,16 @@ public class Board {
 		}
 	}
 
+	public boolean isRevisitedState() {
+		return revisitedState;
+	}
+
 	public boolean drawByThreeRule() {
 
 		int count = 0;
 		int fiftyMove = 0;
+
+		revisitedState = false;
 
 		for (int i = hashCodeHistory.size() - 1; i >= 0; i--) {
 
@@ -1236,6 +1231,7 @@ public class Board {
 			}
 
 			if (hashCode == hashCodeHistory.elementAt(i)) {
+				revisitedState = true;
 				count++;
 			}
 

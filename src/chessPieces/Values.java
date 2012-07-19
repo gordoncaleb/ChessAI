@@ -21,7 +21,9 @@ public class Values {
 
 	public static final int BACKED_PAWN_BONUS = 2;
 	public static final int DOUBLED_PAWN_BONUS = -5;
-	public static final int PASSED_PAWN_BONUS = 10;
+	public static final int QUEENING_PAWN_BONUS = 600;
+
+	public static final int[][] PASSED_PAWN_BONUS = { { 0, 10, 20, 40, 60, 100, 600, 0 }, { 0, 600, 100, 60, 40, 20, 10, 0 } };
 
 	public static final int PAWNPHASE = 0;
 	public static final int KNIGHTPHASE = 1;
@@ -32,9 +34,9 @@ public class Values {
 	public static final int TOTALPHASE = PAWNPHASE * 16 + KNIGHTPHASE * 4 + BISHOPPHASE * 4 + ROOKPHASE * 4 + QUEENPHASE * 2;
 	public static final int[] PIECE_PHASE_VAL = { ROOKPHASE, KNIGHTPHASE, BISHOPPHASE, QUEENPHASE, 0, PAWNPHASE };
 
-	public static final int[] PIECE_VALUE = {ROOK_VALUE,KNIGHT_VALUE,BISHOP_VALUE,QUEEN_VALUE,KING_VALUE,PAWN_VALUE};
-	
-	public static final int getPieceValue(PieceID id){
+	public static final int[] PIECE_VALUE = { ROOK_VALUE, KNIGHT_VALUE, BISHOP_VALUE, QUEEN_VALUE, KING_VALUE, PAWN_VALUE };
+
+	public static final int getPieceValue(PieceID id) {
 		return PIECE_VALUE[id.ordinal()];
 	}
 

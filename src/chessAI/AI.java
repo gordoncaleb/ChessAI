@@ -564,7 +564,7 @@ public class AI extends Thread implements Player {
 
 		// setGameSatus(rootNode.getStatus(), getBoard().getTurn());
 
-		//System.gc();
+		// System.gc();
 	}
 
 	@Override
@@ -620,14 +620,16 @@ public class AI extends Thread implements Player {
 	 */
 	private void countChildren(DecisionNode branch, int depth) {
 
-		childNum[depth]++;
+		if (depth < childNum.length) {
+			childNum[depth]++;
 
-		if (branch.hasChildren()) {
+			if (branch.hasChildren()) {
 
-			for (int i = 0; i < branch.getChildrenSize(); i++) {
-				countChildren(branch.getChild(i), depth + 1);
+				for (int i = 0; i < branch.getChildrenSize(); i++) {
+					countChildren(branch.getChild(i), depth + 1);
+				}
+
 			}
-
 		}
 
 	}
@@ -695,14 +697,14 @@ public class AI extends Thread implements Player {
 	public DecisionNode getRootNode() {
 		return rootNode;
 	}
-	
-	public void getMovePV(DecisionNode root, ArrayList<Move> moves){
+
+	public void getMovePV(DecisionNode root, ArrayList<Move> moves) {
 		moves.add(new Move(root.getMove()));
-		
-		if(root.hasChildren()){
-			getMovePV(root.getHeadChild(),moves);
+
+		if (root.hasChildren()) {
+			getMovePV(root.getHeadChild(), moves);
 		}
-		
+
 	}
 
 	@Override

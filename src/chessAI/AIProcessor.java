@@ -9,7 +9,6 @@ import chessBackend.Move;
 import chessBackend.ValueBounds;
 import chessPieces.Values;
 
-
 public class AIProcessor extends Thread {
 	private DecisionNode rootNode;
 	private Board board;
@@ -236,7 +235,7 @@ public class AIProcessor extends Thread {
 				move = branch.getChild(i).getMove();
 
 				if (move == hashMove) {
-					branch.getChild(i).setChosenPathValue(10000);
+					branch.getChild(i).setChosenPathValue(10321);
 					resort = true;
 					continue;
 				}
@@ -244,7 +243,7 @@ public class AIProcessor extends Thread {
 				if (AISettings.useKillerMove) {
 					for (int k = 0; k < killerMoveSize[level]; k++) {
 						if (move == killerMoves[level][k]) {
-							branch.getChild(i).setChosenPathValue(10000 - k);
+							branch.getChild(i).setChosenPathValue(10000 - k - 1);
 							resort = true;
 							break;
 						}
@@ -279,12 +278,17 @@ public class AIProcessor extends Thread {
 
 		numSearched++;
 
-		// if (branch.hasBeenVisited() && !branch.isGameOver()) {
-		// if (branch.getHeadChild().isGameOver()) {
-		// branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
-		// return;
-		// }
-		// }
+		if (branch.hasBeenVisited() && !branch.isGameOver()) {
+			
+			if ((Math.abs(branch.getChosenPathValue()) & Values.CHECKMATE_MASK) != 0) {
+				return;
+			}
+			
+//			if (branch.getHeadChild().isGameOver()) {
+//				//branch.setChosenPathValue(-branch.getHeadChild().getChosenPathValue());
+//				
+//			}
+		}
 
 		BoardHashEntry hashOut;
 		long hashMove = 0;
@@ -352,12 +356,13 @@ public class AIProcessor extends Thread {
 				if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -AISettings.maxInCheckFrontierLevel)) {
 					bonusLevel = Math.min(bonusLevel, level - 2);
 				} else {
-					if (board.canQueen()) {
-						//System.out.println("Can Queen \n" + board.toString());
-						bonusLevel = Math.min(bonusLevel, level - 1);
-					}
+//					if (board.canQueen()) {
+//						// System.out.println("Can Queen \n" +
+//						// board.toString());
+//						//bonusLevel = Math.min(bonusLevel, level - 1);
+//					}
 				}
-				
+
 				if (branch.isQueenPromotion()) {
 					bonusLevel = Math.min(bonusLevel, level - 1);
 				}
@@ -440,7 +445,7 @@ public class AIProcessor extends Thread {
 						}
 					}
 				} else {
-					branch.getChild(i).setChosenPathValue(-10000);
+					branch.getChild(i).setChosenPathValue(-10123);
 				}
 
 			}

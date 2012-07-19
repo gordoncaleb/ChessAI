@@ -10,7 +10,7 @@ public class AISettings {
 	public static boolean useExtraTime = true;
 	public static boolean bonusEnable = true;
 
-	public static int maxInCheckFrontierLevel = 2;
+	public static int maxInCheckFrontierLevel = 5;
 	public static int maxPieceTakenFrontierLevel = 2;
 
 	public static long maxSearchTime = 5000;
