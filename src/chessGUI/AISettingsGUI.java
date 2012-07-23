@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
@@ -54,153 +55,155 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 		this.ai = ai;
 
 		frame = new JFrame(title);
-		frame.setLayout(new GridLayout(0, 2, 10, 10));
+		
+		JPanel settingsPanel = new JPanel(new GridLayout(0, 2, 10, 10));
 
 		JLabel versionLbl = new JLabel("version");
 		versionLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		version = new JTextField(AISettings.version);
 		version.addMouseListener(this);
 		version.addKeyListener(this);
-		frame.add(versionLbl);
-		frame.add(version);
+		settingsPanel.add(versionLbl);
+		settingsPanel.add(version);
 
 		JLabel debugOutputLbl = new JLabel("");
 		debugOutput = new JCheckBox("debugOutput", AISettings.debugOutput);
 		debugOutput.addMouseListener(this);
-		frame.add(debugOutputLbl);
-		frame.add(debugOutput);
+		settingsPanel.add(debugOutputLbl);
+		settingsPanel.add(debugOutput);
 
 		JLabel useLiteLbl = new JLabel("");
 		useLiteLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		useLite = new JCheckBox("useLite", AISettings.useLite);
 		useLite.addMouseListener(this);
-		frame.add(useLiteLbl);
-		frame.add(useLite);
+		settingsPanel.add(useLiteLbl);
+		settingsPanel.add(useLite);
 
 		JLabel useExtraTimeLbl = new JLabel("");
 		useExtraTimeLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		useExtraTime = new JCheckBox("useExtraTime", AISettings.useExtraTime);
 		useExtraTime.addMouseListener(this);
-		frame.add(useExtraTimeLbl);
-		frame.add(useExtraTime);
+		settingsPanel.add(useExtraTimeLbl);
+		settingsPanel.add(useExtraTime);
 
 		JLabel bonusEnableLbl = new JLabel("");
 		bonusEnableLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		bonusEnable = new JCheckBox("bonusEnable", AISettings.bonusEnable);
 		bonusEnable.addMouseListener(this);
-		frame.add(bonusEnableLbl);
-		frame.add(bonusEnable);
+		settingsPanel.add(bonusEnableLbl);
+		settingsPanel.add(bonusEnable);
 
 		JLabel maxInCheckFrontierLevelLbl = new JLabel("maxInCheckFrontierLevel");
 		maxInCheckFrontierLevelLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		maxInCheckFrontierLevel = new JTextField(AISettings.maxInCheckFrontierLevel + "");
 		maxInCheckFrontierLevel.addMouseListener(this);
 		maxInCheckFrontierLevel.addKeyListener(this);
-		frame.add(maxInCheckFrontierLevelLbl);
-		frame.add(maxInCheckFrontierLevel);
+		settingsPanel.add(maxInCheckFrontierLevelLbl);
+		settingsPanel.add(maxInCheckFrontierLevel);
 
 		JLabel maxPieceTakenFrontierLevelLbl = new JLabel("maxPieceTakenFrontierLevel");
 		maxPieceTakenFrontierLevelLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		maxPieceTakenFrontierLevel = new JTextField(AISettings.maxPieceTakenFrontierLevel + "");
 		maxPieceTakenFrontierLevel.addMouseListener(this);
 		maxPieceTakenFrontierLevel.addKeyListener(this);
-		frame.add(maxPieceTakenFrontierLevelLbl);
-		frame.add(maxPieceTakenFrontierLevel);
+		settingsPanel.add(maxPieceTakenFrontierLevelLbl);
+		settingsPanel.add(maxPieceTakenFrontierLevel);
 
 		JLabel maxSearchTimeLbl = new JLabel("maxSearchTime");
 		maxSearchTimeLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		maxSearchTime = new JTextField(AISettings.maxSearchTime + "");
 		maxSearchTime.addMouseListener(this);
 		maxSearchTime.addKeyListener(this);
-		frame.add(maxSearchTimeLbl);
-		frame.add(maxSearchTime);
+		settingsPanel.add(maxSearchTimeLbl);
+		settingsPanel.add(maxSearchTime);
 
 		JLabel minSearchDepthLbl = new JLabel("minSearchDepth");
 		minSearchDepthLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		minSearchDepth = new JTextField(AISettings.minSearchDepth + "");
 		minSearchDepth.addMouseListener(this);
 		minSearchDepth.addKeyListener(this);
-		frame.add(minSearchDepthLbl);
-		frame.add(minSearchDepth);
+		settingsPanel.add(minSearchDepthLbl);
+		settingsPanel.add(minSearchDepth);
 
 		JLabel alphaBetaPruningEnabledLbl = new JLabel("");
 		alphaBetaPruningEnabledLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		alphaBetaPruningEnabled = new JCheckBox("alphaBetaPruningEnabled", AISettings.alphaBetaPruningEnabled);
 		alphaBetaPruningEnabled.addMouseListener(this);
-		frame.add(alphaBetaPruningEnabledLbl);
-		frame.add(alphaBetaPruningEnabled);
+		settingsPanel.add(alphaBetaPruningEnabledLbl);
+		settingsPanel.add(alphaBetaPruningEnabled);
 
 		JLabel useBookLbl = new JLabel("");
 		useBookLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		useBook = new JCheckBox("useBook", AISettings.useBook);
 		useBook.addMouseListener(this);
-		frame.add(useBookLbl);
-		frame.add(useBook);
+		settingsPanel.add(useBookLbl);
+		settingsPanel.add(useBook);
 
 		JLabel maxMoveBookMoveLbl = new JLabel("maxMoveBookMove");
 		maxMoveBookMoveLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		maxMoveBookMove = new JTextField(AISettings.maxMoveBookMove + "");
 		maxMoveBookMove.addMouseListener(this);
-		frame.add(maxMoveBookMoveLbl);
-		frame.add(maxMoveBookMove);
+		settingsPanel.add(maxMoveBookMoveLbl);
+		settingsPanel.add(maxMoveBookMove);
 
 		JLabel useHashTableLbl = new JLabel("");
 		useHashTableLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		useHashTable = new JCheckBox("useHashTable", AISettings.useHashTable);
 		useHashTable.addMouseListener(this);
-		frame.add(useHashTableLbl);
-		frame.add(useHashTable);
+		settingsPanel.add(useHashTableLbl);
+		settingsPanel.add(useHashTable);
 
 		JLabel hashIndexSizeLbl = new JLabel("hashIndexSize");
 		hashIndexSizeLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		hashIndexSize = new JTextField(AISettings.hashIndexSize + "");
 		hashIndexSize.addMouseListener(this);
 		hashIndexSize.addKeyListener(this);
-		frame.add(hashIndexSizeLbl);
-		frame.add(hashIndexSize);
+		settingsPanel.add(hashIndexSizeLbl);
+		settingsPanel.add(hashIndexSize);
 
 		JLabel staleHashAgeLbl = new JLabel("staleHashAge");
 		staleHashAgeLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		staleHashAge = new JTextField(AISettings.staleHashAge + "");
 		staleHashAge.addMouseListener(this);
 		staleHashAge.addKeyListener(this);
-		frame.add(staleHashAgeLbl);
-		frame.add(staleHashAge);
+		settingsPanel.add(staleHashAgeLbl);
+		settingsPanel.add(staleHashAge);
 
 		JLabel numOfThreadsLbl = new JLabel("numOfThreads");
 		numOfThreadsLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		numOfThreads = new JTextField(AISettings.numOfThreads + "");
 		numOfThreads.addMouseListener(this);
 		numOfThreads.addKeyListener(this);
-		frame.add(numOfThreadsLbl);
-		frame.add(numOfThreads);
+		settingsPanel.add(numOfThreadsLbl);
+		settingsPanel.add(numOfThreads);
 
 		JLabel useKillerMoveLbl = new JLabel("");
 		useKillerMoveLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		useKillerMove = new JCheckBox("useKillerMove", AISettings.useKillerMove);
 		useKillerMove.addMouseListener(this);
-		frame.add(useKillerMoveLbl);
-		frame.add(useKillerMove);
+		settingsPanel.add(useKillerMoveLbl);
+		settingsPanel.add(useKillerMove);
 
 		JLabel maxKillerMovesLbl = new JLabel("maxKillerMoves");
 		maxKillerMovesLbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		maxKillerMoves = new JTextField(AISettings.maxKillerMoves + "");
 		maxKillerMoves.addMouseListener(this);
 		maxKillerMoves.addKeyListener(this);
-		frame.add(maxKillerMovesLbl);
-		frame.add(maxKillerMoves);
+		settingsPanel.add(maxKillerMovesLbl);
+		settingsPanel.add(maxKillerMoves);
 
 		if (ai != null) {
 			clearHashBtn = new JButton("Clear Hashtable");
 			clearHashBtn.addMouseListener(this);
-			frame.add(clearHashBtn);
+			settingsPanel.add(clearHashBtn);
 
 			resetTreeBtn = new JButton("Reset Game Tree");
 			resetTreeBtn.addMouseListener(this);
-			frame.add(resetTreeBtn);
+			settingsPanel.add(resetTreeBtn);
 		}
 
 		// frame.setResizable(false);
+		frame.add(settingsPanel);
 		frame.setVisible(true);
 		frame.pack();
 

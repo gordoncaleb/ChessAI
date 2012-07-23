@@ -17,6 +17,7 @@ public class AISettings {
 	public static int minSearchDepth = 4;
 
 	public static boolean alphaBetaPruningEnabled = true;
+	public static boolean alphaBetaPrunTopPly = false;
 	public static boolean useBook = true;
 	public static int maxMoveBookMove = 10;
 

@@ -17,7 +17,7 @@ public class PositionBonus {
 	};
 
 	private static int[][] kingOpeningBonus = 
-		{ {    15,  20,  10,   5,   5,  10,  20,  15 },// 1
+		{ {    15,  20,  10,   0,   0,  10,  20,  15 },// 1
 			{  10,   5,   0,   0,   0,   0,   5,  10 },// 2
 			{   2,   0,   0,   0,   0,   0,   0,   2 },// 3
 			{   0,  -1,  -2,  -2,  -2,  -2,  -1,   0 },// 4
@@ -80,9 +80,9 @@ public class PositionBonus {
 
 	private static int[][] pawnBonus = 
 		  { {   0,   0,   0,   0,   0,   0,   0,   0 },// 1
-			{   5,   2,   2, -10, -10,   2,   2,   5 },// 2
-			{   5,   0,   0,   0,   0,   0,   0,   5 },// 3
-			{   0,  10,  10,  15,  15,  10,  10,   0 },// 4
+			{   2,   2,   2,   1,   1,   2,   2,   2 },// 2
+			{   3,   3,   3,   2,   2,   3,   3,   3 },// 3
+			{   3,   3,   3,   4,   4,   3,   3,   3 },// 4
 			{  10,  15,  15,  20,  20,  15,  15,  10 },// 5
 			{  50,  50,  50,  50,  50,  50,  50,  50 },// 6
 			{ 100, 100, 100, 100, 100, 100, 100, 100 },// 7
@@ -91,8 +91,8 @@ public class PositionBonus {
 	};
 
 	public static void applyScale() {
-		scalePositionBonus(pawnBonus, 0.5);
-		scalePositionBonus(rookBonus, 0.5);
+		//scalePositionBonus(pawnBonus, 0.5);
+		//scalePositionBonus(rookBonus, 0.5);
 		scalePositionBonus(kingEndGameBonus, 0.5);
 		scalePositionBonus(kingOpeningBonus, 0.5);
 		scalePositionBonus(knightBonus, 0.5);

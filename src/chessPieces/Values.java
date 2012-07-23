@@ -21,6 +21,7 @@ public class Values {
 
 	public static final int BACKED_PAWN_BONUS = 2;
 	public static final int DOUBLED_PAWN_BONUS = -5;
+	public static final int ISOLATED_PAWN_BONUS = -10;
 	public static final int QUEENING_PAWN_BONUS = 600;
 
 	public static final int[][] PASSED_PAWN_BONUS = { { 0, 10, 20, 40, 60, 100, 600, 0 }, { 0, 600, 100, 60, 40, 20, 10, 0 } };

@@ -448,7 +448,7 @@ public class AI extends Thread implements Player {
 			// FileIO.log("Tasknum " + nextTaskNum);
 
 			if (previousTask != null) {
-				if (previousTask.getChosenPathValue() > alpha) {
+				if (previousTask.getChosenPathValue() > alpha && AISettings.alphaBetaPrunTopPly) {
 					alpha = previousTask.getChosenPathValue();
 				}
 

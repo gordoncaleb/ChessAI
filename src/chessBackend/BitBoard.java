@@ -138,16 +138,18 @@ public class BitBoard {
 							"0,0,0,0,0,0,0,0,\n" + 
 							"0,1,0,0,0,0,0,0,\n" + 
 							"0,0,0,0,0,0,0,0,\n" + 
-							"0,0,0,0,1,0,0,0,\n" + 
+							"0,0,0,0,1,0,1,0,\n" + 
 							"0,0,1,1,0,0,0,0,\n" + 
-							"1,0,0,0,0,0,0,0,\n" + 
+							"0,0,0,0,0,0,0,0,\n" + 
 							"0,0,0,0,0,0,0,0,\n";
 
 		long bp = parseBitBoard(blackPawn);
 
 		long wp = parseBitBoard(whitePawn);
+		
+		long wpattacks = getPawnAttacks(wp,Side.WHITE);
 
-		System.out.println(BitBoard.printBitBoard(getPassedPawns(wp,bp,Side.WHITE)));
+		System.out.println(BitBoard.printBitBoard(~(northFill(wpattacks) | southFill(wpattacks)) & wp));
 		
 		//System.out.println(canQueen(wp,bp,Side.WHITE));
 
@@ -227,6 +229,11 @@ public class BitBoard {
 		} else {
 			return (~northFill(pawns | getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
 		}
+	}
+	
+	public static long getIsolatedPawns(long pawns, Side side) {
+		long pawnAttacks = getPawnAttacks(pawns, side);
+		return ~(northFill(pawnAttacks) | southFill(pawnAttacks)) & pawns;
 	}
 	
 	public static int canQueen(long p, long o, Side turn) {

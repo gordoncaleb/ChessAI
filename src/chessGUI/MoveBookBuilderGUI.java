@@ -178,10 +178,10 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 		gameCtrlPanel.setPreferredSize(new Dimension(300, 150));
 
 		JPanel boardCtrlPanel = new JPanel();
-		boardCtrlPanel.setPreferredSize(new Dimension(300, 100));
+		boardCtrlPanel.setPreferredSize(new Dimension(300, 75));
 
 		JPanel aiCtrlPanel = new JPanel();
-		aiCtrlPanel.setPreferredSize(new Dimension(300, 100));
+		aiCtrlPanel.setPreferredSize(new Dimension(300, 150));
 
 		JPanel mbCtrlPanel = new JPanel();
 		mbCtrlPanel.setPreferredSize(new Dimension(300, 100));
