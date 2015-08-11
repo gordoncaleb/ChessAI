@@ -1,0 +1,26 @@
+package com.gordoncaleb.chess;
+
+import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.io.MoveBook;
+import org.junit.Test;
+
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+
+public class MoveBookTest {
+
+    @Test
+    public void testCompiler() {
+        Map<Long, List<Long>> moveBook = MoveBook.moveBookFromPGNFile("book.pgn");
+
+        Map<Long, List<Long>> loadedMoveBook = new MoveBook().loadMoveBook();
+
+        assertEquals(moveBook.size(), loadedMoveBook.size());
+
+        for (Long key : moveBook.keySet()) {
+            assertEquals(new HashSet<>(moveBook.get(key)), new HashSet<>(loadedMoveBook.get(key)));
+        }
+
+    }
+}
