@@ -8,11 +8,14 @@ import com.gordoncaleb.chess.backend.GameStatus;
 import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.PlayerContainer;
 import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.io.MoveBook;
 import com.gordoncaleb.chess.pieces.Values;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AI extends Thread implements Player {
+	public static Logger logger = LoggerFactory.getLogger(AI.class);
+
 	public static long[] noKillerMoves = {};
 
 	private PlayerContainer game;
@@ -60,7 +63,7 @@ public class AI extends Thread implements Player {
 			processorThreads[i].start();
 		}
 
-			FileIO.log(processorThreads.length + " threads created and started.");
+			logger.info(processorThreads.length + " threads created and started.");
 
 		active = true;
 
@@ -141,7 +144,7 @@ public class AI extends Thread implements Player {
 
 		if (AISettings.debugOutput) {
 			// printRootDebug();
-			FileIO.log(getBoard().toString());
+			logger.info(getBoard().toString());
 		}
 
 		makeMove = false;
@@ -154,7 +157,7 @@ public class AI extends Thread implements Player {
 		maxSearched = 0;
 		searchedThisGame = 0;
 
-		FileIO.log("New game");
+		logger.info("New game");
 
 	}
 
@@ -204,8 +207,8 @@ public class AI extends Thread implements Player {
 
 			setRootNode(decision);
 
-			FileIO.log(Move.toString(move));
-			FileIO.log(getBoard().toString());
+			logger.info(Move.toString(move));
+			logger.info(getBoard().toString());
 
 			moveNum++;
 
@@ -237,7 +240,7 @@ public class AI extends Thread implements Player {
 
 		time = System.currentTimeMillis();
 
-		System.out.println("maxMoveBookMove=" + AISettings.maxMoveBookMove + " moveNum=" + moveNum);
+		logger.debug("maxMoveBookMove=" + AISettings.maxMoveBookMove + " moveNum=" + moveNum);
 		long mb;
 		if ((mb = moveBook.getRecommendation(getBoard().getHashCode())) == 0 || !AISettings.useBook || (moveNum > AISettings.maxMoveBookMove)) {
 
@@ -249,7 +252,7 @@ public class AI extends Thread implements Player {
 		} else {
 
 			if (AISettings.debugOutput) {
-				FileIO.log("Ai decision based on movebook");
+				logger.info("Ai decision based on movebook");
 			}
 
 			aiDecision = getMatchingDecisionNode(mb);
@@ -258,7 +261,7 @@ public class AI extends Thread implements Player {
 		// debug print out of decision tree stats. i.e. the tree size and
 		// the values of the move options that the AI has
 		if (AISettings.debugOutput) {
-			FileIO.log("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
+			logger.info("Ai took " + (System.currentTimeMillis() - time) + "ms to move.");
 			// game.setDecisionTreeRoot(rootNode);
 			// printRootDebug();
 		}
@@ -268,7 +271,7 @@ public class AI extends Thread implements Player {
 		// setRootNode(aiDecision);
 
 		if (AISettings.debugOutput) {
-			// FileIO.log(getBoard().toString());
+			// logger.info(getBoard().toString());
 		}
 
 		System.gc();
@@ -281,7 +284,7 @@ public class AI extends Thread implements Player {
 		int interationProgress = (int) (100.0 * ((double) (nextTaskNum - 1) / (double) rootNode.getChildrenSize()));
 		int timeProgress = (int) (100.0 * (((double) AISettings.maxSearchTime - (double) timeLeft) / (double) AISettings.maxSearchTime));
 
-		// FileIO.log((nextTaskNum - 1) + "/" + rootNode.getChildrenSize());
+		// logger.info((nextTaskNum - 1) + "/" + rootNode.getChildrenSize());
 
 		if (AISettings.useExtraTime) {
 			if (iteration > AISettings.minSearchDepth) {
@@ -303,7 +306,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (AISettings.debugOutput) {
-			FileIO.log("New task");
+			logger.info("New task");
 		}
 
 		synchronized (processing) {
@@ -396,9 +399,9 @@ public class AI extends Thread implements Player {
 					maxSearched = Math.max(maxSearched, processorThreads[d].getNumSearched());
 
 					totalSearched += processorThreads[d].getNumSearched();
-					FileIO.log("Searched " + totalSearched + " in " + (AISettings.maxSearchTime - timeLeft));
-					FileIO.log((double) totalSearched / (double) (AISettings.maxSearchTime - timeLeft) + " nodes/ms");
-					FileIO.log("Depth in memory = " + depthInMemory);
+					logger.info("Searched " + totalSearched + " in " + (AISettings.maxSearchTime - timeLeft));
+					logger.info((double) totalSearched / (double) (AISettings.maxSearchTime - timeLeft) + " nodes/ms");
+					logger.info("Depth in memory = " + depthInMemory);
 				}
 
 				if (!AISettings.useExtraTime) {
@@ -408,8 +411,8 @@ public class AI extends Thread implements Player {
 
 			searchedThisGame += totalSearched;
 
-			FileIO.log("Max Searched " + maxSearched);
-			FileIO.log("Searched " + searchedThisGame + " this game");
+			logger.info("Max Searched " + maxSearched);
+			logger.info("Searched " + searchedThisGame + " this game");
 
 			game.showProgress(0);
 
@@ -431,7 +434,7 @@ public class AI extends Thread implements Player {
 
 			nextTaskNum++;
 
-			// FileIO.log("Tasknum " + nextTaskNum);
+			// logger.info("Tasknum " + nextTaskNum);
 
 			if (previousTask != null) {
 				if (previousTask.getChosenPathValue() > alpha && AISettings.alphaBetaPrunTopPly) {
@@ -545,7 +548,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (AISettings.debugOutput) {
-			FileIO.log("Board hash code = " + Long.toHexString(getBoard().getHashCode()));
+			logger.info("Board hash code = " + Long.toHexString(getBoard().getHashCode()));
 		}
 
 		// setGameSatus(rootNode.getStatus(), getBoard().getTurn());
@@ -560,7 +563,7 @@ public class AI extends Thread implements Player {
 
 	// public void setGameSatus(GameStatus status, Side playerTurn) {
 	// if (status != GameStatus.IN_PLAY) {
-	// FileIO.log(rootNode.getStatus().toString());
+	// logger.info(rootNode.getStatus().toString());
 	// }
 	// }
 
@@ -582,7 +585,7 @@ public class AI extends Thread implements Player {
 		}
 
 		if (AISettings.debugOutput) {
-			FileIO.log("Good move (" + Move.toString(goodMove) + ") not found as possibility");
+			logger.info("Good move (" + Move.toString(goodMove) + ") not found as possibility");
 		}
 
 		return null;
@@ -623,7 +626,7 @@ public class AI extends Thread implements Player {
 	private void printChildren(DecisionNode parent) {
 
 		for (int i = 0; i < parent.getChildrenSize(); i++) {
-			FileIO.log(parent.getChild(i).toString());
+			logger.info(parent.getChild(i).toString());
 		}
 
 	}
@@ -634,7 +637,7 @@ public class AI extends Thread implements Player {
 			childNum[i] = 0;
 		}
 
-		FileIO.log("Counting Children...");
+		logger.info("Counting Children...");
 		// recursive function counts tree nodes and notes their depth
 		countChildren(rootNode, 0);
 
@@ -642,15 +645,15 @@ public class AI extends Thread implements Player {
 		for (int i = 0; i < childNum.length; i++) {
 			totalChildren += childNum[i];
 
-			FileIO.log(childNum[i] + " at level " + i);
+			logger.info(childNum[i] + " at level " + i);
 
 			if (childNum[i] == 0)
 				break;
 		}
 
-		FileIO.log("Total Children = " + totalChildren);
+		logger.info("Total Children = " + totalChildren);
 
-		// System.out.println(playerSide.otherSide() + " chose move worth " +
+		// logger.debug(playerSide.otherSide() + " chose move worth " +
 		// rootNode.getChosenPathValue(0));
 
 	}

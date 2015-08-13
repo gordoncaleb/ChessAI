@@ -2,30 +2,30 @@ package com.gordoncaleb.chess.backend;
 
 public interface PlayerContainer {
 
-	public boolean makeMove(long move);
+    boolean makeMove(long move);
 
-	public GameResults newGame(Board board, boolean block);
+    GameResults newGame(Board board, boolean block);
 
-	public void endGame();
+    void endGame();
 
-	public boolean undoMove();
+    boolean undoMove();
 
-	public void showProgress(int progress);
+    void showProgress(int progress);
 
-	public void requestRecommendation();
+    void requestRecommendation();
 
-	public void recommendationMade(long move);
+    void recommendationMade(long move);
 
-	public void pause();
+    void pause();
 
-	public boolean isPaused();
+    boolean isPaused();
 
-	public String getPlayerName(Side side);
+    String getPlayerName(Side side);
 
-	public long getPlayerTime(Side side);
+    long getPlayerTime(Side side);
 
-	public void switchSides();
+    void switchSides();
 
-	public void setSide(Side side, Player player);
+    void setSide(Side side, Player player);
 
 }

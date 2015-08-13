@@ -2,152 +2,157 @@ package com.gordoncaleb.chess.backend;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
 
 import com.gordoncaleb.chess.pieces.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Adjudicator {
-	private ArrayList<Long> validMoves;
-	private Stack<Long> undoneMoves;
-	private Board board;
+    private static final Logger logger = LoggerFactory.getLogger(Adjudicator.class);
 
-	public Adjudicator(Board board) {
-		undoneMoves = new Stack<Long>();
-		this.board = board;
-	}
+    private ArrayList<Long> validMoves;
+    private Stack<Long> undoneMoves;
+    private Board board;
 
-	public void newGame(Board board) {
-		undoneMoves = new Stack<Long>();
-		validMoves = new ArrayList<Long>();
-		this.board = board;
-	}
+    public Adjudicator(Board board) {
+        undoneMoves = new Stack<>();
+        this.board = board;
+    }
 
-	public boolean move(long move) {
+    public void newGame(Board board) {
+        undoneMoves = new Stack<>();
+        validMoves = new ArrayList<>();
+        this.board = board;
+    }
 
-		if (undoneMoves.size() > 0) {
-			if (Move.equals(undoneMoves.peek(), move)) {
-				undoneMoves.pop();
-			} else {
-				undoneMoves.clear();
-			}
-		}
+    public boolean move(long move) {
 
-		long matchingMove = getMatchingMove(move);
+        if (undoneMoves.size() > 0) {
+            if (Move.equals(undoneMoves.peek(), move)) {
+                undoneMoves.pop();
+            } else {
+                undoneMoves.clear();
+            }
+        }
 
-		if (matchingMove != 0) {
-			if (board.makeMove(matchingMove)) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
+        long matchingMove = getMatchingMove(move);
 
-	}
+        if (matchingMove != 0) {
+            if (board.makeMove(matchingMove)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
 
-	public long undo() {
-		long lastMove = 0;
+    }
 
-		if (canUndo()) {
-			lastMove = board.undoMove();
-			undoneMoves.push(lastMove);
-		}
+    public long undo() {
+        long lastMove = 0;
 
-		return lastMove;
+        if (canUndo()) {
+            lastMove = board.undoMove();
+            undoneMoves.push(lastMove);
+        }
 
-	}
+        return lastMove;
 
-	public boolean canUndo() {
-		return board.canUndo();
-	}
+    }
 
-	public long getLastUndoneMove() {
+    public boolean canUndo() {
+        return board.canUndo();
+    }
 
-		if (hasUndoneMoves()) {
-			return undoneMoves.peek();
-			// board.makeMove(lastMoveUndone);
-		} else {
-			return 0;
-		}
+    public long getLastUndoneMove() {
 
-	}
+        if (hasUndoneMoves()) {
+            return undoneMoves.peek();
+            // board.makeMove(lastMoveUndone);
+        } else {
+            return 0;
+        }
 
-	public boolean hasUndoneMoves() {
-		return (undoneMoves.size() > 0);
-	}
+    }
 
-	public ArrayList<Long> getValidMoves() {
-		board.makeNullMove();
-		validMoves = board.generateValidMoves();
+    public boolean hasUndoneMoves() {
+        return (undoneMoves.size() > 0);
+    }
 
-		return validMoves;
-	}
+    public ArrayList<Long> getValidMoves() {
+        board.makeNullMove();
+        validMoves = board.generateValidMoves();
 
-	public List<Move> getMoveHistory() {
-		return board.getMoveHistory();
-	}
+        return validMoves;
+    }
 
-	public Side getTurn() {
-		return board.getTurn();
-	}
+    public List<Move> getMoveHistory() {
+        return board.getMoveHistory();
+    }
 
-	public PieceID getPieceID(int row, int col) {
-		return board.getPieceID(row, col);
-	}
+    public Side getTurn() {
+        return board.getTurn();
+    }
 
-	public Side getPiecePlayer(int row, int col) {
-		return board.getPieceSide(row, col);
-	}
+    public Piece.PieceID getPieceID(int row, int col) {
+        return board.getPieceID(row, col);
+    }
 
-	public Piece getPiece(int row, int col) {
-		return board.getPiece(row, col);
-	}
+    public Side getPiecePlayer(int row, int col) {
+        return board.getPieceSide(row, col);
+    }
 
-	public Long getLastMoveMade() {
-		return board.getLastMoveMade();
-	}
+    public Piece getPiece(int row, int col) {
+        return board.getPiece(row, col);
+    }
 
-	private long getMatchingMove(long move) {
+    public Long getLastMoveMade() {
+        return board.getLastMoveMade();
+    }
 
-		for (int i = 0; i < validMoves.size(); i++) {
-			if (Move.equals(validMoves.get(i), move)) {
-				return validMoves.get(i);
-			}
-		}
+    private long getMatchingMove(long move) {
 
-		System.out.println("ERROR: Adjudicator says " + (new Move(move)) + " move is invalid");
-		return 0;
-	}
+        Optional<Long> matchingMove = validMoves.stream()
+                .filter(m -> Move.equals(m, move)).findFirst();
 
-	public List<Piece> getPiecesTaken(Side player) {
-		return board.getPiecesTakenFor(player);
-	}
+        if (!matchingMove.isPresent()) {
+            logger.debug("ERROR: Adjudicator says " + (new Move(move)) + " move is invalid");
+        }
 
-	public boolean placePiece(Piece piece, int toRow, int toCol) {
-		return board.placePiece(piece, toRow, toCol);
-	}
+        return matchingMove.orElse(0L);
+    }
 
-	public GameStatus getGameStatus() {
+    public List<Piece> getPiecesTaken(Side player) {
+        return board.getPiecesTakenFor(player);
+    }
 
-		return board.getBoardStatus();
+    public boolean placePiece(Piece piece, int toRow, int toCol) {
+        return board.placePiece(piece, toRow, toCol);
+    }
 
-	}
+    public GameStatus getGameStatus() {
 
-	public boolean isGameOver() {
-		return board.isGameOver();
-	}
+        return board.getBoardStatus();
 
-	public Side getWinner() {
-		if (board.isGameOver()) {
-			return board.getTurn().otherSide();
-		} else {
-			return null;
-		}
-	}
+    }
 
-	public Board getBoard() {
-		return board;
-	}
+    public boolean isGameOver() {
+        return board.isGameOver();
+    }
+
+    public Side getWinner() {
+        if (board.isGameOver()) {
+            return board.getTurn().otherSide();
+        } else {
+            return null;
+        }
+    }
+
+    public Board getBoard() {
+        return board;
+    }
 
 }

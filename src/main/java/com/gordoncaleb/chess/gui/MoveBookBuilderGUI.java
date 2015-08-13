@@ -6,10 +6,8 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -23,7 +21,7 @@ import javax.swing.ListSelectionModel;
 
 import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.BoardMaker;
+import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Game;
 import com.gordoncaleb.chess.backend.GameStatus;
 import com.gordoncaleb.chess.backend.Move;
@@ -34,8 +32,12 @@ import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.io.MoveBook;
 import com.gordoncaleb.chess.io.XMLParser;
 import com.gordoncaleb.chess.pieces.PositionBonus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
+    private static final Logger logger = LoggerFactory.getLogger(MoveBookBuilderGUI.class);
+
     private JFrame frame;
     private PlayerContainer game;
     private AI ai;
@@ -287,7 +289,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     public boolean moveMade(long move) {
         boardPanel.moveMade(move);
 
-        System.out.println("hash = " + boardPanel.getBoard().getHashCode());
+        logger.debug("hash = " + boardPanel.getBoard().getHashCode());
 
         populateMoveList();
 
@@ -468,7 +470,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
         if (e.getSource() == newGameBtn) {
 
-            Board board = BoardMaker.getStandardChessBoard();
+            Board board = BoardFactory.getStandardChessBoard();
 
             game.newGame(board, false);
 
@@ -476,7 +478,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
         if (e.getSource() == new960GameBtn) {
 
-            Board board = BoardMaker.getRandomChess960Board();
+            Board board = BoardFactory.getRandomChess960Board();
 
             game.newGame(board, false);
 

@@ -11,8 +11,11 @@ import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.PlayerContainer;
 import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.io.XMLParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EthernetPlayerClient implements Player, EthernetMsgRxer {
+	private static final Logger logger = LoggerFactory.getLogger(EthernetPlayerClient.class);
 
 	private PlayerContainer game;
 
@@ -43,7 +46,7 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			FileIO.log("Connection to ethernet player could not be made.");
+			logger.info("Connection to ethernet player could not be made.");
 		}
 
 		EthernetMsgServer.sendMessage(message, clientSocket);
@@ -62,7 +65,7 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 		String tag = message.substring(tagStart, tagEnd + 1);
 		String payload = message.substring(tagEnd + 1, message.length());
 
-		// System.out.println("Message tag = " + tag);
+		// logger.debug("Message tag = " + tag);
 
 		switch (tag) {
 
@@ -94,14 +97,14 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 			game.requestRecommendation();
 			break;
 		default:
-			System.out.println("Client unrecognized command received: \n" + message);
+			logger.debug("Client unrecognized command received: \n" + message);
 			break;
 
 		}
 
 		this.notifyAll();
 
-		// System.out.println("Rx:\n" + message);
+		// logger.debug("Rx:\n" + message);
 	}
 
 	@Override

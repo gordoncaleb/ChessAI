@@ -8,8 +8,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import com.gordoncaleb.chess.io.FileIO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EthernetMsgServer extends Thread {
+	public static Logger logger = LoggerFactory.getLogger(EthernetMsgServer.class);
 
 	private EthernetMsgRxer rxer;
 	private ServerSocket serverSocket;
@@ -43,7 +46,7 @@ public class EthernetMsgServer extends Thread {
 
 			} catch (Exception e) {
 				rxer.connectionReset();
-				FileIO.log("Connection lost");
+				logger.info("Connection lost");
 				e.printStackTrace();
 			}
 		}

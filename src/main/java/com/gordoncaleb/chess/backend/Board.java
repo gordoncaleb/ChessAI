@@ -7,11 +7,15 @@ import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.ai.AISettings;
 import com.gordoncaleb.chess.io.XMLParser;
 import com.gordoncaleb.chess.pieces.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Board {
+	private static final Logger logger = LoggerFactory.getLogger(Board.class);
+
 	private Piece[][] board;
 	private GameStatus boardStatus;
-	private ArrayList<Long> validMoves = new ArrayList<Long>(100);
+	private ArrayList<Long> validMoves = new ArrayList<>(100);
 	private ArrayList<Piece>[] pieces = new ArrayList[2];
 	private Stack<Piece>[] piecesTaken = new Stack[2];
 	private int[] castleRights = new int[2];
@@ -35,56 +39,26 @@ public class Board {
 	// private long[] pawnPosBitBoard = { 0, 0 };
 	// private long[] kingPosBitBoard = { 0, 0 };
 
-	private long[][] posBitBoard = new long[PieceID.values().length][2];
+	private long[][] posBitBoard = new long[Piece.PieceID.values().length][2];
 	private long[] allPosBitBoard = new long[2];
-
-	public static void main(String[] args) {
-		Board board = BoardMaker.getStandardChessBoard();
-
-		ArrayList<Long> moves = board.generateValidMoves(true, 0, AI.noKillerMoves);
-
-		long m = moves.get(0);
-
-		int its = 1000000;
-
-		long t1 = System.currentTimeMillis();
-		for (int i = 0; i < its; i++) {
-			board.makeMove(m);
-			board.makeNullMove();
-			moves = board.generateValidMoves(true, 0, AI.noKillerMoves);
-			board.undoMove();
-		}
-
-		long A = System.currentTimeMillis() - t1;
-
-		t1 = System.currentTimeMillis();
-		for (int i = 0; i < its; i++) {
-			board.makeMove(m);
-			board.undoMove();
-		}
-
-		long B = System.currentTimeMillis() - t1;
-
-		System.out.println("A= " + A + ", B= " + B + " A/B=" + (double) A / (double) B);
-	}
 
 	public Board() {
 		this.board = new Piece[8][8];
 
-		this.pieces[Side.WHITE.ordinal()] = new ArrayList<Piece>();
-		this.pieces[Side.BLACK.ordinal()] = new ArrayList<Piece>();
+		this.pieces[Side.WHITE.ordinal()] = new ArrayList<>();
+		this.pieces[Side.BLACK.ordinal()] = new ArrayList<>();
 
-		this.piecesTaken[Side.WHITE.ordinal()] = new Stack<Piece>();
-		this.piecesTaken[Side.BLACK.ordinal()] = new Stack<Piece>();
+		this.piecesTaken[Side.WHITE.ordinal()] = new Stack<>();
+		this.piecesTaken[Side.BLACK.ordinal()] = new Stack<>();
 
-		this.moveHistory = new Stack<Move>();
-		this.hashCodeHistory = new Stack<Long>();
-		this.rngTable = RNGTable.getSingleton();
+		this.moveHistory = new Stack<>();
+		this.hashCodeHistory = new Stack<>();
+		this.rngTable = RNGTable.instance;
 		this.turn = Side.WHITE;
 		this.nullMoveInfo = new long[3];
 
-		kings[Side.BLACK.ordinal()] = new Piece(PieceID.KING, Side.BLACK, -1, -1, false);
-		kings[Side.WHITE.ordinal()] = new Piece(PieceID.KING, Side.WHITE, -1, -1, false);
+		kings[Side.BLACK.ordinal()] = new Piece(Piece.PieceID.KING, Side.BLACK, -1, -1, false);
+		kings[Side.WHITE.ordinal()] = new Piece(Piece.PieceID.KING, Side.WHITE, -1, -1, false);
 
 		placePiece(kings[Side.BLACK.ordinal()], 0, 0);
 		placePiece(kings[Side.WHITE.ordinal()], 7, 0);
@@ -93,19 +67,19 @@ public class Board {
 
 	public Board(ArrayList<Piece>[] pieces, Side turn, Stack<Move> moveHistory, int[][] rookStartCols, int[] kingCols) {
 		this.board = new Piece[8][8];
-		this.pieces[Side.WHITE.ordinal()] = new ArrayList<Piece>(pieces[Side.WHITE.ordinal()].size());
-		this.pieces[Side.BLACK.ordinal()] = new ArrayList<Piece>(pieces[Side.BLACK.ordinal()].size());
+		this.pieces[Side.WHITE.ordinal()] = new ArrayList<>(pieces[Side.WHITE.ordinal()].size());
+		this.pieces[Side.BLACK.ordinal()] = new ArrayList<>(pieces[Side.BLACK.ordinal()].size());
 
-		this.piecesTaken[Side.WHITE.ordinal()] = new Stack<Piece>();
-		this.piecesTaken[Side.BLACK.ordinal()] = new Stack<Piece>();
+		this.piecesTaken[Side.WHITE.ordinal()] = new Stack<>();
+		this.piecesTaken[Side.BLACK.ordinal()] = new Stack<>();
 
-		this.moveHistory = new Stack<Move>();
-		this.hashCodeHistory = new Stack<Long>();
-		this.rngTable = RNGTable.getSingleton();
+		this.moveHistory = new Stack<>();
+		this.hashCodeHistory = new Stack<>();
+		this.rngTable = RNGTable.instance;
 		this.turn = turn;
 		this.nullMoveInfo = new long[3];
 
-		long[][] posBitBoard = new long[PieceID.values().length][2];
+		long[][] posBitBoard = new long[Piece.PieceID.values().length][2];
 		// long[] pawnPosBitboard = { 0, 0 };
 		// long[] kingPosBitboard = { 0, 0 };
 
@@ -126,14 +100,14 @@ public class Board {
 
 				posBitBoard[temp.getPieceID().ordinal()][i] |= temp.getBit();
 
-				if (temp.getPieceID() == PieceID.PAWN) {
+				if (temp.getPieceID() == Piece.PieceID.PAWN) {
 
 					if (temp.getRow() != pawnRow[i]) {
 						temp.setMoved(true);
 					}
 				}
 
-				if (temp.getPieceID() == PieceID.KING) {
+				if (temp.getPieceID() == Piece.PieceID.KING) {
 
 					kings[i] = temp;
 
@@ -147,7 +121,7 @@ public class Board {
 
 		this.posBitBoard = posBitBoard;
 
-		for (int i = 0; i < PieceID.values().length; i++) {
+		for (int i = 0; i < Piece.PieceID.values().length; i++) {
 			this.allPosBitBoard[0] |= posBitBoard[i][0];
 			this.allPosBitBoard[1] |= posBitBoard[i][1];
 		}
@@ -197,7 +171,7 @@ public class Board {
 		MoveNote note = Move.getNote(move);
 
 		if (board[fromRow][fromCol].getSide() != turn) {
-			System.out.println("Problem with player ref");
+			logger.debug("Problem with player ref");
 			return false;
 		}
 
@@ -328,9 +302,9 @@ public class Board {
 		pieceMoving.setMoved(true);
 
 		if (note == MoveNote.NEW_QUEEN) {
-			pieceMoving.setPieceID(PieceID.QUEEN);
-			posBitBoard[PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
-			posBitBoard[PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+			pieceMoving.setPieceID(Piece.PieceID.QUEEN);
+			posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+			posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
 		}
 
 		// if (pieceMoving == getKing(turn)) {
@@ -345,7 +319,7 @@ public class Board {
 
 		// if no there is no last move then undoMove is impossible
 		if (moveHistory.empty()) {
-			// System.out.println("Can not undo move");
+			// logger.debug("Can not undo move");
 			return 0;
 		}
 
@@ -446,9 +420,9 @@ public class Board {
 		pieceMoving.setMoved(hadMoved);
 
 		if (note == MoveNote.NEW_QUEEN) {
-			pieceMoving.setPieceID(PieceID.PAWN);
-			posBitBoard[PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
-			posBitBoard[PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+			pieceMoving.setPieceID(Piece.PieceID.PAWN);
+			posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
+			posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
 		}
 
 	}
@@ -457,9 +431,9 @@ public class Board {
 
 		Piece piece;
 
-		long[][] allBitBoard = new long[PieceID.values().length][2];
+		long[][] allBitBoard = new long[Piece.PieceID.values().length][2];
 
-		for (int i = 0; i < PieceID.values().length; i++) {
+		for (int i = 0; i < Piece.PieceID.values().length; i++) {
 			allBitBoard[i][0] = posBitBoard[i][0];
 			allBitBoard[i][1] = posBitBoard[i][1];
 		}
@@ -475,13 +449,13 @@ public class Board {
 			}
 		}
 
-		for (int i = 0; i < PieceID.values().length; i++) {
+		for (int i = 0; i < Piece.PieceID.values().length; i++) {
 			if (allBitBoard[i][0] != 0) {
-				System.out.println("BitBoard Problem!!!");
+				logger.debug("BitBoard Problem!!!");
 			}
 
 			if (allBitBoard[i][1] != 0) {
-				System.out.println("BitBoard Problem!!!");
+				logger.debug("BitBoard Problem!!!");
 			}
 		}
 
@@ -500,10 +474,10 @@ public class Board {
 		// find in check details. i.e. left and right castle info
 		// makeNullMove();
 
-		// System.out.println("Not safe areas");
+		// logger.debug("Not safe areas");
 		// BitBoard.printBitBoard(nullMoveInfo[0]);
 		//
-		// System.out.println("in check vector");
+		// logger.debug("in check vector");
 		// BitBoard.printBitBoard(nullMoveInfo[1]);
 
 		// ArrayList<Long> validMoves = new ArrayList<Long>(50);
@@ -586,13 +560,13 @@ public class Board {
 			pieces[turn.ordinal()].get(p).clearBlocking();
 		}
 
-		nullMoveInfo[0] = BitBoard.getPawnAttacks(posBitBoard[PieceID.PAWN.ordinal()][turn.otherSide().ordinal()], turn.otherSide());
-		nullMoveInfo[0] |= BitBoard.getKnightAttacks(posBitBoard[PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()]);
-		nullMoveInfo[0] |= BitBoard.getKingAttacks(posBitBoard[PieceID.KING.ordinal()][turn.otherSide().ordinal()]);
+		nullMoveInfo[0] = BitBoard.getPawnAttacks(posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.otherSide().ordinal()], turn.otherSide());
+		nullMoveInfo[0] |= BitBoard.getKnightAttacks(posBitBoard[Piece.PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()]);
+		nullMoveInfo[0] |= BitBoard.getKingAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.otherSide().ordinal()]);
 
-		nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()], turn) & posBitBoard[PieceID.PAWN.ordinal()][turn.otherSide().ordinal()];
+		nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()], turn) & posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.otherSide().ordinal()];
 
-		nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()]) & posBitBoard[PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()];
+		nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()]) & posBitBoard[Piece.PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()];
 
 		if (nullMoveInfo[1] == 0) {
 			nullMoveInfo[1] = BitBoard.ALL_ONES;
@@ -606,13 +580,13 @@ public class Board {
 
 		for (int p = 0; p < pieces[turn.otherSide().ordinal()].size(); p++) {
 
-			pieces[turn.otherSide().ordinal()].get(p).getNullMoveInfo(this, nullMoveInfo, updown, left, right, posBitBoard[PieceID.KING.ordinal()][turn.ordinal()],
-					King.getKingCheckVectors(posBitBoard[PieceID.KING.ordinal()][turn.ordinal()], updown, left, right), allPosBitBoard[turn.ordinal()]);
+			pieces[turn.otherSide().ordinal()].get(p).getNullMoveInfo(this, nullMoveInfo, updown, left, right, posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()],
+					King.getKingCheckVectors(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()], updown, left, right), allPosBitBoard[turn.ordinal()]);
 
 		}
 
 		// for (int i = 0; i < 3; i++) {
-		// System.out.println(BitBoard.printBitBoard(nullMoveInfo[i]));
+		// logger.debug(BitBoard.printBitBoard(nullMoveInfo[i]));
 		// }
 
 		if ((kings[turn.ordinal()].getBit() & nullMoveInfo[0]) != 0) {
@@ -640,19 +614,19 @@ public class Board {
 		return true;
 	}
 
-	public PositionStatus checkPiece(int row, int col, Side player) {
+	public Piece.PositionStatus checkPiece(int row, int col, Side player) {
 
 		if (((row | col) & (~0x7)) != 0) {
-			return PositionStatus.OFF_BOARD;
+			return Piece.PositionStatus.OFF_BOARD;
 		}
 
 		if (board[row][col] != null) {
 			if (board[row][col].getSide() == player)
-				return PositionStatus.FRIEND;
+				return Piece.PositionStatus.FRIEND;
 			else
-				return PositionStatus.ENEMY;
+				return Piece.PositionStatus.ENEMY;
 		} else {
-			return PositionStatus.NO_PIECE;
+			return Piece.PositionStatus.NO_PIECE;
 		}
 
 	}
@@ -693,7 +667,7 @@ public class Board {
 		case ROOK:
 			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE : 0;
 		default:
-			System.out.println("Error: invalid piece value request!");
+			logger.debug("Error: invalid piece value request!");
 			return 0;
 		}
 
@@ -715,7 +689,7 @@ public class Board {
 		case ROOK:
 			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE + 50 : 0;
 		default:
-			System.out.println("Error: invalid piece value request!");
+			logger.debug("Error: invalid piece value request!");
 			return 0;
 		}
 
@@ -780,8 +754,8 @@ public class Board {
 
 	public int pawnStructureScore(Side side, int phase) {
 
-		long pawns = posBitBoard[PieceID.PAWN.ordinal()][side.ordinal()];
-		long otherPawns = posBitBoard[PieceID.PAWN.ordinal()][side.otherSide().ordinal()];
+		long pawns = posBitBoard[Piece.PieceID.PAWN.ordinal()][side.ordinal()];
+		long otherPawns = posBitBoard[Piece.PieceID.PAWN.ordinal()][side.otherSide().ordinal()];
 
 		long files = 0x0101010101010101L;
 
@@ -851,7 +825,7 @@ public class Board {
 	}
 
 	public boolean canQueen() {
-		long p = posBitBoard[PieceID.PAWN.ordinal()][turn.ordinal()];
+		long p = posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.ordinal()];
 		long o = allPosBitBoard[turn.otherSide().ordinal()];
 
 		if (turn == Side.WHITE) {
@@ -865,7 +839,7 @@ public class Board {
 		return board[row][col];
 	}
 
-	public PieceID getPieceID(int row, int col) {
+	public Piece.PieceID getPieceID(int row, int col) {
 		if (board[row][col] != null) {
 			return board[row][col].getPieceID();
 		} else {
@@ -878,7 +852,7 @@ public class Board {
 		if (board[row][col] != null) {
 			return board[row][col].getSide();
 		} else {
-			System.out.println("Error: requested player on null piece");
+			logger.debug("Error: requested player on null piece");
 			return null;
 		}
 
@@ -921,7 +895,7 @@ public class Board {
 			for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
 				if (board[materialRow[s]][c] != null) {
-					if (board[materialRow[s]][c].getPieceID() == PieceID.ROOK) {
+					if (board[materialRow[s]][c].getPieceID() == Piece.PieceID.ROOK) {
 						rookCols[s][0] = c;
 						break;
 					}
@@ -930,7 +904,7 @@ public class Board {
 
 			for (int c = kings[s].getCol() + 1; c < 8; c++) {
 				if (board[materialRow[s]][c] != null) {
-					if (board[materialRow[s]][c].getPieceID() == PieceID.ROOK) {
+					if (board[materialRow[s]][c].getPieceID() == Piece.PieceID.ROOK) {
 						rookCols[s][1] = c;
 						break;
 					}
@@ -947,13 +921,13 @@ public class Board {
 
 		if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
 			if (board[toRow][toCol] != null) {
-				if (board[toRow][toCol].getPieceID() == PieceID.KING) {
+				if (board[toRow][toCol].getPieceID() == Piece.PieceID.KING) {
 					return false;
 				}
 			}
 		}
 
-		if (piece.getPieceID() == PieceID.KING) {
+		if (piece.getPieceID() == Piece.PieceID.KING) {
 			if (toRow < 0 || toCol < 0) {
 				return false;
 			} else {
@@ -999,7 +973,7 @@ public class Board {
 			board[toRow][toCol] = piece;
 		} else {
 			// piece is being taken off the board. Remove
-			if (piece.getPieceID() != PieceID.KING) {
+			if (piece.getPieceID() != Piece.PieceID.KING) {
 				pieces[piece.getSide().ordinal()].remove(piece);
 			}
 		}
@@ -1101,15 +1075,15 @@ public class Board {
 
 					p = board[row][col];
 
-					if (p.hasMoved() && (p.getPieceID() == PieceID.PAWN || p.getPieceID() == PieceID.KING || p.getPieceID() == PieceID.ROOK)) {
+					if (p.hasMoved() && (p.getPieceID() == Piece.PieceID.PAWN || p.getPieceID() == Piece.PieceID.KING || p.getPieceID() == Piece.PieceID.ROOK)) {
 						pieceDetails |= 1;
 					}
 
-					if (p.getPieceID() == PieceID.ROOK && kingHasMoved(p.getSide())) {
+					if (p.getPieceID() == Piece.PieceID.ROOK && kingHasMoved(p.getSide())) {
 						pieceDetails |= 1;
 					}
 
-					if (p.getPieceID() == PieceID.KING && nearRookHasMoved(p.getSide()) && farRookHasMoved(p.getSide())) {
+					if (p.getPieceID() == Piece.PieceID.KING && nearRookHasMoved(p.getSide()) && farRookHasMoved(p.getSide())) {
 						pieceDetails |= 1;
 					}
 
@@ -1259,7 +1233,7 @@ public class Board {
 
 			for (int i = 0; i < pieces.length; i++) {
 				for (int p = 0; p < pieces[i].size(); p++) {
-					if ((pieces[i].get(p).getPieceID() == PieceID.PAWN) || (pieces[i].get(p).getPieceID() == PieceID.QUEEN) || (pieces[i].get(p).getPieceID() == PieceID.ROOK)) {
+					if ((pieces[i].get(p).getPieceID() == Piece.PieceID.PAWN) || (pieces[i].get(p).getPieceID() == Piece.PieceID.QUEEN) || (pieces[i].get(p).getPieceID() == Piece.PieceID.ROOK)) {
 						sufficient = true;
 					}
 				}
@@ -1303,13 +1277,13 @@ public class Board {
 		// if (moves.size() == moves2.size()) {
 		// for (int i = 0; i < moves.size(); i++) {
 		// if (!moves.contains(moves2.get(i))) {
-		// System.out.println("Board\n" + board.toString());
+		// logger.debug("Board\n" + board.toString());
 		//
-		// System.out.println("Missing " + (new Move(moves2.get(i))));
+		// logger.debug("Missing " + (new Move(moves2.get(i))));
 		// }
 		// }
 		// }else{
-		// System.out.println("Board Problem \n" + board.toString());
+		// logger.debug("Board Problem \n" + board.toString());
 		// }
 
 		int fromRow = -1;
@@ -1318,7 +1292,7 @@ public class Board {
 		int toCol = -1;
 
 		MoveNote note = null;
-		PieceID pieceMovingID = null;
+		Piece.PieceID pieceMovingID = null;
 		boolean pieceTaken = false;
 
 		if (notation.equals("O-O")) {
@@ -1346,7 +1320,7 @@ public class Board {
 							pieceMovingID = Piece.charIDtoPieceID(leftRight[0].charAt(0));
 
 							if (pieceMovingID == null) {
-								pieceMovingID = PieceID.PAWN;
+								pieceMovingID = Piece.PieceID.PAWN;
 								fromCol = leftRight[0].charAt(0) - 97;
 							}
 
@@ -1376,9 +1350,9 @@ public class Board {
 					if (notation.length() == 2) {
 						toRow = 7 - (notation.charAt(1) - 49);
 						toCol = notation.charAt(0) - 97;
-						pieceMovingID = PieceID.PAWN;
+						pieceMovingID = Piece.PieceID.PAWN;
 					} else {
-						System.out.println("Error resolving notation " + notation);
+						logger.debug("Error resolving notation " + notation);
 					}
 				}
 
@@ -1429,7 +1403,7 @@ public class Board {
 			}
 
 			if (match) {
-				// System.out.println(new Move(moves.get(i)));
+				// logger.debug(new Move(moves.get(i)));
 				matchMoves.add(moves.get(i));
 			}
 		}
@@ -1439,7 +1413,7 @@ public class Board {
 			for (int i = 0; i < moves.size(); i++) {
 				movesDetailed.add(new Move(moves.get(i)));
 			}
-			System.out.println("ERROR resolving algebraic notation " + notation);
+			logger.debug("ERROR resolving algebraic notation " + notation);
 			return 0;
 		}
 
@@ -1450,23 +1424,23 @@ public class Board {
 		Stack<Piece> pieces = new Stack<Piece>();
 
 		for (int i = 0; i < 8; i++) {
-			pieces.add(new Piece(PieceID.PAWN, player, 0, 0, false));
+			pieces.add(new Piece(Piece.PieceID.PAWN, player, 0, 0, false));
 		}
 
 		for (int i = 0; i < 2; i++) {
-			pieces.add(new Piece(PieceID.BISHOP, player, 0, 0, false));
+			pieces.add(new Piece(Piece.PieceID.BISHOP, player, 0, 0, false));
 		}
 
 		for (int i = 0; i < 2; i++) {
-			pieces.add(new Piece(PieceID.ROOK, player, 0, 0, false));
+			pieces.add(new Piece(Piece.PieceID.ROOK, player, 0, 0, false));
 		}
 
 		for (int i = 0; i < 2; i++) {
-			pieces.add(new Piece(PieceID.KNIGHT, player, 0, 0, false));
+			pieces.add(new Piece(Piece.PieceID.KNIGHT, player, 0, 0, false));
 		}
 
-		pieces.add(new Piece(PieceID.KING, player, 0, 0, false));
-		pieces.add(new Piece(PieceID.QUEEN, player, 0, 0, false));
+		pieces.add(new Piece(Piece.PieceID.KING, player, 0, 0, false));
+		pieces.add(new Piece(Piece.PieceID.QUEEN, player, 0, 0, false));
 
 		return pieces;
 	}

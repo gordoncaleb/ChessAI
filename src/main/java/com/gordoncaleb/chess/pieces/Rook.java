@@ -7,7 +7,6 @@ import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.MoveNote;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.io.XMLParser;
 
 public class Rook {
 	private static int[][] ROOKMOVES = { { 1, -1, 0, 0 }, { 0, 0, 1, -1 } };
@@ -15,8 +14,8 @@ public class Rook {
 	public Rook() {
 	}
 
-	public static PieceID getPieceID() {
-		return PieceID.ROOK;
+	public static Piece.PieceID getPieceID() {
+		return Piece.PieceID.ROOK;
 	}
 
 	public static String getName() {
@@ -34,7 +33,7 @@ public class Rook {
 		int nextRow;
 		int nextCol;
 		int value;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 		Long moveLong;
 
 		int i = 1;
@@ -43,7 +42,7 @@ public class Rook {
 			nextCol = currentCol + i * ROOKMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			while (pieceStatus == PositionStatus.NO_PIECE) {
+			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
 				if (!p.hasMoved() && !board.kingHasMoved(player)) {
 					value = Values.CASTLE_ABILITY_LOST_VALUE;
@@ -62,7 +61,7 @@ public class Rook {
 
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 
 				if (!p.hasMoved() && !board.kingHasMoved(player)) {
 					value = board.getPieceValue(nextRow, nextCol) + Values.CASTLE_ABILITY_LOST_VALUE;
@@ -88,7 +87,7 @@ public class Rook {
 		int nextRow;
 		int nextCol;
 		int value;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 		Long moveLong;
 
 		int i = 1;
@@ -97,7 +96,7 @@ public class Rook {
 			nextCol = currentCol + i * ROOKMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			while (pieceStatus == PositionStatus.NO_PIECE) {
+			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
@@ -123,7 +122,7 @@ public class Rook {
 
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
 					if (!p.hasMoved() && !board.kingHasMoved(player)) {
@@ -147,46 +146,6 @@ public class Rook {
 
 		return validMoves;
 
-	}
-
-	public static void main(String[] args){
-		String b =  "R0,N0,B0,Q0,K0,__,N0,R0," +
-					"P0,P0,P0,P0,__,P0,P0,P0," +
-					"__,__,__,__,__,__,__,__," +
-					"__,__,__,__,P1,__,__,__," +
-					"__,B0,__,__,__,__,__,__," +
-					"__,__,n0,p1,__,__,__,__," +
-					"p0,p0,p0,__,p0,p0,p0,p0," +
-					"r0,__,b0,q0,k0,b0,n0,r0,";
-		
-		b = "<board>\n<setup>\n" + b + "</setup>\n<turn>WHITE</turn>\n</board>";
-		
-		Board board = XMLParser.XMLToBoard(b);
-		
-		Piece piece = board.getPiece(4, 1);
-		long[] nullMoveInfo = new long[3];
-		
-		Side turn = board.getTurn();
-		long updown = ~(board.getAllPosBitBoard()[0] | board.getAllPosBitBoard()[1]);
-		long friendly = board.getAllPosBitBoard()[turn.ordinal()];
-		long kingBitBoard = board.getPosBitBoard()[PieceID.KING.ordinal()][turn.ordinal()];
-		
-		long left = 0xFEFEFEFEFEFEFEFEL & updown;
-		long right = 0x7F7F7F7F7F7F7F7FL & updown;
-		
-		long kingCheckVectors = King.getKingCheckVectors(board.getPosBitBoard()[PieceID.KING.ordinal()][turn.ordinal()],updown,left,right);
-		
-		piece.getNullMoveInfo(board, nullMoveInfo, updown, left, right, kingBitBoard,kingCheckVectors, friendly);
-		
-		System.out.println("updown\n" + BitBoard.printBitBoard(updown));
-		System.out.println("left\n" + BitBoard.printBitBoard(left));
-		System.out.println("right\n" + BitBoard.printBitBoard(right));
-		
-		System.out.println("kingCheckVectors\n" + BitBoard.printBitBoard(kingCheckVectors));
-		
-		
-		System.out.println(BitBoard.printBitBoard(nullMoveInfo[0]));
-						
 	}
 
 	public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors,
@@ -342,7 +301,7 @@ public class Rook {
 		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 		Side player = p.getSide();
 
 		long bitPosition = p.getBit();
@@ -353,11 +312,11 @@ public class Rook {
 			nextCol = currentCol + i * ROOKMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			if (pieceStatus == PositionStatus.OFF_BOARD) {
+			if (pieceStatus == Piece.PositionStatus.OFF_BOARD) {
 				continue;
 			}
 
-			while (pieceStatus == PositionStatus.NO_PIECE) {
+			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
 				i++;
 				nextRow = currentRow + i * ROOKMOVES[0][d];
@@ -365,14 +324,14 @@ public class Rook {
 				pieceStatus = board.checkPiece(nextRow, nextCol, player);
 			}
 
-			if (pieceStatus != PositionStatus.OFF_BOARD) {
+			if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
 				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				blockingPiece = board.getPiece(nextRow, nextCol);
 
-				if (blockingPiece.getPieceID() == PieceID.KING) {
+				if (blockingPiece.getPieceID() == Piece.PieceID.KING) {
 					nullMoveInfo[1] &= (bitAttackVector | bitPosition);
 					inCheck = true;
 				}
@@ -382,7 +341,7 @@ public class Rook {
 				nextCol = currentCol + i * ROOKMOVES[1][d];
 				pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-				while (pieceStatus == PositionStatus.NO_PIECE) {
+				while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
 					i++;
 					nextRow = currentRow + i * ROOKMOVES[0][d];
@@ -390,13 +349,13 @@ public class Rook {
 					pieceStatus = board.checkPiece(nextRow, nextCol, player);
 				}
 
-				if (pieceStatus != PositionStatus.OFF_BOARD) {
-					if (board.getPieceID(nextRow, nextCol) == PieceID.KING && board.getPiece(nextRow, nextCol).getSide() != player) {
+				if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
+					if (board.getPieceID(nextRow, nextCol) == Piece.PieceID.KING && board.getPiece(nextRow, nextCol).getSide() != player) {
 						blockingPiece.setBlockingVector(bitAttackCompliment | bitAttackVector | bitPosition);
 					}
 				}
 
-				if (pieceStatus == PositionStatus.FRIEND) {
+				if (pieceStatus == Piece.PositionStatus.FRIEND) {
 					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
 				}
 

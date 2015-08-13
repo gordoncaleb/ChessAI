@@ -19,8 +19,12 @@ import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.ai.DecisionNode;
 import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.pieces.Values;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DecisionTreeGUI implements KeyListener, MouseListener {
+	private static final Logger logger = LoggerFactory.getLogger(DecisionTreeGUI.class);
+
 	Player gui;
 
 	// debug components
@@ -111,7 +115,7 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 	public void keyReleased(KeyEvent arg0) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) decisionTreeGUI.getLastSelectedPathComponent();
 
-		// System.out.println("Key typed");
+		// logger.debug("Key typed");
 		if (node == null)
 			// Nothing is selected.
 			return;
@@ -128,7 +132,7 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 	public void keyPressed(KeyEvent arg0) {
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) decisionTreeGUI.getLastSelectedPathComponent();
 
-		// System.out.println("Key typed");
+		// logger.debug("Key typed");
 		if (node == null)
 			// Nothing is selected.
 			return;
@@ -185,7 +189,7 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 					distanceFromRoot++;
 				}
 				
-				System.out.println(Values.printBoardScoreBreakDown(gui.getBoard()));
+				logger.debug(Values.printBoardScoreBreakDown(gui.getBoard()));
 			}
 
 			

@@ -7,7 +7,7 @@ import java.awt.Toolkit;
 import javax.swing.ImageIcon;
 
 import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.pieces.PieceID;
+import com.gordoncaleb.chess.pieces.Piece;
 
 public class ChessImages {
 
@@ -64,7 +64,7 @@ public class ChessImages {
 		}
 	}
 
-	public static Image getChessImage(PieceID id, Side player) {
+	public static Image getChessImage(Piece.PieceID id, Side player) {
 
 		if (!loaded) {
 			loadChessImages();
@@ -95,7 +95,7 @@ public class ChessImages {
 		return icons;
 	}
 
-	public static ImageIcon getChessIcon(PieceID id, Side player) {
+	public static ImageIcon getChessIcon(Piece.PieceID id, Side player) {
 
 		if (!loaded) {
 			loadChessImages();

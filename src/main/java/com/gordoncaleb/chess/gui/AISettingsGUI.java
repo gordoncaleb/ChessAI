@@ -17,8 +17,11 @@ import javax.swing.SwingConstants;
 import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.ai.AISettings;
 import com.gordoncaleb.chess.backend.BoardHashEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AISettingsGUI implements MouseListener, KeyListener {
+	private static final Logger logger = LoggerFactory.getLogger(AISettingsGUI.class);
 
 	private JTextField version;
 	private JCheckBox debugOutput;
@@ -269,7 +272,7 @@ public class AISettingsGUI implements MouseListener, KeyListener {
 
 			updateHashTableSize();
 		} catch (Exception e) {
-			System.out.println("Input Error");
+			logger.debug("Input Error");
 		}
 	}
 

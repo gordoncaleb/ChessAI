@@ -23,9 +23,11 @@ import javax.swing.border.Border;
 import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.io.ChessImages;
 import com.gordoncaleb.chess.pieces.Piece;
-import com.gordoncaleb.chess.pieces.PieceID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BoardPanel extends JPanel implements MouseListener, ActionListener {
+	private static final Logger logger = LoggerFactory.getLogger(BoardPanel.class);
 
 	private BoardGUI boardGUI;
 
@@ -285,7 +287,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		}
 	}
 
-	public ImageIcon getChessIcon(PieceID id, Side player) {
+	public ImageIcon getChessIcon(Piece.PieceID id, Side player) {
 		return pieceIcons[player.ordinal()][id.ordinal()];
 	}
 
@@ -452,7 +454,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 	public void setGameSatus(GameStatus status, Side playerTurn) {
 
 		if (status == GameStatus.CHECK) {
-			System.out.println("Check!");
+			logger.debug("Check!");
 		}
 
 		if (status == GameStatus.CHECKMATE) {
@@ -487,7 +489,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			updateLastMovedSquare();
 
 		} else {
-			System.out.println("Cannot undo move");
+			logger.debug("Cannot undo move");
 		}
 
 		return undoneMove;
@@ -620,7 +622,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		}
 	}
 
-	private void takePiece(PieceID pieceTakenID, Side pieceTakenSide) {
+	private void takePiece(Piece.PieceID pieceTakenID, Side pieceTakenSide) {
 		JPieceTakenLabel picLabel = new JPieceTakenLabel(pieceTakenID, pieceTakenSide);
 		picLabel.addMouseListener(this);
 
@@ -758,7 +760,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 		// lock board when it's not the users turn
 		if (!makeMove) {
-			System.out.println("Not your turn!");
+			logger.debug("Not your turn!");
 			return;
 		}
 
@@ -812,7 +814,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 								((SquarePanel) selectedComponent).showAsSelected(true);
 
 							} else {
-								System.out.println("Invalid move");
+								logger.debug("Invalid move");
 							}
 						}
 					} else {

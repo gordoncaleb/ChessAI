@@ -10,6 +10,10 @@ public class BoardHashEntry {
 	private ValueBounds bounds;
 	//private String stringBoard;
 
+	public enum ValueBounds {
+		PV, CUT, ALL, NA
+	}
+
 	public BoardHashEntry(long hashCode, int level, int score, int moveNum, ValueBounds bounds, long bestMove){//,String stringBoard) {
 		this.score = score;
 		this.level = level;

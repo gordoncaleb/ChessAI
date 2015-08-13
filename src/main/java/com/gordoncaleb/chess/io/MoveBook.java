@@ -7,10 +7,13 @@ import java.io.IOException;
 import java.util.*;
 
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.BoardMaker;
+import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Move;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MoveBook {
+    private static final Logger logger = LoggerFactory.getLogger(MoveBook.class);
 
     Map<Long, List<Long>> hashMoveBook;
     Map<String, List<Long>> verboseMoveBook;
@@ -214,16 +217,16 @@ public class MoveBook {
             gameLines.add(gameLine);
         }
 
-        System.out.println(gameLines.size() + " game lines");
+        logger.debug(gameLines.size() + " game lines");
 
-        Board board = BoardMaker.getStandardChessBoard();
+        Board board = BoardFactory.getStandardChessBoard();
 
         List<String> notations = new ArrayList<>();
         String[] tokens;
         String token;
         for (int i = 0; i < gameLines.size(); i++) {
 
-            // System.out.println("NEW GAME " + gameLines.get(i));
+            // logger.debug("NEW GAME " + gameLines.get(i));
             tokens = gameLines.get(i).split(" ");
 
             for (int n = 0; n < tokens.length; n++) {
@@ -263,7 +266,7 @@ public class MoveBook {
 
                 move = board.resolveAlgebraicNotation(notations.get(n));
 
-                // System.out.println(notations.get(n) + " => " + (new
+                // logger.debug(notations.get(n) + " => " + (new
                 // Move(move)));
 
                 moves = moveBook.get(board.getHashCode());
@@ -291,10 +294,10 @@ public class MoveBook {
 
         }
 
-        System.out.println("Move book loaded!!!!");
-        System.out.println("Move count " + moveCount);
-        System.out.println("Took " + (System.currentTimeMillis() - time1) + "ms to load");
-        System.out.println("Hash Count = " + moveBook.size());
+        logger.debug("Move book loaded!!!!");
+        logger.debug("Move count " + moveCount);
+        logger.debug("Took " + (System.currentTimeMillis() - time1) + "ms to load");
+        logger.debug("Hash Count = " + moveBook.size());
 
         saveCompiledMoveBook(moveBook);
 
@@ -305,7 +308,7 @@ public class MoveBook {
 
         DataOutputStream dout = FileIO.getDataOutputStream(MOVEBOOK_COMPILED);
 
-        System.out.println("Creating compiled movebook file");
+        logger.debug("Creating compiled movebook file");
         try {
 
             for (Map.Entry<Long, List<Long>> entry : moveBook.entrySet()) {
@@ -316,12 +319,12 @@ public class MoveBook {
                 dout.writeShort(-1);
             }
 
-            System.out.println("Done!");
+            logger.debug("Done!");
 
             dout.close();
 
         } catch (IOException e) {
-            System.out.println("File io exception");
+            logger.debug("File io exception");
         }
     }
 
@@ -329,7 +332,7 @@ public class MoveBook {
 
         long time1 = System.currentTimeMillis();
 
-        System.out.println("Loading compiled book");
+        logger.debug("Loading compiled book");
 
         Map<Long, List<Long>> moveBook = new HashMap<>();
 
@@ -362,9 +365,9 @@ public class MoveBook {
             e.printStackTrace();
         }
 
-        System.out.println("Done");
+        logger.debug("Done");
 
-        System.out.println("Compiled Book took " + (System.currentTimeMillis() - time1) + "ms  to load");
+        logger.debug("Compiled Book took " + (System.currentTimeMillis() - time1) + "ms  to load");
 
         return moveBook;
     }

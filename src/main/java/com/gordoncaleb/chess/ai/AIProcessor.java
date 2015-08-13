@@ -6,7 +6,6 @@ import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.GameStatus;
 import com.gordoncaleb.chess.backend.BoardHashEntry;
 import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.backend.ValueBounds;
 import com.gordoncaleb.chess.pieces.Values;
 
 public class AIProcessor extends Thread {
@@ -64,7 +63,7 @@ public class AIProcessor extends Thread {
 				if (threadActive) {
 					executeTask();
 
-					// System.out.println("HashTable size = " +
+					// logger.debug("HashTable size = " +
 					// hashTable.size());
 					// hashTable.clear();
 				}
@@ -140,16 +139,16 @@ public class AIProcessor extends Thread {
 		}
 
 		// for (int i = 0; i < killerMoves.length; i++) {
-		// System.out.println("Killer move level " + i + " size=" +
+		// logger.debug("Killer move level " + i + " size=" +
 		// killerMoveSize[i]);
 		// }
 		// for (int i = 0; i < killerMoveCuts.length; i++) {
-		// System.out.println("Killer move cuts @level " + i + " size=" +
+		// logger.debug("Killer move cuts @level " + i + " size=" +
 		// killerMoveCuts[i]);
 		// }
 		//
 		// for (int i = 0; i < hashMoveCuts.length; i++) {
-		// System.out.println("Hash move cuts @level " + i + " size=" +
+		// logger.debug("Hash move cuts @level " + i + " size=" +
 		// hashMoveCuts[i]);
 		// }
 
@@ -301,7 +300,7 @@ public class AIProcessor extends Thread {
 
 					// if (hashOut.getStringBoard().compareTo(board.toString())
 					// != 0) {
-					// FileIO.log(hashOut.getStringBoard() + "\n!=\n" +
+					// logger.info(hashOut.getStringBoard() + "\n!=\n" +
 					// board.toString());
 					// synchronized (this) {
 					// try {
@@ -316,7 +315,7 @@ public class AIProcessor extends Thread {
 
 					if (hashOut.getLevel() >= level) {
 
-						if (hashOut.getBounds() == ValueBounds.PV) {
+						if (hashOut.getBounds() == BoardHashEntry.ValueBounds.PV) {
 
 							if (!board.drawByThreeRule()) {
 								branch.setChosenPathValue(-hashOut.getScore());
@@ -327,7 +326,7 @@ public class AIProcessor extends Thread {
 							return;
 						} else {
 
-							if (hashOut.getBounds() == ValueBounds.CUT) {
+							if (hashOut.getBounds() == BoardHashEntry.ValueBounds.CUT) {
 								if (hashOut.getScore() >= beta) {
 
 									if (!board.drawByThreeRule()) {
@@ -357,7 +356,7 @@ public class AIProcessor extends Thread {
 					bonusLevel = Math.min(bonusLevel, level - 2);
 				} else {
 //					if (board.canQueen()) {
-//						// System.out.println("Can Queen \n" +
+//						// logger.debug("Can Queen \n" +
 //						// board.toString());
 //						//bonusLevel = Math.min(bonusLevel, level - 1);
 //					}
@@ -463,7 +462,7 @@ public class AIProcessor extends Thread {
 			branch.setChosenPathValue(-cpv);
 			// branch.setBound(getNodeType(cpv, a, b));
 
-			if (getNodeType(cpv, a, beta) != ValueBounds.ALL && level >= 0 && AISettings.useKillerMove) {
+			if (getNodeType(cpv, a, beta) != BoardHashEntry.ValueBounds.ALL && level >= 0 && AISettings.useKillerMove) {
 				addKillerMove(level, branch.getHeadChild().getMove());
 			}
 
@@ -494,16 +493,16 @@ public class AIProcessor extends Thread {
 
 	}
 
-	private ValueBounds getNodeType(int s, int a, int b) {
+	private BoardHashEntry.ValueBounds getNodeType(int s, int a, int b) {
 		if (s >= b) {
-			return ValueBounds.CUT;
+			return BoardHashEntry.ValueBounds.CUT;
 		}
 
 		if (s < a) {
-			return ValueBounds.ALL;
+			return BoardHashEntry.ValueBounds.ALL;
 		}
 
-		return ValueBounds.PV;
+		return BoardHashEntry.ValueBounds.PV;
 	}
 
 	/**
@@ -544,7 +543,7 @@ public class AIProcessor extends Thread {
 
 					// if (hashOut.getStringBoard().compareTo(board.toString())
 					// != 0) {
-					// FileIO.log(hashOut.getStringBoard() + "\n!=\n" +
+					// logger.info(hashOut.getStringBoard() + "\n!=\n" +
 					// board.toString());
 					// synchronized (this) {
 					// try {
@@ -557,11 +556,11 @@ public class AIProcessor extends Thread {
 
 					if (hashOut.getLevel() >= level) {
 
-						if (hashOut.getBounds() == ValueBounds.PV) {
+						if (hashOut.getBounds() == BoardHashEntry.ValueBounds.PV) {
 							return hashOut.getScore();
 						} else {
 
-							if (hashOut.getBounds() == ValueBounds.CUT) {
+							if (hashOut.getBounds() == BoardHashEntry.ValueBounds.CUT) {
 								if (hashOut.getScore() >= beta) {
 									return hashOut.getScore();
 								} else {
@@ -642,7 +641,7 @@ public class AIProcessor extends Thread {
 			}
 		}
 
-		if (getNodeType(bestPathValue, a, b) != ValueBounds.ALL && level >= 0 && AISettings.useKillerMove) {
+		if (getNodeType(bestPathValue, a, b) != BoardHashEntry.ValueBounds.ALL && level >= 0 && AISettings.useKillerMove) {
 			addKillerMove(level, bestMove);
 		}
 

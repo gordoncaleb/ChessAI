@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import com.gordoncaleb.chess.ai.DecisionNode;
 import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.io.XMLParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Game implements PlayerContainer {
+	private static final Logger logger = LoggerFactory.getLogger(PlayerContainer.class);
 
 	private Hashtable<Side, Player> players;
 	private ArrayList<Player> observers;
@@ -35,7 +38,7 @@ public class Game implements PlayerContainer {
 		String xmlBoard = FileIO.readFile("tempSave.xml");
 
 		if (xmlBoard == null) {
-			return newGame(BoardMaker.getStandardChessBoard(), block);
+			return newGame(BoardFactory.getStandardChessBoard(), block);
 		} else {
 			return newGame(XMLParser.XMLToBoard(xmlBoard), block);
 		}
@@ -170,7 +173,7 @@ public class Game implements PlayerContainer {
 	public synchronized boolean makeMove(long move) {
 
 		if (clock.hit()) {
-			System.out.println("Game Over " + turn.otherSide() + " wins by time!");
+			logger.debug("Game Over " + turn.otherSide() + " wins by time!");
 			// adjudicator.getBoard().setBoardStatus(GameStatus.TIMES_UP);
 
 			synchronized (gameActive) {
@@ -186,7 +189,7 @@ public class Game implements PlayerContainer {
 
 			adjudicator.getValidMoves();
 
-			System.out.println("GamePhase = " + adjudicator.getBoard().calcGamePhase());
+			logger.debug("GamePhase = " + adjudicator.getBoard().calcGamePhase());
 
 			for (int i = 0; i < observers.size(); i++) {
 				observers.get(i).moveMade(move);
@@ -204,7 +207,7 @@ public class Game implements PlayerContainer {
 		}
 
 		if (adjudicator.isGameOver()) {
-			System.out.println("Game over");
+			logger.debug("Game over");
 
 			if (players.get(Side.BOTH) == null) {
 				if (adjudicator.getGameStatus() == GameStatus.CHECKMATE) {

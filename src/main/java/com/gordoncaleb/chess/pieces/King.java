@@ -14,8 +14,8 @@ public class King {
 	public King() {
 	}
 
-	public static PieceID getPieceID() {
-		return PieceID.KING;
+	public static Piece.PieceID getPieceID() {
+		return Piece.PieceID.KING;
 	}
 
 	public static String getName() {
@@ -32,7 +32,7 @@ public class King {
 		Side player = p.getSide();
 		int nextRow;
 		int nextCol;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 
 		int moveVal = 0;
 		if (!p.hasMoved() && (!board.farRookHasMoved(player) || !board.nearRookHasMoved(player))) {
@@ -44,11 +44,11 @@ public class King {
 			nextCol = currentCol + KINGMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			if (pieceStatus == PositionStatus.NO_PIECE) {
+			if (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, moveVal, MoveNote.NONE));
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol) + moveVal, MoveNote.NONE,
 						board.getPiece(nextRow, nextCol)));
 			}
@@ -95,7 +95,7 @@ public class King {
 		Side player = p.getSide();
 		int nextRow;
 		int nextCol;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 		Long moveLong;
 
 		for (int d = 0; d < 8; d++) {
@@ -103,7 +103,7 @@ public class King {
 			nextCol = currentCol + KINGMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			if (pieceStatus == PositionStatus.NO_PIECE) {
+			if (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
 					if (!p.hasMoved() && (!board.farRookHasMoved(player) || !board.nearRookHasMoved(player))) {
@@ -118,7 +118,7 @@ public class King {
 				}
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
 					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE,
 							board.getPiece(nextRow, nextCol));
@@ -165,7 +165,7 @@ public class King {
 		int currentCol = p.getCol();
 
 		for (int i = 0; i < 8; i++) {
-			if (board.checkPiece(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i], p.getSide()) != PositionStatus.OFF_BOARD) {
+			if (board.checkPiece(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i], p.getSide()) != Piece.PositionStatus.OFF_BOARD) {
 				nullMoveInfo[0] |= BitBoard.getMask(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i]);
 			}
 		}
@@ -288,9 +288,9 @@ public class King {
 
 		allPosBitBoard ^= BitBoard.getMask(king.getRow(), rookCol) | king.getBit();
 
-		// System.out.println(BitBoard.printBitBoard(kingToCastleMask));
-		// System.out.println(BitBoard.printBitBoard(rookToCastleMask));
-		// System.out.println(BitBoard.printBitBoard(allPosBitBoard));
+		// logger.debug(BitBoard.printBitBoard(kingToCastleMask));
+		// logger.debug(BitBoard.printBitBoard(rookToCastleMask));
+		// logger.debug(BitBoard.printBitBoard(allPosBitBoard));
 
 		if ((kingToCastleMask & nullMoveInfo[0]) == 0) {
 			if (((kingToCastleMask | rookToCastleMask) & allPosBitBoard) == 0) {

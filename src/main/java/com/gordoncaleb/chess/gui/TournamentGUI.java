@@ -10,7 +10,7 @@ import javax.swing.JTextArea;
 
 import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.BoardMaker;
+import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Game;
 import com.gordoncaleb.chess.backend.GameResults;
 import com.gordoncaleb.chess.backend.GameStatus;
@@ -18,8 +18,12 @@ import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.ethernet.EthernetPlayerClient;
 import com.gordoncaleb.chess.io.FileIO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TournamentGUI {
+	public static Logger logger = LoggerFactory.getLogger(TournamentGUI.class);
+
 	JFrame frame;
 	JTextArea statusTxt;
 
@@ -28,7 +32,6 @@ public class TournamentGUI {
 		FileIO.setLogEnabled(false);
 		FileIO.setDebugOutput(true);
 
-		boolean debug = true;
 		Game game;
 		GameResults results;
 
@@ -48,8 +51,8 @@ public class TournamentGUI {
 		String playerOneVersion = playerOne.getVersion();
 		String playerTwoVersion = playerTwo.getVersion();
 
-		FileIO.log("Player One: " + playerOneVersion);
-		FileIO.log("Player Two: " + playerTwoVersion);
+		logger.info("Player One: " + playerOneVersion);
+		logger.info("Player Two: " + playerTwoVersion);
 
 		((AI) playerOne).setUseBook(true);
 
@@ -63,9 +66,9 @@ public class TournamentGUI {
 		playerNames.put(playerOne, playerOneVersion);
 		playerNames.put(playerTwo, playerTwoVersion);
 
-		Hashtable<String, Long[]> playerScore = new Hashtable<String, Long[]>();
+		Hashtable<String, Long[]> playerScore = new Hashtable<>();
 
-		ArrayList<Long> boardsPlayed = new ArrayList<Long>();
+		ArrayList<Long> boardsPlayed = new ArrayList<>();
 
 		// blackwins, whitewins ,winby,numMoves,time,maxTime,good draws,
 		// bad draws, draw by pts, caused stalemate, caused invalid
@@ -91,19 +94,19 @@ public class TournamentGUI {
 		for (int i = 0; i < numOfGames; i++) {
 
 			if (play960) {
-				board = BoardMaker.getRandomChess960Board();
+				board = BoardFactory.getRandomChess960Board();
 				while (boardsPlayed.contains(board.getHashCode())) {
-					board = BoardMaker.getRandomChess960Board();
+					board = BoardFactory.getRandomChess960Board();
 				}
 			} else {
-				board = BoardMaker.getStandardChessBoard();
+				board = BoardFactory.getStandardChessBoard();
 			}
 
 			for (int s = 0; s < 2; s++) {
 
-				FileIO.log("Game#" + (i * 2 + s));
+				logger.info("Game#" + (i * 2 + s));
 
-				FileIO.log(board.toString());
+				logger.info(board.toString());
 
 				results = game.newGame(board, true);
 
@@ -179,7 +182,7 @@ public class TournamentGUI {
 
 		}
 
-		FileIO.log("Tournament done");
+		logger.info("Tournament done");
 	}
 
 	public TournamentGUI() {

@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
 import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.ai.AISettings;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.BoardMaker;
+import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Game;
 import com.gordoncaleb.chess.backend.GameStatus;
 import com.gordoncaleb.chess.backend.Player;
@@ -74,7 +74,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		playerOne.setGame(game);
 		playerTwo.setGame(game);
 
-		game.newGame(BoardMaker.getStandardChessBoard(), false);
+		game.newGame(BoardFactory.getStandardChessBoard(), false);
 
 	}
 
@@ -368,7 +368,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		}
 
 		if (arg0.getSource() == newGameMenu) {
-			Board board = BoardMaker.getStandardChessBoard();
+			Board board = BoardFactory.getStandardChessBoard();
 
 			Side side = optionForSide();
 			game.setSide(side, this);
@@ -377,7 +377,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		}
 
 		if (arg0.getSource() == new960GameMenu) {
-			Board board = BoardMaker.getRandomChess960Board();
+			Board board = BoardFactory.getRandomChess960Board();
 
 			Side side = optionForSide();
 			game.setSide(side, this);

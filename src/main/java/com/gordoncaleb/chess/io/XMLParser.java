@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,6 +24,7 @@ import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.pieces.Piece;
 
 public class XMLParser {
+	private static final Logger logger = LoggerFactory.getLogger(XMLParser.class);
 
 	public XMLParser() {
 
@@ -81,7 +84,7 @@ public class XMLParser {
 		}
 
 		if (pieces[Side.BLACK.ordinal()].size() == 0 || pieces[Side.WHITE.ordinal()].size() == 0) {
-			System.out.println("Error loading xml board!");
+			logger.debug("Error loading xml board!");
 			return null;
 		}
 

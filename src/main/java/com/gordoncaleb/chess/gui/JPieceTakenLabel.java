@@ -7,13 +7,13 @@ import javax.swing.JLabel;
 
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.io.ChessImages;
-import com.gordoncaleb.chess.pieces.PieceID;
+import com.gordoncaleb.chess.pieces.Piece;
 
 public class JPieceTakenLabel extends JLabel implements PieceGUI{
-	private PieceID pieceID;
+	private Piece.PieceID pieceID;
 	private Side player;
 	
-	public JPieceTakenLabel(PieceID pieceID, Side side){
+	public JPieceTakenLabel(Piece.PieceID pieceID, Side side){
 		this.pieceID = pieceID;
 		this.player = side;
 		
@@ -21,7 +21,7 @@ public class JPieceTakenLabel extends JLabel implements PieceGUI{
 		this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 	}
 
-	public PieceID getPieceID() {
+	public Piece.PieceID getPieceID() {
 		return pieceID;
 	}
 	
@@ -29,7 +29,7 @@ public class JPieceTakenLabel extends JLabel implements PieceGUI{
 		return player;
 	}
 
-	public void showChessPiece(PieceID pieceID, Side player) {
+	public void showChessPiece(Piece.PieceID pieceID, Side player) {
 		this.pieceID = pieceID;
 		this.player = player;
 		this.setIcon(ChessImages.getChessIcon(pieceID, player));

@@ -24,8 +24,11 @@ import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.gui.AISettingsGUI;
 import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.io.XMLParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, MouseListener {
+	private static final Logger logger = LoggerFactory.getLogger(EthernetPlayerServer.class);
 
 	private JFrame frame;
 	private JLabel statusTxt;
@@ -82,9 +85,9 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 			try {
 				clientSocket = new Socket(dest, port);
 			} catch (UnknownHostException e) {
-				FileIO.log("Problem game host name");
+				logger.info("Problem game host name");
 			} catch (IOException e) {
-				FileIO.log("Connection to game lost");
+				logger.info("Connection to game lost");
 			}
 		}
 
@@ -112,7 +115,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 			break;
 		case "<board>":
 			Board board = XMLParser.XMLToBoard(message);
-			System.out.println("got new board:\n" + board.toString());
+			logger.debug("got new board:\n" + board.toString());
 			player.newGame(board);
 			break;
 		case "<move>":
@@ -148,7 +151,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 			player.recommendationMade(Long.parseLong(payload));
 			break;
 		default:
-			System.out.println("Server unrecognized command received: \n" + message);
+			logger.debug("Server unrecognized command received: \n" + message);
 			break;
 
 		}

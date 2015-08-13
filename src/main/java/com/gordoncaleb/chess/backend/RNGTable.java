@@ -3,19 +3,20 @@ package com.gordoncaleb.chess.backend;
 import java.security.SecureRandom;
 import java.util.Random;
 
-import com.gordoncaleb.chess.pieces.PieceID;
+import com.gordoncaleb.chess.pieces.Piece;
 
 public class RNGTable {
+
+	public static RNGTable instance = new RNGTable();
+
 	private static final byte[] seed = { -52, 45, -101, 26, -51, -99, -84, -79 };
-	private Random rng;
+	private final Random rng;
 	private long[][][][] piecePerSquare;
 	private long blackToMove;
 	private long[][][][] castlingRights;
 	private long[] enPassantFile;
-	
-	private static RNGTable singleton;
 
-	public RNGTable() {
+	private RNGTable() {
 		rng = new SecureRandom(seed);
 		generatePiecePerSquare();
 		generateBlackToMove();
@@ -23,27 +24,8 @@ public class RNGTable {
 		generateEnPassantFile();
 	}
 
-	public static void main(String[] args) {
-		RNGTable rngTable = new RNGTable();
-
-		for (int i = 0; i < 5; i++) {
-			System.out.println(rngTable.randomLong() + "");
-		}
-	}
-	
-	public static RNGTable getSingleton(){
-		if(singleton == null){
-			singleton = new RNGTable();
-		}
-		return singleton;
-	}
-
-	public long randomLong() {
-		return rng.nextLong();
-	}
-
 	private void generatePiecePerSquare() {
-		PieceID[] pieceIDs = PieceID.values();
+		Piece.PieceID[] pieceIDs = Piece.PieceID.values();
 		int numPieceType = pieceIDs.length;
 
 		piecePerSquare = new long[2][numPieceType][8][8];
@@ -52,20 +34,19 @@ public class RNGTable {
 			for (int pieceType = 0; pieceType < numPieceType; pieceType++) {
 				for (int r = 0; r < 8; r++) {
 					for (int c = 0; c < 8; c++) {
-						piecePerSquare[player][pieceType][r][c] = randomLong();
+						piecePerSquare[player][pieceType][r][c] = rng.nextLong();
 					}
 				}
 			}
 		}
 	}
 
-	public long getPiecePerSquareRandom(Side player, PieceID id, int row, int col) {
+	public long getPiecePerSquareRandom(Side player, Piece.PieceID id, int row, int col) {
 		return piecePerSquare[player.ordinal()][id.ordinal()][row][col];
 	}
 
 	private void generateBlackToMove() {
-		blackToMove = randomLong();
-
+		blackToMove = rng.nextLong();
 	}
 
 	public long getBlackToMoveRandom() {
@@ -79,7 +60,7 @@ public class RNGTable {
 			for (int bl = 0; bl < 2; bl++) {
 				for (int wr = 0; wr < 2; wr++) {
 					for (int wl = 0; wl < 2; wl++) {
-						castlingRights[br][bl][wr][wl] = randomLong();
+						castlingRights[br][bl][wr][wl] = rng.nextLong();
 					}
 				}
 			}
@@ -118,7 +99,7 @@ public class RNGTable {
 	private void generateEnPassantFile() {
 		enPassantFile = new long[8];
 		for (int f = 0; f < 8; f++) {
-			enPassantFile[f] = randomLong();
+			enPassantFile[f] = rng.nextLong();
 		}
 	}
 

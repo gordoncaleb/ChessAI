@@ -14,8 +14,8 @@ public class Knight {
 	public Knight() {
 	}
 
-	public static PieceID getPieceID() {
-		return PieceID.KNIGHT;
+	public static Piece.PieceID getPieceID() {
+		return Piece.PieceID.KNIGHT;
 	}
 
 	public static String getName() {
@@ -34,7 +34,7 @@ public class Knight {
 		int value;
 		int bonus;
 		int myValue = board.getPieceValue(p.getRow(), p.getCol());
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 		Side player = p.getSide();
 		Long moveLong;
 
@@ -43,10 +43,10 @@ public class Knight {
 			nextCol = currentCol + KNIGHTMOVES[1][i];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			if (pieceStatus != PositionStatus.OFF_BOARD) {
+			if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
 				bonus = PositionBonus.getKnightMoveBonus(currentRow, currentCol, nextRow, nextCol, p.getSide());
 
-				if (pieceStatus == PositionStatus.NO_PIECE) {
+				if (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 					if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
 						if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
@@ -60,7 +60,7 @@ public class Knight {
 					}
 				}
 
-				if (pieceStatus == PositionStatus.ENEMY) {
+				if (pieceStatus == Piece.PositionStatus.ENEMY) {
 					if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 						value = board.getPieceValue(nextRow, nextCol);
 
@@ -88,7 +88,7 @@ public class Knight {
 		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 
 		for (int i = 0; i < 8; i++) {
 			nextRow = currentRow + KNIGHTMOVES[0][i];
@@ -96,9 +96,9 @@ public class Knight {
 
 			pieceStatus = board.checkPiece(nextRow, nextCol, p.getSide());
 
-			if (pieceStatus != PositionStatus.OFF_BOARD) {
+			if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
 
-				if (board.getPieceID(nextRow, nextCol) == PieceID.KING && pieceStatus == PositionStatus.ENEMY) {
+				if (board.getPieceID(nextRow, nextCol) == Piece.PieceID.KING && pieceStatus == Piece.PositionStatus.ENEMY) {
 					nullMoveInfo[1] &= p.getBit();
 				}
 

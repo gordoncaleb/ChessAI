@@ -9,13 +9,14 @@ import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
 
 public class Queen {
+
 	public static int[][] QUEENMOVES = { { 1, 1, -1, -1, 1, -1, 0, 0 }, { 1, -1, 1, -1, 0, 0, 1, -1 } };
 
 	public Queen() {
 	}
 
-	public static PieceID getPieceID() {
-		return PieceID.QUEEN;
+	public static Piece.PieceID getPieceID() {
+		return Piece.PieceID.QUEEN;
 	}
 
 	public static String getName() {
@@ -31,7 +32,7 @@ public class Queen {
 		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 
 		int i = 1;
 		for (int d = 0; d < 8; d++) {
@@ -39,7 +40,7 @@ public class Queen {
 			nextCol = currentCol + i * QUEENMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, p.getSide());
 
-			while (pieceStatus == PositionStatus.NO_PIECE) {
+			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
 				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE));
 
@@ -50,7 +51,7 @@ public class Queen {
 
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE, board.getPiece(nextRow, nextCol)));
 			}
 
@@ -65,7 +66,7 @@ public class Queen {
 		int nextRow;
 		int nextCol;
 		int value;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 
 		int i = 1;
 		for (int d = 0; d < 8; d++) {
@@ -73,7 +74,7 @@ public class Queen {
 			nextCol = currentCol + i * QUEENMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			while (pieceStatus == PositionStatus.NO_PIECE) {
+			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
@@ -93,7 +94,7 @@ public class Queen {
 
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
 					value = board.getPieceValue(nextRow, nextCol);
@@ -114,39 +115,7 @@ public class Queen {
 
 	}
 
-	public static void main(String[] args) {
-		long[] nullMoveInfo = new long[3];
 
-		nullMoveInfo[1] = -1L;
-
-		Piece queen = new Piece(PieceID.QUEEN, Side.WHITE, 6, 0, false);
-		long piece = queen.getBit();
-		long kingBitBoard = BitBoard.getMask(1, 0);
-
-		long friendly = kingBitBoard | BitBoard.getMask(1, 5);// |
-																// BitBoard.getMask(4,
-																// 0);
-		long enemy = piece | BitBoard.getMask(4, 4);
-		long bb = friendly | enemy;
-
-		long updown = ~bb;
-		long left = 0xFEFEFEFEFEFEFEFEL & ~bb;
-		long right = 0x7F7F7F7F7F7F7F7FL & ~bb;
-
-		System.out.println("pos\n" + BitBoard.printBitBoard(bb));
-
-		long kingCheckVectors = King.getKingCheckVectors(kingBitBoard, updown, left, right);
-
-		System.out.println("king check\n" + BitBoard.printBitBoard(kingCheckVectors));
-
-		Queen.getNullMoveInfo(queen, null, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
-
-		System.out.println("king\n" + BitBoard.printBitBoard(kingBitBoard));
-
-		System.out.println("[0]\n" + BitBoard.printBitBoard(nullMoveInfo[0]));
-		System.out.println("[1]\n" + BitBoard.printBitBoard(nullMoveInfo[1]));
-		System.out.println("[2]\n" + BitBoard.printBitBoard(nullMoveInfo[2]));
-	}
 
 	public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors,
 			long friendly) {
@@ -430,7 +399,7 @@ public class Queen {
 		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 		Side player = p.getSide();
 
 		long bitPosition = p.getBit();
@@ -441,11 +410,11 @@ public class Queen {
 			nextCol = currentCol + i * QUEENMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			if (pieceStatus == PositionStatus.OFF_BOARD) {
+			if (pieceStatus == Piece.PositionStatus.OFF_BOARD) {
 				continue;
 			}
 
-			while (pieceStatus == PositionStatus.NO_PIECE) {
+			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
 				i++;
 				nextRow = currentRow + i * QUEENMOVES[0][d];
@@ -453,15 +422,15 @@ public class Queen {
 				pieceStatus = board.checkPiece(nextRow, nextCol, player);
 			}
 
-			if (pieceStatus != PositionStatus.OFF_BOARD) {
+			if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
 				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 
 				blockingPiece = board.getPiece(nextRow, nextCol);
 
-				if (blockingPiece.getPieceID() == PieceID.KING) {
+				if (blockingPiece.getPieceID() == Piece.PieceID.KING) {
 					nullMoveInfo[1] &= (bitAttackVector | bitPosition);
 					inCheck = true;
 				}
@@ -471,7 +440,7 @@ public class Queen {
 				nextCol = currentCol + i * QUEENMOVES[1][d];
 				pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-				while (pieceStatus == PositionStatus.NO_PIECE) {
+				while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
 					i++;
 					nextRow = currentRow + i * QUEENMOVES[0][d];
@@ -479,13 +448,13 @@ public class Queen {
 					pieceStatus = board.checkPiece(nextRow, nextCol, player);
 				}
 
-				if (pieceStatus != PositionStatus.OFF_BOARD) {
-					if (board.getPieceID(nextRow, nextCol) == PieceID.KING && board.getPiece(nextRow, nextCol).getSide() != player) {
+				if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
+					if (board.getPieceID(nextRow, nextCol) == Piece.PieceID.KING && board.getPiece(nextRow, nextCol).getSide() != player) {
 						blockingPiece.setBlockingVector(bitAttackCompliment | bitAttackVector | bitPosition);
 					}
 				}
 
-				if (pieceStatus == PositionStatus.FRIEND) {
+				if (pieceStatus == Piece.PositionStatus.FRIEND) {
 					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
 				}
 

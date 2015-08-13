@@ -1,8 +1,12 @@
 package com.gordoncaleb.chess.pieces;
 
 import com.gordoncaleb.chess.backend.Side;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PositionBonus {
+	private static final Logger logger = LoggerFactory.getLogger(PositionBonus.class);
+
 	private static int[][] knightBonus = 
 		
 		{ { -30, -20, -10, -10, -10, -10, -20, -30 },// 1
@@ -106,15 +110,15 @@ public class PositionBonus {
 
 	private static void printBonus(int[][] bonus, String name) {
 
-		System.out.println(name + " Bonus{");
+		logger.debug(name + " Bonus{");
 		for (int i = 0; i < bonus.length; i++) {
 			for (int y = 0; y < bonus[i].length; y++) {
 				System.out.print(String.format("%3d", bonus[i][y]) + ",");
 			}
-			System.out.println("\n");
+			logger.debug("\n");
 		}
 
-		System.out.println("}");
+		logger.debug("}");
 	}
 
 	public static void scalePositionBonus(int[][] bonus, double scale) {
@@ -125,7 +129,7 @@ public class PositionBonus {
 		}
 	}
 
-	public static final int getKnightMoveBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
+	public static int getKnightMoveBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = knightBonus[toRow][toCol] - knightBonus[fromRow][fromCol];
@@ -135,7 +139,7 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static final int getKnightPositionBonus(int row, int col, Side player) {
+	public static int getKnightPositionBonus(int row, int col, Side player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = knightBonus[row][col];
@@ -145,7 +149,7 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static final int getKingOpeningPositionBonus(int row, int col, Side player) {
+	public static int getKingOpeningPositionBonus(int row, int col, Side player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = kingOpeningBonus[row][col];
@@ -155,7 +159,7 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static final int getKingEndGamePositionBonus(int row, int col, Side player) {
+	public static int getKingEndGamePositionBonus(int row, int col, Side player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = kingEndGameBonus[row][col];
@@ -165,11 +169,11 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static final int getRookBonus(int row, int col) {
+	public static int getRookBonus(int row, int col) {
 		return rookBonus[row][col];
 	}
 
-	public static final int getPawnMoveBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
+	public static int getPawnMoveBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = pawnBonus[toRow][toCol] - pawnBonus[fromRow][fromCol];
@@ -179,7 +183,7 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static final int getPawnPositionBonus(int row, int col, Side player) {
+	public static int getPawnPositionBonus(int row, int col, Side player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = pawnBonus[row][col];

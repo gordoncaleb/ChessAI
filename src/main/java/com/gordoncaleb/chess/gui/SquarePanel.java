@@ -13,14 +13,14 @@ import javax.swing.border.BevelBorder;
 
 import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.pieces.PieceID;
+import com.gordoncaleb.chess.pieces.Piece;
 
 public class SquarePanel extends JPanel implements PieceGUI {
 	private static final long serialVersionUID = 1L;
 
 	private int row;
 	private int col;
-	private PieceID id;
+	private Piece.PieceID id;
 	private Side player;
 	private ArrayList<Long> validMoves;
 
@@ -184,7 +184,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 		updateBackgroundColor();
 	}
 
-	public void showChessPiece(PieceID id, Side player) {
+	public void showChessPiece(Piece.PieceID id, Side player) {
 
 		if (this.id == id && this.player == player) {
 			return;
@@ -243,7 +243,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 		return id != null;
 	}
 
-	public PieceID getPieceID() {
+	public Piece.PieceID getPieceID() {
 		return id;
 	}
 

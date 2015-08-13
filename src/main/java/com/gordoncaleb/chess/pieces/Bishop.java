@@ -14,8 +14,8 @@ public class Bishop {
 	public Bishop() {
 	}
 
-	public static PieceID getPieceID() {
-		return PieceID.BISHOP;
+	public static Piece.PieceID getPieceID() {
+		return Piece.PieceID.BISHOP;
 	}
 
 	public static String getName() {
@@ -33,7 +33,7 @@ public class Bishop {
 		int nextCol;
 		Long moveLong;
 		int value;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 		Side player = p.getSide();
 
 		int i = 1;
@@ -42,7 +42,7 @@ public class Bishop {
 			nextCol = currentCol + i * BISHOPMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			while (pieceStatus == PositionStatus.NO_PIECE) {
+			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
 				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
 				moves.add(moveLong);
@@ -54,7 +54,7 @@ public class Bishop {
 
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				value = board.getPieceValue(nextRow, nextCol);
 				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
 				moves.add(moveLong);
@@ -71,7 +71,7 @@ public class Bishop {
 		int nextCol;
 		Long moveLong;
 		int value;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 		Side player = p.getSide();
 
 		int i = 1;
@@ -80,7 +80,7 @@ public class Bishop {
 			nextCol = currentCol + i * BISHOPMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			while (pieceStatus == PositionStatus.NO_PIECE) {
+			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
@@ -102,7 +102,7 @@ public class Bishop {
 
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 					value = board.getPieceValue(nextRow, nextCol);
 
@@ -282,7 +282,7 @@ public class Bishop {
 		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
-		PositionStatus pieceStatus;
+		Piece.PositionStatus pieceStatus;
 		Side player = p.getSide();
 
 		long bitPosition = p.getBit();
@@ -293,11 +293,11 @@ public class Bishop {
 			nextCol = currentCol + i * BISHOPMOVES[1][d];
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-			if (pieceStatus == PositionStatus.OFF_BOARD) {
+			if (pieceStatus == Piece.PositionStatus.OFF_BOARD) {
 				continue;
 			}
 
-			while (pieceStatus == PositionStatus.NO_PIECE) {
+			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
 				i++;
 				nextRow = currentRow + i * BISHOPMOVES[0][d];
@@ -305,14 +305,14 @@ public class Bishop {
 				pieceStatus = board.checkPiece(nextRow, nextCol, player);
 			}
 
-			if (pieceStatus != PositionStatus.OFF_BOARD) {
+			if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
 				bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
 			}
 
-			if (pieceStatus == PositionStatus.ENEMY) {
+			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				blockingPiece = board.getPiece(nextRow, nextCol);
 
-				if (blockingPiece.getPieceID() == PieceID.KING) {
+				if (blockingPiece.getPieceID() == Piece.PieceID.KING) {
 					nullMoveInfo[1] &= (bitAttackVector | bitPosition);
 					inCheck = true;
 				}
@@ -322,7 +322,7 @@ public class Bishop {
 				nextCol = currentCol + i * BISHOPMOVES[1][d];
 				pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
-				while (pieceStatus == PositionStatus.NO_PIECE) {
+				while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
 					i++;
 					nextRow = currentRow + i * BISHOPMOVES[0][d];
@@ -330,13 +330,13 @@ public class Bishop {
 					pieceStatus = board.checkPiece(nextRow, nextCol, player);
 				}
 
-				if (pieceStatus != PositionStatus.OFF_BOARD) {
-					if (board.getPieceID(nextRow, nextCol) == PieceID.KING && board.getPiece(nextRow, nextCol).getSide() != player) {
+				if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
+					if (board.getPieceID(nextRow, nextCol) == Piece.PieceID.KING && board.getPiece(nextRow, nextCol).getSide() != player) {
 						blockingPiece.setBlockingVector(bitAttackCompliment | bitAttackVector | bitPosition);
 					}
 				}
 
-				if (pieceStatus == PositionStatus.FRIEND) {
+				if (pieceStatus == Piece.PositionStatus.FRIEND) {
 					bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
 				}
 

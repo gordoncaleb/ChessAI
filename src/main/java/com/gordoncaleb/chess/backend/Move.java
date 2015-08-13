@@ -1,7 +1,8 @@
 package com.gordoncaleb.chess.backend;
 
 import com.gordoncaleb.chess.pieces.Piece;
-import com.gordoncaleb.chess.pieces.PieceID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Move {
 
@@ -22,96 +23,6 @@ public class Move {
 	public static final int notPieceTaken = ~(0x7FF << 16);
 
 	private long moveLong;
-
-	public static void main(String[] args) {
-
-		long moveLong;
-		Piece pieceTaken1;
-		Piece pieceTaken2;
-
-		for (int i = 0; i < 2000000; i++) {
-			moveLong = Move.moveLong(1, 2, 3, 4, i, MoveNote.NONE, null, true);
-			
-			//moveLong = Move.setValue(moveLong, -i);
-			
-			
-			if (Move.getValue(moveLong) != i) {
-				System.out.println("problem at " + i + "!=" + Move.getValue(moveLong));
-				System.out.println("it is 0x" + Integer.toHexString(Move.getValue(moveLong)));
-			}
-		}
-
-		// for (int n = 0; n < MoveNote.values().length; n++) {
-		// for (int ptid = 0; ptid < PieceID.values().length; ptid++) {
-		// for (int ptc = 0; ptc < 8; ptc++) {
-		// for (int ptr = 0; ptr < 8; ptr++) {
-		// for (int fr = 0; fr < 8; fr++) {
-		// for (int fc = 0; fc < 8; fc++) {
-		// for (int tr = 0; tr < 8; tr++) {
-		// for (int tc = 0; tc < 8; tc++) {
-		// pieceTaken1 = new Piece(PieceID.PAWN, Side.WHITE, 1, 2, false);
-		// moveLong = Move.moveLong(fr, fc, tr, tc, tr - tc, MoveNote.NONE,
-		// pieceTaken1, true);
-		//
-		// pieceTaken2 = new Piece(PieceID.values()[ptid], Side.WHITE, ptr, ptc,
-		// true);
-		// moveLong = Move.setPieceTaken(moveLong, pieceTaken2);
-		//
-		// moveLong = Move.setNote(moveLong, MoveNote.values()[n]);
-		//
-		// moveLong = Move.setHadMoved(moveLong, false);
-		//
-		// if (Move.getFromRow(moveLong) != fr) {
-		// System.out.println("getFromRow");
-		// }
-		// if (Move.getFromCol(moveLong) != fc) {
-		// System.out.println("getFromCol");
-		// }
-		// if (Move.getToRow(moveLong) != tr) {
-		// System.out.println("getToRow");
-		// }
-		// if (Move.getToCol(moveLong) != tc) {
-		// System.out.println("getToCol");
-		// }
-		// if (Move.getNote(moveLong) != MoveNote.values()[n]) {
-		// System.out.println("getNote");
-		// }
-		//
-		// if (Move.getPieceTakenID(moveLong) != PieceID.values()[ptid]) {
-		// System.out.println("getPieceTakenID");
-		// }
-		//
-		// if (Move.getPieceTakenRow(moveLong) != ptr) {
-		// System.out.println("getPieceTakenRow");
-		// }
-		//
-		// if (Move.getPieceTakenCol(moveLong) != ptc) {
-		// System.out.println("getPieceTakenCol");
-		// }
-		//
-		// if (!Move.getPieceTakenHasMoved(moveLong)) {
-		// System.out.println("getPieceTakenHasMoved");
-		// }
-		//
-		// if (Move.hadMoved(moveLong)) {
-		// System.out.println("hadMoved");
-		// }
-		//
-		// if (Move.getValue(moveLong) != (tr - tc)) {
-		// System.out.println("value");
-		// }
-		//
-		// }
-		// }
-		// }
-		// }
-		// }
-		// }
-		// }
-		// }
-
-		System.out.println("Done");
-	}
 
 	public Move(int fromRow, int fromCol, int toRow, int toCol) {
 		this(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, null, false);
@@ -421,12 +332,12 @@ public class Move {
 		return (int) ((moveLong >> 17) & 0x7);
 	}
 
-	public PieceID getPieceTakenID() {
-		return PieceID.values()[(int) ((moveLong >> 23) & 0x7)];
+	public Piece.PieceID getPieceTakenID() {
+		return Piece.PieceID.values()[(int) ((moveLong >> 23) & 0x7)];
 	}
 
-	public static PieceID getPieceTakenID(long moveLong) {
-		return PieceID.values()[(int) ((moveLong >> 23) & 0x7)];
+	public static Piece.PieceID getPieceTakenID(long moveLong) {
+		return Piece.PieceID.values()[(int) ((moveLong >> 23) & 0x7)];
 	}
 
 	public Move getCopy() {
