@@ -451,16 +451,16 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		// setFlipBoard(adjudicator.getTurn() == Side.BLACK);
 	}
 
-	public void setGameSatus(GameStatus status, Side playerTurn) {
+	public void setGameSatus(Game.GameStatus status, Side playerTurn) {
 
-		if (status == GameStatus.CHECK) {
+		if (status == Game.GameStatus.CHECK) {
 			logger.debug("Check!");
 		}
 
-		if (status == GameStatus.CHECKMATE) {
+		if (status == Game.GameStatus.CHECKMATE) {
 		}
 
-		if (status == GameStatus.STALEMATE) {
+		if (status == Game.GameStatus.STALEMATE) {
 
 		}
 	}
@@ -591,7 +591,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		for (int i = 0; i < validMoves.size(); i++) {
 			move = validMoves.get(i);
 
-			if (Move.getNote(move) == MoveNote.CASTLE_FAR || Move.getNote(move) == MoveNote.CASTLE_NEAR) {
+			if (Move.getNote(move) == Move.MoveNote.CASTLE_FAR || Move.getNote(move) == Move.MoveNote.CASTLE_NEAR) {
 				getChessSquare(Move.getToRow(move), Move.getToCol(move)).showAsValidMove(valid, Color.BLUE);
 			} else {
 				getChessSquare(Move.getToRow(move), Move.getToCol(move)).showAsValidMove(valid);

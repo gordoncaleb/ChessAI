@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.MoveNote;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
 
@@ -55,12 +54,12 @@ public class Pawn {
 
             if (p.isValidMove(currentRow + dir, currentCol, nullMoveInfo)) {
 
-                moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol, 0, MoveNote.NONE);
+                moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol, 0, Move.MoveNote.NONE);
 
                 value = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + dir, currentCol, p.getSide());
 
                 if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-                    moveLong = Move.setNote(moveLong, MoveNote.NEW_QUEEN);
+                    moveLong = Move.setNote(moveLong, Move.MoveNote.NEW_QUEEN);
                     value = Values.QUEEN_VALUE;
                 }
 
@@ -84,7 +83,7 @@ public class Pawn {
                         value = -myValue >> 1;
                     }
 
-                    validMoves.add(Move.moveLong(currentRow, currentCol, currentRow + 2 * dir, currentCol, value, MoveNote.PAWN_LEAP));
+                    validMoves.add(Move.moveLong(currentRow, currentCol, currentRow + 2 * dir, currentCol, value, Move.MoveNote.PAWN_LEAP));
 
                 }
             }
@@ -102,7 +101,7 @@ public class Pawn {
                     value = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + dir, currentCol, p.getSide());
 
                     if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-                        moveLong = Move.setNote(moveLong, MoveNote.NEW_QUEEN);
+                        moveLong = Move.setNote(moveLong, Move.MoveNote.NEW_QUEEN);
                         value = Values.QUEEN_VALUE;
                     }
 
@@ -126,7 +125,7 @@ public class Pawn {
             for (int i : lr) {
                 if (board.checkPiece(fifthRank, currentCol + lr[i], player) == Piece.PositionStatus.ENEMY) {
 
-                    if ((Move.getToCol(board.getLastMoveMade()) == (currentCol + lr[i])) && Move.getNote(board.getLastMoveMade()) == MoveNote.PAWN_LEAP) {
+                    if ((Move.getToCol(board.getLastMoveMade()) == (currentCol + lr[i])) && Move.getNote(board.getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
 
                         if (p.isValidMove(currentRow + dir, currentCol + lr[i], nullMoveInfo)) {
 
@@ -136,7 +135,7 @@ public class Pawn {
                                 value -= myValue >> 1;
                             }
 
-                            moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + lr[i], value, MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + lr[i]));
+                            moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + lr[i], value, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + lr[i]));
                             validMoves.add(moveLong);
                         }
 

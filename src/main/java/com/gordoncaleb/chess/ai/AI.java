@@ -2,12 +2,7 @@ package com.gordoncaleb.chess.ai;
 
 import java.util.ArrayList;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.BoardHashEntry;
-import com.gordoncaleb.chess.backend.GameStatus;
-import com.gordoncaleb.chess.backend.Player;
-import com.gordoncaleb.chess.backend.PlayerContainer;
-import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.io.MoveBook;
 import com.gordoncaleb.chess.pieces.Values;
 import org.slf4j.Logger;
@@ -697,7 +692,7 @@ public class AI extends Thread implements Player {
 	}
 
 	@Override
-	public GameStatus getGameStatus() {
+	public Game.GameStatus getGameStatus() {
 		// TODO Auto-generated method stub
 		return null;
 	}

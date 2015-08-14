@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.MoveNote;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
 
@@ -44,7 +43,7 @@ public class Bishop {
 
 			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
-				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
+				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE);
 				moves.add(moveLong);
 
 				i++;
@@ -56,7 +55,7 @@ public class Bishop {
 
 			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				value = board.getPieceValue(nextRow, nextCol);
-				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
+				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
 				moves.add(moveLong);
 			}
 
@@ -90,7 +89,7 @@ public class Bishop {
 						value = 0;
 					}
 
-					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE);
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE);
 
 					validMoves.add(moveLong);
 				}
@@ -110,7 +109,7 @@ public class Bishop {
 						value -= Values.BISHOP_VALUE >> 1;
 					}
 
-					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
 					validMoves.add(moveLong);
 				}
 			}

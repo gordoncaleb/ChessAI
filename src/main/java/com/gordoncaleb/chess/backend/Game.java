@@ -301,4 +301,7 @@ public class Game implements PlayerContainer {
 
 	}
 
+	public static enum GameStatus {
+        IN_PLAY,CHECK,CHECKMATE,STALEMATE,TIMES_UP,DRAW,INVALID
+    }
 }

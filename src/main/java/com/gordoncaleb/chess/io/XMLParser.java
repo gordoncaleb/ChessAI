@@ -19,7 +19,6 @@ import org.xml.sax.InputSource;
 
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.backend.MoveNote;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.pieces.Piece;
 
@@ -153,12 +152,12 @@ public class XMLParser {
 		}
 
 		nodes = moveElement.getElementsByTagName("note");
-		MoveNote moveNote;
+		Move.MoveNote moveNote;
 
 		if (nodes.getLength() != 0) {
-			moveNote = MoveNote.valueOf(getCharacterDataFromElement((Element) nodes.item(0)));
+			moveNote = Move.MoveNote.valueOf(getCharacterDataFromElement((Element) nodes.item(0)));
 		} else {
-			moveNote = MoveNote.NONE;
+			moveNote = Move.MoveNote.NONE;
 		}
 
 		nodes = moveElement.getElementsByTagName("piece");

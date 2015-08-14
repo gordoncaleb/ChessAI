@@ -1,7 +1,6 @@
 package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.backend.MoveNote;
 import com.gordoncaleb.chess.pieces.Piece;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ public class MoveTest {
         Piece pieceTaken2;
 
         for (int i = 0; i < 2000000; i++) {
-            moveLong = Move.moveLong(1, 2, 3, 4, i, MoveNote.NONE, null, true);
+            moveLong = Move.moveLong(1, 2, 3, 4, i, Move.MoveNote.NONE, null, true);
 
             //moveLong = Move.setValue(moveLong, -i);
 

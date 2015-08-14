@@ -10,11 +10,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.GameStatus;
-import com.gordoncaleb.chess.backend.Player;
-import com.gordoncaleb.chess.backend.PlayerContainer;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.io.FileIO;
 
 public class ObserverGUI implements Player, BoardGUI, MouseListener {
@@ -217,7 +213,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public GameStatus getGameStatus() {
+	public Game.GameStatus getGameStatus() {
 		return boardPanel.getBoard().getBoardStatus();
 	}
 

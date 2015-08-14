@@ -1,8 +1,6 @@
 package com.gordoncaleb.chess.backend;
 
 import com.gordoncaleb.chess.pieces.Piece;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Move {
 
@@ -348,4 +346,7 @@ public class Move {
 		return moveLong;
 	}
 
+	public static enum MoveNote {
+        NONE,CASTLE_NEAR,CASTLE_FAR,NEW_QUEEN,ENPASSANT,PAWN_LEAP
+    }
 }

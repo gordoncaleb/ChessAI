@@ -18,7 +18,6 @@ import com.gordoncaleb.chess.ai.AISettings;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Game;
-import com.gordoncaleb.chess.backend.GameStatus;
 import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.PlayerContainer;
 import com.gordoncaleb.chess.backend.Side;
@@ -263,7 +262,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public GameStatus getGameStatus() {
+	public Game.GameStatus getGameStatus() {
 		return boardPanel.getBoard().getBoardStatus();
 	}
 

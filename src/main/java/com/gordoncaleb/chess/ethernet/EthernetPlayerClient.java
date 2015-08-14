@@ -4,12 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.GameStatus;
-import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.backend.Player;
-import com.gordoncaleb.chess.backend.PlayerContainer;
-import com.gordoncaleb.chess.io.FileIO;
+import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.io.XMLParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,7 +140,7 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 	}
 
 	@Override
-	public GameStatus getGameStatus() {
+	public Game.GameStatus getGameStatus() {
 
 		return null;
 	}

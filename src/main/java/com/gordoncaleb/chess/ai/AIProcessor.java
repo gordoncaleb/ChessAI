@@ -2,10 +2,7 @@ package com.gordoncaleb.chess.ai;
 
 import java.util.ArrayList;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.GameStatus;
-import com.gordoncaleb.chess.backend.BoardHashEntry;
-import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.pieces.Values;
 
 public class AIProcessor extends Thread {
@@ -352,7 +349,7 @@ public class AIProcessor extends Thread {
 
 			if (AISettings.bonusEnable) {
 
-				if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -AISettings.maxInCheckFrontierLevel)) {
+				if ((board.getBoardStatus() == Game.GameStatus.CHECK) && (level > -AISettings.maxInCheckFrontierLevel)) {
 					bonusLevel = Math.min(bonusLevel, level - 2);
 				} else {
 //					if (board.canQueen()) {
@@ -582,7 +579,7 @@ public class AIProcessor extends Thread {
 
 		if (AISettings.bonusEnable) {
 
-			if ((board.getBoardStatus() == GameStatus.CHECK) && (level > -AISettings.maxInCheckFrontierLevel)) {
+			if ((board.getBoardStatus() == Game.GameStatus.CHECK) && (level > -AISettings.maxInCheckFrontierLevel)) {
 				bonusLevel = Math.min(bonusLevel, level - 2);
 			}
 
@@ -593,7 +590,7 @@ public class AIProcessor extends Thread {
 
 		if (level > bonusLevel) {
 
-			GameStatus tempBoardState;
+			Game.GameStatus tempBoardState;
 			long move;
 
 			ArrayList<Long> moves = new ArrayList<Long>(board.generateValidMoves(true, hashMove, AI.noKillerMoves));

@@ -1,11 +1,9 @@
 package com.gordoncaleb.chess.ai;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.backend.MoveNote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,7 +156,7 @@ public class DecisionNode implements Comparable<DecisionNode> {
         if (move == 0) {
             return false;
         } else {
-            if (Move.getNote(move) == MoveNote.NEW_QUEEN) {
+            if (Move.getNote(move) == Move.MoveNote.NEW_QUEEN) {
                 return true;
             } else {
                 return false;

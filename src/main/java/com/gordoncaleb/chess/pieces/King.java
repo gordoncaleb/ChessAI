@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.MoveNote;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
 
@@ -45,11 +44,11 @@ public class King {
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
 			if (pieceStatus == Piece.PositionStatus.NO_PIECE) {
-				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, moveVal, MoveNote.NONE));
+				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, moveVal, Move.MoveNote.NONE));
 			}
 
 			if (pieceStatus == Piece.PositionStatus.ENEMY) {
-				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol) + moveVal, MoveNote.NONE,
+				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol) + moveVal, Move.MoveNote.NONE,
 						board.getPiece(nextRow, nextCol)));
 			}
 
@@ -111,7 +110,7 @@ public class King {
 						// castle
 						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
 					} else {
-						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE);
+						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE);
 					}
 
 					validMoves.add(moveLong);
@@ -120,7 +119,7 @@ public class King {
 
 			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE,
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), Move.MoveNote.NONE,
 							board.getPiece(nextRow, nextCol));
 					validMoves.add(moveLong);
 				}
@@ -135,10 +134,10 @@ public class King {
 			if (canCastleFar(p, board, player, nullMoveInfo, allPosBitBoard)) {
 				if (isValidMove(currentRow, 2, nullMoveInfo)) {
 					if (currentCol > 3) {
-						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 2, Values.FAR_CASTLE_VALUE, MoveNote.CASTLE_FAR));
+						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 2, Values.FAR_CASTLE_VALUE, Move.MoveNote.CASTLE_FAR));
 					} else {
 						validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 0), currentRow, 3, Values.FAR_CASTLE_VALUE,
-								MoveNote.CASTLE_FAR));
+								Move.MoveNote.CASTLE_FAR));
 					}
 				}
 			}
@@ -146,10 +145,10 @@ public class King {
 			if (canCastleNear(p, board, player, nullMoveInfo, allPosBitBoard)) {
 				if (isValidMove(currentRow, 6, nullMoveInfo)) {
 					if (currentCol < 5) {
-						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 6, Values.NEAR_CASTLE_VALUE, MoveNote.CASTLE_NEAR));
+						validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 6, Values.NEAR_CASTLE_VALUE, Move.MoveNote.CASTLE_NEAR));
 					} else {
 						validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 1), currentRow, 5, Values.NEAR_CASTLE_VALUE,
-								MoveNote.CASTLE_NEAR));
+								Move.MoveNote.CASTLE_NEAR));
 					}
 				}
 			}

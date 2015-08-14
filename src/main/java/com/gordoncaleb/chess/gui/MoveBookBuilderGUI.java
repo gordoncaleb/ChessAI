@@ -23,7 +23,6 @@ import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Game;
-import com.gordoncaleb.chess.backend.GameStatus;
 import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.PlayerContainer;
@@ -331,7 +330,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     }
 
     @Override
-    public GameStatus getGameStatus() {
+    public Game.GameStatus getGameStatus() {
         return boardPanel.getBoard().getBoardStatus();
     }
 

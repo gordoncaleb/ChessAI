@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.MoveNote;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
 
@@ -69,7 +68,7 @@ public class Rook {
 					value = board.getPieceValue(nextRow, nextCol);
 				}
 
-				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
+				moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
 
 				moves.add(moveLong);
 
@@ -135,7 +134,7 @@ public class Rook {
 						value -= Values.ROOK_VALUE >> 1;
 					}
 
-					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
 
 					validMoves.add(moveLong);
 				}

@@ -13,7 +13,6 @@ import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Game;
 import com.gordoncaleb.chess.backend.GameResults;
-import com.gordoncaleb.chess.backend.GameStatus;
 import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.ethernet.EthernetPlayerClient;
@@ -115,7 +114,7 @@ public class TournamentGUI {
 
 				FileIO.writeFile((".\\tournament\\game" + (i * 2 + s) + "_" + results.getEndGameStatus() + ".xml"), ((AI) playerOne).getBoard().toXML(true), false);
 
-				if (results.getEndGameStatus() == GameStatus.CHECKMATE) {
+				if (results.getEndGameStatus() == Game.GameStatus.CHECKMATE) {
 
 					winnerScore[results.getWinner().ordinal()]++;
 					winnerScore[2] += results.getWinBy();
@@ -131,7 +130,7 @@ public class TournamentGUI {
 						loserScore[5] = results.getMaxTime(results.getWinner().otherSide());
 					}
 				} else {
-					if (results.getEndGameStatus() == GameStatus.DRAW || results.getEndGameStatus() == GameStatus.STALEMATE) {
+					if (results.getEndGameStatus() == Game.GameStatus.DRAW || results.getEndGameStatus() == Game.GameStatus.STALEMATE) {
 						if (results.getWinBy() < 0) {
 							winnerScore[6]++;
 							loserScore[7]++;
@@ -145,12 +144,12 @@ public class TournamentGUI {
 
 						draws++;
 
-						if (results.getEndGameStatus() == GameStatus.STALEMATE) {
+						if (results.getEndGameStatus() == Game.GameStatus.STALEMATE) {
 							winnerScore[9]++;
 						}
 
 					} else {
-						if (results.getEndGameStatus() == GameStatus.INVALID) {
+						if (results.getEndGameStatus() == Game.GameStatus.INVALID) {
 							loserScore[10]++;
 						}
 					}
@@ -233,4 +232,8 @@ public class TournamentGUI {
 
 		return out;
 	}
+
+	public enum GameType {
+        AI_VS_AI,TWO_GUI,ONE_GUI,GUI_VS_AI
+    }
 }

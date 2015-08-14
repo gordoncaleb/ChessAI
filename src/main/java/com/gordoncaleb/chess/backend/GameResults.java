@@ -13,9 +13,9 @@ public class GameResults {
 
 	private long numOfMoves;
 	
-	private GameStatus endGameStatus;
+	private Game.GameStatus endGameStatus;
 
-	public GameResults(GameStatus endGameStatus, Side winner, int winBy, long whiteTime, long blackTime, int numOfMoves, long maxWhiteTime, long maxBlackTime) {
+	public GameResults(Game.GameStatus endGameStatus, Side winner, int winBy, long whiteTime, long blackTime, int numOfMoves, long maxWhiteTime, long maxBlackTime) {
 		this.winner = winner;
 		this.winBy = winBy;
 
@@ -70,7 +70,7 @@ public class GameResults {
 		}
 	}
 
-	public GameStatus getEndGameStatus() {
+	public Game.GameStatus getEndGameStatus() {
 		return endGameStatus;
 	}
 

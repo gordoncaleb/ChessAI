@@ -137,8 +137,8 @@ public class MoveBook {
 
             xmlMoveBook += "<response>\n";
 
-            for (int m = 0; m < moves.size(); m++) {
-                xmlMoveBook += Move.toXML(moves.get(m));
+            for (Long m : moves) {
+                xmlMoveBook += Move.toXML(m);
             }
 
             xmlMoveBook += "</response>\n";
@@ -172,8 +172,8 @@ public class MoveBook {
 
             xmlMoveBook += "<response>\n";
 
-            for (int m = 0; m < moves.size(); m++) {
-                xmlMoveBook += Move.toXML(moves.get(m));
+            for (Long m : moves) {
+                xmlMoveBook += Move.toXML(m);
             }
 
             xmlMoveBook += "</response>\n";
@@ -200,9 +200,9 @@ public class MoveBook {
         String gameLine = "";
         boolean gameLineStarted = false;
 
-        for (int i = 0; i < lines.length; i++) {
-            if (!lines[i].trim().startsWith("[") && !lines[i].trim().equals("")) {
-                gameLine += lines[i].trim();
+        for (String line: lines) {
+            if (!line.trim().startsWith("[") && !line.trim().equals("")) {
+                gameLine += line.trim();
                 gameLineStarted = true;
             } else {
                 if (gameLineStarted) {

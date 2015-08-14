@@ -133,7 +133,7 @@ public class Adjudicator {
         return board.placePiece(piece, toRow, toCol);
     }
 
-    public GameStatus getGameStatus() {
+    public Game.GameStatus getGameStatus() {
 
         return board.getBoardStatus();
 

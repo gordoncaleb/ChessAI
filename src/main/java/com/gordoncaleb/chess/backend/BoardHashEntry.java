@@ -82,12 +82,4 @@ public class BoardHashEntry {
 		this.bounds = bounds;
 	}
 
-//	public String getStringBoard() {
-//		return stringBoard;
-//	}
-//
-//	public void setStringBoard(String stringBoard) {
-//		this.stringBoard = stringBoard;
-//	}
-
 }

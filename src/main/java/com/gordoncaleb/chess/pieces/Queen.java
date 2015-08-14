@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.MoveNote;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
 
@@ -42,7 +41,7 @@ public class Queen {
 
 			while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
-				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, MoveNote.NONE));
+				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE));
 
 				i++;
 				nextRow = currentRow + i * QUEENMOVES[0][d];
@@ -52,7 +51,7 @@ public class Queen {
 			}
 
 			if (pieceStatus == Piece.PositionStatus.ENEMY) {
-				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), MoveNote.NONE, board.getPiece(nextRow, nextCol)));
+				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), Move.MoveNote.NONE, board.getPiece(nextRow, nextCol)));
 			}
 
 			i = 1;
@@ -84,7 +83,7 @@ public class Queen {
 						value = 0;
 					}
 
-					validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE));
+					validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE));
 				}
 
 				i++;
@@ -103,7 +102,7 @@ public class Queen {
 						value -= Values.QUEEN_VALUE >> 1;
 					}
 
-					Long moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, MoveNote.NONE, board.getPiece(nextRow, nextCol));
+					Long moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
 					validMoves.add(moveLong);
 				}
 			}
