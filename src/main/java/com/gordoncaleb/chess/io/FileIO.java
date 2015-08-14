@@ -8,75 +8,31 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
 public class FileIO {
     private static final Logger logger = LoggerFactory.getLogger(FileIO.class);
 
-    private static boolean logFileReady;
-    private static boolean debugOutput = true;
-    private static boolean useLogFile = true;
+    public static Stream<String> readFileStream(String fileName) throws Exception {
+        return Files.lines(Paths.get(FileIO.class.getResource(fileName).toURI()));
+    }
 
-    /**
-     * Fetch the entire contents of a text file, and return it in a String. This
-     * style of implementation does not throw Exceptions to the caller.
-     *
-     * @param aFile is a file which already exists and can be read.
-     */
     public static String readFile(String fileName) {
+        try (Stream<String> lines = readFileStream(fileName)) {
 
-        URL fileURL = FileIO.class.getResource("doc/" + fileName);
-        File aFile = null;
+            return lines.collect(Collectors
+                    .joining(System.getProperty("line.separator")));
 
-        if (fileURL == null) {
-            try {
-                aFile = new File(fileName);
-                fileURL = aFile.toURI().toURL();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        if (fileURL == null) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
-        } else {
-            if (aFile != null) {
-                if (!aFile.canRead()) {
-                    return null;
-                }
-            }
         }
-
-        // ...checks on aFile are elided
-        StringBuilder contents = new StringBuilder();
-
-        try {
-            // use buffering, reading one line at a time
-            // FileReader always assumes default encoding is OK!
-            InputStreamReader is = new InputStreamReader(fileURL.openStream());
-            BufferedReader input = new BufferedReader(is);
-            try {
-                String line = null; // not declared within while loop
-                /*
-				 * readLine is a bit quirky : it returns the content of a line
-				 * MINUS the newline. it returns null only for the END of the
-				 * stream. it returns an empty String if two newlines appear in
-				 * a row.
-				 */
-                while ((line = input.readLine()) != null) {
-                    contents.append(line);
-                    contents.append(System.getProperty("line.separator"));
-                }
-            } finally {
-                input.close();
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        return contents.toString();
     }
 
     public static DataOutputStream getDataOutputStream(String fileName) {
@@ -95,17 +51,6 @@ public class FileIO {
 
     }
 
-    /**
-     * Change the contents of text file in its entirety, overwriting any
-     * existing text.
-     * <p>
-     * This style of implementation throws all exceptions to the caller.
-     *
-     * @param aFile is an existing file which can be written to.
-     * @throws IllegalArgumentException if param does not comply.
-     * @throws FileNotFoundException    if the file does not exist.
-     * @throws IOException              if problem encountered during write.
-     */
     public static void writeFile(String fileName, String aContents, boolean append) {
 
         URL fileURL = FileIO.class.getResource("doc/" + fileName);
@@ -134,14 +79,6 @@ public class FileIO {
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void setLogEnabled(boolean enable) {
-        useLogFile = enable;
-    }
-
-    public static void setDebugOutput(boolean enable) {
-        debugOutput = enable;
     }
 
     public static BufferedImage readImage(String fileName) {

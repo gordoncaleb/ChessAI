@@ -2,6 +2,7 @@ package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.io.MoveBook;
+import com.gordoncaleb.chess.io.PGNParser;
 import org.junit.Test;
 
 import java.util.*;
@@ -12,7 +13,7 @@ public class MoveBookTest {
 
     @Test
     public void testCompiler() {
-        Map<Long, List<Long>> moveBook = MoveBook.moveBookFromPGNFile("book.pgn");
+        Map<Long, List<Long>> moveBook = PGNParser.moveBookFromPGNFile("book.pgn");
 
         Map<Long, List<Long>> loadedMoveBook = new MoveBook().loadMoveBook();
 

@@ -92,11 +92,11 @@ public class Pawn {
 
         // Check left and right attack angles
         for (int i : lr) {
-            if (board.checkPiece(currentRow + dir, currentCol + lr[i], player) == Piece.PositionStatus.ENEMY) {
+            if (board.checkPiece(currentRow + dir, currentCol + i, player) == Piece.PositionStatus.ENEMY) {
 
-                if (p.isValidMove(currentRow + dir, currentCol + lr[i], nullMoveInfo)) {
+                if (p.isValidMove(currentRow + dir, currentCol + i, nullMoveInfo)) {
 
-                    moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + lr[i]);
+                    moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + i);
 
                     value = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + dir, currentCol, p.getSide());
 
@@ -105,15 +105,15 @@ public class Pawn {
                         value = Values.QUEEN_VALUE;
                     }
 
-                    if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + dir, currentCol + lr[i])) != 0) {
-                        value = board.getPieceValue(currentRow + dir, currentCol + lr[i]) - myValue >> 1;
+                    if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + dir, currentCol + i)) != 0) {
+                        value = board.getPieceValue(currentRow + dir, currentCol + i) - myValue >> 1;
                     } else {
-                        value += board.getPieceValue(currentRow + dir, currentCol + lr[i]);
+                        value += board.getPieceValue(currentRow + dir, currentCol + i);
                     }
 
                     moveLong = Move.setValue(moveLong, value);
 
-                    moveLong = Move.setPieceTaken(moveLong, board.getPiece(currentRow + dir, currentCol + lr[i]));
+                    moveLong = Move.setPieceTaken(moveLong, board.getPiece(currentRow + dir, currentCol + i));
                     validMoves.add(moveLong);
                 }
 
@@ -123,19 +123,19 @@ public class Pawn {
         // Check left and right en passant rule
         if (currentRow == fifthRank && board.getLastMoveMade() != 0) {
             for (int i : lr) {
-                if (board.checkPiece(fifthRank, currentCol + lr[i], player) == Piece.PositionStatus.ENEMY) {
+                if (board.checkPiece(fifthRank, currentCol + i, player) == Piece.PositionStatus.ENEMY) {
 
-                    if ((Move.getToCol(board.getLastMoveMade()) == (currentCol + lr[i])) && Move.getNote(board.getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
+                    if ((Move.getToCol(board.getLastMoveMade()) == (currentCol + i)) && Move.getNote(board.getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
 
-                        if (p.isValidMove(currentRow + dir, currentCol + lr[i], nullMoveInfo)) {
+                        if (p.isValidMove(currentRow + dir, currentCol + i, nullMoveInfo)) {
 
-                            value = board.getPieceValue(fifthRank, currentCol + lr[i]);
+                            value = board.getPieceValue(fifthRank, currentCol + i);
 
-                            if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + dir, currentCol + lr[i])) != 0) {
+                            if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + dir, currentCol + i)) != 0) {
                                 value -= myValue >> 1;
                             }
 
-                            moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + lr[i], value, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + lr[i]));
+                            moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + i, value, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + i));
                             validMoves.add(moveLong);
                         }
 

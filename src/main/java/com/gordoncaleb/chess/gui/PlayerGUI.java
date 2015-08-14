@@ -50,12 +50,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	private JFileChooser fc = new JFileChooser();
 
 	public static void main(String[] args) {
-		boolean debug = true;
-
 		PositionBonus.applyScale();
-
-		FileIO.setDebugOutput(true);
-		FileIO.setLogEnabled(false);
 
 		PlayerGUI playerOne = new PlayerGUI(null, false);
 		AI playerTwo = new AI(null);

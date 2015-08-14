@@ -28,9 +28,6 @@ public class TournamentGUI {
 
 	public static void main(String[] args) {
 
-		FileIO.setLogEnabled(false);
-		FileIO.setDebugOutput(true);
-
 		Game game;
 		GameResults results;
 

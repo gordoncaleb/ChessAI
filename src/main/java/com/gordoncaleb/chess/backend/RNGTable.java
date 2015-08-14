@@ -17,7 +17,7 @@ public class RNGTable {
 	private long[] enPassantFile;
 
 	private RNGTable() {
-		rng = new SecureRandom(seed);
+		rng = new Random(123L);
 		generatePiecePerSquare();
 		generateBlackToMove();
 		generateCastlingRights();

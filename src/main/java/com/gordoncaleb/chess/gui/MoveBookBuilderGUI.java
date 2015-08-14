@@ -73,10 +73,8 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     public static void main(String[] args) {
 
         PositionBonus.applyScale();
-        FileIO.setLogEnabled(false);
-        FileIO.setDebugOutput(true);
 
-        java.util.Hashtable<Side, Player> players = new java.util.Hashtable<Side, Player>();
+        java.util.Hashtable<Side, Player> players = new java.util.Hashtable<>();
 
         AI ai = new AI(null);
         MoveBookBuilderGUI mbBuilder = new MoveBookBuilderGUI(ai);

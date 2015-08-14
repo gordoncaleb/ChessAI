@@ -71,7 +71,6 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 	}
 
 	public static void main(String[] args) {
-		FileIO.setLogEnabled(false);
 		AI ai = new AI(null);
 		ai.setUseBook(true);
 		EthernetPlayerServer server = new EthernetPlayerServer(ai);
