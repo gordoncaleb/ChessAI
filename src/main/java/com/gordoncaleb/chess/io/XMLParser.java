@@ -30,7 +30,7 @@ public class XMLParser {
 	}
 
 	public static void main(String[] args) {
-		String xmlBoard = FileIO.readFile("out.xml");
+		String xmlBoard = FileIO.readResource("out.xml");
 
 		XMLParser.XMLToBoard(xmlBoard);
 	}

@@ -1,5 +1,6 @@
 package com.gordoncaleb.chess.io;
 
+import javafx.scene.shape.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,16 +19,16 @@ import javax.imageio.ImageIO;
 public class FileIO {
     private static final Logger logger = LoggerFactory.getLogger(FileIO.class);
 
-    public static Stream<String> readFileStream(String fileName) throws Exception {
-        return Files.lines(Paths.get(FileIO.class.getResource(fileName).toURI()));
+    public static BufferedReader getResourceAsBufferedReader(String fileName) throws Exception {
+        return Files.newBufferedReader(Paths.get(FileIO.class.getResource(fileName).toURI()));
     }
 
-    public static String readFile(String fileName) {
-        try (Stream<String> lines = readFileStream(fileName)) {
-
-            return lines.collect(Collectors
-                    .joining(System.getProperty("line.separator")));
-
+    public static String readResource(String fileName){
+        try {
+            return Files
+                    .lines(Paths.get(FileIO.class.getResource(fileName).toURI()))
+                    .collect(Collectors
+                            .joining(System.getProperty("line.separator")));
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -38,17 +38,14 @@ public class FileIO {
     public static DataOutputStream getDataOutputStream(String fileName) {
 
         try {
-
             FileOutputStream fos = new FileOutputStream(fileName);
             DataOutputStream dout = new DataOutputStream(fos);
-
             return dout;
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return null;
-
     }
 
     public static void writeFile(String fileName, String aContents, boolean append) {
@@ -93,7 +90,6 @@ public class FileIO {
         }
 
         return image;
-
     }
 
     public static void clearDirectory(String dir) {

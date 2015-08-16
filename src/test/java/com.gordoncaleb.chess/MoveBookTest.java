@@ -12,8 +12,11 @@ import static org.junit.Assert.assertEquals;
 public class MoveBookTest {
 
     @Test
-    public void testCompiler() {
-        Map<Long, List<Long>> moveBook = PGNParser.moveBookFromPGNFile("book.pgn");
+    public void testCompiler() throws Exception {
+
+        PGNParser parser = new PGNParser();
+
+        Map<Long, List<Long>> moveBook = parser.moveBookFromPGNFile("book.pgn");
 
         Map<Long, List<Long>> loadedMoveBook = new MoveBook().loadMoveBook();
 

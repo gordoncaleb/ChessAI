@@ -1,61 +1,126 @@
 package com.gordoncaleb.chess.io;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.pieces.Piece;
+import lombok.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PGNParser {
     private static final Logger logger = LoggerFactory.getLogger(PGNParser.class);
 
-    public static Map<Long, List<Long>> moveBookFromPGNFile(String fileName) {
+    @Value
+    public static class PGNGame {
+        Map<String, String> metaData = new HashMap<>();
+        List<String> gameLines = new ArrayList<>();
 
-        long time1 = System.currentTimeMillis();
-        Map<Long, List<Long>> moveBook = new HashMap<>();
-
-        try (Stream<String> lines = FileIO.readFileStream(fileName)) {
-
-            List<List<String>> games = new ArrayList<>();
-
-            lines.map(String::trim)
-                    .filter(line -> !line.startsWith("[") && !line.isEmpty())
-                    .forEach(line -> {
-                        if (line.startsWith("1")) {
-                            games.add(new ArrayList<>());
-                        }
-                        Iterables.getLast(games).add(line);
-                    });
-
-            List<String> gameLines = games.stream()
-                    .map(ls -> ls.stream().collect(Collectors.joining(" ")))
-                    .collect(Collectors.toList());
-
-            logger.debug(games.size() + " games loaded");
-
-            for (String line : gameLines) {
-                moveBook.putAll(processGamePGNLine(line));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        public String gameLine() {
+            return gameLines.stream().collect(Collectors.joining(" "));
         }
-
-        logger.debug("Move book loaded!!!!");
-        logger.debug("Took " + (System.currentTimeMillis() - time1) + "ms to load");
-        logger.debug("Hash Count = " + moveBook.size());
-
-        return moveBook;
     }
 
-    private static Map<Long, List<Long>> processGamePGNLine(String line) {
+    private static final String METALINE = "[";
+    private static final String GAMELINE = "^\\d+\\..*";
+    private static final String STARTGAMELINE = "1.";
+
+    public Map<Long, List<Long>> moveBookFromPGNFile(String fileName) throws Exception {
+
+        List<PGNGame> games = loadPGNFile(fileName);
+
+        return games.stream()
+                .map(g -> processPGNGame(g).entrySet())
+                .flatMap(Collection::stream)
+                .collect(Collectors
+                        .toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    }
+
+    public List<PGNGame> loadPGNFile(String fileName) throws Exception {
+        try (BufferedReader lines = FileIO.getResourceAsBufferedReader(fileName)) {
+            return processPGNLines(lines);
+        }
+    }
+
+    public List<PGNGame> processPGNLines(BufferedReader lines) throws IOException {
+
+        List<PGNGame> games = new ArrayList<>();
+
+        String prevLine = "";
+        String line;
+
+        while ((line = lines.readLine()) != null) {
+
+            line = line.trim();
+
+            if (isMetaLine(line) || isGameLine(line)) {
+
+                if (isGameStart(line, prevLine)) {
+                    games.add(new PGNGame());
+                }
+
+                if (isGameLine(line)) {
+                    Iterables.getLast(games).getGameLines().add(line);
+                } else if (isMetaLine(line)) {
+                    Iterables.getLast(games).getMetaData().putAll(parseMetaData(line));
+                }
+
+                prevLine = line;
+            }
+        }
+
+        return games;
+    }
+
+    public boolean isMetaLine(String s) {
+        return s.startsWith(METALINE);
+    }
+
+    public boolean isGameLine(String s) {
+        return s.matches(GAMELINE);
+    }
+
+    public boolean isStartGameLine(String s) {
+        return s.startsWith(STARTGAMELINE);
+    }
+
+    public boolean isGameStart(String currentLine, String prevLine) {
+
+        if (isMetaLine(currentLine) && isGameLine(prevLine))
+            return true;
+
+        if (isStartGameLine(currentLine) && isGameLine(prevLine))
+            return true;
+
+        return prevLine.isEmpty();
+    }
+
+    public Map<String, String> parseMetaData(String line) {
+        Pattern p = Pattern.compile("\\[(\\w+) \"(.*)\"\\]");
+        Matcher m = p.matcher(line);
+        if (m.matches()) {
+            return ImmutableMap.of(m.group(1), m.group(2));
+        } else {
+            return Collections.emptyMap();
+        }
+    }
+
+    public Map<Long, List<Long>> processPGNGame(PGNGame game) {
+        return processGamePGNLine(game.gameLine());
+    }
+
+    public Map<Long, List<Long>> processGamePGNLine(String line) {
 
         Map<Long, List<Long>> moveBook = new HashMap<>();
         Board board = BoardFactory.getStandardChessBoard();
@@ -119,7 +184,7 @@ public class PGNParser {
         return moveBook;
     }
 
-    public static long resolveAlgebraicNotation(String notation, Board board) {
+    public long resolveAlgebraicNotation(String notation, Board board) {
 
         board.makeNullMove();
         ArrayList<Long> moves = board.generateValidMoves();
@@ -200,7 +265,7 @@ public class PGNParser {
         ArrayList<Long> matchMoves = new ArrayList<>();
         boolean match;
 
-        for (Long move: moves) {
+        for (Long move : moves) {
 
             match = true;
 

@@ -35,7 +35,7 @@ public class Game implements PlayerContainer {
 
 	public GameResults newGame(boolean block) {
 
-		String xmlBoard = FileIO.readFile("tempSave.xml");
+		String xmlBoard = FileIO.readResource("tempSave.xml");
 
 		if (xmlBoard == null) {
 			return newGame(BoardFactory.getStandardChessBoard(), block);
@@ -48,7 +48,7 @@ public class Game implements PlayerContainer {
 	public GameResults newGame(Board board, boolean block) {
 
 		if (board == null) {
-			board = XMLParser.XMLToBoard(FileIO.readFile("default.xml"));
+			board = XMLParser.XMLToBoard(FileIO.readResource("default.xml"));
 		}
 
 		turn = board.getTurn();

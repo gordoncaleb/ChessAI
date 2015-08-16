@@ -347,7 +347,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 
-				Board board = XMLParser.XMLToBoard(FileIO.readFile(fc.getSelectedFile().getPath()));
+				Board board = XMLParser.XMLToBoard(FileIO.readResource(fc.getSelectedFile().getPath()));
 
 				Side side = optionForSide();
 				game.setSide(side, this);

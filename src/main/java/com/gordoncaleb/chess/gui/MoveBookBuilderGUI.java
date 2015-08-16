@@ -447,7 +447,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
 
-                Board board = XMLParser.XMLToBoard(FileIO.readFile(fc.getSelectedFile().getPath()));
+                Board board = XMLParser.XMLToBoard(FileIO.readResource(fc.getSelectedFile().getPath()));
 
                 game.newGame(board, false);
 

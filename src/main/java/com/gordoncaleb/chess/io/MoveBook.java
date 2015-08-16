@@ -6,8 +6,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.util.*;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Move;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +71,7 @@ public class MoveBook {
     }
 
     private void loadVerboseMoveBook() {
-        verboseMoveBook = XMLParser.XMLToVerboseMoveBook(FileIO.readFile("verboseMoveBook.xml"));
+        verboseMoveBook = XMLParser.XMLToVerboseMoveBook(FileIO.readResource("verboseMoveBook.xml"));
         loadMoveBook();
     }
 
