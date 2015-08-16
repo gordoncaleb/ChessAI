@@ -6,7 +6,6 @@ import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.BoardFactory;
 import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.pieces.Piece;
-import lombok.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,15 +15,21 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class PGNParser {
     private static final Logger logger = LoggerFactory.getLogger(PGNParser.class);
 
-    @Value
     public static class PGNGame {
         Map<String, String> metaData = new HashMap<>();
         List<String> gameLines = new ArrayList<>();
+
+        public List<String> getGameLines() {
+            return gameLines;
+        }
+
+        public Map<String, String> getMetaData() {
+            return metaData;
+        }
 
         public String gameLine() {
             return gameLines.stream().collect(Collectors.joining(" "));

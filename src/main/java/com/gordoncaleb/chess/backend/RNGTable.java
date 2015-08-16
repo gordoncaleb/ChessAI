@@ -35,7 +35,7 @@ public class RNGTable {
     }
 
     private RNGTable() {
-        rng = new Random(123L);
+        rng = new SecureRandom(seed);
         generatePiecePerSquare();
         generateBlackToMove();
         generateCastlingRights();
