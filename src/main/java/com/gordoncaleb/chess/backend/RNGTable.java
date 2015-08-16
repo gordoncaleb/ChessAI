@@ -2,6 +2,7 @@ package com.gordoncaleb.chess.backend;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -14,11 +15,13 @@ import org.slf4j.LoggerFactory;
 public class RNGTable {
     private static final Logger logger = LoggerFactory.getLogger(RNGTable.class);
 
+    public List<Long> longSeq = new ArrayList<>();
+    //private static final byte[] seed = {-52, 45, -101, 26, -51, -99, -84, -79};
+    private static final byte[] seed = {119, -7, 118, 69, 49, -56, -94, 117, -11, 27, -52, -50, -103, 84, 19, 111, 85, 72, 115, -115};
+
     public static RNGTable instance = new RNGTable();
 
-    public List<Long> longSeq = new ArrayList<>();
-    private static final byte[] seed = {-52, 45, -101, 26, -51, -99, -84, -79};
-    private final Random rng;
+    private final SecureRandom rng;
     private long[][][][] piecePerSquare;
     private long blackToMove;
     private long[][][][] castlingRights;
