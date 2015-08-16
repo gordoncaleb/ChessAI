@@ -8,8 +8,11 @@ import java.util.stream.Collectors;
 
 import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.pieces.Piece;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RNGTable {
+    private static final Logger logger = LoggerFactory.getLogger(RNGTable.class);
 
     public static RNGTable instance = new RNGTable();
 
@@ -28,6 +31,7 @@ public class RNGTable {
                 .collect(Collectors.joining("\n"));
 
         FileIO.writeFile("./random.txt", contents, false);
+        logger.info("Random file written");
     }
 
     private RNGTable() {

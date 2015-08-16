@@ -3,6 +3,7 @@ package com.gordoncaleb.chess;
 import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.io.MoveBook;
 import com.gordoncaleb.chess.io.PGNParser;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -11,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 
 public class MoveBookTest {
 
-    @Test
+    @Test @Ignore
     public void testCompiler() throws Exception {
 
         PGNParser parser = new PGNParser();
