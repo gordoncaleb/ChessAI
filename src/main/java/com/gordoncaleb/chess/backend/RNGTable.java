@@ -1,9 +1,12 @@
 package com.gordoncaleb.chess.backend;
 
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import com.gordoncaleb.chess.io.FileIO;
@@ -14,11 +17,17 @@ import org.slf4j.LoggerFactory;
 public class RNGTable {
     private static final Logger logger = LoggerFactory.getLogger(RNGTable.class);
 
+    public static final String LOAD_FROM_FILE = "/doc/random.txt";
+    public static final int RANDOM_COUNT = 793;
+
+    private final Stack<Long> rng = new Stack<>();
+    private List<Long> loadedRandoms;
+
+    //private static final byte[] seed = {-52, 45, -101, 26, -51, -99, -84, -79};
+    private static final byte[] seed = {119, -7, 118, 69, 49, -56, -94, 117, -11, 27, -52, -50, -103, 84, 19, 111, 85, 72, 115, -115};
+
     public static RNGTable instance = new RNGTable();
 
-    public List<Long> longSeq = new ArrayList<>();
-    private static final byte[] seed = {-52, 45, -101, 26, -51, -99, -84, -79};
-    private final Random rng;
     private long[][][][] piecePerSquare;
     private long blackToMove;
     private long[][][][] castlingRights;
@@ -26,7 +35,7 @@ public class RNGTable {
 
     public static void main(String[] args) {
 
-        String contents = RNGTable.instance.longSeq.stream()
+        String contents = RNGTable.instance.getLoadedRandoms().stream()
                 .map(l -> Long.toHexString(l))
                 .collect(Collectors.joining("\n"));
 
@@ -34,18 +43,42 @@ public class RNGTable {
         logger.info("Random file written");
     }
 
-    private RNGTable() {
-        rng = new SecureRandom(seed);
+    public RNGTable(){
+        this(LOAD_FROM_FILE);
+    }
+
+    public RNGTable(String fileName) {
+
+        try {
+            loadedRandoms = loadFromFile(fileName);
+        } catch (Exception e) {
+            loadedRandoms = generateTable();
+        }
+
+        loadedRandoms.stream().forEach(rng::push);
+
         generatePiecePerSquare();
         generateBlackToMove();
         generateCastlingRights();
         generateEnPassantFile();
     }
 
+    public List<Long> loadFromFile(String fileName) throws Exception {
+        List<String> randomLines = Files.readAllLines(Paths.get(RNGTable.class.getResource(fileName).toURI()));
+        return randomLines.stream().map(s -> new BigInteger(s, 16).longValue()).collect(Collectors.toList());
+    }
+
+    private List<Long> generateTable() {
+        SecureRandom r = new SecureRandom(seed);
+        List<Long> loadedRandoms = new ArrayList<>();
+        for (int i = 0; i < RANDOM_COUNT; i++) {
+            loadedRandoms.add(r.nextLong());
+        }
+        return loadedRandoms;
+    }
+
     private long nextLong() {
-        long l = rng.nextLong();
-        longSeq.add(l);
-        return l;
+        return rng.pop();
     }
 
     private void generatePiecePerSquare() {
@@ -129,5 +162,9 @@ public class RNGTable {
 
     public long getEnPassantFile(int file) {
         return enPassantFile[file];
+    }
+
+    public List<Long> getLoadedRandoms() {
+        return loadedRandoms;
     }
 }

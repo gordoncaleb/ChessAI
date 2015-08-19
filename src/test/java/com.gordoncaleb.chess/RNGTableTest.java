@@ -1,17 +1,24 @@
 package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.backend.RNGTable;
-import org.junit.Ignore;
+import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.pieces.Piece;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class RNGTableTest {
 
-    @Test @Ignore
-    public void test() {
+    @Test
+    public void testFileLoaded() {
         RNGTable rngTable = RNGTable.instance;
+        assertEquals(7477762210045365562L, rngTable.getBlackToMoveRandom());
+        assertEquals(5345368156027554259L, rngTable.getPiecePerSquareRandom(Side.WHITE, Piece.PieceID.QUEEN, 3, 3));
+    }
 
-        assertEquals(rngTable.getBlackToMoveRandom(), -6985323133131116037L);
+    @Test
+    public void testGenerated(){
+        RNGTable rngTable = new RNGTable("");
+        assertEquals(RNGTable.RANDOM_COUNT, rngTable.getLoadedRandoms().size());
     }
 }

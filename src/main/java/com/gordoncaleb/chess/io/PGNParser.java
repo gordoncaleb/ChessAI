@@ -16,6 +16,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.gordoncaleb.chess.util.JavaLacks.*;
+import static java.util.stream.Collectors.*;
+
 public class PGNParser {
     private static final Logger logger = LoggerFactory.getLogger(PGNParser.class);
 
@@ -42,23 +45,23 @@ public class PGNParser {
 
     public Map<Long, List<Long>> moveBookFromPGNFile(String fileName) throws Exception {
 
-        List<PGNGame> games = loadPGNFile(fileName);
+        List<PGNGame> games = loadFile(fileName);
 
         return games.stream()
                 .map(g -> processPGNGame(g).entrySet())
-                .flatMap(Collection::stream)
-                .collect(Collectors
-                        .toMap(Map.Entry::getKey, Map.Entry::getValue));
-
+                .flatMap(Set::stream)
+                .collect(
+                        groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue,
+                                toUniqueList())));
     }
 
-    public List<PGNGame> loadPGNFile(String fileName) throws Exception {
+    public List<PGNGame> loadFile(String fileName) throws Exception {
         try (BufferedReader lines = FileIO.getResourceAsBufferedReader(fileName)) {
-            return processPGNLines(lines);
+            return parseFileLines(lines);
         }
     }
 
-    public List<PGNGame> processPGNLines(BufferedReader lines) throws IOException {
+    public List<PGNGame> parseFileLines(BufferedReader lines) throws IOException {
 
         List<PGNGame> games = new ArrayList<>();
 
@@ -121,22 +124,33 @@ public class PGNParser {
         }
     }
 
-    public Map<Long, List<Long>> processPGNGame(PGNGame game) {
+    public Map<Long, Long> processPGNGame(PGNGame game) {
         return processGamePGNLine(game.gameLine());
     }
 
-    public Map<Long, List<Long>> processGamePGNLine(String line) {
+    public Map<Long, Long> processGamePGNLine(String line) {
 
-        Map<Long, List<Long>> moveBook = new HashMap<>();
-        Board board = BoardFactory.getStandardChessBoard();
-
-        List<String> notations = new ArrayList<>();
-        List<String> tokens;
-
-        tokens = Arrays.stream(line.split(" "))
+        List<String> tokens = Arrays.stream(line.split(" "))
                 .map(String::trim)
                 .collect(Collectors.toList());
 
+        List<String> notations = getNotations(tokens);
+
+        Map<Long, Long> moveBook = new HashMap<>();
+        Board board = BoardFactory.getStandardChessBoard();
+
+        for (String notation : notations) {
+            long move = resolveAlgebraicNotation(notation, board);
+            moveBook.put(board.getHashCode(), move);
+            board.makeMove(move);
+        }
+
+        return moveBook;
+    }
+
+    public List<String> getNotations(List<String> tokens) {
+
+        List<String> notations = new ArrayList<>();
         for (String token : tokens) {
 
             if (token.contains(".")) {
@@ -161,32 +175,12 @@ public class PGNParser {
                 }
             }
 
-            if (!token.equals("") && token.length() > 1) {
+            if (token.length() > 1) {
                 notations.add(token);
             }
         }
 
-        long move;
-        List<Long> moves;
-        for (String notation : notations) {
-
-            move = resolveAlgebraicNotation(notation, board);
-
-            moves = moveBook.get(board.getHashCode());
-            if (moves != null) {
-                if (!moves.contains(move)) {
-                    moves.add(move);
-                }
-            } else {
-                moves = new ArrayList<>();
-                moves.add(move);
-                moveBook.put(board.getHashCode(), moves);
-            }
-
-            board.makeMove(move);
-        }
-
-        return moveBook;
+        return notations;
     }
 
     public long resolveAlgebraicNotation(String notation, Board board) {
@@ -316,11 +310,7 @@ public class PGNParser {
         }
 
         if (matchMoves.size() != 1) {
-            ArrayList<Move> movesDetailed = new ArrayList<>();
-            for (int i = 0; i < moves.size(); i++) {
-                movesDetailed.add(new Move(moves.get(i)));
-            }
-            logger.debug("ERROR resolving algebraic notation " + notation);
+            logger.error("Could not resolve algebraic notation {} matched moves = {}", notation, Move.fromLongs(moves));
             return 0;
         }
 

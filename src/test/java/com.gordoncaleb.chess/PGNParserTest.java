@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.gordoncaleb.chess.io.PGNParser;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ public class PGNParserTest {
     @Test
     public void test() throws Exception {
 
-        List<PGNParser.PGNGame> games = parser.loadPGNFile("/example.pgn");
+        List<PGNParser.PGNGame> games = parser.loadFile("/example.pgn");
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -60,7 +59,7 @@ public class PGNParserTest {
 
     @Test
     public void testLineProcess() throws IOException {
-        List<PGNParser.PGNGame> games = parser.processPGNLines(gameLines());
+        List<PGNParser.PGNGame> games = parser.parseFileLines(gameLines());
         assertEquals(2, games.size());
     }
 
