@@ -1114,7 +1114,7 @@ public class Board {
 
 		if (includeHistory) {
 
-			Stack<Move> movesToRedo = new Stack<Move>();
+			Stack<Move> movesToRedo = new Stack<>();
 			long m;
 			while ((m = undoMove()) != 0) {
 				movesToRedo.push(new Move(m));
@@ -1125,6 +1125,7 @@ public class Board {
 
 			while (!movesToRedo.isEmpty()) {
 				makeMove(movesToRedo.pop().getMoveLong());
+				xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
 			}
 
 			for (int i = 0; i < moveHistory.size(); i++) {

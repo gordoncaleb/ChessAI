@@ -37,10 +37,17 @@ public class PGNParser {
         public String gameLine() {
             return gameLines.stream().collect(Collectors.joining(" "));
         }
+
+        @Override
+        public String toString() {
+            return "PGNGame{" +
+                    "metaData=" + metaData +
+                    ", gameLines=" + gameLines +
+                    '}';
+        }
     }
 
     private static final String METALINE = "[";
-    private static final String GAMELINE = "^\\d+\\..*";
     private static final String STARTGAMELINE = "1.";
 
     public Map<Long, List<Long>> moveBookFromPGNFile(String fileName) throws Exception {
@@ -48,7 +55,7 @@ public class PGNParser {
         List<PGNGame> games = loadFile(fileName);
 
         return games.stream()
-                .map(g -> processPGNGame(g).entrySet())
+                .map(g -> getPGNGameAsMoveBook(g).entrySet())
                 .flatMap(Set::stream)
                 .collect(
                         groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue,
@@ -96,7 +103,7 @@ public class PGNParser {
     }
 
     public boolean isGameLine(String s) {
-        return s.matches(GAMELINE);
+        return !s.isEmpty() && !isMetaLine(s);
     }
 
     public boolean isStartGameLine(String s) {
@@ -124,12 +131,9 @@ public class PGNParser {
         }
     }
 
-    public Map<Long, Long> processPGNGame(PGNGame game) {
-        return processGamePGNLine(game.gameLine());
-    }
+    public Map<Long, Long> getPGNGameAsMoveBook(PGNGame game) {
 
-    public Map<Long, Long> processGamePGNLine(String line) {
-
+        String line = game.gameLine();
         List<String> tokens = Arrays.stream(line.split(" "))
                 .map(String::trim)
                 .collect(Collectors.toList());
@@ -139,10 +143,14 @@ public class PGNParser {
         Map<Long, Long> moveBook = new HashMap<>();
         Board board = BoardFactory.getStandardChessBoard();
 
-        for (String notation : notations) {
-            long move = resolveAlgebraicNotation(notation, board);
-            moveBook.put(board.getHashCode(), move);
-            board.makeMove(move);
+        try {
+            for (String notation : notations) {
+                long move = resolveAlgebraicNotation(notation, board);
+                moveBook.put(board.getHashCode(), move);
+                board.makeMove(move);
+            }
+        }catch(Exception e){
+            logger.warn("Could not parse game: {}", game);
         }
 
         return moveBook;
@@ -183,7 +191,7 @@ public class PGNParser {
         return notations;
     }
 
-    public long resolveAlgebraicNotation(String notation, Board board) {
+    public long resolveAlgebraicNotation(String notation, Board board) throws Exception {
 
         board.makeNullMove();
         ArrayList<Long> moves = board.generateValidMoves();
@@ -310,8 +318,8 @@ public class PGNParser {
         }
 
         if (matchMoves.size() != 1) {
-            logger.error("Could not resolve algebraic notation {} matched moves = {}", notation, Move.fromLongs(moves));
-            return 0;
+            logger.error("Could not resolve algebraic notation {} \n{}", notation, board.toXML(true));
+            throw new Exception();
         }
 
         return matchMoves.get(0);

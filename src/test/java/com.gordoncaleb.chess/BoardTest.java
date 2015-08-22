@@ -25,7 +25,7 @@ public class BoardTest {
 
         long m = moves.get(0);
 
-        int its = 1000000;
+        int its = 100;
 
         long t1 = System.currentTimeMillis();
         for (int i = 0; i < its; i++) {

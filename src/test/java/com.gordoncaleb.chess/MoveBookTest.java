@@ -1,6 +1,5 @@
 package com.gordoncaleb.chess;
 
-import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.io.MoveBook;
 import com.gordoncaleb.chess.io.PGNParser;
 import org.junit.Ignore;
@@ -17,7 +16,7 @@ public class MoveBookTest {
 
         PGNParser parser = new PGNParser();
 
-        Map<Long, List<Long>> moveBook = parser.moveBookFromPGNFile("book.pgn");
+        Map<Long, List<Long>> moveBook = parser.moveBookFromPGNFile("/example.pgn");
 
         Map<Long, List<Long>> loadedMoveBook = new MoveBook().loadMoveBook();
 

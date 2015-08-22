@@ -2,16 +2,19 @@ package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.backend.BoardFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BoardFactoryTest {
+    private static final Logger logger = LoggerFactory.getLogger(BoardFactoryTest.class);
 
     @Test
     public void testStandardBoardCreation() {
-        BoardFactory.getStandardChessBoard().toString();
+        logger.info(BoardFactory.getStandardChessBoard().toString());
     }
 
     @Test
     public void test960BoardCreation() {
-        BoardFactory.getRandomChess960Board().toString();
+        logger.info(BoardFactory.getRandomChess960Board().toString());
     }
 }

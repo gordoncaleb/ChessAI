@@ -1,6 +1,5 @@
 package com.gordoncaleb.chess.io;
 
-import javafx.scene.shape.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +11,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
@@ -23,7 +21,7 @@ public class FileIO {
         return Files.newBufferedReader(Paths.get(FileIO.class.getResource(fileName).toURI()));
     }
 
-    public static String readResource(String fileName){
+    public static String readResource(String fileName) {
         try {
             return Files
                     .lines(Paths.get(FileIO.class.getResource(fileName).toURI()))
@@ -35,17 +33,8 @@ public class FileIO {
         }
     }
 
-    public static DataOutputStream getDataOutputStream(String fileName) {
-
-        try {
-            FileOutputStream fos = new FileOutputStream(fileName);
-            DataOutputStream dout = new DataOutputStream(fos);
-            return dout;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+    public static DataOutputStream getDataOutputStream(String fileName) throws FileNotFoundException {
+        return new DataOutputStream(new FileOutputStream(fileName));
     }
 
     public static void writeFile(String fileName, String aContents, boolean append) {

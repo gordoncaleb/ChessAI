@@ -10,14 +10,31 @@ import com.gordoncaleb.chess.backend.Move;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.gordoncaleb.chess.util.JavaLacks.toUniqueList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+
 public class MoveBook {
     private static final Logger logger = LoggerFactory.getLogger(MoveBook.class);
 
     Map<Long, List<Long>> hashMoveBook;
     Map<String, List<Long>> verboseMoveBook;
 
-    public static final String MOVEBOOK_COMPILED = "/doc/book.pgn.compiled";
+    public static final String MOVEBOOK = "/doc/eco.pgn";
+    public static final String MOVEBOOK_COMPILED = "./eco.bin";
 
+    public static void main(String[] args) {
+        MoveBook mb = new MoveBook();
+        PGNParser parser = new PGNParser();
+
+        try {
+            Map<Long, List<Long>> ecoMb = parser.moveBookFromPGNFile(MOVEBOOK);
+            mb.saveCompiledMoveBook(ecoMb, MOVEBOOK_COMPILED);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public long getRecommendation(Long hashCode) {
         long move = 0;
@@ -61,7 +78,10 @@ public class MoveBook {
     }
 
     public Map<Long, List<Long>> loadMoveBook() {
-        String fileName = MOVEBOOK_COMPILED;
+        return loadMoveBook(MOVEBOOK_COMPILED);
+    }
+
+    public Map<Long, List<Long>> loadMoveBook(String fileName) {
         try (DataInputStream din = new DataInputStream(MoveBook.class.getResourceAsStream(fileName))) {
             hashMoveBook = loadCompiledMoveBook(din);
         } catch (IOException e) {
@@ -184,14 +204,9 @@ public class MoveBook {
         return xmlMoveBook;
     }
 
+    public void saveCompiledMoveBook(Map<Long, List<Long>> moveBook, String fileName) {
 
-
-    public static void saveCompiledMoveBook(Map<Long, List<Long>> moveBook) {
-
-        DataOutputStream dout = FileIO.getDataOutputStream(MOVEBOOK_COMPILED);
-
-        logger.debug("Creating compiled movebook file");
-        try {
+        try (DataOutputStream dout = FileIO.getDataOutputStream(fileName)) {
 
             for (Map.Entry<Long, List<Long>> entry : moveBook.entrySet()) {
                 dout.writeLong(entry.getKey());
@@ -201,12 +216,10 @@ public class MoveBook {
                 dout.writeShort(-1);
             }
 
-            logger.debug("Done!");
-
             dout.close();
 
         } catch (IOException e) {
-            logger.debug("File io exception");
+            logger.error("Could not save move book!", e);
         }
     }
 
