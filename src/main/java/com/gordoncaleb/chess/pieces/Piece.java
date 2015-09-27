@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess.pieces;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
@@ -170,23 +170,27 @@ public class Piece {
 
     public boolean equals(Piece piece) {
 
-        if (piece == null) {
-            return false;
-        }
-
-        if (piece.getRow() == row && piece.getCol() == col && piece.getSide() == player && piece.getPieceID() == this.getPieceID()) {
-            return true;
-        } else {
-            return false;
-        }
+        return (piece != null
+                && piece.getRow() == row
+                && piece.getCol() == col
+                && piece.getSide() == player
+                && piece.getPieceID() == this.getPieceID());
     }
 
     public boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
-        long mask = BitBoard.getMask(toRow, toCol);
+        return isValidMove(toRow, toCol, nullMoveInfo, 0);
+    }
 
-        if ((mask & nullMoveInfo[1] & blockingVector) != 0) {
+    public boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo, long enpassantAttack) {
+        long mask = BitBoard.getMask(toRow, toCol);
+        if (((mask | enpassantAttack) & nullMoveInfo[1]) != 0 & (mask & blockingVector) != 0) {
             return true;
         } else {
+//            System.out.println(BitBoard.printBitBoard(mask));
+//            System.out.println(BitBoard.printBitBoard(enpassantAttack));
+//            System.out.println(BitBoard.printBitBoard(nullMoveInfo[0]));
+//            System.out.println(BitBoard.printBitBoard(nullMoveInfo[1]));
+//            System.out.println(BitBoard.printBitBoard(nullMoveInfo[2]));
             return false;
         }
     }
@@ -238,7 +242,7 @@ public class Piece {
         }
     }
 
-    public void generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
+    public void generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
 
         switch (id) {
             case ROOK:
@@ -278,29 +282,6 @@ public class Piece {
                 break;
             case QUEEN:
                 Queen.getNullMoveInfo(this, board, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
-                break;
-            case KING:
-                //King.getNullMoveInfo(this, board, nullMoveBitBoards);
-                break;
-            case PAWN:
-                //Pawn.getNullMoveInfo(this, board, nullMoveBitBoards);
-                break;
-        }
-    }
-
-    public void getNullMoveInfo(Board board, long[] nullMoveBitBoards) {
-        switch (id) {
-            case ROOK:
-                Rook.getNullMoveInfo(this, board, nullMoveBitBoards);
-                break;
-            case KNIGHT:
-                //Knight.getNullMoveInfo(this, board, nullMoveBitBoards);
-                break;
-            case BISHOP:
-                Bishop.getNullMoveInfo(this, board, nullMoveBitBoards);
-                break;
-            case QUEEN:
-                Queen.getNullMoveInfo(this, board, nullMoveBitBoards);
                 break;
             case KING:
                 //King.getNullMoveInfo(this, board, nullMoveBitBoards);

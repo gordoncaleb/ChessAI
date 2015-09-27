@@ -1,6 +1,8 @@
 package com.gordoncaleb.chess;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.backend.Board;
@@ -42,7 +44,8 @@ public class Perft {
         if (depth > 0) {
             board.makeNullMove();
 
-            ArrayList<Long> moves = new ArrayList<>(board.generateValidMoves(true, 0, AI.noKillerMoves));
+            List<Long> moves = new ArrayList<>(board.generateValidMoves(0, AI.noKillerMoves));
+            Collections.sort(moves, Collections.reverseOrder());
 
             moves.stream().forEach(m -> {
                 board.makeMove(m);

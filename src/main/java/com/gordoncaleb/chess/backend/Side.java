@@ -1,5 +1,8 @@
 package com.gordoncaleb.chess.backend;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Side {
 	BLACK, WHITE, NONE, BOTH;
 
@@ -14,5 +17,15 @@ public enum Side {
 				return this;
 			}
 		}
+	}
+
+	@JsonCreator
+	public Side fromString(String s){
+		return Side.valueOf(s);
+	}
+
+	@JsonValue
+	public String asString(){
+		return toString();
 	}
 }

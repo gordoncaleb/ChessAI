@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess.pieces;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
@@ -24,7 +24,7 @@ public class Pawn {
         return "P";
     }
 
-    public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
+    public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
         int currentRow = p.getRow();
         int currentCol = p.getCol();
         Side player = p.getSide();
@@ -127,7 +127,7 @@ public class Pawn {
 
                     if ((Move.getToCol(board.getLastMoveMade()) == (currentCol + i)) && Move.getNote(board.getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
 
-                        if (p.isValidMove(currentRow + dir, currentCol + i, nullMoveInfo)) {
+                        if (p.isValidMove(currentRow + dir, currentCol + i, nullMoveInfo, BitBoard.getMask(fifthRank, currentCol + i))) {
 
                             value = board.getPieceValue(fifthRank, currentCol + i);
 
@@ -145,44 +145,6 @@ public class Pawn {
         }
 
         return validMoves;
-
-    }
-
-    public static void getNullMoveInfo(Piece p, Board board, long[] nullMoveInfo) {
-
-        int currentRow = p.getRow();
-        int currentCol = p.getCol();
-        int dir;
-        Side player = p.getSide();
-        Piece.PositionStatus pieceStatus;
-
-        if (player == Side.WHITE) {
-            dir = -1;
-        } else {
-            dir = 1;
-        }
-
-        pieceStatus = board.checkPiece(currentRow + dir, currentCol - 1, player);
-
-        if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
-
-            if (board.getPieceID(currentRow + dir, currentCol - 1) == Piece.PieceID.KING && pieceStatus == Piece.PositionStatus.ENEMY) {
-                nullMoveInfo[1] &= p.getBit();
-            }
-
-            nullMoveInfo[0] |= BitBoard.getMask(currentRow + dir, currentCol - 1);
-        }
-
-        pieceStatus = board.checkPiece(currentRow + dir, currentCol + 1, player);
-
-        if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
-
-            if (board.getPieceID(currentRow + dir, currentCol + 1) == Piece.PieceID.KING && pieceStatus == Piece.PositionStatus.ENEMY) {
-                nullMoveInfo[1] &= p.getBit();
-            }
-
-            nullMoveInfo[0] |= BitBoard.getMask(currentRow + dir, currentCol + 1);
-        }
 
     }
 

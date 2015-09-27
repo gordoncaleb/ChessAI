@@ -1,7 +1,6 @@
 package com.gordoncaleb.chess;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.io.PGNParser;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,18 +29,10 @@ public class PGNParserTest {
     }
 
     @Test
-    public void test() throws Exception {
-
-        List<PGNParser.PGNGame> games = parser.loadFile("/example.pgn");
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-        for(PGNParser.PGNGame game: games){
-            logger.debug(mapper.writeValueAsString(game));
-        }
-
-        logger.debug(games.size() + " games loaded");
+    public void testFileParse() throws Exception {
+        List<PGNParser.PGNGame> exampleGames = parser.loadFile("/example.pgn");
+        assertEquals(6, exampleGames.size());
+        assertEquals(exampleGames.get(0).getMetaData().get("ECO"), "C23");
     }
 
     @Test
@@ -51,7 +42,7 @@ public class PGNParserTest {
     }
 
     @Test
-    public void testGameLineMatch(){
+    public void testGameLineMatch() {
         String line = "1.e4 e6 2.d4 d5 3.Nd2 c5 4.exd5 Qxd5 5.Ngf3 cxd4 6.Bc4 Qd6 7.O-O Nf6 8.Nb3 Nc6";
         assertTrue(parser.isGameLine(line));
         assertTrue(parser.isStartGameLine(line));
@@ -63,7 +54,14 @@ public class PGNParserTest {
         assertEquals(2, games.size());
     }
 
-    public BufferedReader gameLines(){
+    @Test
+    public void tesNotationResolution() throws Exception {
+        List<PGNParser.PGNGame> games = parser.parseFileLines(gameLines());
+        Board board = parser.getPGNGameAsBoard(games.get(0));
+        assertEquals(7019580853244117591L, board.getHashCode());
+    }
+
+    public BufferedReader gameLines() {
         List<String> lines = new ArrayList<>();
 
         lines.add("");
@@ -71,12 +69,11 @@ public class PGNParserTest {
         lines.add("[BlackElo \"2455\"]");
         lines.add("[ECO \"C07\"]");
         lines.add("");
-        lines.add("1.e4 e6 2.d4 d5 3.Nd2 c5 4.exd5 Qxd5 5.Ngf3 cxd4 6.Bc4 Qd6 7.O-O Nf6 8.Nb3 Nc6");
-        lines.add("9.Nbxd4 Nxd4 10.Nxd4 Bd7 11.Be3 Qc7 12.Bd3 O-O-O 13.Qf3 e5 14.Nb5 e4 15.Qf4 Qxf4");
+        lines.add("1. e4 e6 2. d4 d5 3. Nd2 c5 *");
         lines.add("");
         lines.add("[WhiteElo \"2260\"]");
-        lines.add("[BlackElo \"2455\"]");
-        lines.add("[ECO \"C07\"]");
+        lines.add("[BlackElo \"2255\"]");
+        lines.add("[ECO \"Z07\"]");
         lines.add("");
         lines.add("1.e4 e6 2.d4 d5 3.Nd2 c5 4.exd5 Qxd5 5.Ngf3 cxd4 6.Bc4 Qd6 7.O-O Nf6 8.Nb3 Nc6");
         lines.add("9.Nbxd4 Nxd4 10.Nxd4 Bd7 11.Be3 Qc7 12.Bd3 O-O-O 13.Qf3 e5 14.Nb5 e4 15.Qf4 Qxf4");

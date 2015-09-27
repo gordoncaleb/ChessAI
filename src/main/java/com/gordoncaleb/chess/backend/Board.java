@@ -5,1291 +5,1264 @@ import java.util.ArrayList;
 
 import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.ai.AISettings;
-import com.gordoncaleb.chess.io.XMLParser;
 import com.gordoncaleb.chess.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Board {
-	private static final Logger logger = LoggerFactory.getLogger(Board.class);
+    private static final Logger logger = LoggerFactory.getLogger(Board.class);
 
-	private Piece[][] board;
-	private Game.GameStatus boardStatus;
-	private ArrayList<Long> validMoves = new ArrayList<>(100);
-	private ArrayList<Piece>[] pieces = new ArrayList[2];
-	private Stack<Piece>[] piecesTaken = new Stack[2];
-	private int[] castleRights = new int[2];
+    private Piece[][] board;
+    private Game.GameStatus boardStatus;
+    private ArrayList<Long> validMoves = new ArrayList<>(100);
+    private ArrayList<Piece>[] pieces = new ArrayList[2];
+    private Stack<Piece>[] piecesTaken = new Stack[2];
+    private int[] castleRights = new int[2];
 
-	private Piece[] kings = new Piece[2];
-	private int[][] rookStartCols = new int[2][2];
-	private int[] kingStartCols = new int[2];
-	private int[] materialRow = { 0, 7 };
+    private Piece[] kings = new Piece[2];
+    private int[][] rookStartCols = new int[2][2];
+    private int[] kingStartCols = new int[2];
+    private int[] materialRow = {0, 7};
 
-	private long openFiles = 0;
-	private boolean revisitedState = false;
+    private long openFiles = 0;
+    private boolean revisitedState = false;
 
-	private Side turn;
-	private RNGTable rngTable;
-	private Stack<Move> moveHistory;
-	private long hashCode;
-	private Stack<Long> hashCodeHistory;
-	private long[] nullMoveInfo = { 0, BitBoard.ALL_ONES, 0 };
+    private Side turn;
+    private RNGTable rngTable;
+    private Stack<Move> moveHistory;
+    private long hashCode;
+    private Stack<Long> hashCodeHistory;
+    private long[] nullMoveInfo = {0, BitBoard.ALL_ONES, 0};
 
-	// private long[] allPosBitBoard = { 0, 0 };
-	// private long[] pawnPosBitBoard = { 0, 0 };
-	// private long[] kingPosBitBoard = { 0, 0 };
+    // private long[] allPosBitBoard = { 0, 0 };
+    // private long[] pawnPosBitBoard = { 0, 0 };
+    // private long[] kingPosBitBoard = { 0, 0 };
 
-	private long[][] posBitBoard = new long[Piece.PieceID.values().length][2];
-	private long[] allPosBitBoard = new long[2];
+    private long[][] posBitBoard = new long[Piece.PieceID.values().length][2];
+    private long[] allPosBitBoard = new long[2];
 
-	public Board() {
-		this.board = new Piece[8][8];
+    public Board() {
+        this.board = new Piece[8][8];
 
-		this.pieces[Side.WHITE.ordinal()] = new ArrayList<>();
-		this.pieces[Side.BLACK.ordinal()] = new ArrayList<>();
+        this.pieces[Side.WHITE.ordinal()] = new ArrayList<>();
+        this.pieces[Side.BLACK.ordinal()] = new ArrayList<>();
 
-		this.piecesTaken[Side.WHITE.ordinal()] = new Stack<>();
-		this.piecesTaken[Side.BLACK.ordinal()] = new Stack<>();
+        this.piecesTaken[Side.WHITE.ordinal()] = new Stack<>();
+        this.piecesTaken[Side.BLACK.ordinal()] = new Stack<>();
 
-		this.moveHistory = new Stack<>();
-		this.hashCodeHistory = new Stack<>();
-		this.rngTable = RNGTable.instance;
-		this.turn = Side.WHITE;
-		this.nullMoveInfo = new long[3];
+        this.moveHistory = new Stack<>();
+        this.hashCodeHistory = new Stack<>();
+        this.rngTable = RNGTable.instance;
+        this.turn = Side.WHITE;
+        this.nullMoveInfo = new long[3];
 
-		kings[Side.BLACK.ordinal()] = new Piece(Piece.PieceID.KING, Side.BLACK, -1, -1, false);
-		kings[Side.WHITE.ordinal()] = new Piece(Piece.PieceID.KING, Side.WHITE, -1, -1, false);
+        kings[Side.BLACK.ordinal()] = new Piece(Piece.PieceID.KING, Side.BLACK, -1, -1, false);
+        kings[Side.WHITE.ordinal()] = new Piece(Piece.PieceID.KING, Side.WHITE, -1, -1, false);
 
-		placePiece(kings[Side.BLACK.ordinal()], 0, 0);
-		placePiece(kings[Side.WHITE.ordinal()], 7, 0);
+        placePiece(kings[Side.BLACK.ordinal()], 0, 0);
+        placePiece(kings[Side.WHITE.ordinal()], 7, 0);
 
-	}
+    }
 
-	public Board(ArrayList<Piece>[] pieces, Side turn, Stack<Move> moveHistory, int[][] rookStartCols, int[] kingCols) {
-		this.board = new Piece[8][8];
-		this.pieces[Side.WHITE.ordinal()] = new ArrayList<>(pieces[Side.WHITE.ordinal()].size());
-		this.pieces[Side.BLACK.ordinal()] = new ArrayList<>(pieces[Side.BLACK.ordinal()].size());
+    public Board(ArrayList<Piece>[] pieces, Side turn, Stack<Move> moveHistory, int[][] rookStartCols, int[] kingCols) {
+        this.board = new Piece[8][8];
+        this.pieces[Side.WHITE.ordinal()] = new ArrayList<>(pieces[Side.WHITE.ordinal()].size());
+        this.pieces[Side.BLACK.ordinal()] = new ArrayList<>(pieces[Side.BLACK.ordinal()].size());
 
-		this.piecesTaken[Side.WHITE.ordinal()] = new Stack<>();
-		this.piecesTaken[Side.BLACK.ordinal()] = new Stack<>();
+        this.piecesTaken[Side.WHITE.ordinal()] = new Stack<>();
+        this.piecesTaken[Side.BLACK.ordinal()] = new Stack<>();
 
-		this.moveHistory = new Stack<>();
-		this.hashCodeHistory = new Stack<>();
-		this.rngTable = RNGTable.instance;
-		this.turn = turn;
-		this.nullMoveInfo = new long[3];
+        this.moveHistory = new Stack<>();
+        this.hashCodeHistory = new Stack<>();
+        this.rngTable = RNGTable.instance;
+        this.turn = turn;
+        this.nullMoveInfo = new long[3];
 
-		long[][] posBitBoard = new long[Piece.PieceID.values().length][2];
-		// long[] pawnPosBitboard = { 0, 0 };
-		// long[] kingPosBitboard = { 0, 0 };
+        long[][] posBitBoard = new long[Piece.PieceID.values().length][2];
+        // long[] pawnPosBitboard = { 0, 0 };
+        // long[] kingPosBitboard = { 0, 0 };
 
-		int[] pawnRow = new int[2];
-		pawnRow[Side.BLACK.ordinal()] = 1;
-		pawnRow[Side.WHITE.ordinal()] = 6;
+        int[] pawnRow = new int[2];
+        pawnRow[Side.BLACK.ordinal()] = 1;
+        pawnRow[Side.WHITE.ordinal()] = 6;
 
-		Piece temp;
+        Piece temp;
 
-		for (int i = 0; i < pieces.length; i++) {
+        for (int i = 0; i < pieces.length; i++) {
 
-			for (int p = 0; p < pieces[i].size(); p++) {
-				temp = pieces[i].get(p).getCopy();
+            for (int p = 0; p < pieces[i].size(); p++) {
+                temp = pieces[i].get(p).getCopy();
 
-				this.pieces[i].add(temp);
+                this.pieces[i].add(temp);
 
-				board[temp.getRow()][temp.getCol()] = temp;
+                board[temp.getRow()][temp.getCol()] = temp;
 
-				posBitBoard[temp.getPieceID().ordinal()][i] |= temp.getBit();
+                posBitBoard[temp.getPieceID().ordinal()][i] |= temp.getBit();
 
-				if (temp.getPieceID() == Piece.PieceID.PAWN) {
+                if (temp.getPieceID() == Piece.PieceID.PAWN) {
 
-					if (temp.getRow() != pawnRow[i]) {
-						temp.setMoved(true);
-					}
-				}
+                    if (temp.getRow() != pawnRow[i]) {
+                        temp.setMoved(true);
+                    }
+                }
 
-				if (temp.getPieceID() == Piece.PieceID.KING) {
-
-					kings[i] = temp;
+                if (temp.getPieceID() == Piece.PieceID.KING) {
+
+                    kings[i] = temp;
 
-					if (temp.getRow() != materialRow[i]) {
-						temp.setMoved(true);
-					}
-				}
-			}
-
-		}
-
-		this.posBitBoard = posBitBoard;
-
-		for (int i = 0; i < Piece.PieceID.values().length; i++) {
-			this.allPosBitBoard[0] |= posBitBoard[i][0];
-			this.allPosBitBoard[1] |= posBitBoard[i][1];
-		}
-
-		this.hashCode = generateHashCode();
-
-		if (moveHistory.size() > 0) {
-			Long move;
-			Side moveSide;
-			if (moveHistory.size() % 2 == 0) {
-				moveSide = turn;
-			} else {
-				moveSide = turn.otherSide();
-			}
-
-			for (int i = 0; i < moveHistory.size(); i++) {
-				move = moveHistory.elementAt(i).getMoveLong();
-				this.moveHistory.push(new Move(move));
-				if (Move.hasPieceTaken(move)) {
-					piecesTaken[moveSide.otherSide().ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide.otherSide(), Move.getPieceTakenRow(move), Move
-							.getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
-				}
-
-				moveSide = moveSide.otherSide();
-			}
+                    if (temp.getRow() != materialRow[i]) {
+                        temp.setMoved(true);
+                    }
+                }
+            }
+
+        }
+
+        this.posBitBoard = posBitBoard;
+
+        for (int i = 0; i < Piece.PieceID.values().length; i++) {
+            this.allPosBitBoard[0] |= posBitBoard[i][0];
+            this.allPosBitBoard[1] |= posBitBoard[i][1];
+        }
+
+        this.hashCode = generateHashCode();
+
+        if (moveHistory.size() > 0) {
+            Long move;
+            Side moveSide;
+            if (moveHistory.size() % 2 == 0) {
+                moveSide = turn;
+            } else {
+                moveSide = turn.otherSide();
+            }
+
+            for (int i = 0; i < moveHistory.size(); i++) {
+                move = moveHistory.elementAt(i).getMoveLong();
+                this.moveHistory.push(new Move(move));
+                if (Move.hasPieceTaken(move)) {
+                    piecesTaken[moveSide.otherSide().ordinal()].push(new Piece(Move.getPieceTakenID(move), moveSide.otherSide(), Move.getPieceTakenRow(move), Move
+                            .getPieceTakenCol(move), Move.getPieceTakenHasMoved(move)));
+                }
+
+                moveSide = moveSide.otherSide();
+            }
 
-		} else {
-			loadPiecesTaken();
-		}
+        } else {
+            loadPiecesTaken();
+        }
 
-		if (kingCols == null || rookStartCols == null) {
-			initializeCastleSetup();
-		} else {
-			this.kingStartCols = kingCols;
-			this.rookStartCols = rookStartCols;
-		}
+        if (kingCols == null || rookStartCols == null) {
+            initializeCastleSetup();
+        } else {
+            this.kingStartCols = kingCols;
+            this.rookStartCols = rookStartCols;
+        }
 
-		// this.castleRights = castleRights;
-	}
-
-	public boolean makeMove(long move) {
+        // this.castleRights = castleRights;
+    }
+
+    public boolean makeMove(long move) {
 
-		int fromRow = Move.getFromRow(move);
-		int fromCol = Move.getFromCol(move);
-		int toRow = Move.getToRow(move);
-		int toCol = Move.getToCol(move);
-		Move.MoveNote note = Move.getNote(move);
+        int fromRow = Move.getFromRow(move);
+        int fromCol = Move.getFromCol(move);
+        int toRow = Move.getToRow(move);
+        int toCol = Move.getToCol(move);
+        Move.MoveNote note = Move.getNote(move);
 
-		if (board[fromRow][fromCol].getSide() != turn) {
-			logger.debug("Problem with player ref");
-			return false;
-		}
+        if (board[fromRow][fromCol].getSide() != turn) {
+            logger.debug("Problem with player ref");
+            return false;
+        }
 
-		// save off hashCode
-		hashCodeHistory.push(new Long(hashCode));
+        // save off hashCode
+        hashCodeHistory.push(new Long(hashCode));
 
-		// remove previous castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
-				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+        // remove previous castle options
+        hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+                this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
-		// remove taken piece first
-		if (Move.hasPieceTaken(move)) {
+        // remove taken piece first
+        if (Move.hasPieceTaken(move)) {
 
-			Piece pieceTaken = board[Move.getPieceTakenRow(move)][Move.getPieceTakenCol(move)];
+            Piece pieceTaken = board[Move.getPieceTakenRow(move)][Move.getPieceTakenCol(move)];
 
-			// remove pieceTaken from vectors
-			pieces[turn.otherSide().ordinal()].remove(pieceTaken);
-			piecesTaken[turn.otherSide().ordinal()].push(pieceTaken);
+            // remove pieceTaken from vectors
+            pieces[turn.otherSide().ordinal()].remove(pieceTaken);
+            piecesTaken[turn.otherSide().ordinal()].push(pieceTaken);
 
-			// // remove bit position from appropriate side
-			// allPosBitBoard[pieceTaken.getSide().ordinal()] ^=
-			// pieceTaken.getBit();
-			//
-			// if (pieceTaken.getPieceID() == PieceID.PAWN) {
-			// pawnPosBitBoard[pieceTaken.getSide().ordinal()] ^=
-			// pieceTaken.getBit();
-			//
-			// }
-			//
-			// if (pieceTaken.getPieceID() == PieceID.KING) {
-			// kingPosBitBoard[pieceTaken.getSide().ordinal()] ^=
-			// pieceTaken.getBit();
-			// }
+            // // remove bit position from appropriate side
+            // allPosBitBoard[pieceTaken.getSide().ordinal()] ^=
+            // pieceTaken.getBit();
+            //
+            // if (pieceTaken.getPieceID() == PieceID.PAWN) {
+            // pawnPosBitBoard[pieceTaken.getSide().ordinal()] ^=
+            // pieceTaken.getBit();
+            //
+            // }
+            //
+            // if (pieceTaken.getPieceID() == PieceID.KING) {
+            // kingPosBitBoard[pieceTaken.getSide().ordinal()] ^=
+            // pieceTaken.getBit();
+            // }
 
-			posBitBoard[pieceTaken.getPieceID().ordinal()][pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
-			allPosBitBoard[pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
+            posBitBoard[pieceTaken.getPieceID().ordinal()][pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
+            allPosBitBoard[pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
 
-			// remove ref to piecetaken on board
-			board[pieceTaken.getRow()][pieceTaken.getCol()] = null;
+            // remove ref to piecetaken on board
+            board[pieceTaken.getRow()][pieceTaken.getCol()] = null;
 
-			// remove old hash from piece that was taken, if any
-			hashCode ^= rngTable.getPiecePerSquareRandom(pieceTaken.getSide(), pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol());
+            // remove old hash from piece that was taken, if any
+            hashCode ^= rngTable.getPiecePerSquareRandom(pieceTaken.getSide(), pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol());
 
-		}
+        }
 
-		if (note == Move.MoveNote.CASTLE_NEAR || note == Move.MoveNote.CASTLE_FAR) {
+        if (note == Move.MoveNote.CASTLE_NEAR || note == Move.MoveNote.CASTLE_FAR) {
 
-			Piece king = kings[turn.ordinal()];
-			Piece rook;
+            Piece king = kings[turn.ordinal()];
+            Piece rook;
 
-			if (note == Move.MoveNote.CASTLE_NEAR) {
-				rook = board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][1]];
+            if (note == Move.MoveNote.CASTLE_NEAR) {
+                rook = board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][1]];
 
-				movePiece(king, materialRow[turn.ordinal()], 6, Move.MoveNote.NONE);
-				movePiece(rook, materialRow[turn.ordinal()], 5, Move.MoveNote.NONE);
+                movePiece(king, materialRow[turn.ordinal()], 6, Move.MoveNote.NONE);
+                movePiece(rook, materialRow[turn.ordinal()], 5, Move.MoveNote.NONE);
 
-				board[materialRow[turn.ordinal()]][6] = king;
-				board[materialRow[turn.ordinal()]][5] = rook;
+                board[materialRow[turn.ordinal()]][6] = king;
+                board[materialRow[turn.ordinal()]][5] = rook;
 
-				castleRights[turn.ordinal()] = 2;
-			} else {
-				rook = board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][0]];
+                castleRights[turn.ordinal()] = 2;
+            } else {
+                rook = board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][0]];
 
-				movePiece(king, materialRow[turn.ordinal()], 2, Move.MoveNote.NONE);
-				movePiece(rook, materialRow[turn.ordinal()], 3, Move.MoveNote.NONE);
+                movePiece(king, materialRow[turn.ordinal()], 2, Move.MoveNote.NONE);
+                movePiece(rook, materialRow[turn.ordinal()], 3, Move.MoveNote.NONE);
 
-				board[materialRow[turn.ordinal()]][2] = king;
-				board[materialRow[turn.ordinal()]][3] = rook;
+                board[materialRow[turn.ordinal()]][2] = king;
+                board[materialRow[turn.ordinal()]][3] = rook;
 
-				castleRights[turn.ordinal()] = 1;
-			}
+                castleRights[turn.ordinal()] = 1;
+            }
 
-		} else {
+        } else {
 
-			movePiece(board[fromRow][fromCol], toRow, toCol, note);
+            movePiece(board[fromRow][fromCol], toRow, toCol, note);
 
-		}
+        }
 
-		// if last move made is pawn leap, remove en passant file num
-		if (getLastMoveMade() != 0) {
-			if (Move.getNote(getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
-				hashCode ^= rngTable.getEnPassantFile(Move.getToCol(getLastMoveMade()));
-			}
-		}
+        // if last move made is pawn leap, remove en passant file num
+        if (getLastMoveMade() != 0) {
+            if (Move.getNote(getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
+                hashCode ^= rngTable.getEnPassantFile(Move.getToCol(getLastMoveMade()));
+            }
+        }
 
-		// if new move is pawn leap, add en passant file num
-		if (note == Move.MoveNote.PAWN_LEAP) {
-			hashCode ^= rngTable.getEnPassantFile(Move.getToCol(move));
-		}
+        // if new move is pawn leap, add en passant file num
+        if (note == Move.MoveNote.PAWN_LEAP) {
+            hashCode ^= rngTable.getEnPassantFile(Move.getToCol(move));
+        }
 
-		// add new castle options
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
-				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+        // add new castle options
+        hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+                this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
-		// either remove black and add white or reverse. Same operation.
-		hashCode ^= rngTable.getBlackToMoveRandom();
+        // either remove black and add white or reverse. Same operation.
+        hashCode ^= rngTable.getBlackToMoveRandom();
 
-		// show that this move is now the last move made
-		moveHistory.push(new Move(move));
+        // show that this move is now the last move made
+        moveHistory.push(new Move(move));
 
-		// move was made, next player's turn
-		turn = turn.otherSide();
+        // move was made, next player's turn
+        turn = turn.otherSide();
 
-		// verifyBitBoards();
+        // verifyBitBoards();
 
-		return true;
+        return true;
 
-	}
+    }
 
-	private void movePiece(Piece pieceMoving, int toRow, int toCol, Move.MoveNote note) {
+    private void movePiece(Piece pieceMoving, int toRow, int toCol, Move.MoveNote note) {
 
-		long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ BitBoard.getMask(toRow, toCol);
+        long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ BitBoard.getMask(toRow, toCol);
 
-		// remove bit position from where piece was and add where it is now
-		posBitBoard[pieceMoving.getPieceID().ordinal()][pieceMoving.getSide().ordinal()] ^= bitMove;
-		allPosBitBoard[pieceMoving.getSide().ordinal()] ^= bitMove;
+        // remove bit position from where piece was and add where it is now
+        posBitBoard[pieceMoving.getPieceID().ordinal()][pieceMoving.getSide().ordinal()] ^= bitMove;
+        allPosBitBoard[pieceMoving.getSide().ordinal()] ^= bitMove;
 
-		// remove old hash from where piece was
-		hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), pieceMoving.getRow(), pieceMoving.getCol());
+        // remove old hash from where piece was
+        hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), pieceMoving.getRow(), pieceMoving.getCol());
 
-		// remove pieces old position
-		board[pieceMoving.getRow()][pieceMoving.getCol()] = null;
-		// update board to reflect piece's new position
-		board[toRow][toCol] = pieceMoving;
+        // remove pieces old position
+        board[pieceMoving.getRow()][pieceMoving.getCol()] = null;
+        // update board to reflect piece's new position
+        board[toRow][toCol] = pieceMoving;
 
-		// tell piece its new position
-		pieceMoving.setPos(toRow, toCol);
-		pieceMoving.setMoved(true);
+        // tell piece its new position
+        pieceMoving.setPos(toRow, toCol);
+        pieceMoving.setMoved(true);
 
-		if (note == Move.MoveNote.NEW_QUEEN) {
-			pieceMoving.setPieceID(Piece.PieceID.QUEEN);
-			posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
-			posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
-		}
+        if (note == Move.MoveNote.NEW_QUEEN) {
+            pieceMoving.setPieceID(Piece.PieceID.QUEEN);
+            posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+            posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+        }
 
-		// if (pieceMoving == getKing(turn)) {
-		// setCastleRights(turn, 0);
-		// }
+        // if (pieceMoving == getKing(turn)) {
+        // setCastleRights(turn, 0);
+        // }
 
-		// add hash of piece at new location
-		hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), toRow, toCol);
-	}
+        // add hash of piece at new location
+        hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), toRow, toCol);
+    }
 
-	public long undoMove() {
+    public long undoMove() {
 
-		// if no there is no last move then undoMove is impossible
-		if (moveHistory.empty()) {
-			// logger.debug("Can not undo move");
-			return 0;
-		}
+        // if no there is no last move then undoMove is impossible
+        if (moveHistory.empty()) {
+            // logger.debug("Can not undo move");
+            return 0;
+        }
 
-		// retrieve last move made
-		long lastMove = getLastMoveMade();
+        // retrieve last move made
+        long lastMove = getLastMoveMade();
 
-		int fromRow = Move.getFromRow(lastMove);
-		int fromCol = Move.getFromCol(lastMove);
-		int toRow = Move.getToRow(lastMove);
-		int toCol = Move.getToCol(lastMove);
-		Move.MoveNote note = Move.getNote(lastMove);
+        int fromRow = Move.getFromRow(lastMove);
+        int fromCol = Move.getFromCol(lastMove);
+        int toRow = Move.getToRow(lastMove);
+        int toCol = Move.getToCol(lastMove);
+        Move.MoveNote note = Move.getNote(lastMove);
 
-		// last move made was made by previous player, which is also the next
-		// player
-		turn = turn.otherSide();
+        // last move made was made by previous player, which is also the next
+        // player
+        turn = turn.otherSide();
 
-		if (note == Move.MoveNote.CASTLE_NEAR || note == Move.MoveNote.CASTLE_FAR) {
+        if (note == Move.MoveNote.CASTLE_NEAR || note == Move.MoveNote.CASTLE_FAR) {
 
-			Piece king = kings[turn.ordinal()];
-			Piece rook;
+            Piece king = kings[turn.ordinal()];
+            Piece rook;
 
-			if (note == Move.MoveNote.CASTLE_FAR) {
-				rook = board[materialRow[turn.ordinal()]][3];
+            if (note == Move.MoveNote.CASTLE_FAR) {
+                rook = board[materialRow[turn.ordinal()]][3];
 
-				undoMovePiece(king, materialRow[turn.ordinal()], kingStartCols[turn.ordinal()], Move.MoveNote.NONE, false);
-				undoMovePiece(rook, materialRow[turn.ordinal()], rookStartCols[turn.ordinal()][0], Move.MoveNote.NONE, false);
+                undoMovePiece(king, materialRow[turn.ordinal()], kingStartCols[turn.ordinal()], Move.MoveNote.NONE, false);
+                undoMovePiece(rook, materialRow[turn.ordinal()], rookStartCols[turn.ordinal()][0], Move.MoveNote.NONE, false);
 
-				board[materialRow[turn.ordinal()]][kingStartCols[turn.ordinal()]] = king;
-				board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][0]] = rook;
+                board[materialRow[turn.ordinal()]][kingStartCols[turn.ordinal()]] = king;
+                board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][0]] = rook;
 
-			} else {
+            } else {
 
-				rook = board[materialRow[turn.ordinal()]][5];
+                rook = board[materialRow[turn.ordinal()]][5];
 
-				undoMovePiece(king, materialRow[turn.ordinal()], kingStartCols[turn.ordinal()], Move.MoveNote.NONE, false);
-				undoMovePiece(rook, materialRow[turn.ordinal()], rookStartCols[turn.ordinal()][1], Move.MoveNote.NONE, false);
+                undoMovePiece(king, materialRow[turn.ordinal()], kingStartCols[turn.ordinal()], Move.MoveNote.NONE, false);
+                undoMovePiece(rook, materialRow[turn.ordinal()], rookStartCols[turn.ordinal()][1], Move.MoveNote.NONE, false);
 
-				board[materialRow[turn.ordinal()]][kingStartCols[turn.ordinal()]] = king;
-				board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][1]] = rook;
+                board[materialRow[turn.ordinal()]][kingStartCols[turn.ordinal()]] = king;
+                board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][1]] = rook;
 
-			}
+            }
 
-			castleRights[turn.ordinal()] = 0;
+            castleRights[turn.ordinal()] = 0;
 
-		} else {
-			undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, Move.hadMoved(lastMove));
-		}
+        } else {
+            undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, Move.hadMoved(lastMove));
+        }
 
-		if (Move.hasPieceTaken(lastMove)) {
+        if (Move.hasPieceTaken(lastMove)) {
 
-			// add taken piece back to vectors and board
-			Piece pieceTaken = piecesTaken[turn.otherSide().ordinal()].pop();
+            // add taken piece back to vectors and board
+            Piece pieceTaken = piecesTaken[turn.otherSide().ordinal()].pop();
 
-			pieces[turn.otherSide().ordinal()].add(pieceTaken);
+            pieces[turn.otherSide().ordinal()].add(pieceTaken);
 
-			// add piece taken to position bit board
-			posBitBoard[pieceTaken.getPieceID().ordinal()][pieceTaken.getSide().ordinal()] |= pieceTaken.getBit();
-			allPosBitBoard[pieceTaken.getSide().ordinal()] |= pieceTaken.getBit();
+            // add piece taken to position bit board
+            posBitBoard[pieceTaken.getPieceID().ordinal()][pieceTaken.getSide().ordinal()] |= pieceTaken.getBit();
+            allPosBitBoard[pieceTaken.getSide().ordinal()] |= pieceTaken.getBit();
 
-			board[pieceTaken.getRow()][pieceTaken.getCol()] = pieceTaken;
+            board[pieceTaken.getRow()][pieceTaken.getCol()] = pieceTaken;
 
-		}
+        }
 
-		// move was undone so show move made before that as the last move made
-		moveHistory.pop();
+        // move was undone so show move made before that as the last move made
+        moveHistory.pop();
 
-		if (hashCodeHistory.empty()) {
-			// if no hashCode was saved then generate it the hard way
-			hashCode = generateHashCode();
-		} else {
-			// retrieve what the hashCode was before move was made
-			hashCode = hashCodeHistory.pop();
-		}
+        if (hashCodeHistory.empty()) {
+            // if no hashCode was saved then generate it the hard way
+            hashCode = generateHashCode();
+        } else {
+            // retrieve what the hashCode was before move was made
+            hashCode = hashCodeHistory.pop();
+        }
 
-		// verifyBitBoards();
+        // verifyBitBoards();
 
-		return lastMove;
+        return lastMove;
 
-	}
+    }
 
-	private void undoMovePiece(Piece pieceMoving, int fromRow, int fromCol, Move.MoveNote note, boolean hadMoved) {
+    private void undoMovePiece(Piece pieceMoving, int fromRow, int fromCol, Move.MoveNote note, boolean hadMoved) {
 
-		long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ BitBoard.getMask(fromRow, fromCol);
+        long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ BitBoard.getMask(fromRow, fromCol);
 
-		// remove bit position from where piece was and add where it is now
-		posBitBoard[pieceMoving.getPieceID().ordinal()][pieceMoving.getSide().ordinal()] ^= bitMove;
-		allPosBitBoard[pieceMoving.getSide().ordinal()] ^= bitMove;
+        // remove bit position from where piece was and add where it is now
+        posBitBoard[pieceMoving.getPieceID().ordinal()][pieceMoving.getSide().ordinal()] ^= bitMove;
+        allPosBitBoard[pieceMoving.getSide().ordinal()] ^= bitMove;
 
-		// remove old position
-		board[pieceMoving.getRow()][pieceMoving.getCol()] = null;
-		// put piece in old position
-		board[fromRow][fromCol] = pieceMoving;
+        // remove old position
+        board[pieceMoving.getRow()][pieceMoving.getCol()] = null;
+        // put piece in old position
+        board[fromRow][fromCol] = pieceMoving;
 
-		// tell piece where it was
-		pieceMoving.setPos(fromRow, fromCol);
+        // tell piece where it was
+        pieceMoving.setPos(fromRow, fromCol);
 
-		// show whether piece had moved before this move was made
-		pieceMoving.setMoved(hadMoved);
+        // show whether piece had moved before this move was made
+        pieceMoving.setMoved(hadMoved);
 
-		if (note == Move.MoveNote.NEW_QUEEN) {
-			pieceMoving.setPieceID(Piece.PieceID.PAWN);
-			posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
-			posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
-		}
+        if (note == Move.MoveNote.NEW_QUEEN) {
+            pieceMoving.setPieceID(Piece.PieceID.PAWN);
+            posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
+            posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+        }
 
-	}
+    }
 
-	private void verifyBitBoards() {
+    private void verifyBitBoards() {
 
-		Piece piece;
+        Piece piece;
 
-		long[][] allBitBoard = new long[Piece.PieceID.values().length][2];
+        long[][] allBitBoard = new long[Piece.PieceID.values().length][2];
 
-		for (int i = 0; i < Piece.PieceID.values().length; i++) {
-			allBitBoard[i][0] = posBitBoard[i][0];
-			allBitBoard[i][1] = posBitBoard[i][1];
-		}
+        for (int i = 0; i < Piece.PieceID.values().length; i++) {
+            allBitBoard[i][0] = posBitBoard[i][0];
+            allBitBoard[i][1] = posBitBoard[i][1];
+        }
 
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				piece = board[r][c];
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                piece = board[r][c];
 
-				if (piece != null) {
-					allBitBoard[piece.getPieceID().ordinal()][piece.getSide().ordinal()] ^= BitBoard.getMask(r, c);
-				}
+                if (piece != null) {
+                    allBitBoard[piece.getPieceID().ordinal()][piece.getSide().ordinal()] ^= BitBoard.getMask(r, c);
+                }
 
-			}
-		}
+            }
+        }
 
-		for (int i = 0; i < Piece.PieceID.values().length; i++) {
-			if (allBitBoard[i][0] != 0) {
-				logger.debug("BitBoard Problem!!!");
-			}
+        for (int i = 0; i < Piece.PieceID.values().length; i++) {
+            if (allBitBoard[i][0] != 0) {
+                logger.debug("BitBoard Problem!!!");
+            }
 
-			if (allBitBoard[i][1] != 0) {
-				logger.debug("BitBoard Problem!!!");
-			}
-		}
+            if (allBitBoard[i][1] != 0) {
+                logger.debug("BitBoard Problem!!!");
+            }
+        }
 
-	}
+    }
 
-	public boolean canUndo() {
-		return (moveHistory.size() != 0);
-	}
+    public boolean canUndo() {
+        return (moveHistory.size() != 0);
+    }
 
-	public ArrayList<Long> generateValidMoves() {
-		return generateValidMoves(false, 0, AI.noKillerMoves);
-	}
+    public ArrayList<Long> generateValidMoves() {
+        return generateValidMoves(0, AI.noKillerMoves);
+    }
 
-	public ArrayList<Long> generateValidMoves(boolean sort, long hashMove, long[] killerMoves) {
+    public ArrayList<Long> generateValidMoves(long hashMove, long[] killerMoves) {
 
-		// find in check details. i.e. left and right castle info
-		// makeNullMove();
+        validMoves.clear();
 
-		// logger.debug("Not safe areas");
-		// BitBoard.printBitBoard(nullMoveInfo[0]);
-		//
-		// logger.debug("in check vector");
-		// BitBoard.printBitBoard(nullMoveInfo[1]);
+        int prevMovesSize = 0;
 
-		// ArrayList<Long> validMoves = new ArrayList<Long>(50);
-		validMoves.clear();
+        Long move;
+        for (Piece p : pieces[turn.ordinal()]) {
 
-		if (!hasSufficientMaterial() || drawByThreeRule()) {
-			setBoardStatus(Game.GameStatus.DRAW);
-			return validMoves;
-		}
+            p.generateValidMoves(this, nullMoveInfo, allPosBitBoard, validMoves);
 
-		int prevMovesSize = 0;
+            for (int m = prevMovesSize; m < validMoves.size(); m++) {
+                move = validMoves.get(m);
 
-		Long move;
-		for (int p = 0; p < pieces[turn.ordinal()].size(); p++) {
+                move = Move.setHadMoved(move, p.hasMoved());
 
-			pieces[turn.ordinal()].get(p).generateValidMoves(this, nullMoveInfo, allPosBitBoard, validMoves);
+                if (move == hashMove) {
+                    move = Move.setValue(move, 10000);
+                    validMoves.set(m, move);
+                    continue;
+                }
 
-			for (int m = prevMovesSize; m < validMoves.size(); m++) {
-				move = validMoves.get(m);
+                for (int k = 0; k < killerMoves.length; k++) {
+                    if (move == killerMoves[k]) {
+                        move = Move.setValue(move, 9999 - k);
+                        break;
+                    }
+                }
 
-				move = Move.setHadMoved(move, pieces[turn.ordinal()].get(p).hasMoved());
+                validMoves.set(m, move);
 
-				if (move == hashMove) {
-					move = Move.setValue(move, 10000);
-					validMoves.set(m, move);
-					continue;
-				}
+            }
 
-				for (int k = 0; k < killerMoves.length; k++) {
-					if (move == killerMoves[k]) {
-						move = Move.setValue(move, 9999 - k);
-						break;
-					}
-				}
+            prevMovesSize = validMoves.size();
 
-				validMoves.set(m, move);
+        }
 
-			}
+        return validMoves;
+    }
 
-			prevMovesSize = validMoves.size();
+    public long[] getAllPosBitBoard() {
+        return allPosBitBoard;
+    }
 
-		}
+    public long[][] getPosBitBoard() {
+        return posBitBoard;
+    }
 
-		if (sort) {
-			Collections.sort(validMoves, Collections.reverseOrder());
-		}
+    public long[] makeNullMove() {
+        // long nullMoveAttacks = 0;
+        // long inCheckArrayList = BitBoard.ALL_ONES;
+        // long bitAttackCompliment = 0;
+        //
+        // nullMoveInfo[0] = nullMoveAttacks;
+        // nullMoveInfo[1] = inCheckArrayList;
+        // nullMoveInfo[2] = bitAttackCompliment;
 
-		if (validMoves.size() == 0) {
-			if (isInCheck()) {
-				setBoardStatus(Game.GameStatus.CHECKMATE);
-			} else {
-				setBoardStatus(Game.GameStatus.STALEMATE);
-			}
-		}
+        // recalculating check info
+        clearBoardStatus();
 
-		return validMoves;
-	}
+        for (Piece p : pieces[turn.ordinal()]) {
+            p.clearBlocking();
+        }
 
-	public long[] getAllPosBitBoard() {
-		return allPosBitBoard;
-	}
+        nullMoveInfo[0] = BitBoard.getPawnAttacks(posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.otherSide().ordinal()], turn.otherSide());
+        nullMoveInfo[0] |= BitBoard.getKnightAttacks(posBitBoard[Piece.PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()]);
+        nullMoveInfo[0] |= BitBoard.getKingAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.otherSide().ordinal()]);
 
-	public long[][] getPosBitBoard() {
-		return posBitBoard;
-	}
+        nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()], turn) & posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.otherSide().ordinal()];
 
-	public long[] makeNullMove() {
-		// long nullMoveAttacks = 0;
-		// long inCheckArrayList = BitBoard.ALL_ONES;
-		// long bitAttackCompliment = 0;
-		//
-		// nullMoveInfo[0] = nullMoveAttacks;
-		// nullMoveInfo[1] = inCheckArrayList;
-		// nullMoveInfo[2] = bitAttackCompliment;
+        nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()]) & posBitBoard[Piece.PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()];
 
-		// recalculating check info
-		clearBoardStatus();
+        if (nullMoveInfo[1] == 0) {
+            nullMoveInfo[1] = BitBoard.ALL_ONES;
+        }
 
-		for (int p = 0; p < pieces[turn.ordinal()].size(); p++) {
-			pieces[turn.ordinal()].get(p).clearBlocking();
-		}
+        nullMoveInfo[2] = 0;
 
-		nullMoveInfo[0] = BitBoard.getPawnAttacks(posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.otherSide().ordinal()], turn.otherSide());
-		nullMoveInfo[0] |= BitBoard.getKnightAttacks(posBitBoard[Piece.PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()]);
-		nullMoveInfo[0] |= BitBoard.getKingAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.otherSide().ordinal()]);
+        long updown = ~(allPosBitBoard[0] | allPosBitBoard[1]);
+        long left = 0xFEFEFEFEFEFEFEFEL & updown;
+        long right = 0x7F7F7F7F7F7F7F7FL & updown;
 
-		nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()], turn) & posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.otherSide().ordinal()];
+        for (Piece p : pieces[turn.otherSide().ordinal()]) {
+            p.getNullMoveInfo(this, nullMoveInfo, updown, left, right, posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()],
+                    King.getKingCheckVectors(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()], updown, left, right), allPosBitBoard[turn.ordinal()]);
+        }
 
-		nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()]) & posBitBoard[Piece.PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()];
+        if ((kings[turn.ordinal()].getBit() & nullMoveInfo[0]) != 0) {
+            setBoardStatus(Game.GameStatus.CHECK);
+        }
 
-		if (nullMoveInfo[1] == 0) {
-			nullMoveInfo[1] = BitBoard.ALL_ONES;
-		}
+        return nullMoveInfo;
+    }
 
-		nullMoveInfo[2] = 0;
+    public boolean isVoi(Move[] voi) {
 
-		long updown = ~(allPosBitBoard[0] | allPosBitBoard[1]);
-		long left = 0xFEFEFEFEFEFEFEFEL & updown;
-		long right = 0x7F7F7F7F7F7F7F7FL & updown;
+        int historySize = moveHistory.size();
 
-		for (int p = 0; p < pieces[turn.otherSide().ordinal()].size(); p++) {
+        if (historySize < voi.length) {
+            return false;
+        }
 
-			pieces[turn.otherSide().ordinal()].get(p).getNullMoveInfo(this, nullMoveInfo, updown, left, right, posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()],
-					King.getKingCheckVectors(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()], updown, left, right), allPosBitBoard[turn.ordinal()]);
+        for (int i = 0; i < voi.length; i++) {
+            if (!voi[i].equals(moveHistory.elementAt(historySize - i - 1))) {
+                return false;
+            }
+        }
 
-		}
+        return true;
+    }
 
-		// for (int i = 0; i < 3; i++) {
-		// logger.debug(BitBoard.printBitBoard(nullMoveInfo[i]));
-		// }
+    public Piece.PositionStatus checkPiece(int row, int col, Side player) {
 
-		if ((kings[turn.ordinal()].getBit() & nullMoveInfo[0]) != 0) {
-			setBoardStatus(Game.GameStatus.CHECK);
-		}
+        if (((row | col) & (~0x7)) != 0) {
+            return Piece.PositionStatus.OFF_BOARD;
+        }
 
-		return nullMoveInfo;
+        if (board[row][col] != null) {
+            if (board[row][col].getSide() == player)
+                return Piece.PositionStatus.FRIEND;
+            else
+                return Piece.PositionStatus.ENEMY;
+        } else {
+            return Piece.PositionStatus.NO_PIECE;
+        }
 
-	}
+    }
 
-	public boolean isVoi(Move[] voi) {
+    public long getLastMoveMade() {
+        if (!moveHistory.empty()) {
+            return moveHistory.peek().getMoveLong();
+        } else {
+            return 0;
+        }
+    }
 
-		int historySize = moveHistory.size();
+    public List<Move> getMoveHistory() {
+        return moveHistory;
+    }
 
-		if (historySize < voi.length) {
-			return false;
-		}
+    public int getPieceValue(int row, int col) {
+        return Values.getPieceValue(board[row][col].getPieceID()) + getOpeningPositionValue(board[row][col]);
+    }
 
-		for (int i = 0; i < voi.length; i++) {
-			if (!voi[i].equals(moveHistory.elementAt(historySize - i - 1))) {
-				return false;
-			}
-		}
+    public int getOpeningPositionValue(Piece piece) {
 
-		return true;
-	}
+        if (piece == null) {
+            return 0;
+        }
 
-	public Piece.PositionStatus checkPiece(int row, int col, Side player) {
+        switch (piece.getPieceID()) {
+            case KNIGHT:
+                return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+            case PAWN:
+                return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+            case BISHOP:
+                return 0;
+            case KING:
+                return PositionBonus.getKingOpeningPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+            case QUEEN:
+                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE : 0;
+            case ROOK:
+                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE : 0;
+            default:
+                logger.debug("Error: invalid piece value request!");
+                return 0;
+        }
 
-		if (((row | col) & (~0x7)) != 0) {
-			return Piece.PositionStatus.OFF_BOARD;
-		}
+    }
 
-		if (board[row][col] != null) {
-			if (board[row][col].getSide() == player)
-				return Piece.PositionStatus.FRIEND;
-			else
-				return Piece.PositionStatus.ENEMY;
-		} else {
-			return Piece.PositionStatus.NO_PIECE;
-		}
+    public int getEndGamePositionValue(Piece piece) {
 
-	}
+        switch (piece.getPieceID()) {
+            case KNIGHT:
+                return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+            case PAWN:
+                return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+            case BISHOP:
+                return 50;
+            case KING:
+                return PositionBonus.getKingEndGamePositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+            case QUEEN:
+                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE + 100 : 0;
+            case ROOK:
+                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE + 50 : 0;
+            default:
+                logger.debug("Error: invalid piece value request!");
+                return 0;
+        }
 
-	public long getLastMoveMade() {
-		if (!moveHistory.empty()) {
-			return moveHistory.peek().getMoveLong();
-		} else {
-			return 0;
-		}
-	}
+    }
 
-	public List<Move> getMoveHistory() {
-		return moveHistory;
-	}
+    public int openingPositionScore(Side side) {
+        int score = 0;
 
-	public int getPieceValue(int row, int col) {
-		return Values.getPieceValue(board[row][col].getPieceID()) + getOpeningPositionValue(board[row][col]);
-	}
+        for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
+            score += getOpeningPositionValue(pieces[side.ordinal()].get(i));
+        }
 
-	public int getOpeningPositionValue(Piece piece) {
+        return score;
+    }
 
-		if (piece == null) {
-			return 0;
-		}
+    public int endGamePositionScore(Side side) {
+        int score = 0;
 
-		switch (piece.getPieceID()) {
-		case KNIGHT:
-			return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-		case PAWN:
-			return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-		case BISHOP:
-			return 0;
-		case KING:
-			return PositionBonus.getKingOpeningPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-		case QUEEN:
-			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE : 0;
-		case ROOK:
-			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE : 0;
-		default:
-			logger.debug("Error: invalid piece value request!");
-			return 0;
-		}
+        for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
+            score += getEndGamePositionValue(pieces[side.ordinal()].get(i));
+        }
 
-	}
+        return score;
+    }
 
-	public int getEndGamePositionValue(Piece piece) {
+    public int materialScore(Side side) {
+        int score = 0;
 
-		switch (piece.getPieceID()) {
-		case KNIGHT:
-			return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-		case PAWN:
-			return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-		case BISHOP:
-			return 50;
-		case KING:
-			return PositionBonus.getKingEndGamePositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-		case QUEEN:
-			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE + 100 : 0;
-		case ROOK:
-			return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE + 50 : 0;
-		default:
-			logger.debug("Error: invalid piece value request!");
-			return 0;
-		}
+        for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
+            score += Values.getPieceValue(pieces[side.ordinal()].get(i).getPieceID());
+        }
 
-	}
+        return score;
+    }
 
-	public int openingPositionScore(Side side) {
-		int score = 0;
+    public int castleScore(Side side) {
+        int score = 0;
+        int castleRights = this.castleRights[side.ordinal()];
 
-		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
-			score += getOpeningPositionValue(pieces[side.ordinal()].get(i));
-		}
+        if (castleRights != 0) {
+            if (castleRights == 1) {
+                score += Values.FAR_CASTLE_VALUE;
+            } else {
+                score += Values.NEAR_CASTLE_VALUE;
+            }
+        } else {
+            if (!kingHasMoved(side)) {
+                if (farRookHasMoved(side)) {
+                    score -= Values.FAR_CASTLE_ABILITY_LOST_VALUE;
+                }
 
-		return score;
-	}
+                if (nearRookHasMoved(side)) {
+                    score -= Values.NEAR_CASTLE_ABILITY_LOST_VALUE;
+                }
+            } else {
+                score -= Values.CASTLE_ABILITY_LOST_VALUE;
+            }
+        }
 
-	public int endGamePositionScore(Side side) {
-		int score = 0;
+        return score;
+    }
 
-		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
-			score += getEndGamePositionValue(pieces[side.ordinal()].get(i));
-		}
+    public int pawnStructureScore(Side side, int phase) {
 
-		return score;
-	}
+        long pawns = posBitBoard[Piece.PieceID.PAWN.ordinal()][side.ordinal()];
+        long otherPawns = posBitBoard[Piece.PieceID.PAWN.ordinal()][side.otherSide().ordinal()];
 
-	public int materialScore(Side side) {
-		int score = 0;
+        long files = 0x0101010101010101L;
 
-		for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
-			score += Values.getPieceValue(pieces[side.ordinal()].get(i).getPieceID());
-		}
+        int occupiedCol = 0;
+        for (int c = 0; c < 8; c++) {
+            if ((files & pawns) != 0) {
 
-		return score;
-	}
+                occupiedCol++;
 
-	public int castleScore(Side side) {
-		int score = 0;
-		int castleRights = this.castleRights[side.ordinal()];
+                if ((files & otherPawns) == 0) {
+                    openFiles |= files;
+                }
+            }
+            files = files << 1;
+        }
 
-		if (castleRights != 0) {
-			if (castleRights == 1) {
-				score += Values.FAR_CASTLE_VALUE;
-			} else {
-				score += Values.NEAR_CASTLE_VALUE;
-			}
-		} else {
-			if (!kingHasMoved(side)) {
-				if (farRookHasMoved(side)) {
-					score -= Values.FAR_CASTLE_ABILITY_LOST_VALUE;
-				}
+        int doubledPawns = Long.bitCount(pawns) - occupiedCol;
 
-				if (nearRookHasMoved(side)) {
-					score -= Values.NEAR_CASTLE_ABILITY_LOST_VALUE;
-				}
-			} else {
-				score -= Values.CASTLE_ABILITY_LOST_VALUE;
-			}
-		}
+        long passedBB = BitBoard.getPassedPawns(pawns, otherPawns, side);
 
-		return score;
-	}
+        int passedPawns = 0;
 
-	public int pawnStructureScore(Side side, int phase) {
+        for (int i = 0; i < 8; i++) {
+            passedPawns += Long.bitCount(passedBB & BitBoard.getRowMask(i)) * Values.PASSED_PAWN_BONUS[side.ordinal()][i];
+        }
 
-		long pawns = posBitBoard[Piece.PieceID.PAWN.ordinal()][side.ordinal()];
-		long otherPawns = posBitBoard[Piece.PieceID.PAWN.ordinal()][side.otherSide().ordinal()];
+        int isolatedPawns = Long.bitCount(BitBoard.getIsolatedPawns(pawns, side)) * Values.ISOLATED_PAWN_BONUS;
 
-		long files = 0x0101010101010101L;
+        return BitBoard.getBackedPawns(pawns) * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * phase) / 256) + isolatedPawns;
+    }
 
-		int occupiedCol = 0;
-		for (int c = 0; c < 8; c++) {
-			if ((files & pawns) != 0) {
+    public int calcGamePhase() {
 
-				occupiedCol++;
+        int phase = Values.TOTALPHASE;
 
-				if ((files & otherPawns) == 0) {
-					openFiles |= files;
-				}
-			}
-			files = files << 1;
-		}
+        for (int i = 0; i < 2; i++) {
+            for (int p = 0; p < pieces[i].size(); p++) {
+                phase -= Values.PIECE_PHASE_VAL[pieces[i].get(p).getPieceID().ordinal()];
+            }
+        }
 
-		int doubledPawns = Long.bitCount(pawns) - occupiedCol;
+        phase = (phase * 256 + (Values.TOTALPHASE / 2)) / Values.TOTALPHASE;
 
-		long passedBB = BitBoard.getPassedPawns(pawns, otherPawns, side);
+        return phase;
+    }
 
-		int passedPawns = 0;
+    public int staticScore() {
+        int ptDiff = 0;
 
-		for (int i = 0; i < 8; i++) {
-			passedPawns += Long.bitCount(passedBB & BitBoard.getRowMask(i)) * Values.PASSED_PAWN_BONUS[side.ordinal()][i];
-		}
-		
-		int isolatedPawns = Long.bitCount(BitBoard.getIsolatedPawns(pawns, side)) * Values.ISOLATED_PAWN_BONUS;
-		
-		return BitBoard.getBackedPawns(pawns) * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * phase) / 256) + isolatedPawns;
-	}
+        int phase = calcGamePhase();
 
-	public int calcGamePhase() {
+        int myPawnScore = pawnStructureScore(turn, phase);
+        int yourPawnScore = pawnStructureScore(turn.otherSide(), phase);
 
-		int phase = Values.TOTALPHASE;
+        int openingMyScore = castleScore(turn) + openingPositionScore(turn);
+        int openingYourScore = castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide());
 
-		for (int i = 0; i < 2; i++) {
-			for (int p = 0; p < pieces[i].size(); p++) {
-				phase -= Values.PIECE_PHASE_VAL[pieces[i].get(p).getPieceID().ordinal()];
-			}
-		}
+        int endGameMyScore = endGamePositionScore(turn);
+        int endGameYourScore = endGamePositionScore(turn.otherSide());
 
-		phase = (phase * 256 + (Values.TOTALPHASE / 2)) / Values.TOTALPHASE;
+        int myScore = (openingMyScore * (256 - phase) + endGameMyScore * phase) / 256 + materialScore(turn) + myPawnScore;
+        int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + materialScore(turn.otherSide()) + yourPawnScore;
 
-		return phase;
-	}
+        ptDiff = myScore - yourScore;
 
-	public int staticScore() {
-		int ptDiff = 0;
+        return ptDiff;
+    }
 
-		int phase = calcGamePhase();
+    public boolean canQueen() {
+        long p = posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.ordinal()];
+        long o = allPosBitBoard[turn.otherSide().ordinal()];
 
-		int myPawnScore = pawnStructureScore(turn, phase);
-		int yourPawnScore = pawnStructureScore(turn.otherSide(), phase);
+        if (turn == Side.WHITE) {
+            return (((((p >>> 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFFL) != 0);
+        } else {
+            return (((((p << 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFF00000000000000L) != 0);
+        }
+    }
 
-		int openingMyScore = castleScore(turn) + openingPositionScore(turn);
-		int openingYourScore = castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide());
+    public Piece getPiece(int row, int col) {
+        return board[row][col];
+    }
 
-		int endGameMyScore = endGamePositionScore(turn);
-		int endGameYourScore = endGamePositionScore(turn.otherSide());
+    public Piece.PieceID getPieceID(int row, int col) {
+        if (board[row][col] != null) {
+            return board[row][col].getPieceID();
+        } else {
+            return null;
+        }
 
-		int myScore = (openingMyScore * (256 - phase) + endGameMyScore * phase) / 256 + materialScore(turn) + myPawnScore;
-		int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + materialScore(turn.otherSide()) + yourPawnScore;
+    }
 
-		ptDiff = myScore - yourScore;
+    public Side getPieceSide(int row, int col) {
+        if (board[row][col] != null) {
+            return board[row][col].getSide();
+        } else {
+            logger.debug("Error: requested player on null piece");
+            return null;
+        }
 
-		return ptDiff;
-	}
+    }
 
-	public boolean canQueen() {
-		long p = posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.ordinal()];
-		long o = allPosBitBoard[turn.otherSide().ordinal()];
+    public Side getTurn() {
+        return turn;
+    }
 
-		if (turn == Side.WHITE) {
-			return (((((p >>> 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFFL) != 0);
-		} else {
-			return (((((p << 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFF00000000000000L) != 0);
-		}
-	}
+    public void setTurn(Side turn) {
+        this.turn = turn;
+    }
 
-	public Piece getPiece(int row, int col) {
-		return board[row][col];
-	}
+    public boolean hasPiece(int row, int col) {
+        if ((row & ~0x7) != 0 || (col & ~7) != 0) {
+            return false;
+        } else {
+            return (board[row][col] != null);
+        }
+    }
 
-	public Piece.PieceID getPieceID(int row, int col) {
-		if (board[row][col] != null) {
-			return board[row][col].getPieceID();
-		} else {
-			return null;
-		}
+    public boolean hasMoved(int row, int col) {
+        if (hasPiece(row, col)) {
+            return board[row][col].hasMoved();
+        } else {
+            return true;
+        }
+    }
 
-	}
+    public Stack<Piece> getPiecesTakenFor(Side player) {
+        return piecesTaken[player.ordinal()];
+    }
 
-	public Side getPieceSide(int row, int col) {
-		if (board[row][col] != null) {
-			return board[row][col].getSide();
-		} else {
-			logger.debug("Error: requested player on null piece");
-			return null;
-		}
+    private void initializeCastleSetup() {
 
-	}
+        int[][] rookCols = {{-1, -1}, {-1, -1}};
+        this.rookStartCols = rookCols;
 
-	public Side getTurn() {
-		return turn;
-	}
+        for (int s = 0; s < 2; s++) {
+            for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
-	public void setTurn(Side turn) {
-		this.turn = turn;
-	}
+                if (board[materialRow[s]][c] != null) {
+                    if (board[materialRow[s]][c].getPieceID() == Piece.PieceID.ROOK) {
+                        rookCols[s][0] = c;
+                        break;
+                    }
+                }
+            }
 
-	public boolean hasPiece(int row, int col) {
-		if ((row & ~0x7) != 0 || (col & ~7) != 0) {
-			return false;
-		} else {
-			return (board[row][col] != null);
-		}
-	}
+            for (int c = kings[s].getCol() + 1; c < 8; c++) {
+                if (board[materialRow[s]][c] != null) {
+                    if (board[materialRow[s]][c].getPieceID() == Piece.PieceID.ROOK) {
+                        rookCols[s][1] = c;
+                        break;
+                    }
+                }
+            }
+        }
 
-	public boolean hasMoved(int row, int col) {
-		if (hasPiece(row, col)) {
-			return board[row][col].hasMoved();
-		} else {
-			return true;
-		}
-	}
+        kingStartCols[Side.BLACK.ordinal()] = kings[Side.BLACK.ordinal()].getCol();
+        kingStartCols[Side.WHITE.ordinal()] = kings[Side.WHITE.ordinal()].getCol();
 
-	public Stack<Piece> getPiecesTakenFor(Side player) {
-		return piecesTaken[player.ordinal()];
-	}
+    }
 
-	private void initializeCastleSetup() {
+    public boolean placePiece(Piece piece, int toRow, int toCol) {
 
-		int[][] rookCols = { { -1, -1 }, { -1, -1 } };
-		this.rookStartCols = rookCols;
+        if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
+            if (board[toRow][toCol] != null) {
+                if (board[toRow][toCol].getPieceID() == Piece.PieceID.KING) {
+                    return false;
+                }
+            }
+        }
 
-		for (int s = 0; s < 2; s++) {
-			for (int c = kings[s].getCol() - 1; c >= 0; c--) {
+        if (piece.getPieceID() == Piece.PieceID.KING) {
+            if (toRow < 0 || toCol < 0) {
+                return false;
+            } else {
+                kings[piece.getSide().ordinal()] = piece;
+            }
+        }
 
-				if (board[materialRow[s]][c] != null) {
-					if (board[materialRow[s]][c].getPieceID() == Piece.PieceID.ROOK) {
-						rookCols[s][0] = c;
-						break;
-					}
-				}
-			}
+        piece.setMoved(false);
 
-			for (int c = kings[s].getCol() + 1; c < 8; c++) {
-				if (board[materialRow[s]][c] != null) {
-					if (board[materialRow[s]][c].getPieceID() == Piece.PieceID.ROOK) {
-						rookCols[s][1] = c;
-						break;
-					}
-				}
-			}
-		}
+        if (piece.getRow() >= 0) {
+            // remove where piece was if it was on board
+            posBitBoard[piece.getPieceID().ordinal()][piece.getSide().ordinal()] ^= piece.getBit();
+            allPosBitBoard[piece.getSide().ordinal()] ^= piece.getBit();
+            board[piece.getRow()][piece.getCol()] = null;
 
-		kingStartCols[Side.BLACK.ordinal()] = kings[Side.BLACK.ordinal()].getCol();
-		kingStartCols[Side.WHITE.ordinal()] = kings[Side.WHITE.ordinal()].getCol();
+        } else {
 
-	}
+            pieces[piece.getSide().ordinal()].add(piece);
+        }
 
-	public boolean placePiece(Piece piece, int toRow, int toCol) {
+        if (toRow >= 0) {
+            // remove where piece taken was
+            if (board[toRow][toCol] != null) {
 
-		if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
-			if (board[toRow][toCol] != null) {
-				if (board[toRow][toCol].getPieceID() == Piece.PieceID.KING) {
-					return false;
-				}
-			}
-		}
+                Piece pieceTaken = board[toRow][toCol];
 
-		if (piece.getPieceID() == Piece.PieceID.KING) {
-			if (toRow < 0 || toCol < 0) {
-				return false;
-			} else {
-				kings[piece.getSide().ordinal()] = piece;
-			}
-		}
+                // remove bit position of piece taken
+                posBitBoard[pieceTaken.getPieceID().ordinal()][pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
+                allPosBitBoard[pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
 
-		piece.setMoved(false);
+                // remove ref to piece taken
+                pieces[pieceTaken.getSide().ordinal()].remove(pieceTaken);
+            }
 
-		if (piece.getRow() >= 0) {
-			// remove where piece was if it was on board
-			posBitBoard[piece.getPieceID().ordinal()][piece.getSide().ordinal()] ^= piece.getBit();
-			allPosBitBoard[piece.getSide().ordinal()] ^= piece.getBit();
-			board[piece.getRow()][piece.getCol()] = null;
+            // tell piece where it is now
+            piece.setPos(toRow, toCol);
 
-		} else {
+            // reflect new piece in position bitboard
+            posBitBoard[piece.getPieceID().ordinal()][piece.getSide().ordinal()] |= piece.getBit();
+            allPosBitBoard[piece.getSide().ordinal()] |= piece.getBit();
 
-			pieces[piece.getSide().ordinal()].add(piece);
-		}
+            // update board ref to show piece there
+            board[toRow][toCol] = piece;
+        } else {
+            // piece is being taken off the board. Remove
+            if (piece.getPieceID() != Piece.PieceID.KING) {
+                pieces[piece.getSide().ordinal()].remove(piece);
+            }
+        }
 
-		if (toRow >= 0) {
-			// remove where piece taken was
-			if (board[toRow][toCol] != null) {
+        // basically start over with new board
+        this.moveHistory.clear();
+        this.hashCodeHistory.clear();
 
-				Piece pieceTaken = board[toRow][toCol];
+        this.hashCode = generateHashCode();
 
-				// remove bit position of piece taken
-				posBitBoard[pieceTaken.getPieceID().ordinal()][pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
-				allPosBitBoard[pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
+        initializeCastleSetup();
 
-				// remove ref to piece taken
-				pieces[pieceTaken.getSide().ordinal()].remove(pieceTaken);
-			}
+        verifyBitBoards();
 
-			// tell piece where it is now
-			piece.setPos(toRow, toCol);
+        return true;
 
-			// reflect new piece in position bitboard
-			posBitBoard[piece.getPieceID().ordinal()][piece.getSide().ordinal()] |= piece.getBit();
-			allPosBitBoard[piece.getSide().ordinal()] |= piece.getBit();
+    }
 
-			// update board ref to show piece there
-			board[toRow][toCol] = piece;
-		} else {
-			// piece is being taken off the board. Remove
-			if (piece.getPieceID() != Piece.PieceID.KING) {
-				pieces[piece.getSide().ordinal()].remove(piece);
-			}
-		}
+    public boolean isInCheck() {
+        return (boardStatus == Game.GameStatus.CHECK);
+    }
 
-		// basically start over with new board
-		this.moveHistory.clear();
-		this.hashCodeHistory.clear();
+    public boolean isInCheckMate() {
+        return (boardStatus == Game.GameStatus.CHECKMATE);
+    }
 
-		this.hashCode = generateHashCode();
+    public boolean isInStaleMate() {
+        return (boardStatus == Game.GameStatus.STALEMATE);
+    }
 
-		initializeCastleSetup();
+    public boolean isTimeUp() {
+        return (boardStatus == Game.GameStatus.TIMES_UP);
+    }
 
-		verifyBitBoards();
+    public boolean isDraw() {
+        return (boardStatus == Game.GameStatus.DRAW);
+    }
 
-		return true;
+    public boolean isInvalid() {
+        return (boardStatus == Game.GameStatus.INVALID);
+    }
 
-	}
+    public boolean isGameOver() {
+        return (isInCheckMate() || isInStaleMate() || isTimeUp() || isDraw() || isInvalid());
+    }
 
-	public boolean isInCheck() {
-		return (boardStatus == Game.GameStatus.CHECK);
-	}
+    public void clearBoardStatus() {
+        boardStatus = Game.GameStatus.IN_PLAY;
+    }
 
-	public boolean isInCheckMate() {
-		return (boardStatus == Game.GameStatus.CHECKMATE);
-	}
+    public Game.GameStatus getBoardStatus() {
+        return boardStatus;
+    }
 
-	public boolean isInStaleMate() {
-		return (boardStatus == Game.GameStatus.STALEMATE);
-	}
+    public void setBoardStatus(Game.GameStatus boardStatus) {
+        this.boardStatus = boardStatus;
+    }
 
-	public boolean isTimeUp() {
-		return (boardStatus == Game.GameStatus.TIMES_UP);
-	}
+    private Piece farRook(Side player) {
+        if (rookStartCols[player.ordinal()][0] != -1) {
+            return board[materialRow[player.ordinal()]][rookStartCols[player.ordinal()][0]];
+        } else {
+            return null;
+        }
+    }
 
-	public boolean isDraw() {
-		return (boardStatus == Game.GameStatus.DRAW);
-	}
+    public boolean farRookHasMoved(Side player) {
+        Piece p = farRook(player);
+        return p == null || p.hasMoved();
+    }
 
-	public boolean isInvalid() {
-		return (boardStatus == Game.GameStatus.INVALID);
-	}
+    private Piece nearRook(Side player) {
+        if (rookStartCols[player.ordinal()][1] != -1) {
+            return board[materialRow[player.ordinal()]][rookStartCols[player.ordinal()][1]];
+        } else {
+            return null;
+        }
+    }
 
-	public boolean isGameOver() {
-		return (isInCheckMate() || isInStaleMate() || isTimeUp() || isDraw() || isInvalid());
-	}
+    public boolean nearRookHasMoved(Side player) {
+        Piece p = nearRook(player);
+        return p == null || p.hasMoved();
+    }
 
-	public void clearBoardStatus() {
-		boardStatus = Game.GameStatus.IN_PLAY;
-	}
+    public void applyCastleRights(Side player, boolean nearRights, boolean farRights) {
+        Piece nearRook = nearRook(player);
+        Piece farRook = farRook(player);
 
-	public Game.GameStatus getBoardStatus() {
-		return boardStatus;
-	}
+        if (nearRook != null) {
+            nearRook.setMoved(!nearRights);
+        }
+        if (farRook != null) {
+            farRook.setMoved(!farRights);
+        }
+    }
 
-	public void setBoardStatus(Game.GameStatus boardStatus) {
-		this.boardStatus = boardStatus;
-	}
+    public int getRookStartingCol(Side side, int near) {
+        return rookStartCols[side.ordinal()][near];
+    }
 
-	public boolean farRookHasMoved(Side player) {
-		return hasMoved(materialRow[player.ordinal()], rookStartCols[player.ordinal()][0]);
-	}
+    public boolean kingHasMoved(Side player) {
+        return kings[player.ordinal()].hasMoved();
+    }
 
-	public boolean nearRookHasMoved(Side player) {
-		return hasMoved(materialRow[player.ordinal()], rookStartCols[player.ordinal()][1]);
-	}
+    public Board copy() {
+        return new Board(pieces, this.turn, moveHistory, rookStartCols, kingStartCols);
+    }
 
-	public int getRookStartingCol(Side side, int near) {
-		return rookStartCols[side.ordinal()][near];
-	}
+    public String toString() {
+        String stringBoard = "";
+        int pieceDetails = 0;
+        Piece p;
 
-	public int getKingStartingCol(Side side) {
-		return kingStartCols[side.ordinal()];
-	}
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                if (board[row][col] != null) {
 
-	public boolean kingHasMoved(Side player) {
-		return kings[player.ordinal()].hasMoved();
-	}
+                    p = board[row][col];
 
-	public long farCastleMask(Side player) {
-		return BitBoard.getCastleMask(Math.min(rookStartCols[player.ordinal()][0], 2), kings[player.ordinal()].getCol(), player);
-	}
+                    if (p.hasMoved() && (p.getPieceID() == Piece.PieceID.PAWN || p.getPieceID() == Piece.PieceID.KING || p.getPieceID() == Piece.PieceID.ROOK)) {
+                        pieceDetails |= 1;
+                    }
 
-	public long nearCastleMask(Side player) {
-		return BitBoard.getCastleMask(kings[player.ordinal()].getCol(), Math.max(rookStartCols[player.ordinal()][1], 6), player);
-	}
+                    if (p.getPieceID() == Piece.PieceID.ROOK && kingHasMoved(p.getSide())) {
+                        pieceDetails |= 1;
+                    }
 
-	public Board getCopy() {
-		return new Board(pieces, this.turn, moveHistory, rookStartCols, kingStartCols);
-	}
+                    if (p.getPieceID() == Piece.PieceID.KING && nearRookHasMoved(p.getSide()) && farRookHasMoved(p.getSide())) {
+                        pieceDetails |= 1;
+                    }
 
-	public String toString() {
-		String stringBoard = "";
-		int pieceDetails = 0;
-		Piece p;
+                    long lastMove = getLastMoveMade();
 
-		for (int row = 0; row < 8; row++) {
-			for (int col = 0; col < 8; col++) {
-				if (board[row][col] != null) {
+                    if (getLastMoveMade() != 0) {
+                        if (Move.getToRow(lastMove) == row && Move.getToCol(lastMove) == col && Move.getNote(lastMove) == Move.MoveNote.PAWN_LEAP) {
+                            pieceDetails |= 2;
+                        }
+                    }
 
-					p = board[row][col];
+                    stringBoard += board[row][col].toString() + pieceDetails + ",";
+                    pieceDetails = 0;
 
-					if (p.hasMoved() && (p.getPieceID() == Piece.PieceID.PAWN || p.getPieceID() == Piece.PieceID.KING || p.getPieceID() == Piece.PieceID.ROOK)) {
-						pieceDetails |= 1;
-					}
+                } else {
+                    stringBoard += "__,";
+                }
 
-					if (p.getPieceID() == Piece.PieceID.ROOK && kingHasMoved(p.getSide())) {
-						pieceDetails |= 1;
-					}
+            }
+            stringBoard += "\n";
+        }
 
-					if (p.getPieceID() == Piece.PieceID.KING && nearRookHasMoved(p.getSide()) && farRookHasMoved(p.getSide())) {
-						pieceDetails |= 1;
-					}
+        return stringBoard;
+    }
 
-					long lastMove = getLastMoveMade();
+    public String toXML(boolean includeHistory) {
+        String xmlBoard = "<board>\n";
 
-					if (getLastMoveMade() != 0) {
-						if (Move.getToRow(lastMove) == row && Move.getToCol(lastMove) == col && Move.getNote(lastMove) == Move.MoveNote.PAWN_LEAP) {
-							pieceDetails |= 2;
-						}
-					}
+        if (includeHistory) {
 
-					stringBoard += board[row][col].toString() + pieceDetails + ",";
-					pieceDetails = 0;
+            Stack<Move> movesToRedo = new Stack<>();
+            long m;
+            while ((m = undoMove()) != 0) {
+                movesToRedo.push(new Move(m));
+            }
 
-				} else {
-					stringBoard += "__,";
-				}
+            xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
+            xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
 
-			}
-			stringBoard += "\n";
-		}
+            while (!movesToRedo.isEmpty()) {
+                makeMove(movesToRedo.pop().getMoveLong());
+                xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
+            }
 
-		return stringBoard;
-	}
+            for (int i = 0; i < moveHistory.size(); i++) {
+                xmlBoard += Move.toXML(moveHistory.elementAt(i).getMoveLong());
+            }
 
-	public String toXML(boolean includeHistory) {
-		String xmlBoard = "<board>\n";
+        } else {
+            xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
+            xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
+        }
 
-		if (includeHistory) {
+        xmlBoard += "</board>";
+        return xmlBoard;
+    }
 
-			Stack<Move> movesToRedo = new Stack<>();
-			long m;
-			while ((m = undoMove()) != 0) {
-				movesToRedo.push(new Move(m));
-			}
+    public long generateHashCode() {
+        long hashCode = 0;
 
-			xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
-			xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
+        if (turn == Side.BLACK) {
+            hashCode = rngTable.getBlackToMoveRandom();
+        }
 
-			while (!movesToRedo.isEmpty()) {
-				makeMove(movesToRedo.pop().getMoveLong());
-				xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
-			}
+        Piece p;
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                p = board[r][c];
+                if (p != null) {
+                    hashCode ^= rngTable.getPiecePerSquareRandom(p.getSide(), p.getPieceID(), r, c);
+                }
+            }
+        }
 
-			for (int i = 0; i < moveHistory.size(); i++) {
-				xmlBoard += Move.toXML(moveHistory.elementAt(i).getMoveLong());
-			}
+        hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
+                this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
-		} else {
-			xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
-			xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
-		}
+        if (getLastMoveMade() != 0) {
+            if (Move.getNote(getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
+                hashCode ^= rngTable.getEnPassantFile(Move.getToCol(getLastMoveMade()));
+            }
+        }
 
-		xmlBoard += "</board>";
-		return xmlBoard;
-	}
+        return hashCode;
+    }
 
-	public long generateHashCode() {
-		long hashCode = 0;
+    public int getHashIndex() {
+        return (int) (hashCode & AISettings.hashIndexMask);
+    }
 
-		if (turn == Side.BLACK) {
-			hashCode = rngTable.getBlackToMoveRandom();
-		}
+    public long getHashCode() {
+        return hashCode;
+    }
 
-		Piece p;
-		for (int r = 0; r < 8; r++) {
-			for (int c = 0; c < 8; c++) {
-				p = board[r][c];
-				if (p != null) {
-					hashCode ^= rngTable.getPiecePerSquareRandom(p.getSide(), p.getPieceID(), r, c);
-				}
-			}
-		}
 
-		hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
-				this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+    public boolean isRevisitedState() {
+        return revisitedState;
+    }
 
-		if (getLastMoveMade() != 0) {
-			if (Move.getNote(getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
-				hashCode ^= rngTable.getEnPassantFile(Move.getToCol(getLastMoveMade()));
-			}
-		}
+    public boolean drawByThreeRule() {
 
-		return hashCode;
-	}
+        int count = 0;
+        int fiftyMove = 0;
 
-	public int getHashIndex() {
-		return (int) (hashCode & AISettings.hashIndexMask);
-	}
+        revisitedState = false;
 
-	public long getHashCode() {
-		return hashCode;
-	}
+        for (int i = hashCodeHistory.size() - 1; i >= 0; i--) {
 
-	public static Long getHashCode(String xmlBoard) {
-		Board board = XMLParser.XMLToBoard(xmlBoard);
+            if (fiftyMove >= 101) {
+                return true;
+            }
 
-		if (board != null) {
-			return board.getHashCode();
-		} else {
-			return null;
-		}
-	}
+            if (hashCode == hashCodeHistory.elementAt(i)) {
+                revisitedState = true;
+                count++;
+            }
 
-	public boolean isRevisitedState() {
-		return revisitedState;
-	}
+            if (count > 2) {
+                return true;
+            }
 
-	public boolean drawByThreeRule() {
+            if (moveHistory.elementAt(i).hasPieceTaken()) {
+                return false;
+            }
 
-		int count = 0;
-		int fiftyMove = 0;
+            fiftyMove++;
+        }
 
-		revisitedState = false;
+        return false;
+    }
 
-		for (int i = hashCodeHistory.size() - 1; i >= 0; i--) {
+    public boolean insufficientMaterial() {
 
-			if (fiftyMove >= 101) {
-				return true;
-			}
+        boolean sufficient = true;
 
-			if (hashCode == hashCodeHistory.elementAt(i)) {
-				revisitedState = true;
-				count++;
-			}
+        if (pieces[0].size() <= 2 && pieces[1].size() <= 2) {
 
-			if (count > 2) {
-				return true;
-			}
+            sufficient = false;
 
-			if (moveHistory.elementAt(i).hasPieceTaken()) {
-				return false;
-			}
+            for (int i = 0; i < pieces.length; i++) {
+                for (int p = 0; p < pieces[i].size(); p++) {
+                    if ((pieces[i].get(p).getPieceID() == Piece.PieceID.PAWN) || (pieces[i].get(p).getPieceID() == Piece.PieceID.QUEEN) || (pieces[i].get(p).getPieceID() == Piece.PieceID.ROOK)) {
+                        sufficient = true;
+                    }
+                }
+            }
 
-			fiftyMove++;
-		}
+        }
 
-		return false;
-	}
+        return !sufficient;
+    }
 
-	private boolean hasSufficientMaterial() {
+    private void loadPiecesTaken() {
 
-		boolean sufficient = true;
+        for (int i = 0; i < pieces.length; i++) {
 
-		if (pieces[0].size() <= 2 && pieces[1].size() <= 2) {
+            piecesTaken[i] = getFullPieceSet(Side.values()[i]);
 
-			sufficient = false;
+            Piece piecePresent;
+            for (int p = 0; p < pieces[i].size(); p++) {
+                piecePresent = pieces[i].get(p);
 
-			for (int i = 0; i < pieces.length; i++) {
-				for (int p = 0; p < pieces[i].size(); p++) {
-					if ((pieces[i].get(p).getPieceID() == Piece.PieceID.PAWN) || (pieces[i].get(p).getPieceID() == Piece.PieceID.QUEEN) || (pieces[i].get(p).getPieceID() == Piece.PieceID.ROOK)) {
-						sufficient = true;
-					}
-				}
-			}
+                for (int t = 0; t < piecesTaken[i].size(); t++) {
+                    if (piecesTaken[i].elementAt(t).getPieceID() == piecePresent.getPieceID()) {
+                        piecesTaken[i].remove(t);
+                        break;
+                    }
+                }
+            }
+        }
 
-		}
+    }
 
-		return sufficient;
-	}
+    public static Stack<Piece> getFullPieceSet(Side player) {
+        Stack<Piece> pieces = new Stack<Piece>();
 
-	private void loadPiecesTaken() {
+        for (int i = 0; i < 8; i++) {
+            pieces.add(new Piece(Piece.PieceID.PAWN, player, 0, 0, false));
+        }
 
-		for (int i = 0; i < pieces.length; i++) {
+        for (int i = 0; i < 2; i++) {
+            pieces.add(new Piece(Piece.PieceID.BISHOP, player, 0, 0, false));
+        }
 
-			piecesTaken[i] = getFullPieceSet(Side.values()[i]);
+        for (int i = 0; i < 2; i++) {
+            pieces.add(new Piece(Piece.PieceID.ROOK, player, 0, 0, false));
+        }
 
-			Piece piecePresent;
-			for (int p = 0; p < pieces[i].size(); p++) {
-				piecePresent = pieces[i].get(p);
+        for (int i = 0; i < 2; i++) {
+            pieces.add(new Piece(Piece.PieceID.KNIGHT, player, 0, 0, false));
+        }
 
-				for (int t = 0; t < piecesTaken[i].size(); t++) {
-					if (piecesTaken[i].elementAt(t).getPieceID() == piecePresent.getPieceID()) {
-						piecesTaken[i].remove(t);
-						break;
-					}
-				}
-			}
-		}
+        pieces.add(new Piece(Piece.PieceID.KING, player, 0, 0, false));
+        pieces.add(new Piece(Piece.PieceID.QUEEN, player, 0, 0, false));
 
-	}
+        return pieces;
+    }
 
-
-
-	public static Stack<Piece> getFullPieceSet(Side player) {
-		Stack<Piece> pieces = new Stack<Piece>();
-
-		for (int i = 0; i < 8; i++) {
-			pieces.add(new Piece(Piece.PieceID.PAWN, player, 0, 0, false));
-		}
-
-		for (int i = 0; i < 2; i++) {
-			pieces.add(new Piece(Piece.PieceID.BISHOP, player, 0, 0, false));
-		}
-
-		for (int i = 0; i < 2; i++) {
-			pieces.add(new Piece(Piece.PieceID.ROOK, player, 0, 0, false));
-		}
-
-		for (int i = 0; i < 2; i++) {
-			pieces.add(new Piece(Piece.PieceID.KNIGHT, player, 0, 0, false));
-		}
-
-		pieces.add(new Piece(Piece.PieceID.KING, player, 0, 0, false));
-		pieces.add(new Piece(Piece.PieceID.QUEEN, player, 0, 0, false));
-
-		return pieces;
-	}
 }

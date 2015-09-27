@@ -254,7 +254,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
     @Override
     public void newGame(Board board) {
-        boardPanel.newGame(board.getCopy());
+        boardPanel.newGame(board.copy());
 
         populateMoveList();
 

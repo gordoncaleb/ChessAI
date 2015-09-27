@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AI extends Thread implements Player {
-	public static Logger logger = LoggerFactory.getLogger(AI.class);
+	public static final Logger logger = LoggerFactory.getLogger(AI.class);
 
-	public static long[] noKillerMoves = {};
+	public static final long[] noKillerMoves = {};
 
 	private PlayerContainer game;
 	private MoveBook moveBook;
@@ -133,7 +133,7 @@ public class AI extends Thread implements Player {
 		depthInMemory = 0;
 
 		for (int i = 0; i < processorThreads.length; i++) {
-			processorThreads[i].setBoard(board.getCopy());
+			processorThreads[i].setBoard(board.copy());
 			processorThreads[i].setRootNode(rootNode);
 		}
 

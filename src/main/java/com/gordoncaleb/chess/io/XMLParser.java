@@ -43,12 +43,10 @@ public class XMLParser {
 
 	private static Board buildBoard(Element boardElement) {
 		ArrayList<Piece>[] pieces = new ArrayList[2];
-		pieces[Side.WHITE.ordinal()] = new ArrayList<Piece>();
-		pieces[Side.BLACK.ordinal()] = new ArrayList<Piece>();
+		pieces[Side.WHITE.ordinal()] = new ArrayList<>();
+		pieces[Side.BLACK.ordinal()] = new ArrayList<>();
 
-		Stack<Move> moveHistory = new Stack<Move>();
 		Side player;
-
 		String stringBoard = getCharacterDataFromElement((Element) boardElement.getElementsByTagName("setup").item(0));
 
 		String[] stringPieces = stringBoard.split(",");
@@ -76,9 +74,9 @@ public class XMLParser {
 		}
 
 		NodeList nodes = boardElement.getElementsByTagName("move");
-		Long m;
+		Stack<Move> moveHistory = new Stack<>();
 		for (int n = 0; n < nodes.getLength(); n++) {
-			m = buildMove((Element) nodes.item(n));
+			Long m = buildMove((Element) nodes.item(n));
 			moveHistory.push(new Move(m));
 		}
 

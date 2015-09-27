@@ -55,7 +55,15 @@ public class PGNParser {
         List<PGNGame> games = loadFile(fileName);
 
         return games.stream()
-                .map(g -> getPGNGameAsMoveBook(g).entrySet())
+                .map(g -> {
+                    try {
+                        return getPGNGameAsMoveBook(g).entrySet();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .filter(s -> s != null)
                 .flatMap(Set::stream)
                 .collect(
                         groupingBy(Map.Entry::getKey, mapping(Map.Entry::getValue,
@@ -131,7 +139,20 @@ public class PGNParser {
         }
     }
 
-    public Map<Long, Long> getPGNGameAsMoveBook(PGNGame game) {
+    public Map<Long, Long> getPGNGameAsMoveBook(PGNGame game) throws Exception {
+
+        Map<Long, Long> moveBook = new HashMap<>();
+        Board board = getPGNGameAsBoard(game);
+
+        while (board.canUndo()) {
+            long move = board.undoMove();
+            moveBook.put(board.getHashCode(), move);
+        }
+
+        return moveBook;
+    }
+
+    public Board getPGNGameAsBoard(PGNGame game) throws Exception {
 
         String line = game.gameLine();
         List<String> tokens = Arrays.stream(line.split(" "))
@@ -139,21 +160,14 @@ public class PGNParser {
                 .collect(Collectors.toList());
 
         List<String> notations = getNotations(tokens);
-
-        Map<Long, Long> moveBook = new HashMap<>();
         Board board = BoardFactory.getStandardChessBoard();
 
-        try {
-            for (String notation : notations) {
-                long move = resolveAlgebraicNotation(notation, board);
-                moveBook.put(board.getHashCode(), move);
-                board.makeMove(move);
-            }
-        }catch(Exception e){
-            logger.warn("Could not parse game: {}", game);
+        for (String notation : notations) {
+            long move = resolveAlgebraicNotation(notation, board);
+            board.makeMove(move);
         }
 
-        return moveBook;
+        return board;
     }
 
     public List<String> getNotations(List<String> tokens) {
@@ -192,9 +206,6 @@ public class PGNParser {
     }
 
     public long resolveAlgebraicNotation(String notation, Board board) throws Exception {
-
-        board.makeNullMove();
-        ArrayList<Long> moves = board.generateValidMoves();
 
         int fromRow = -1;
         int fromCol = -1;
@@ -269,6 +280,8 @@ public class PGNParser {
             }
         }
 
+        board.makeNullMove();
+        ArrayList<Long> moves = board.generateValidMoves();
         ArrayList<Long> matchMoves = new ArrayList<>();
         boolean match;
 
@@ -318,6 +331,7 @@ public class PGNParser {
         }
 
         if (matchMoves.size() != 1) {
+            List<Move> ms = moves.stream().map(Move::new).collect(Collectors.toList());
             logger.error("Could not resolve algebraic notation {} \n{}", notation, board.toXML(true));
             throw new Exception();
         }

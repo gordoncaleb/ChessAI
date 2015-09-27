@@ -53,21 +53,21 @@ public class Game implements PlayerContainer {
 
 		turn = board.getTurn();
 
-		adjudicator = new Adjudicator(board.getCopy());
+		adjudicator = new Adjudicator(board.copy());
 		adjudicator.getValidMoves();
 
 		clock = new GameClock("White", "Black", 0, 0, turn);
 
 		for (int i = 0; i < observers.size(); i++) {
-			observers.get(i).newGame(board.getCopy());
+			observers.get(i).newGame(board.copy());
 		}
 
 		if (players.get(Side.BOTH) == null) {
-			players.get(Side.WHITE).newGame(board.getCopy());
-			players.get(Side.BLACK).newGame(board.getCopy());
+			players.get(Side.WHITE).newGame(board.copy());
+			players.get(Side.BLACK).newGame(board.copy());
 			players.get(turn).makeMove();
 		} else {
-			players.get(Side.BOTH).newGame(board.getCopy());
+			players.get(Side.BOTH).newGame(board.copy());
 			players.get(Side.BOTH).makeMove();
 		}
 
@@ -269,7 +269,7 @@ public class Game implements PlayerContainer {
 	}
 
 	public synchronized void addObserver(Player observer) {
-		// observer.newGame(Side.NONE, board.getCopy());
+		// observer.newGame(Side.NONE, board.copy());
 		observer.setGame(this);
 		observers.add(observer);
 	}

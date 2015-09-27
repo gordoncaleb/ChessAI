@@ -10,9 +10,7 @@ import com.gordoncaleb.chess.backend.Move;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.gordoncaleb.chess.util.JavaLacks.toUniqueList;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
 
 public class MoveBook {
     private static final Logger logger = LoggerFactory.getLogger(MoveBook.class);
@@ -20,16 +18,16 @@ public class MoveBook {
     Map<Long, List<Long>> hashMoveBook;
     Map<String, List<Long>> verboseMoveBook;
 
-    public static final String MOVEBOOK = "/doc/eco.pgn";
-    public static final String MOVEBOOK_COMPILED = "./eco.bin";
+    public static final String MOVEBOOK_FILE = "/doc/eco.pgn";
+    public static final String MOVEBOOK_FILE_COMPILED = "/doc/eco.bin";
 
     public static void main(String[] args) {
         MoveBook mb = new MoveBook();
         PGNParser parser = new PGNParser();
 
         try {
-            Map<Long, List<Long>> ecoMb = parser.moveBookFromPGNFile(MOVEBOOK);
-            mb.saveCompiledMoveBook(ecoMb, MOVEBOOK_COMPILED);
+            Map<Long, List<Long>> ecoMb = parser.moveBookFromPGNFile(MOVEBOOK_FILE);
+            mb.saveCompiledMoveBook(ecoMb, "./eco.bin");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,7 +76,7 @@ public class MoveBook {
     }
 
     public Map<Long, List<Long>> loadMoveBook() {
-        return loadMoveBook(MOVEBOOK_COMPILED);
+        return loadMoveBook(MOVEBOOK_FILE_COMPILED);
     }
 
     public Map<Long, List<Long>> loadMoveBook(String fileName) {

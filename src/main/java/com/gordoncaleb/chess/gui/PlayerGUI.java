@@ -396,7 +396,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		if (arg0.getSource() == boardFreeSetupMenu) {
 
 			if (boardPanel.isFreelyMove()) {
-				game.newGame(boardPanel.getBoard().getCopy(), false);
+				game.newGame(boardPanel.getBoard().copy(), false);
 			}
 
 			boardPanel.setFreelyMove(!boardPanel.isFreelyMove());

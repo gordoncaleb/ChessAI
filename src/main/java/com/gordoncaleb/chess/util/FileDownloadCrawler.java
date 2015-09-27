@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.io;
+package com.gordoncaleb.chess.util;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,22 +15,22 @@ import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class PGNCrawler {
-    public static final Logger logger = LoggerFactory.getLogger(PGNCrawler.class);
+public class FileDownloadCrawler {
+    public static final Logger logger = LoggerFactory.getLogger(FileDownloadCrawler.class);
 
     public static void main(String[] args) {
-        PGNCrawler crawler = new PGNCrawler();
+        FileDownloadCrawler crawler = new FileDownloadCrawler();
 
         try {
-            crawler.downloadPGNs("http://www.pgnmentor.com/files.html#openings", "./pgns", "(.*\\.pgn$)|(.*\\.zip$)");
+            crawler.downloadFilesFromUri("http://www.pgnmentor.com/files.html#openings", "./pgns", "(.*\\.pgn$)|(.*\\.zip$)");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void downloadPGNs(final String url, final String outputDir, final String fileNameRegex) throws IOException {
+    public void downloadFilesFromUri(final String uri, final String outputDir, final String fileNameRegex) throws IOException {
 
-        Document doc = Jsoup.connect(url).get();
+        Document doc = Jsoup.connect(uri).get();
         Elements links = doc.select("a[href]");
 
         Set<String> files = links.stream()

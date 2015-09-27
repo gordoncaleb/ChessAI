@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess.pieces;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
@@ -25,70 +25,7 @@ public class King {
 		return "K";
 	}
 
-	public static void generateMoves(Piece p, Board board, ArrayList<Long> moves) {
-		int currentRow = p.getRow();
-		int currentCol = p.getCol();
-		Side player = p.getSide();
-		int nextRow;
-		int nextCol;
-		Piece.PositionStatus pieceStatus;
-
-		int moveVal = 0;
-		if (!p.hasMoved() && (!board.farRookHasMoved(player) || !board.nearRookHasMoved(player))) {
-			moveVal = Values.CASTLE_ABILITY_LOST_VALUE;
-		}
-
-		for (int d = 0; d < 8; d++) {
-			nextRow = currentRow + KINGMOVES[0][d];
-			nextCol = currentCol + KINGMOVES[1][d];
-			pieceStatus = board.checkPiece(nextRow, nextCol, player);
-
-			if (pieceStatus == Piece.PositionStatus.NO_PIECE) {
-				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, moveVal, Move.MoveNote.NONE));
-			}
-
-			if (pieceStatus == Piece.PositionStatus.ENEMY) {
-				moves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol) + moveVal, Move.MoveNote.NONE,
-						board.getPiece(nextRow, nextCol)));
-			}
-
-		}
-
-		// long allPosBitBoard = posBitBoard[0] | posBitBoard[1];
-		//
-		// if (!board.isInCheck()) {
-		// // add possible castle move
-		// if (canCastleFar(p, board, player, nullMoveInfo, allPosBitBoard)) {
-		// if (isValidMove(currentRow, 2, nullMoveInfo)) {
-		// if (currentCol > 3) {
-		// validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 2,
-		// Values.FAR_CASTLE_VALUE, MoveNote.CASTLE_FAR));
-		// } else {
-		// validMoves.add(Move.moveLong(currentRow,
-		// board.getRookStartingCol(player, 0), currentRow, 3,
-		// Values.FAR_CASTLE_VALUE,
-		// MoveNote.CASTLE_FAR));
-		// }
-		// }
-		// }
-		//
-		// if (canCastleNear(p, board, player, nullMoveInfo, allPosBitBoard)) {
-		// if (isValidMove(currentRow, 6, nullMoveInfo)) {
-		// if (currentCol < 5) {
-		// validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 6,
-		// Values.NEAR_CASTLE_VALUE, MoveNote.CASTLE_NEAR));
-		// } else {
-		// validMoves.add(Move.moveLong(currentRow,
-		// board.getRookStartingCol(player, 1), currentRow, 5,
-		// Values.NEAR_CASTLE_VALUE,
-		// MoveNote.CASTLE_NEAR));
-		// }
-		// }
-		// }
-		// }
-	}
-
-	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
+	public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
 		Side player = p.getSide();
@@ -158,19 +95,6 @@ public class King {
 
 	}
 
-	public static void getNullMoveInfo(Piece p, Board board, long[] nullMoveInfo) {
-
-		int currentRow = p.getRow();
-		int currentCol = p.getCol();
-
-		for (int i = 0; i < 8; i++) {
-			if (board.checkPiece(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i], p.getSide()) != Piece.PositionStatus.OFF_BOARD) {
-				nullMoveInfo[0] |= BitBoard.getMask(currentRow + KINGMOVES[0][i], currentCol + KINGMOVES[1][i]);
-			}
-		}
-
-	}
-	
 	public static long getKingCheckVectors(long king, long updown, long left, long right){
 		long temp = king;
 

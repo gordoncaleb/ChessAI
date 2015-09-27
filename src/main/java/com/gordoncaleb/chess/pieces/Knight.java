@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess.pieces;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
@@ -25,7 +25,7 @@ public class Knight {
 		return "N";
 	}
 
-	public static ArrayList<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, ArrayList<Long> validMoves) {
+	public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
 		int nextRow;
@@ -78,32 +78,6 @@ public class Knight {
 		}
 
 		return validMoves;
-
-	}
-
-	public static void getNullMoveInfo(Piece p, Board board, long[] nullMoveInfo) {
-
-		int currentRow = p.getRow();
-		int currentCol = p.getCol();
-		int nextRow;
-		int nextCol;
-		Piece.PositionStatus pieceStatus;
-
-		for (int i = 0; i < 8; i++) {
-			nextRow = currentRow + KNIGHTMOVES[0][i];
-			nextCol = currentCol + KNIGHTMOVES[1][i];
-
-			pieceStatus = board.checkPiece(nextRow, nextCol, p.getSide());
-
-			if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
-
-				if (board.getPieceID(nextRow, nextCol) == Piece.PieceID.KING && pieceStatus == Piece.PositionStatus.ENEMY) {
-					nullMoveInfo[1] &= p.getBit();
-				}
-
-				nullMoveInfo[0] |= BitBoard.getMask(nextRow, nextCol);
-			}
-		}
 
 	}
 
