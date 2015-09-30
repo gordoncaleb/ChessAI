@@ -90,24 +90,16 @@ public class Move {
         this.moveLong = moveInt;
     }
 
-    public static List<Move> fromLongs(List<Long> moveLongs){
+    public static List<Move> fromLongs(List<Long> moveLongs) {
         return moveLongs.stream().map(Move::new).collect(Collectors.toList());
     }
 
     public boolean equals(Object moveObject) {
-        return (moveObject instanceof Move && equals(moveObject));
+        return (moveObject instanceof Move && Move.equals(((Move) moveObject).getMoveLong(), moveLong));
     }
 
     public static boolean equals(long moveLongA, long moveLongB) {
         return ((moveLongA & fromToMask) == (moveLongB & fromToMask));
-    }
-
-    public static boolean fromEquals(long moveLongA, long moveLongB) {
-        return ((moveLongA & fromMask) == (moveLongB & fromMask));
-    }
-
-    public static boolean toEquals(long moveLongA, long moveLongB) {
-        return ((moveLongA & toMask) == (moveLongB & toMask));
     }
 
     public String toString() {
@@ -338,7 +330,7 @@ public class Move {
         return moveLong;
     }
 
-    public static enum MoveNote {
-        NONE, CASTLE_NEAR, CASTLE_FAR, NEW_QUEEN, ENPASSANT, PAWN_LEAP
+    public enum MoveNote {
+        NONE, CASTLE_NEAR, CASTLE_FAR, NEW_QUEEN, NEW_KNIGHT, ENPASSANT, PAWN_LEAP
     }
 }

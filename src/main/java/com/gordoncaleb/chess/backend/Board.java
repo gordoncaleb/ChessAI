@@ -304,6 +304,10 @@ public class Board {
             pieceMoving.setPieceID(Piece.PieceID.QUEEN);
             posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
             posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+        } else if (note == Move.MoveNote.NEW_KNIGHT) {
+            pieceMoving.setPieceID(Piece.PieceID.KNIGHT);
+            posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+            posBitBoard[Piece.PieceID.KNIGHT.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
         }
 
         // if (pieceMoving == getKing(turn)) {
@@ -422,6 +426,10 @@ public class Board {
             pieceMoving.setPieceID(Piece.PieceID.PAWN);
             posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
             posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+        }else if(note == Move.MoveNote.NEW_KNIGHT){
+            pieceMoving.setPieceID(Piece.PieceID.PAWN);
+            posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
+            posBitBoard[Piece.PieceID.KNIGHT.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
         }
 
     }

@@ -155,57 +155,31 @@ public class PGNParser {
     public Board getPGNGameAsBoard(PGNGame game) throws Exception {
 
         String line = game.gameLine();
-        List<String> tokens = Arrays.stream(line.split(" "))
-                .map(String::trim)
+        List<String> tokens = Arrays.stream(line.split("[0-9]+\\."))
+                .map(s -> s.split(" "))
+                .flatMap(Arrays::stream)
+                .filter(s -> !s.matches("[012/]+-[012/]+"))
+                .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        List<String> notations = getNotations(tokens);
         Board board = BoardFactory.getStandardChessBoard();
 
-        for (String notation : notations) {
-            long move = resolveAlgebraicNotation(notation, board);
-            board.makeMove(move);
+        for (String notation : tokens) {
+            try {
+                long move = resolveAlgebraicNotation(notation, board);
+                board.makeMove(move);
+            } catch (Exception e) {
+                logger.error("Could not resolve algebraic notation {} from game:{} histort: \n{}", notation, game, board.toXML(true));
+                break;
+            }
         }
 
         return board;
     }
 
-    public List<String> getNotations(List<String> tokens) {
-
-        List<String> notations = new ArrayList<>();
-        for (String token : tokens) {
-
-            if (token.contains(".")) {
-                token = token.substring(token.indexOf(".") + 1);
-            }
-
-            if (token.contains("O-O-O")) {
-                token = "O-O-O";
-            } else {
-                if (token.contains("O-O")) {
-                    token = "O-O";
-                }
-            }
-
-            if (!token.equals("O-O") && !token.equals("O-O-O")) {
-                while (token.length() > 1) {
-                    if (!Character.isLowerCase(token.charAt(token.length() - 2)) || !Character.isDigit(token.charAt(token.length() - 1))) {
-                        token = token.substring(0, token.length() - 1);
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            if (token.length() > 1) {
-                notations.add(token);
-            }
-        }
-
-        return notations;
-    }
-
     public long resolveAlgebraicNotation(String notation, Board board) throws Exception {
+
+        notation = notation.replaceAll("\\+", "");
 
         int fromRow = -1;
         int fromCol = -1;
@@ -214,7 +188,23 @@ public class PGNParser {
 
         Move.MoveNote note = null;
         Piece.PieceID pieceMovingID = null;
-        boolean pieceTaken = false;
+
+        if (notation.contains("=")) {
+
+            switch (notation.toUpperCase().charAt(notation.indexOf("=") + 1)) {
+                case 'Q':
+                    note = Move.MoveNote.NEW_QUEEN;
+                    break;
+                case 'N':
+                    note = Move.MoveNote.NEW_KNIGHT;
+                    break;
+                default:
+                    logger.warn("Unsupported Pawn queening selection");
+            }
+
+            notation = notation.substring(0, notation.indexOf("="));
+        }
+
 
         if (notation.equals("O-O")) {
             note = Move.MoveNote.CASTLE_NEAR;
@@ -232,7 +222,6 @@ public class PGNParser {
                         toCol = notation.charAt(1) - 97;
                     } else {
                         if (notation.contains("x")) {
-                            pieceTaken = true;
                             String[] leftRight = notation.split("x");
 
                             toRow = 7 - (leftRight[1].charAt(1) - 49);
@@ -265,6 +254,7 @@ public class PGNParser {
                             }
 
                         }
+
                     }
 
                 } else {
@@ -280,18 +270,28 @@ public class PGNParser {
             }
         }
 
+        return matchValidMove(board, fromRow, fromCol, toRow, toCol, note, pieceMovingID);
+    }
+
+
+    private long matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, Move.MoveNote note, Piece.PieceID pieceMovingID) throws Exception {
+
         board.makeNullMove();
         ArrayList<Long> moves = board.generateValidMoves();
+
         ArrayList<Long> matchMoves = new ArrayList<>();
         boolean match;
-
         for (Long move : moves) {
 
             match = true;
 
             if (note != null) {
                 if (Move.getNote(move) != note) {
-                    match = false;
+                    if (Move.getNote(move) == Move.MoveNote.NEW_QUEEN && note == Move.MoveNote.NEW_KNIGHT) {
+                        move = Move.setNote(move, note);
+                    } else {
+                        match = false;
+                    }
                 }
             }
 
@@ -331,8 +331,6 @@ public class PGNParser {
         }
 
         if (matchMoves.size() != 1) {
-            List<Move> ms = moves.stream().map(Move::new).collect(Collectors.toList());
-            logger.error("Could not resolve algebraic notation {} \n{}", notation, board.toXML(true));
             throw new Exception();
         }
 
