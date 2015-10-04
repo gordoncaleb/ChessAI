@@ -11,27 +11,31 @@ import org.slf4j.LoggerFactory;
 
 public class Board {
     private static final Logger logger = LoggerFactory.getLogger(Board.class);
+    private final RNGTable rngTable = RNGTable.instance;
+
+    public static final int CASTLED_NEAR = 2;
+    public static final int CASTLED_FAR = 1;
+    public static final int HAS_NOT_CASTLED = 0;
 
     private Piece[][] board;
     private Game.GameStatus boardStatus;
     private ArrayList<Long> validMoves = new ArrayList<>(100);
     private ArrayList<Piece>[] pieces = new ArrayList[2];
     private Stack<Piece>[] piecesTaken = new Stack[2];
-    private int[] castleRights = new int[2];
+    private int[] castleHistory = new int[2];
 
     private Piece[] kings = new Piece[2];
     private int[][] rookStartCols = new int[2][2];
     private int[] kingStartCols = new int[2];
     private int[] materialRow = {0, 7};
 
-    private long openFiles = 0;
     private boolean revisitedState = false;
 
     private Side turn;
-    private RNGTable rngTable;
     private Stack<Move> moveHistory;
     private long hashCode;
     private Stack<Long> hashCodeHistory;
+
     private long[] nullMoveInfo = {0, BitBoard.ALL_ONES, 0};
 
     // private long[] allPosBitBoard = { 0, 0 };
@@ -52,7 +56,6 @@ public class Board {
 
         this.moveHistory = new Stack<>();
         this.hashCodeHistory = new Stack<>();
-        this.rngTable = RNGTable.instance;
         this.turn = Side.WHITE;
         this.nullMoveInfo = new long[3];
 
@@ -74,7 +77,6 @@ public class Board {
 
         this.moveHistory = new Stack<>();
         this.hashCodeHistory = new Stack<>();
-        this.rngTable = RNGTable.instance;
         this.turn = turn;
         this.nullMoveInfo = new long[3];
 
@@ -158,7 +160,6 @@ public class Board {
             this.rookStartCols = rookStartCols;
         }
 
-        // this.castleRights = castleRights;
     }
 
     public boolean makeMove(long move) {
@@ -230,7 +231,7 @@ public class Board {
                 board[materialRow[turn.ordinal()]][6] = king;
                 board[materialRow[turn.ordinal()]][5] = rook;
 
-                castleRights[turn.ordinal()] = 2;
+                castleHistory[turn.ordinal()] = CASTLED_NEAR;
             } else {
                 rook = board[materialRow[turn.ordinal()]][rookStartCols[turn.ordinal()][0]];
 
@@ -240,7 +241,7 @@ public class Board {
                 board[materialRow[turn.ordinal()]][2] = king;
                 board[materialRow[turn.ordinal()]][3] = rook;
 
-                castleRights[turn.ordinal()] = 1;
+                castleHistory[turn.ordinal()] = CASTLED_FAR;
             }
 
         } else {
@@ -274,10 +275,7 @@ public class Board {
         // move was made, next player's turn
         turn = turn.otherSide();
 
-        // verifyBitBoards();
-
         return true;
-
     }
 
     private void movePiece(Piece pieceMoving, int toRow, int toCol, Move.MoveNote note) {
@@ -365,7 +363,7 @@ public class Board {
 
             }
 
-            castleRights[turn.ordinal()] = 0;
+            castleHistory[turn.ordinal()] = HAS_NOT_CASTLED;
 
         } else {
             undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, Move.hadMoved(lastMove));
@@ -426,44 +424,10 @@ public class Board {
             pieceMoving.setPieceID(Piece.PieceID.PAWN);
             posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
             posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
-        }else if(note == Move.MoveNote.NEW_KNIGHT){
+        } else if (note == Move.MoveNote.NEW_KNIGHT) {
             pieceMoving.setPieceID(Piece.PieceID.PAWN);
             posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
             posBitBoard[Piece.PieceID.KNIGHT.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
-        }
-
-    }
-
-    private void verifyBitBoards() {
-
-        Piece piece;
-
-        long[][] allBitBoard = new long[Piece.PieceID.values().length][2];
-
-        for (int i = 0; i < Piece.PieceID.values().length; i++) {
-            allBitBoard[i][0] = posBitBoard[i][0];
-            allBitBoard[i][1] = posBitBoard[i][1];
-        }
-
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                piece = board[r][c];
-
-                if (piece != null) {
-                    allBitBoard[piece.getPieceID().ordinal()][piece.getSide().ordinal()] ^= BitBoard.getMask(r, c);
-                }
-
-            }
-        }
-
-        for (int i = 0; i < Piece.PieceID.values().length; i++) {
-            if (allBitBoard[i][0] != 0) {
-                logger.debug("BitBoard Problem!!!");
-            }
-
-            if (allBitBoard[i][1] != 0) {
-                logger.debug("BitBoard Problem!!!");
-            }
         }
 
     }
@@ -616,196 +580,8 @@ public class Board {
         return moveHistory;
     }
 
-    public int getPieceValue(int row, int col) {
-        return Values.getPieceValue(board[row][col].getPieceID()) + getOpeningPositionValue(board[row][col]);
-    }
-
-    public int getOpeningPositionValue(Piece piece) {
-
-        if (piece == null) {
-            return 0;
-        }
-
-        switch (piece.getPieceID()) {
-            case KNIGHT:
-                return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-            case PAWN:
-                return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-            case BISHOP:
-                return 0;
-            case KING:
-                return PositionBonus.getKingOpeningPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-            case QUEEN:
-                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE : 0;
-            case ROOK:
-                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE : 0;
-            default:
-                logger.debug("Error: invalid piece value request!");
-                return 0;
-        }
-
-    }
-
-    public int getEndGamePositionValue(Piece piece) {
-
-        switch (piece.getPieceID()) {
-            case KNIGHT:
-                return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-            case PAWN:
-                return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-            case BISHOP:
-                return 50;
-            case KING:
-                return PositionBonus.getKingEndGamePositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
-            case QUEEN:
-                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE + 100 : 0;
-            case ROOK:
-                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE + 50 : 0;
-            default:
-                logger.debug("Error: invalid piece value request!");
-                return 0;
-        }
-
-    }
-
-    public int openingPositionScore(Side side) {
-        int score = 0;
-
-        for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
-            score += getOpeningPositionValue(pieces[side.ordinal()].get(i));
-        }
-
-        return score;
-    }
-
-    public int endGamePositionScore(Side side) {
-        int score = 0;
-
-        for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
-            score += getEndGamePositionValue(pieces[side.ordinal()].get(i));
-        }
-
-        return score;
-    }
-
-    public int materialScore(Side side) {
-        int score = 0;
-
-        for (int i = 0; i < pieces[side.ordinal()].size(); i++) {
-            score += Values.getPieceValue(pieces[side.ordinal()].get(i).getPieceID());
-        }
-
-        return score;
-    }
-
-    public int castleScore(Side side) {
-        int score = 0;
-        int castleRights = this.castleRights[side.ordinal()];
-
-        if (castleRights != 0) {
-            if (castleRights == 1) {
-                score += Values.FAR_CASTLE_VALUE;
-            } else {
-                score += Values.NEAR_CASTLE_VALUE;
-            }
-        } else {
-            if (!kingHasMoved(side)) {
-                if (farRookHasMoved(side)) {
-                    score -= Values.FAR_CASTLE_ABILITY_LOST_VALUE;
-                }
-
-                if (nearRookHasMoved(side)) {
-                    score -= Values.NEAR_CASTLE_ABILITY_LOST_VALUE;
-                }
-            } else {
-                score -= Values.CASTLE_ABILITY_LOST_VALUE;
-            }
-        }
-
-        return score;
-    }
-
-    public int pawnStructureScore(Side side, int phase) {
-
-        long pawns = posBitBoard[Piece.PieceID.PAWN.ordinal()][side.ordinal()];
-        long otherPawns = posBitBoard[Piece.PieceID.PAWN.ordinal()][side.otherSide().ordinal()];
-
-        long files = 0x0101010101010101L;
-
-        int occupiedCol = 0;
-        for (int c = 0; c < 8; c++) {
-            if ((files & pawns) != 0) {
-
-                occupiedCol++;
-
-                if ((files & otherPawns) == 0) {
-                    openFiles |= files;
-                }
-            }
-            files = files << 1;
-        }
-
-        int doubledPawns = Long.bitCount(pawns) - occupiedCol;
-
-        long passedBB = BitBoard.getPassedPawns(pawns, otherPawns, side);
-
-        int passedPawns = 0;
-
-        for (int i = 0; i < 8; i++) {
-            passedPawns += Long.bitCount(passedBB & BitBoard.getRowMask(i)) * Values.PASSED_PAWN_BONUS[side.ordinal()][i];
-        }
-
-        int isolatedPawns = Long.bitCount(BitBoard.getIsolatedPawns(pawns, side)) * Values.ISOLATED_PAWN_BONUS;
-
-        return BitBoard.getBackedPawns(pawns) * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * phase) / 256) + isolatedPawns;
-    }
-
-    public int calcGamePhase() {
-
-        int phase = Values.TOTALPHASE;
-
-        for (int i = 0; i < 2; i++) {
-            for (int p = 0; p < pieces[i].size(); p++) {
-                phase -= Values.PIECE_PHASE_VAL[pieces[i].get(p).getPieceID().ordinal()];
-            }
-        }
-
-        phase = (phase * 256 + (Values.TOTALPHASE / 2)) / Values.TOTALPHASE;
-
-        return phase;
-    }
-
-    public int staticScore() {
-        int ptDiff = 0;
-
-        int phase = calcGamePhase();
-
-        int myPawnScore = pawnStructureScore(turn, phase);
-        int yourPawnScore = pawnStructureScore(turn.otherSide(), phase);
-
-        int openingMyScore = castleScore(turn) + openingPositionScore(turn);
-        int openingYourScore = castleScore(turn.otherSide()) + openingPositionScore(turn.otherSide());
-
-        int endGameMyScore = endGamePositionScore(turn);
-        int endGameYourScore = endGamePositionScore(turn.otherSide());
-
-        int myScore = (openingMyScore * (256 - phase) + endGameMyScore * phase) / 256 + materialScore(turn) + myPawnScore;
-        int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + materialScore(turn.otherSide()) + yourPawnScore;
-
-        ptDiff = myScore - yourScore;
-
-        return ptDiff;
-    }
-
-    public boolean canQueen() {
-        long p = posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.ordinal()];
-        long o = allPosBitBoard[turn.otherSide().ordinal()];
-
-        if (turn == Side.WHITE) {
-            return (((((p >>> 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFFL) != 0);
-        } else {
-            return (((((p << 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFF00000000000000L) != 0);
-        }
+    List<Piece>[] getPieces() {
+        return this.pieces;
     }
 
     public Piece getPiece(int row, int col) {
@@ -816,16 +592,6 @@ public class Board {
         if (board[row][col] != null) {
             return board[row][col].getPieceID();
         } else {
-            return null;
-        }
-
-    }
-
-    public Side getPieceSide(int row, int col) {
-        if (board[row][col] != null) {
-            return board[row][col].getSide();
-        } else {
-            logger.debug("Error: requested player on null piece");
             return null;
         }
 
@@ -844,14 +610,6 @@ public class Board {
             return false;
         } else {
             return (board[row][col] != null);
-        }
-    }
-
-    public boolean hasMoved(int row, int col) {
-        if (hasPiece(row, col)) {
-            return board[row][col].hasMoved();
-        } else {
-            return true;
         }
     }
 
@@ -959,10 +717,7 @@ public class Board {
 
         initializeCastleSetup();
 
-        verifyBitBoards();
-
         return true;
-
     }
 
     public boolean isInCheck() {
@@ -1225,6 +980,11 @@ public class Board {
         }
 
         return !sufficient;
+    }
+
+
+    public int[] getCastleHistory() {
+        return castleHistory;
     }
 
     private void loadPiecesTaken() {

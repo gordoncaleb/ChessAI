@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.pieces.Values;
+import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
 
 public class AIProcessor extends Thread {
     private DecisionNode rootNode;
@@ -27,6 +28,8 @@ public class AIProcessor extends Thread {
 
     private long[][] killerMoves = new long[100][AISettings.maxKillerMoves];
     private int[] killerMoveSize = new int[100];
+
+    private StaticScore scorer = new StaticScore();
 
     // private int[] hashMoveCuts = new int[10];
     // private int[] killerMoveCuts = new int[10];
@@ -387,7 +390,7 @@ public class AIProcessor extends Thread {
                 }
 
             } else {
-                branch.setChosenPathValue(-board.staticScore());
+                branch.setChosenPathValue(-scorer.staticScore(board));
                 // branch.setBound(ValueBounds.PV);
                 return;
             }
@@ -603,7 +606,7 @@ public class AIProcessor extends Thread {
                     Collections.sort(moves, Collections.reverseOrder());
 
                     Game.GameStatus tempBoardState;
-                    for (Long move: moves) {
+                    for (Long move : moves) {
 
                         tempBoardState = board.getBoardStatus();
 
@@ -633,7 +636,7 @@ public class AIProcessor extends Thread {
                 }
             }
         } else {
-            bestPathValue = board.staticScore();
+            bestPathValue = scorer.staticScore(board);
         }
 
         if (board.isInCheckMate()) {

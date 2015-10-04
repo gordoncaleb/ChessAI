@@ -30,9 +30,6 @@ public class Knight {
 		int currentCol = p.getCol();
 		int nextRow;
 		int nextCol;
-		int value;
-		int bonus;
-		int myValue = board.getPieceValue(p.getRow(), p.getCol());
 		Piece.PositionStatus pieceStatus;
 		Side player = p.getSide();
 		Long moveLong;
@@ -43,33 +40,17 @@ public class Knight {
 			pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
 			if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
-				bonus = PositionBonus.getKnightMoveBonus(currentRow, currentCol, nextRow, nextCol, p.getSide());
 
 				if (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 					if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-
-						if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
-							value = -myValue >> 1;
-						} else {
-							value = bonus;
-						}
-
-						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value);
+						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0);
 						validMoves.add(moveLong);
 					}
 				}
 
 				if (pieceStatus == Piece.PositionStatus.ENEMY) {
 					if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-						value = board.getPieceValue(nextRow, nextCol);
-
-						if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
-							value -= myValue >> 1;
-						} else {
-							value += bonus;
-						}
-
-						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
+						moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
 						validMoves.add(moveLong);
 					}
 				}
@@ -78,7 +59,6 @@ public class Knight {
 		}
 
 		return validMoves;
-
 	}
 
 }

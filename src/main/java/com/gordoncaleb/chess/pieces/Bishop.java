@@ -1,6 +1,5 @@
 package com.gordoncaleb.chess.pieces;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.gordoncaleb.chess.backend.BitBoard;
@@ -32,7 +31,6 @@ public class Bishop {
         int nextRow;
         int nextCol;
         Long moveLong;
-        int value;
         Piece.PositionStatus pieceStatus;
         Side player = p.getSide();
 
@@ -45,15 +43,7 @@ public class Bishop {
             while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
                 if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-
-                    if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
-                        value = -Values.BISHOP_VALUE >> 1;
-                    } else {
-                        value = 0;
-                    }
-
-                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE);
-
+                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE);
                     validMoves.add(moveLong);
                 }
 
@@ -66,13 +56,7 @@ public class Bishop {
 
             if (pieceStatus == Piece.PositionStatus.ENEMY) {
                 if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-                    value = board.getPieceValue(nextRow, nextCol);
-
-                    if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
-                        value -= Values.BISHOP_VALUE >> 1;
-                    }
-
-                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
+                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
                     validMoves.add(moveLong);
                 }
             }

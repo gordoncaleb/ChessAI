@@ -31,7 +31,6 @@ public class Rook {
         Side player = p.getSide();
         int nextRow;
         int nextCol;
-        int value;
         Piece.PositionStatus pieceStatus;
         Long moveLong;
 
@@ -44,19 +43,7 @@ public class Rook {
             while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
                 if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-
-                    if (!p.hasMoved() && !board.kingHasMoved(player)) {
-                        value = Values.CASTLE_ABILITY_LOST_VALUE;
-                    } else {
-                        value = 0;
-                    }
-
-                    if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
-                        value -= Values.ROOK_VALUE >> 1;
-                    }
-
-                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value);
-
+                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0);
                     validMoves.add(moveLong);
                 }
 
@@ -70,18 +57,7 @@ public class Rook {
             if (pieceStatus == Piece.PositionStatus.ENEMY) {
                 if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
-                    if (!p.hasMoved() && !board.kingHasMoved(player)) {
-                        value = board.getPieceValue(nextRow, nextCol) + Values.CASTLE_ABILITY_LOST_VALUE;
-                    } else {
-                        value = board.getPieceValue(nextRow, nextCol);
-                    }
-
-                    if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
-                        value -= Values.ROOK_VALUE >> 1;
-                    }
-
-                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
-
+                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
                     validMoves.add(moveLong);
                 }
             }

@@ -30,15 +30,7 @@ public class Pawn {
         Side player = p.getSide();
         int dir;
         int fifthRank;
-        int value;
-        int myValue = board.getPieceValue(p.getRow(), p.getCol());
         Long moveLong;
-
-
-//		logger.debug("pawn " + p.getCol() + " null move info");
-//		logger.debug(BitBoard.printBitBoard(nullMoveInfo[0]));
-//		logger.debug(BitBoard.printBitBoard(nullMoveInfo[1]));
-//		logger.debug(BitBoard.printBitBoard(nullMoveInfo[2]));
 
         int[] lr = {1, -1};
 
@@ -56,34 +48,18 @@ public class Pawn {
 
                 moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol, 0, Move.MoveNote.NONE);
 
-                value = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + dir, currentCol, p.getSide());
-
                 if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
                     moveLong = Move.setNote(moveLong, Move.MoveNote.NEW_QUEEN);
-                    value = Values.QUEEN_VALUE;
                 }
-
-                if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + dir, currentCol)) != 0) {
-                    value = -myValue >> 1;
-                }
-
-                moveLong = Move.setValue(moveLong, value);
 
                 validMoves.add(moveLong);
-
             }
 
             if (!p.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
 
                 if (p.isValidMove(currentRow + 2 * dir, currentCol, nullMoveInfo)) {
 
-                    value = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + 2 * dir, currentCol, p.getSide());
-
-                    if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + 2 * dir, currentCol)) != 0) {
-                        value = -myValue >> 1;
-                    }
-
-                    validMoves.add(Move.moveLong(currentRow, currentCol, currentRow + 2 * dir, currentCol, value, Move.MoveNote.PAWN_LEAP));
+                    validMoves.add(Move.moveLong(currentRow, currentCol, currentRow + 2 * dir, currentCol, 0, Move.MoveNote.PAWN_LEAP));
 
                 }
             }
@@ -98,20 +74,9 @@ public class Pawn {
 
                     moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + i);
 
-                    value = PositionBonus.getPawnMoveBonus(currentRow, currentCol, currentRow + dir, currentCol, p.getSide());
-
                     if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
                         moveLong = Move.setNote(moveLong, Move.MoveNote.NEW_QUEEN);
-                        value = Values.QUEEN_VALUE;
                     }
-
-                    if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + dir, currentCol + i)) != 0) {
-                        value = board.getPieceValue(currentRow + dir, currentCol + i) - myValue >> 1;
-                    } else {
-                        value += board.getPieceValue(currentRow + dir, currentCol + i);
-                    }
-
-                    moveLong = Move.setValue(moveLong, value);
 
                     moveLong = Move.setPieceTaken(moveLong, board.getPiece(currentRow + dir, currentCol + i));
                     validMoves.add(moveLong);
@@ -129,13 +94,7 @@ public class Pawn {
 
                         if (p.isValidMove(currentRow + dir, currentCol + i, nullMoveInfo, BitBoard.getMask(fifthRank, currentCol + i))) {
 
-                            value = board.getPieceValue(fifthRank, currentCol + i);
-
-                            if ((nullMoveInfo[0] & BitBoard.getMask(currentRow + dir, currentCol + i)) != 0) {
-                                value -= myValue >> 1;
-                            }
-
-                            moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + i, value, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + i));
+                            moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + i, 0, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + i));
                             validMoves.add(moveLong);
                         }
 

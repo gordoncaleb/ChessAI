@@ -80,6 +80,7 @@ public class PGNParser {
 
         List<PGNGame> games = new ArrayList<>();
 
+        boolean commenting = false;
         String prevLine = "";
         String line;
 
@@ -87,19 +88,30 @@ public class PGNParser {
 
             line = line.trim();
 
-            if (isMetaLine(line) || isGameLine(line)) {
+            if (isStartComment(line)) {
+                commenting = true;
+            }
 
-                if (isGameStart(line, prevLine)) {
-                    games.add(new PGNGame());
+            if (isEndComment(line)) {
+                commenting = false;
+                continue;
+            }
+
+            if (!commenting) {
+                if (isMetaLine(line) || isGameLine(line)) {
+
+                    if (isGameStart(line, prevLine)) {
+                        games.add(new PGNGame());
+                    }
+
+                    if (isGameLine(line)) {
+                        Iterables.getLast(games).getGameLines().add(line);
+                    } else if (isMetaLine(line)) {
+                        Iterables.getLast(games).getMetaData().putAll(parseMetaData(line));
+                    }
+
+                    prevLine = line;
                 }
-
-                if (isGameLine(line)) {
-                    Iterables.getLast(games).getGameLines().add(line);
-                } else if (isMetaLine(line)) {
-                    Iterables.getLast(games).getMetaData().putAll(parseMetaData(line));
-                }
-
-                prevLine = line;
             }
         }
 
@@ -108,6 +120,14 @@ public class PGNParser {
 
     public boolean isMetaLine(String s) {
         return s.startsWith(METALINE);
+    }
+
+    public boolean isStartComment(String s) {
+        return s.startsWith("{");
+    }
+
+    public boolean isEndComment(String s) {
+        return s.startsWith("}");
     }
 
     public boolean isGameLine(String s) {
@@ -159,6 +179,7 @@ public class PGNParser {
                 .map(s -> s.split(" "))
                 .flatMap(Arrays::stream)
                 .filter(s -> !s.matches("[012/]+-[012/]+"))
+                .filter(s -> !s.matches("\\*"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
@@ -169,8 +190,7 @@ public class PGNParser {
                 long move = resolveAlgebraicNotation(notation, board);
                 board.makeMove(move);
             } catch (Exception e) {
-                logger.error("Could not resolve algebraic notation {} from game:{} histort: \n{}", notation, game, board.toXML(true));
-                break;
+                throw new Exception("Error resolving notation " + notation + " board: \n" + board.toString(), e);
             }
         }
 
@@ -179,7 +199,7 @@ public class PGNParser {
 
     public long resolveAlgebraicNotation(String notation, Board board) throws Exception {
 
-        notation = notation.replaceAll("\\+", "");
+        notation = notation.replaceAll("\\+|#", "");
 
         int fromRow = -1;
         int fromCol = -1;
@@ -199,7 +219,7 @@ public class PGNParser {
                     note = Move.MoveNote.NEW_KNIGHT;
                     break;
                 default:
-                    logger.warn("Unsupported Pawn queening selection");
+                    throw new Exception("Unsupported queening option");
             }
 
             notation = notation.substring(0, notation.indexOf("="));
@@ -263,7 +283,7 @@ public class PGNParser {
                         toCol = notation.charAt(0) - 97;
                         pieceMovingID = Piece.PieceID.PAWN;
                     } else {
-                        logger.debug("Error resolving notation " + notation);
+                        throw new Exception("Error resolving notation " + notation);
                     }
                 }
 
@@ -331,7 +351,7 @@ public class PGNParser {
         }
 
         if (matchMoves.size() != 1) {
-            throw new Exception();
+            throw new Exception("No/multiple move matches");
         }
 
         return matchMoves.get(0);

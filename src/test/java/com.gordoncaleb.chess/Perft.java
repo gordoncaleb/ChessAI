@@ -44,7 +44,7 @@ public class Perft {
         if (depth > 0) {
             board.makeNullMove();
 
-            List<Long> moves = new ArrayList<>(board.generateValidMoves(0, AI.noKillerMoves));
+            List<Long> moves = new ArrayList<>(board.generateValidMoves());
             Collections.sort(moves, Collections.reverseOrder());
 
             moves.stream().forEach(m -> {

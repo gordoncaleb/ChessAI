@@ -30,7 +30,7 @@ public class PGNParserTest {
 
     @Test
     public void testFileParse() throws Exception {
-        List<PGNParser.PGNGame> exampleGames = parser.loadFile("/example.pgn");
+        List<PGNParser.PGNGame> exampleGames = parser.loadFile("/pgns/example.pgn");
         assertEquals(6, exampleGames.size());
         assertEquals(exampleGames.get(0).getMetaData().get("ECO"), "C23");
     }

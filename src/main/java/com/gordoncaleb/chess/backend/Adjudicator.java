@@ -102,7 +102,8 @@ public class Adjudicator {
     }
 
     public Side getPiecePlayer(int row, int col) {
-        return board.getPieceSide(row, col);
+        Piece p = board.getPiece(row,col);
+        return p.getSide();
     }
 
     public Piece getPiece(int row, int col) {

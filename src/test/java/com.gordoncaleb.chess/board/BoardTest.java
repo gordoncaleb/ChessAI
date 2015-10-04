@@ -4,13 +4,16 @@ import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.io.PGNParser;
 import com.gordoncaleb.chess.persistence.BoardDAO;
 import com.gordoncaleb.chess.pieces.Piece;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,28 +32,64 @@ public class BoardTest {
         assertFalse(b2.getHashCode() == 0L);
     }
 
+    @Test
+    public void testHashCodeUniquness() throws Exception {
+        testFile("/pgns/eco.pgn", this::assertHashCodesAreUnique);
+    }
 
     @Test
     public void testFile1() throws Exception {
-        testFile("/CatalanOpen.pgn");
+        testFile("/pgns/CatalanOpen.pgn", b -> {
+            testHashCodeGen(b);
+            verifyBitBoards(b);
+        });
     }
 
     @Test
     public void testFile2() throws Exception {
-        testFile("/EnglishSymHedgehog.pgn");
+        testFile("/pgns/EnglishSymHedgehog.pgn", this::testHashCodeGen);
     }
 
-    public void testFile(String fileName) throws Exception {
+    public void testFile(String fileName, Consumer<Board> boardConsumer) throws Exception {
         PGNParser parser = new PGNParser();
         List<PGNParser.PGNGame> games = parser.loadFile(fileName);
 
         for (PGNParser.PGNGame game : games) {
             try {
-                parser.getPGNGameAsBoard(game);
+                Board b = parser.getPGNGameAsBoard(game);
+                boardConsumer.accept(b);
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new Exception("Error loading game: " + game, e);
             }
+        }
+    }
+
+    public void testHashCodeGen(Board b) {
+
+        long origHash = b.getHashCode();
+
+        Stack<Long> moveStack = new Stack<>();
+        while (b.canUndo()) {
+            assertEquals(b.getHashCode(), b.generateHashCode());
+            moveStack.push(b.undoMove());
+        }
+
+        while (!moveStack.isEmpty()) {
+            assertEquals(b.getHashCode(), b.generateHashCode());
+            b.makeMove(moveStack.pop());
+        }
+
+        assertEquals(b.getHashCode(), b.generateHashCode());
+        assertEquals(origHash, b.generateHashCode());
+    }
+
+    public void assertHashCodesAreUnique(Board b) {
+        Set<Long> hashCodes = new HashSet<>();
+        while (b.canUndo()) {
+            assertFalse(hashCodes.contains(b.getHashCode()));
+            hashCodes.add(b.getHashCode());
+            b.undoMove();
         }
     }
 
@@ -236,4 +275,34 @@ public class BoardTest {
         return Move.fromLongs(b1.generateValidMoves());
     }
 
+
+    public void verifyBitBoards(Board b) {
+
+        long[][] posBitBoard = b.getPosBitBoard();
+        Piece piece;
+
+        long[][] allBitBoard = new long[Piece.PieceID.values().length][2];
+
+        for (int i = 0; i < Piece.PieceID.values().length; i++) {
+            allBitBoard[i][0] = posBitBoard[i][0];
+            allBitBoard[i][1] = posBitBoard[i][1];
+        }
+
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                piece = b.getPiece(r, c);
+
+                if (piece != null) {
+                    allBitBoard[piece.getPieceID().ordinal()][piece.getSide().ordinal()] ^= BitBoard.getMask(r, c);
+                }
+
+            }
+        }
+
+        for (int i = 0; i < Piece.PieceID.values().length; i++) {
+            assertFalse(allBitBoard[i][0] != 0);
+            assertFalse(allBitBoard[i][1] != 0);
+        }
+
+    }
 }

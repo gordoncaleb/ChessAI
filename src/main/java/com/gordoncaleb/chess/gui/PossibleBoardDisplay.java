@@ -16,109 +16,111 @@ import javax.swing.SwingConstants;
 import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.backend.StaticScore;
 
 public class PossibleBoardDisplay implements MouseListener {
 
-	private JFrame frame;
+    private JFrame frame;
 
-	private AI ai;
+    private AI ai;
+    private StaticScore scorer = new StaticScore();
 
-	private ArrayList<BoardPanel> boardPanels;
-	private ArrayList<JLabel> boardLabels;
+    private ArrayList<BoardPanel> boardPanels;
+    private ArrayList<JLabel> boardLabels;
 
-	public static void main(String[] args) {
-		new PossibleBoardDisplay(null, 4);
-	}
+    public static void main(String[] args) {
+        new PossibleBoardDisplay(null, 4);
+    }
 
-	public PossibleBoardDisplay(AI ai, int displayNum) {
+    public PossibleBoardDisplay(AI ai, int displayNum) {
 
-		this.ai = ai;
+        this.ai = ai;
 
-		frame = new JFrame("Possible Boards");
-		frame.setSize(new Dimension(1000, 1000));
+        frame = new JFrame("Possible Boards");
+        frame.setSize(new Dimension(1000, 1000));
 
-		frame.setLayout(new BorderLayout());
+        frame.setLayout(new BorderLayout());
 
-		boardPanels = new ArrayList<BoardPanel>();
-		boardLabels = new ArrayList<JLabel>();
+        boardPanels = new ArrayList<BoardPanel>();
+        boardLabels = new ArrayList<JLabel>();
 
-		JPanel centerPanel = new JPanel(new GridLayout(2, 2));
-		BoardPanel temp;
-		JLabel tempLabel;
-		JPanel wrapper;
-		for (int i = 0; i < displayNum; i++) {
-			temp = new BoardPanel(null, false, true);
-			wrapper = new JPanel(new BorderLayout());
-			tempLabel = new JLabel("Board label");
-			tempLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        JPanel centerPanel = new JPanel(new GridLayout(2, 2));
+        BoardPanel temp;
+        JLabel tempLabel;
+        JPanel wrapper;
+        for (int i = 0; i < displayNum; i++) {
+            temp = new BoardPanel(null, false, true);
+            wrapper = new JPanel(new BorderLayout());
+            tempLabel = new JLabel("Board label");
+            tempLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-			temp.setSize(new Dimension(500, 500));
-			boardPanels.add(temp);
-			boardLabels.add(tempLabel);
-			wrapper.add(temp, BorderLayout.CENTER);
-			wrapper.add(tempLabel, BorderLayout.SOUTH);
-			centerPanel.add(wrapper);
-		}
+            temp.setSize(new Dimension(500, 500));
+            boardPanels.add(temp);
+            boardLabels.add(tempLabel);
+            wrapper.add(temp, BorderLayout.CENTER);
+            wrapper.add(tempLabel, BorderLayout.SOUTH);
+            centerPanel.add(wrapper);
+        }
 
-		frame.add(centerPanel, BorderLayout.CENTER);
+        frame.add(centerPanel, BorderLayout.CENTER);
 
-		JButton refreshBtn = new JButton("Refresh");
-		refreshBtn.addMouseListener(this);
+        JButton refreshBtn = new JButton("Refresh");
+        refreshBtn.addMouseListener(this);
 
-		frame.add(refreshBtn, BorderLayout.SOUTH);
+        frame.add(refreshBtn, BorderLayout.SOUTH);
 
-		frame.setVisible(true);
+        frame.setVisible(true);
 
-	}
+    }
 
-	public void showPossibilites() {
+    public void showPossibilites() {
 
-		if (ai == null) {
-			return;
-		}
+        if (ai == null) {
+            return;
+        }
 
-		Board tempBoard;
-		ArrayList<Move> pvMoves = new ArrayList<Move>();
-		for (int i = 0; i < 4; i++) {
-			tempBoard = ai.getBoard().copy();
-			pvMoves.clear();
-			ai.getMovePV(ai.getRootNode().getChild(i), pvMoves);
-			for (int m = 0; m < pvMoves.size(); m++) {
-				tempBoard.makeMove(pvMoves.get(m).getMoveLong());
-			}
-			boardPanels.get(i).newGame(tempBoard);
-			boardLabels.get(i).setText("Score = " + tempBoard.staticScore() + " Depth =" + pvMoves.size());
-		}
+        Board tempBoard;
+        ArrayList<Move> pvMoves = new ArrayList<Move>();
+        for (int i = 0; i < 4; i++) {
+            tempBoard = ai.getBoard().copy();
+            pvMoves.clear();
+            ai.getMovePV(ai.getRootNode().getChild(i), pvMoves);
+            for (int m = 0; m < pvMoves.size(); m++) {
+                tempBoard.makeMove(pvMoves.get(m).getMoveLong());
+            }
+            boardPanels.get(i).newGame(tempBoard);
+            boardLabels.get(i).setText("Score = " + scorer.staticScore(tempBoard) + " Depth =" + pvMoves.size());
+        }
 
-	}
+    }
 
-	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+    @Override
+    public void mouseClicked(MouseEvent arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+    @Override
+    public void mouseEntered(MouseEvent arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+    @Override
+    public void mouseExited(MouseEvent arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+    @Override
+    public void mousePressed(MouseEvent arg0) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		showPossibilites();
-	}
+    @Override
+    public void mouseReleased(MouseEvent arg0) {
+        showPossibilites();
+    }
 
 }

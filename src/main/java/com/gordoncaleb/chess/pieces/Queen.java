@@ -65,13 +65,7 @@ public class Queen {
             if (pieceStatus == Piece.PositionStatus.ENEMY) {
                 if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
 
-                    value = board.getPieceValue(nextRow, nextCol);
-
-                    if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
-                        value -= Values.QUEEN_VALUE >> 1;
-                    }
-
-                    Long moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
+                    Long moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
                     validMoves.add(moveLong);
                 }
             }
@@ -352,92 +346,6 @@ public class Queen {
                 }
             }
 
-        }
-
-    }
-
-    public static void getNullMoveInfo(Piece p, Board board, long[] nullMoveInfo) {
-        long bitAttackVector = 0;
-        long bitAttackCompliment = 0;
-        boolean inCheck = false;
-        Piece blockingPiece;
-
-        int currentRow = p.getRow();
-        int currentCol = p.getCol();
-        int nextRow;
-        int nextCol;
-        Piece.PositionStatus pieceStatus;
-        Side player = p.getSide();
-
-        long bitPosition = p.getBit();
-
-        int i = 1;
-        for (int d = 0; d < 8; d++) {
-            nextRow = currentRow + i * QUEENMOVES[0][d];
-            nextCol = currentCol + i * QUEENMOVES[1][d];
-            pieceStatus = board.checkPiece(nextRow, nextCol, player);
-
-            if (pieceStatus == Piece.PositionStatus.OFF_BOARD) {
-                continue;
-            }
-
-            while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
-                bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
-                i++;
-                nextRow = currentRow + i * QUEENMOVES[0][d];
-                nextCol = currentCol + i * QUEENMOVES[1][d];
-                pieceStatus = board.checkPiece(nextRow, nextCol, player);
-            }
-
-            if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
-                bitAttackVector |= BitBoard.getMask(nextRow, nextCol);
-            }
-
-            if (pieceStatus == Piece.PositionStatus.ENEMY) {
-
-                blockingPiece = board.getPiece(nextRow, nextCol);
-
-                if (blockingPiece.getPieceID() == Piece.PieceID.KING) {
-                    nullMoveInfo[1] &= (bitAttackVector | bitPosition);
-                    inCheck = true;
-                }
-
-                i++;
-                nextRow = currentRow + i * QUEENMOVES[0][d];
-                nextCol = currentCol + i * QUEENMOVES[1][d];
-                pieceStatus = board.checkPiece(nextRow, nextCol, player);
-
-                while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
-                    bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
-                    i++;
-                    nextRow = currentRow + i * QUEENMOVES[0][d];
-                    nextCol = currentCol + i * QUEENMOVES[1][d];
-                    pieceStatus = board.checkPiece(nextRow, nextCol, player);
-                }
-
-                if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
-                    if (board.getPieceID(nextRow, nextCol) == Piece.PieceID.KING && board.getPiece(nextRow, nextCol).getSide() != player) {
-                        blockingPiece.setBlockingVector(bitAttackCompliment | bitAttackVector | bitPosition);
-                    }
-                }
-
-                if (pieceStatus == Piece.PositionStatus.FRIEND) {
-                    bitAttackCompliment |= BitBoard.getMask(nextRow, nextCol);
-                }
-
-            }
-
-            nullMoveInfo[0] |= bitAttackVector;
-
-            if (inCheck) {
-                nullMoveInfo[2] |= bitAttackCompliment;
-                inCheck = false;
-            }
-
-            bitAttackCompliment = 0;
-            bitAttackVector = 0;
-
-            i = 1;
         }
 
     }

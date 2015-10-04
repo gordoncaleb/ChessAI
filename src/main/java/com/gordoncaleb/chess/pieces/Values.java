@@ -41,43 +41,4 @@ public class Values {
 		return PIECE_VALUE[id.ordinal()];
 	}
 
-	public static String printBoardScoreBreakDown(Board b) {
-
-		String score = "";
-
-		Side turn = b.getTurn();
-		int phase = b.calcGamePhase();
-
-		score += ("int phase = " + phase) + "\n";
-
-		score += ("int myPawnScore = " + b.pawnStructureScore(turn, phase)) + "\n";
-		score += ("int yourPawnScore = " + b.pawnStructureScore(turn.otherSide(), phase)) + "\n";
-
-		score += ("int openingMyScore = " + b.materialScore(turn) + "(openingMaterialScore)+" + b.castleScore(turn) + "(castleScore)+" + b.openingPositionScore(turn))
-				+ "(openPositionScore)" + "\n";
-		score += ("int openingYourScore = " + b.materialScore(turn.otherSide()) + "(openMaterialScore)+" + b.castleScore(turn.otherSide()) + "(castleScore)+"
-				+ b.openingPositionScore(turn.otherSide()) + "(openPositionScore)")
-				+ "\n";
-
-		score += ("int endGameMyScore = " + b.materialScore(turn) + "(endGameMaterial)+" + b.endGamePositionScore(turn) + "(endGamePosition)") + "\n";
-		score += ("int endGameYourScore = " + b.materialScore(turn.otherSide()) + "(endGameMaterial)+" + b.endGamePositionScore(turn.otherSide()) + "(endGamePosition)")
-				+ "\n";
-
-		int myopen = b.materialScore(turn) + b.castleScore(turn) + b.openingPositionScore(turn);
-		int youropen = b.materialScore(turn.otherSide()) + b.castleScore(turn.otherSide()) + b.openingPositionScore(turn.otherSide());
-
-		int myend = b.materialScore(turn) + b.endGamePositionScore(turn);
-		int yourend = b.materialScore(turn.otherSide()) + b.endGamePositionScore(turn.otherSide());
-
-		int myscore = (myopen * (256 - phase) + myend * phase) / 256 + b.pawnStructureScore(turn, phase);
-
-		int yourscore = (youropen * (256 - phase) + yourend * phase) / 256 + b.pawnStructureScore(turn.otherSide(), phase);
-
-		score += ("int myScore = " + myscore + "\n");
-		score += ("int yourScore = " + yourscore + "\n");
-
-		score += ("ptDiff = " + myscore + "-" + yourscore + "=" + (myscore - yourscore) + "\n");
-
-		return score;
-	}
 }

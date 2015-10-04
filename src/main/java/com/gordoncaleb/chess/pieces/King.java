@@ -56,7 +56,7 @@ public class King {
 
 			if (pieceStatus == Piece.PositionStatus.ENEMY) {
 				if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
-					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, board.getPieceValue(nextRow, nextCol), Move.MoveNote.NONE,
+					moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE,
 							board.getPiece(nextRow, nextCol));
 					validMoves.add(moveLong);
 				}
@@ -163,16 +163,7 @@ public class King {
 
 	public static boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
 		long mask = BitBoard.getMask(toRow, toCol);
-
-		// String nullmove0 = BitBoard.printBitBoard(nullMoveInfo[0]);
-		// String nullmove1 = BitBoard.printBitBoard(nullMoveInfo[1]);
-		// String nullmove2 = BitBoard.printBitBoard(nullMoveInfo[2]);
-
-		if ((mask & (nullMoveInfo[0] | nullMoveInfo[2])) == 0) {
-			return true;
-		} else {
-			return false;
-		}
+		return  ((mask & (nullMoveInfo[0] | nullMoveInfo[2])) == 0);
 	}
 
 	public static boolean canCastleFar(Piece king, Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
@@ -210,10 +201,6 @@ public class King {
 		long rookToCastleMask = BitBoard.getCastleMask(rookCol, 5, player);
 
 		allPosBitBoard ^= BitBoard.getMask(king.getRow(), rookCol) | king.getBit();
-
-		// logger.debug(BitBoard.printBitBoard(kingToCastleMask));
-		// logger.debug(BitBoard.printBitBoard(rookToCastleMask));
-		// logger.debug(BitBoard.printBitBoard(allPosBitBoard));
 
 		if ((kingToCastleMask & nullMoveInfo[0]) == 0) {
 			if (((kingToCastleMask | rookToCastleMask) & allPosBitBoard) == 0) {
