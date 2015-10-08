@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.ArrayList;
 
 import com.gordoncaleb.chess.ai.AI;
+import com.gordoncaleb.chess.io.XMLParser;
 import com.gordoncaleb.chess.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -572,7 +573,6 @@ public class Board {
         } else {
             return null;
         }
-
     }
 
     public Side getTurn() {
@@ -615,7 +615,6 @@ public class Board {
 
         kingStartCols[Side.BLACK.ordinal()] = kings[Side.BLACK.ordinal()].getCol();
         kingStartCols[Side.WHITE.ordinal()] = kings[Side.WHITE.ordinal()].getCol();
-
     }
 
     public boolean placePiece(Piece piece, int toRow, int toCol) {
@@ -777,7 +776,7 @@ public class Board {
     }
 
     public Board copy() {
-        return new Board(pieces, this.turn, moveHistory, rookStartCols, kingStartCols);
+        return new Board(pieces, turn, moveHistory, rookStartCols, kingStartCols);
     }
 
     public String toString() {
@@ -826,35 +825,7 @@ public class Board {
     }
 
     public String toXML(boolean includeHistory) {
-        String xmlBoard = "<board>\n";
-
-        if (includeHistory) {
-
-            Stack<Move> movesToRedo = new Stack<>();
-            long m;
-            while ((m = undoMove()) != 0) {
-                movesToRedo.push(new Move(m));
-            }
-
-            xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
-            xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
-
-            while (!movesToRedo.isEmpty()) {
-                makeMove(movesToRedo.pop().getMoveLong());
-                xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
-            }
-
-            for (int i = 0; i < moveHistory.size(); i++) {
-                xmlBoard += Move.toXML(moveHistory.elementAt(i).getMoveLong());
-            }
-
-        } else {
-            xmlBoard += "<setup>\n" + this.toString() + "</setup>\n";
-            xmlBoard += "<turn>" + turn.toString() + "</turn>\n";
-        }
-
-        xmlBoard += "</board>";
-        return xmlBoard;
+        return XMLParser.boardToXML(this, includeHistory);
     }
 
     public long generateHashCode() {
@@ -916,7 +887,7 @@ public class Board {
     }
 
     public boolean drawByThreeRule() {
-        return hashCodeFreq >=3 ;
+        return hashCodeFreq >= 3;
     }
 
     public boolean insufficientMaterial() {

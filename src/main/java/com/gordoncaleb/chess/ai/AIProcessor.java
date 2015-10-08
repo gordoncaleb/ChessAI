@@ -5,7 +5,6 @@ import java.util.Collections;
 
 import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.pieces.Values;
-import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
 
 public class AIProcessor extends Thread {
     private DecisionNode rootNode;
@@ -513,8 +512,6 @@ public class AIProcessor extends Thread {
      * This method is used as a quick alternative to 'growDecisionTree()' at
      * large tree depths.
      *
-     * @param board  The board that needs all possible moves evaluated.
-     * @param player The player whose turn it is.
      * @param level  The stack distance from the initial call on
      *               'growDecisionTreeLite()'
      * @return The value of the best move for 'player' on the 'board'

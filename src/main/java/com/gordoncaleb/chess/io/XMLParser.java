@@ -283,4 +283,36 @@ public class XMLParser {
 		return "";
 	}
 
+	public static String boardToXML(Board b, boolean includeHistory){
+		String xmlBoard = "<board>\n";
+
+		if (includeHistory) {
+
+			Stack<Move> movesToRedo = new Stack<>();
+			long m;
+			while ((m = b.undoMove()) != 0) {
+				movesToRedo.push(new Move(m));
+			}
+
+			xmlBoard += "<setup>\n" + b.toString() + "</setup>\n";
+			xmlBoard += "<turn>" + b.getTurn().toString() + "</turn>\n";
+
+			while (!movesToRedo.isEmpty()) {
+				b.makeMove(movesToRedo.pop().getMoveLong());
+				xmlBoard += "<setup>\n" + b.toString() + "</setup>\n";
+			}
+
+			for (Move move: b.getMoveHistory()) {
+				xmlBoard += Move.toXML(move.getMoveLong());
+			}
+
+		} else {
+			xmlBoard += "<setup>\n" + b.toString() + "</setup>\n";
+			xmlBoard += "<turn>" + b.getTurn().toString() + "</turn>\n";
+		}
+
+		xmlBoard += "</board>";
+		return xmlBoard;
+	}
+
 }
