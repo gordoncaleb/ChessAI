@@ -1,12 +1,14 @@
 package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.backend.Side;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.gordoncaleb.chess.backend.BitBoard.*;
 
 public class BitBoardTest {
 
+    @Ignore
     @Test
     public void test() {
 

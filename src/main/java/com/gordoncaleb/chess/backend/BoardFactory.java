@@ -85,4 +85,29 @@ public class BoardFactory {
         return r.nextInt(dieSize);
     }
 
+    public static Stack<Piece> getFullPieceSet(Side player) {
+        Stack<Piece> pieces = new Stack<>();
+
+        for (int i = 0; i < 8; i++) {
+            pieces.add(new Piece(Piece.PieceID.PAWN, player, 0, 0, false));
+        }
+
+        for (int i = 0; i < 2; i++) {
+            pieces.add(new Piece(Piece.PieceID.BISHOP, player, 0, 0, false));
+        }
+
+        for (int i = 0; i < 2; i++) {
+            pieces.add(new Piece(Piece.PieceID.ROOK, player, 0, 0, false));
+        }
+
+        for (int i = 0; i < 2; i++) {
+            pieces.add(new Piece(Piece.PieceID.KNIGHT, player, 0, 0, false));
+        }
+
+        pieces.add(new Piece(Piece.PieceID.KING, player, 0, 0, false));
+        pieces.add(new Piece(Piece.PieceID.QUEEN, player, 0, 0, false));
+
+        return pieces;
+    }
+
 }

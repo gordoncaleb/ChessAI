@@ -291,7 +291,8 @@ public class AIProcessor extends Thread {
 
         BoardHashEntry hashOut;
         long hashMove = 0;
-        hashOut = hashTable[board.getHashIndex()];
+        int hashIndex = (int) (board.getHashCode() & AISettings.hashIndexMask);
+        hashOut = hashTable[hashIndex];
 
         if (AISettings.useHashTable) {
 
@@ -479,7 +480,7 @@ public class AIProcessor extends Thread {
 
             if (AISettings.useHashTable && level >= 0 && !stopSearch) {
                 if (hashOut == null) {
-                    hashTable[board.getHashIndex()] = new BoardHashEntry(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, beta), branch.getHeadChild()
+                    hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level, cpv, ai.getMoveNum(), getNodeType(cpv, a, beta), branch.getHeadChild()
                             .getMove());
                 } else {
                     if (hashTableUpdate(hashOut, level, ai.getMoveNum())) {
@@ -528,7 +529,7 @@ public class AIProcessor extends Thread {
         int b = beta;
         long bestMove = 0;
 
-        int hashIndex = board.getHashIndex();
+        int hashIndex = (int) (board.getHashCode() & AISettings.hashIndexMask);
         BoardHashEntry hashOut;
         long hashMove = 0;
         hashOut = hashTable[hashIndex];

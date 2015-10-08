@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.ArrayList;
 
 import com.gordoncaleb.chess.ai.AI;
-import com.gordoncaleb.chess.ai.AISettings;
 import com.gordoncaleb.chess.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,24 +16,24 @@ public class Board {
     public static final int CASTLED_FAR = 1;
     public static final int HAS_NOT_CASTLED = 0;
 
-    private Piece[][] board;
-    private Game.GameStatus boardStatus;
+    private final int[] materialRow = {0, 7};
+
+    private Piece[][] board = new Piece[8][8];
+    private Game.GameStatus boardStatus = Game.GameStatus.IN_PLAY;
     private ArrayList<Long> validMoves = new ArrayList<>(100);
-    private ArrayList<Piece>[] pieces = new ArrayList[2];
+    private LinkedList<Piece>[] pieces = new LinkedList[2];
     private Stack<Piece>[] piecesTaken = new Stack[2];
     private int[] castleHistory = new int[2];
 
     private Piece[] kings = new Piece[2];
     private int[][] rookStartCols = new int[2][2];
     private int[] kingStartCols = new int[2];
-    private int[] materialRow = {0, 7};
-
-    private boolean revisitedState = false;
 
     private Side turn;
-    private Stack<Move> moveHistory;
     private long hashCode;
-    private Stack<Long> hashCodeHistory;
+    private Stack<Move> moveHistory = new Stack();
+    private Stack<Long> hashCodeHistory = new Stack<>();
+    private Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
     private long[] nullMoveInfo = {0, BitBoard.ALL_ONES, 0};
 
@@ -46,16 +45,12 @@ public class Board {
     private long[] allPosBitBoard = new long[2];
 
     public Board() {
-        this.board = new Piece[8][8];
-
-        this.pieces[Side.WHITE.ordinal()] = new ArrayList<>();
-        this.pieces[Side.BLACK.ordinal()] = new ArrayList<>();
+        this.pieces[Side.WHITE.ordinal()] = new LinkedList<>();
+        this.pieces[Side.BLACK.ordinal()] = new LinkedList<>();
 
         this.piecesTaken[Side.WHITE.ordinal()] = new Stack<>();
         this.piecesTaken[Side.BLACK.ordinal()] = new Stack<>();
 
-        this.moveHistory = new Stack<>();
-        this.hashCodeHistory = new Stack<>();
         this.turn = Side.WHITE;
         this.nullMoveInfo = new long[3];
 
@@ -64,19 +59,15 @@ public class Board {
 
         placePiece(kings[Side.BLACK.ordinal()], 0, 0);
         placePiece(kings[Side.WHITE.ordinal()], 7, 0);
-
     }
 
-    public Board(ArrayList<Piece>[] pieces, Side turn, Stack<Move> moveHistory, int[][] rookStartCols, int[] kingCols) {
-        this.board = new Piece[8][8];
-        this.pieces[Side.WHITE.ordinal()] = new ArrayList<>(pieces[Side.WHITE.ordinal()].size());
-        this.pieces[Side.BLACK.ordinal()] = new ArrayList<>(pieces[Side.BLACK.ordinal()].size());
+    public Board(List<Piece>[] pieces, Side turn, Stack<Move> moveHistory, int[][] rookStartCols, int[] kingCols) {
+        this.pieces[Side.WHITE.ordinal()] = new LinkedList<>();
+        this.pieces[Side.BLACK.ordinal()] = new LinkedList<>();
 
         this.piecesTaken[Side.WHITE.ordinal()] = new Stack<>();
         this.piecesTaken[Side.BLACK.ordinal()] = new Stack<>();
 
-        this.moveHistory = new Stack<>();
-        this.hashCodeHistory = new Stack<>();
         this.turn = turn;
         this.nullMoveInfo = new long[3];
 
@@ -176,7 +167,7 @@ public class Board {
         }
 
         // save off hashCode
-        hashCodeHistory.push(new Long(hashCode));
+        hashCodeHistory.push(hashCode);
 
         // remove previous castle options
         hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
@@ -395,10 +386,7 @@ public class Board {
             hashCode = hashCodeHistory.pop();
         }
 
-        // verifyBitBoards();
-
         return lastMove;
-
     }
 
     private void undoMovePiece(Piece pieceMoving, int fromRow, int fromCol, Move.MoveNote note, boolean hadMoved) {
@@ -534,23 +522,6 @@ public class Board {
         return nullMoveInfo;
     }
 
-    public boolean isVoi(Move[] voi) {
-
-        int historySize = moveHistory.size();
-
-        if (historySize < voi.length) {
-            return false;
-        }
-
-        for (int i = 0; i < voi.length; i++) {
-            if (!voi[i].equals(moveHistory.elementAt(historySize - i - 1))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public Piece.PositionStatus checkPiece(int row, int col, Side player) {
 
         if (((row | col) & (~0x7)) != 0) {
@@ -603,14 +574,6 @@ public class Board {
 
     public void setTurn(Side turn) {
         this.turn = turn;
-    }
-
-    public boolean hasPiece(int row, int col) {
-        if ((row & ~0x7) != 0 || (col & ~7) != 0) {
-            return false;
-        } else {
-            return (board[row][col] != null);
-        }
     }
 
     public Stack<Piece> getPiecesTakenFor(Side player) {
@@ -916,17 +879,24 @@ public class Board {
         return hashCode;
     }
 
-    public int getHashIndex() {
-        return (int) (hashCode & AISettings.hashIndexMask);
-    }
-
     public long getHashCode() {
         return hashCode;
     }
 
+    private int addToHashFrequency(long hashCode) {
+        Optional.ofNullable(hashCodeFrequencies.get(hashCode))
+                .map(i -> hashCodeFrequencies.put(hashCode, i++));
+    }
 
-    public boolean isRevisitedState() {
-        return revisitedState;
+    private void removeFromHashFrequency(long hashCode) {
+        Optional.ofNullable(hashCodeFrequencies.get(hashCode))
+                .ifPresent(i -> {
+                    if (i == 1) {
+                        hashCodeFrequencies.remove(hashCode);
+                    } else {
+                        hashCodeFrequencies.put(hashCode, i--);
+                    }
+                });
     }
 
     public boolean drawByThreeRule() {
@@ -934,21 +904,13 @@ public class Board {
         int count = 0;
         int fiftyMove = 0;
 
-        revisitedState = false;
-
         for (int i = hashCodeHistory.size() - 1; i >= 0; i--) {
 
-            if (fiftyMove >= 101) {
-                return true;
-            }
-
             if (hashCode == hashCodeHistory.elementAt(i)) {
-                revisitedState = true;
                 count++;
-            }
-
-            if (count > 2) {
-                return true;
+                if (count > 2) {
+                    return true;
+                }
             }
 
             if (moveHistory.elementAt(i).hasPieceTaken()) {
@@ -956,6 +918,9 @@ public class Board {
             }
 
             fiftyMove++;
+            if (fiftyMove >= 101) {
+                return true;
+            }
         }
 
         return false;
@@ -963,25 +928,16 @@ public class Board {
 
     public boolean insufficientMaterial() {
 
-        boolean sufficient = true;
-
-        if (pieces[0].size() <= 2 && pieces[1].size() <= 2) {
-
-            sufficient = false;
-
-            for (int i = 0; i < pieces.length; i++) {
-                for (int p = 0; p < pieces[i].size(); p++) {
-                    if ((pieces[i].get(p).getPieceID() == Piece.PieceID.PAWN) || (pieces[i].get(p).getPieceID() == Piece.PieceID.QUEEN) || (pieces[i].get(p).getPieceID() == Piece.PieceID.ROOK)) {
-                        sufficient = true;
-                    }
+        for (List<Piece> ps : pieces) {
+            for (Piece p : ps) {
+                if ((p.getPieceID() == Piece.PieceID.PAWN) || (p.getPieceID() == Piece.PieceID.QUEEN) || (p.getPieceID() == Piece.PieceID.ROOK)) {
+                    return false;
                 }
             }
-
         }
 
-        return !sufficient;
+        return true;
     }
-
 
     public int[] getCastleHistory() {
         return castleHistory;
@@ -991,7 +947,7 @@ public class Board {
 
         for (int i = 0; i < pieces.length; i++) {
 
-            piecesTaken[i] = getFullPieceSet(Side.values()[i]);
+            piecesTaken[i] = BoardFactory.getFullPieceSet(Side.values()[i]);
 
             Piece piecePresent;
             for (int p = 0; p < pieces[i].size(); p++) {
@@ -1006,31 +962,6 @@ public class Board {
             }
         }
 
-    }
-
-    public static Stack<Piece> getFullPieceSet(Side player) {
-        Stack<Piece> pieces = new Stack<Piece>();
-
-        for (int i = 0; i < 8; i++) {
-            pieces.add(new Piece(Piece.PieceID.PAWN, player, 0, 0, false));
-        }
-
-        for (int i = 0; i < 2; i++) {
-            pieces.add(new Piece(Piece.PieceID.BISHOP, player, 0, 0, false));
-        }
-
-        for (int i = 0; i < 2; i++) {
-            pieces.add(new Piece(Piece.PieceID.ROOK, player, 0, 0, false));
-        }
-
-        for (int i = 0; i < 2; i++) {
-            pieces.add(new Piece(Piece.PieceID.KNIGHT, player, 0, 0, false));
-        }
-
-        pieces.add(new Piece(Piece.PieceID.KING, player, 0, 0, false));
-        pieces.add(new Piece(Piece.PieceID.QUEEN, player, 0, 0, false));
-
-        return pieces;
     }
 
 }
