@@ -31,6 +31,7 @@ public class Board {
 
     private Side turn;
     private long hashCode;
+    private int hashCodeFreq;
     private Stack<Move> moveHistory = new Stack();
     private Stack<Long> hashCodeHistory = new Stack<>();
     private Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
@@ -118,7 +119,8 @@ public class Board {
             this.allPosBitBoard[1] |= posBitBoard[i][1];
         }
 
-        this.hashCode = generateHashCode();
+        hashCode = generateHashCode();
+        hashCodeFreq = incrementHashCodeFrequency(hashCode);
 
         if (moveHistory.size() > 0) {
             Long move;
@@ -162,7 +164,7 @@ public class Board {
         Move.MoveNote note = Move.getNote(move);
 
         if (board[fromRow][fromCol].getSide() != turn) {
-            logger.debug("Problem with player ref");
+            logger.debug("Invalid move " + new Move(move).toString());
             return false;
         }
 
@@ -259,6 +261,8 @@ public class Board {
 
         // either remove black and add white or reverse. Same operation.
         hashCode ^= rngTable.getBlackToMoveRandom();
+
+        hashCodeFreq = incrementHashCodeFrequency(hashCode);
 
         // show that this move is now the last move made
         moveHistory.push(new Move(move));
@@ -374,6 +378,9 @@ public class Board {
             board[pieceTaken.getRow()][pieceTaken.getCol()] = pieceTaken;
 
         }
+
+        //decrement old hashcode frequency
+        hashCodeFreq = decrementHashCodeFrequency(hashCode);
 
         // move was undone so show move made before that as the last move made
         moveHistory.pop();
@@ -883,47 +890,33 @@ public class Board {
         return hashCode;
     }
 
-    private int addToHashFrequency(long hashCode) {
-        Optional.ofNullable(hashCodeFrequencies.get(hashCode))
-                .map(i -> hashCodeFrequencies.put(hashCode, i++));
+    private int incrementHashCodeFrequency(long hashCode) {
+        return Optional.ofNullable(
+                hashCodeFrequencies.put(hashCode, Optional.ofNullable(
+                        hashCodeFrequencies.get(hashCode))
+                        .orElse(0) + 1))
+                .orElse(0) + 1;
     }
 
-    private void removeFromHashFrequency(long hashCode) {
-        Optional.ofNullable(hashCodeFrequencies.get(hashCode))
-                .ifPresent(i -> {
-                    if (i == 1) {
+    private int decrementHashCodeFrequency(long hashCode) {
+        return Optional.ofNullable(hashCodeFrequencies.get(hashCode))
+                .map(i -> {
+                    i--;
+                    if (i == 0) {
                         hashCodeFrequencies.remove(hashCode);
                     } else {
-                        hashCodeFrequencies.put(hashCode, i--);
+                        hashCodeFrequencies.put(hashCode, i);
                     }
-                });
+                    return i;
+                }).orElse(0);
+    }
+
+    public int getHashCodeFreq() {
+        return this.hashCodeFreq;
     }
 
     public boolean drawByThreeRule() {
-
-        int count = 0;
-        int fiftyMove = 0;
-
-        for (int i = hashCodeHistory.size() - 1; i >= 0; i--) {
-
-            if (hashCode == hashCodeHistory.elementAt(i)) {
-                count++;
-                if (count > 2) {
-                    return true;
-                }
-            }
-
-            if (moveHistory.elementAt(i).hasPieceTaken()) {
-                return false;
-            }
-
-            fiftyMove++;
-            if (fiftyMove >= 101) {
-                return true;
-            }
-        }
-
-        return false;
+        return hashCodeFreq >=3 ;
     }
 
     public boolean insufficientMaterial() {

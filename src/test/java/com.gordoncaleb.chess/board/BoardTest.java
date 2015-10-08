@@ -14,7 +14,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -259,6 +263,48 @@ public class BoardTest {
         testNumberOfMoves(Side.WHITE, setup, 13);
     }
 
+    @Test
+    public void testDrawByThreeRule() throws Exception {
+        String[] setup = {
+                "_,_,_,_,K,_,_,_,",
+                "_,_,_,_,_,_,_,Q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,q,",
+                "_,_,_,_,k,_,_,_,"
+        };
+
+        Move[] moves = new Move[]{
+                new Move(6, 7, 6, 0),
+                new Move(1, 7, 1, 0),
+                new Move(6, 0, 6, 7),
+                new Move(1, 0, 1, 7),
+        };
+
+        Board board = boardDAO.getFromSetup(Side.WHITE, setup);
+
+        assertFalse(board.drawByThreeRule());
+        assertThat(board.getHashCodeFreq(), is(equalTo(1)));
+
+        makeMoves(board, moves);
+
+        assertFalse(board.drawByThreeRule());
+        assertThat(board.getHashCodeFreq(), is(equalTo(2)));
+
+        makeMoves(board, moves);
+
+        assertThat(board.drawByThreeRule(), is(equalTo(true)));
+        assertThat(board.getHashCodeFreq(), is(equalTo(3)));
+    }
+
+    private void makeMoves(Board b, Move[] moves) {
+        Stream.of(moves)
+                .map(Move::getMoveLong)
+                .forEach(b::makeMove);
+    }
+
     public void testNumberOfMoves(Side side, String[] setup, int numberOfMoves) {
         List<Move> moves = getValidMoves(side, setup);
         assertEquals(numberOfMoves, moves.size());
@@ -300,8 +346,8 @@ public class BoardTest {
         }
 
         for (int i = 0; i < Piece.PieceID.values().length; i++) {
-            assertFalse(allBitBoard[i][0] != 0);
-            assertFalse(allBitBoard[i][1] != 0);
+            assertTrue(allBitBoard[i][0] == 0);
+            assertTrue(allBitBoard[i][1] == 0);
         }
 
     }
