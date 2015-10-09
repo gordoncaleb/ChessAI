@@ -186,11 +186,6 @@ public class Piece {
         if (((mask | enpassantAttack) & nullMoveInfo[1]) != 0 & (mask & blockingVector) != 0) {
             return true;
         } else {
-//            System.out.println(BitBoard.printBitBoard(mask));
-//            System.out.println(BitBoard.printBitBoard(enpassantAttack));
-//            System.out.println(BitBoard.printBitBoard(nullMoveInfo[0]));
-//            System.out.println(BitBoard.printBitBoard(nullMoveInfo[1]));
-//            System.out.println(BitBoard.printBitBoard(nullMoveInfo[2]));
             return false;
         }
     }

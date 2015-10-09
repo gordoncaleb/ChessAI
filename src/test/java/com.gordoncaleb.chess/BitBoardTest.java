@@ -84,29 +84,7 @@ public class BitBoardTest {
         // }
         // }
 
-        // loadKnightFootPrints();
 
-        long t1 = System.currentTimeMillis();
-        for (int i = 0; i < 1000000; i++) {
-            for (int r = 0; r < 8; r++) {
-                for (int c = 0; c < 8; c++) {
-                    // getKingFootPrint(r, c);
-                }
-            }
-        }
-
-        System.out.println("hardway " + (System.currentTimeMillis() - t1));
-
-        t1 = System.currentTimeMillis();
-        for (int i = 0; i < 1000000; i++) {
-            for (int r = 0; r < 8; r++) {
-                for (int c = 0; c < 8; c++) {
-                    // getKingAttacks(getMask(r, c));
-                }
-            }
-        }
-
-        System.out.println("safeway " + (System.currentTimeMillis() - t1));
 
         // for (int r = 0; r < 8; r++) {
         // for (int c = 0; c < 8; c++) {

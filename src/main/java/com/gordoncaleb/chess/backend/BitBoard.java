@@ -25,8 +25,8 @@ public class BitBoard {
     public static long[][] bitMask;
     public static long[][][][] slidFromToMask;
 
-    public static long[] kingFootPrint;
-    public static long[] knightFootPrint;
+    public final static long[] kingFootPrint = new long[64];
+    public final static long[] knightFootPrint = new long[64];
 
     public static boolean isCastled(long king, long rook, Side side) {
 
@@ -186,11 +186,9 @@ public class BitBoard {
         }
     }
 
-    private static void loadKingFootPrints() {
+    public static void loadKingFootPrints() {
 
         int[][] KINGMOVES = {{1, 1, -1, -1, 1, -1, 0, 0}, {1, -1, 1, -1, 0, 0, 1, -1}};
-
-        kingFootPrint = new long[64];
 
         int nextr;
         int nextc;
@@ -208,16 +206,12 @@ public class BitBoard {
                     }
                 }
 
-                // logger.debug("king foot print " + r + "," + c);
-                // logger.debug(printBitBoard(kingFootPrint[r][c]));
             }
         }
     }
 
     public static long getKingFootPrintMem(int row, int col) {
-
         return kingFootPrint[(row << 3) + col];
-
     }
 
     public static long getKingFootPrint(int row, int col) {
@@ -243,30 +237,25 @@ public class BitBoard {
                 ((king & 0xFEFEFEFEFEFEFEFEL) << 7); // down 1 left 1
     }
 
-    private static void loadKnightFootPrints() {
+    public static void loadKnightFootPrints() {
 
-        int[][] KNIGHTMOVES = {{2, 2, -2, -2, 1, -1, 1, -1}, {1, -1, 1, -1, 2, -2, -2, 2}};
+        int[][] KNIGHT_MOVES = {{2, 2, -2, -2, 1, -1, 1, -1}, {1, -1, 1, -1, 2, -2, -2, 2}};
 
-        knightFootPrint = new long[64];
-
-        int nextr;
-        int nextc;
+        int nextRow;
+        int nextCol;
 
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
                 knightFootPrint[r * 8 + c] = 0;
 
                 for (int m = 0; m < 8; m++) {
-                    nextr = r + KNIGHTMOVES[0][m];
-                    nextc = c + KNIGHTMOVES[1][m];
+                    nextRow = r + KNIGHT_MOVES[0][m];
+                    nextCol = c + KNIGHT_MOVES[1][m];
 
-                    if (nextr >= 0 && nextr < 8 && nextc >= 0 && nextc < 8) {
-                        knightFootPrint[r * 8 + c] |= getMask(nextr, nextc);
+                    if (nextRow >= 0 && nextRow < 8 && nextCol >= 0 && nextCol < 8) {
+                        knightFootPrint[r * 8 + c] |= getMask(nextRow, nextCol);
                     }
                 }
-
-                // logger.debug("king foot print " + r + "," + c);
-                // logger.debug(printBitBoard(kingFootPrint[r][c]));
             }
         }
     }
