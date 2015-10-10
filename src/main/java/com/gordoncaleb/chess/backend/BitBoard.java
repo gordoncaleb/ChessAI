@@ -3,6 +3,7 @@ package com.gordoncaleb.chess.backend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,6 +28,11 @@ public class BitBoard {
 
     public final static long[] kingFootPrint = new long[64];
     public final static long[] knightFootPrint = new long[64];
+
+    static{
+        loadKnightFootPrints();
+        loadKingFootPrints();
+    }
 
     public static boolean isCastled(long king, long rook, Side side) {
 
@@ -285,12 +291,26 @@ public class BitBoard {
                 ((knights & 0x7F7F7F7F7F7F7F7FL) << 17);
     }
 
-    public static void bitBoardToMoves(int fromRow, int fromCol, long bb, List<Move> moves) {
+    public static List<Long> bitBoardToMoves(int fromRow, int fromCol, long bb) {
+        return bitNumbers(bb).stream()
+                .map(n -> new Move(fromRow, fromCol, n / 8, n % 8).getMoveLong())
+                .collect(Collectors.toList());
+    }
+
+    public static void bitBoardToMoves(int fromRow, int fromCol, long bb, List<Long> moves) {
+        bitNumbers(bb).stream()
+                .map(n -> Move.moveLong(fromRow, fromCol, n / 8, n % 8))
+                .forEach(m -> moves.add(m));
+    }
+
+    public static List<Integer> bitNumbers(long bb) {
+        List<Integer> locations = new LinkedList<>();
         int i;
         while ((i = Long.numberOfTrailingZeros(bb)) < 64) {
-            moves.add(new Move(fromRow, fromCol, i / 8, i % 8));
+            locations.add(i);
             bb ^= 1L << i;
         }
+        return locations;
     }
 
     public static String printBitBoard(long bitBoard) {

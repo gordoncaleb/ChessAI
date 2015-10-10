@@ -85,7 +85,6 @@ public class BitBoardTest {
         // }
 
 
-
         // for (int r = 0; r < 8; r++) {
         // for (int c = 0; c < 8; c++) {
         // System.out.println(r + "," + c);
@@ -207,18 +206,18 @@ public class BitBoardTest {
                 7, 7
         );
 
-        verifyBitBoardToMoves(bbString,solution);
+        verifyBitBoardToMoves(bbString, solution);
     }
 
     private void verifyBitBoardToMoves(String[] bbString, List<Integer> solution) {
-        List<Move> moves = new ArrayList<>();
+        List<Long> moves = new ArrayList<>();
         long bb = BitBoard.parseBitBoard(bbString);
         BitBoard.bitBoardToMoves(0, 3, bb, moves);
 
         assertThat(moves.size(), is(equalTo(solution.size() / 2)));
 
         List<Integer> tos = moves.stream()
-                .map(m -> new Integer[]{m.getToRow(), m.getToCol()})
+                .map(m -> new Integer[]{Move.getToRow(m), Move.getToCol(m)})
                 .flatMap(Stream::of)
                 .collect(Collectors.toList());
 

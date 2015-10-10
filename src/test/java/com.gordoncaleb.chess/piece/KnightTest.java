@@ -6,7 +6,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class KnightTest {
     public static final Logger logger = LoggerFactory.getLogger(KnightTest.class);
@@ -17,45 +18,87 @@ public class KnightTest {
     }
 
     @Test
-    public void testKnightBitBoardGeneration() {
-
-
-        BitBoard.getKnightFootPrintMem(2, 2);
+    public void testKnightBitBoardGeneration1() {
+        String[] solution = new String[]{
+                "_,1,_,1,_,_,_,_,",
+                "1,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "1,_,_,_,1,_,_,_,",
+                "_,1,_,1,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        };
+        testAttackBB(solution, 2, 2);
     }
 
+    @Test
+    public void testKnightBitBoardGeneration2() {
+        String[] solution = new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,"
+        };
+        testAttackBB(solution, 4, 7);
+    }
 
     @Test
-    public void test() {
+    public void testKnightBitBoardGeneration3() {
+        String[] solution = new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,1,_,1,_,_,",
+                "_,_,1,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,1,_,"
+        };
+        testAttackBB(solution, 6, 4);
+    }
 
-        final int NUM = 10000000;
+    @Test
+    public void testKnightBitBoardGeneration4() {
+        String[] solution = new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        };
+        testAttackBB(solution, 7, 7);
+    }
 
-        long t1 = System.currentTimeMillis();
-        for (int i = 0; i < NUM; i++) {
-            for (int r = 0; r < 8; r++) {
-                for (int c = 0; c < 8; c++) {
-                    BitBoard.getKnightFootPrint(r, c);
-                }
-            }
-        }
-        logger.info("Gen way " + (System.currentTimeMillis() - t1));
+    @Test
+    public void testKnightBitBoardGeneration5() {
+        String[] solution = new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,"
+        };
+        testAttackBB(solution, 6, 0);
+    }
 
-        long t2 = System.currentTimeMillis();
-        for (int i = 0; i < NUM; i++) {
-            for (int r = 0; r < 8; r++) {
-                for (int c = 0; c < 8; c++) {
-                    BitBoard.getKnightFootPrintMem(r, c);
-                }
-            }
-        }
-        logger.info("Mem way " + (System.currentTimeMillis() - t2));
+    public void testAttackBB(String[] solution, int fromRow, int fromCol) {
 
-        for (int i = 0; i < NUM; i++) {
-            for (int r = 0; r < 8; r++) {
-                for (int c = 0; c < 8; c++) {
-                    assertTrue(BitBoard.getKnightFootPrint(r, c) == BitBoard.getKnightFootPrintMem(r, c));
-                }
-            }
-        }
+        long bb = BitBoard.getKnightFootPrintMem(fromRow, fromCol);
+        long bbSolution = BitBoard.parseBitBoard(solution);
+        assertThat(BitBoard.printBitBoard(bb), is(equalTo(BitBoard.printBitBoard(bbSolution))));
 
+        bb = BitBoard.getKnightFootPrint(fromRow, fromCol);
+        assertThat(BitBoard.printBitBoard(bb), is(equalTo(BitBoard.printBitBoard(bbSolution))));
     }
 }

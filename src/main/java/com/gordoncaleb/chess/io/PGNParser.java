@@ -190,7 +190,7 @@ public class PGNParser {
                 long move = resolveAlgebraicNotation(notation, board);
                 board.makeMove(move);
             } catch (Exception e) {
-                throw new Exception("Error resolving notation " + notation + " board: \n" + board.toString(), e);
+                throw new Exception("Error resolving notation " + notation + " board: \n" + board.toXML(true), e);
             }
         }
 

@@ -39,10 +39,6 @@ public class Board {
 
     private long[] nullMoveInfo = {0, BitBoard.ALL_ONES, 0};
 
-    // private long[] allPosBitBoard = { 0, 0 };
-    // private long[] pawnPosBitBoard = { 0, 0 };
-    // private long[] kingPosBitBoard = { 0, 0 };
-
     private long[][] posBitBoard = new long[Piece.PieceID.values().length][2];
     private long[] allPosBitBoard = new long[2];
 
@@ -185,21 +181,6 @@ public class Board {
             pieces[turn.otherSide().ordinal()].remove(pieceTaken);
             piecesTaken[turn.otherSide().ordinal()].push(pieceTaken);
 
-            // // remove bit position from appropriate side
-            // allPosBitBoard[pieceTaken.getSide().ordinal()] ^=
-            // pieceTaken.getBit();
-            //
-            // if (pieceTaken.getPieceID() == PieceID.PAWN) {
-            // pawnPosBitBoard[pieceTaken.getSide().ordinal()] ^=
-            // pieceTaken.getBit();
-            //
-            // }
-            //
-            // if (pieceTaken.getPieceID() == PieceID.KING) {
-            // kingPosBitBoard[pieceTaken.getSide().ordinal()] ^=
-            // pieceTaken.getBit();
-            // }
-
             posBitBoard[pieceTaken.getPieceID().ordinal()][pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
             allPosBitBoard[pieceTaken.getSide().ordinal()] ^= pieceTaken.getBit();
 
@@ -303,10 +284,6 @@ public class Board {
             posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
             posBitBoard[Piece.PieceID.KNIGHT.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
         }
-
-        // if (pieceMoving == getKing(turn)) {
-        // setCastleRights(turn, 0);
-        // }
 
         // add hash of piece at new location
         hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), toRow, toCol);
