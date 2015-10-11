@@ -209,10 +209,16 @@ public class BitBoardTest {
         verifyBitBoardToMoves(bbString, solution);
     }
 
+    private void bitBoardToMoves(int fromRow, int fromCol, long bb, List<Long> moves) {
+        BitBoard.bitNumbers(bb).stream()
+                .map(n -> Move.moveLong(fromRow, fromCol, n / 8, n % 8))
+                .forEach(m -> moves.add(m));
+    }
+
     private void verifyBitBoardToMoves(String[] bbString, List<Integer> solution) {
         List<Long> moves = new ArrayList<>();
         long bb = BitBoard.parseBitBoard(bbString);
-        BitBoard.bitBoardToMoves(0, 3, bb, moves);
+        bitBoardToMoves(0, 3, bb, moves);
 
         assertThat(moves.size(), is(equalTo(solution.size() / 2)));
 
@@ -222,6 +228,68 @@ public class BitBoardTest {
                 .collect(Collectors.toList());
 
         assertThat(solution, is(equalTo(tos)));
+    }
+
+    @Test
+    public void testSlideSouth() {
+
+        String[] bbStringFriend = new String[]{
+                "_,_,_,_,_,_,_,1,",
+                "1,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,_,_,1,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,"
+        };
+
+        String[] bbStringFoe = new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,_,_,1,"
+        };
+
+        long friend = BitBoard.parseBitBoard(bbStringFriend);
+        long foe = BitBoard.parseBitBoard(bbStringFoe);
+        long bb = BitBoard.slideSouth(0, 4, friend, foe);
+        assertThat(Long.bitCount(bb), is(equalTo(4)));
+        logger.info("\n" + BitBoard.printBitBoard(bb));
+    }
+
+    @Test
+    public void testSlideNorth() {
+
+        String[] bbStringFriend = new String[]{
+                "_,_,_,_,_,_,_,1,",
+                "1,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,_,_,1,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,"
+        };
+
+        String[] bbStringFoe = new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,1,"
+        };
+
+        long friend = BitBoard.parseBitBoard(bbStringFriend);
+        long foe = BitBoard.parseBitBoard(bbStringFoe);
+        logger.info("\n" + BitBoard.printBitBoard(BitBoard.slideNorth(7, 4, friend, foe)));
     }
 
 }
