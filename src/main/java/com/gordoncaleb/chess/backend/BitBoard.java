@@ -25,6 +25,13 @@ public class BitBoard {
 
     public static long[][] bitMask;
 
+    public static final long NOT_LEFT1 = 0xFEFEFEFEFEFEFEFEL;
+    public static final long NOT_LEFT2 = 0xFCFCFCFCFCFCFCFCL;
+    public static final long NOT_LEFT4 = 0xF0F0F0F0F0F0F0F0L;
+    public static final long NOT_RIGHT1 = 0xEFEFEFEFEFEFEFEFL;
+    public static final long NOT_RIGHT2 = 0xCFCFCFCFCFCFCFCFL;
+    public static final long NOT_RIGHT4 = 0x0F0F0F0F0F0F0F0FL;
+
     public static final long[][] slideNorth = new long[8][8];
     public static final long[][] slideSouth = new long[8][8];
     public static final long[][] slideWest = new long[8][8];
@@ -58,15 +65,15 @@ public class BitBoard {
 
     public static long getPassedPawns(long pawns, long otherPawns, Side side) {
         if (side == Side.WHITE) {
-            return (~southFill(pawns | getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
+            return (~northFill(pawns | getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
         } else {
-            return (~northFill(pawns | getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
+            return (~southFill(pawns | getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
         }
     }
 
     public static long getIsolatedPawns(long pawns, Side side) {
         long pawnAttacks = getPawnAttacks(pawns, side);
-        return ~(northFill(pawnAttacks) | southFill(pawnAttacks)) & pawns;
+        return ~(southFill(pawnAttacks) | northFill(pawnAttacks)) & pawns;
     }
 
     public static int canQueen(long p, long o, Side turn) {
@@ -86,29 +93,60 @@ public class BitBoard {
         return bb;
     }
 
-    public static long northFill(long gen) {
+    public static long southFill(long gen) {
         gen |= (gen << 8);
         gen |= (gen << 16);
         gen |= (gen << 32);
         return gen;
     }
 
-    public static long southFill(long gen) {
+    public static long southWestFill(long gen) {
+        gen |= ((gen & NOT_LEFT1) << 7);
+        gen |= ((gen & NOT_LEFT2) << 14);
+        gen |= ((gen & NOT_LEFT4) << 28);
+        return gen;
+    }
+
+    public static long southEastFill(long gen) {
+        gen |= ((gen & NOT_RIGHT1) << 9);
+        gen |= ((gen & NOT_RIGHT2) << 18);
+        gen |= ((gen & NOT_RIGHT4) << 36);
+        return gen;
+    }
+
+    public static long northWestFill(long gen) {
+        gen |= ((gen & NOT_LEFT1) >> 9);
+        gen |= ((gen & NOT_LEFT2) >> 18);
+        gen |= ((gen & NOT_LEFT4) >> 36);
+        return gen;
+    }
+
+    public static long northEastFill(long gen) {
+        gen |= ((gen & NOT_RIGHT1) >> 7);
+        gen |= ((gen & NOT_RIGHT2) >> 14);
+        gen |= ((gen & NOT_RIGHT4) >> 28);
+        return gen;
+    }
+
+    public static long northFill(long gen) {
         gen |= (gen >> 8);
         gen |= (gen >> 16);
         gen |= (gen >> 32);
         return gen;
     }
 
-    public static long fillUpOccluded(long g, long p) {
+    public static long westFill(long gen) {
+        gen |= ((gen & NOT_LEFT1) >> 1);
+        gen |= ((gen & NOT_LEFT2) >> 16);
+        gen |= ((gen & NOT_LEFT4) >> 32);
+        return gen;
+    }
 
-        g |= p & (g << 8);
-        p &= (p << 8);
-        g |= p & (g << 16);
-        p &= (p << 16);
-        g |= p & (g << 32);
-
-        return g;
+    public static long eastFill(long gen) {
+        gen |= ((gen & NOT_RIGHT1) >> 8);
+        gen |= ((gen & NOT_RIGHT2) >> 16);
+        gen |= ((gen & NOT_RIGHT4) >> 32);
+        return gen;
     }
 
     public static long getCastleMask(int col1, int col2, Side side) {
@@ -147,6 +185,10 @@ public class BitBoard {
     }
 
     public static long getBottomRows(int r) {
+        return (0xFFFFFFFFFFFFFFFFL >>> ((7 - r) << 3));
+    }
+
+    public static long getTopRows(int r) {
         return (0xFF00000000000000L >> (r << 3));
     }
 
@@ -171,12 +213,18 @@ public class BitBoard {
     public static void loadSlidingBitBoards() {
         loadSlideSouth();
         loadSlideNorth();
+        loadSlideEast();
+        loadSlideWest();
+        loadSlideNorthEast();
+        loadSlideNorthWest();
+        loadSlideSouthEast();
+        loadSlideSouthWest();
     }
 
     public static void loadSlideSouth() {
         for (int r = 0; r < 7; r++) {
             for (int c = 0; c < 8; c++) {
-                slideSouth[r][c] = (0x0101010101010101L << ((r + 1) * 8 + c));
+                slideSouth[r][c] = getColMask(c) << ((r + 1) * 8);
             }
         }
     }
@@ -184,7 +232,57 @@ public class BitBoard {
     public static void loadSlideNorth() {
         for (int r = 1; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
-                slideNorth[r][c] = (0x0101010101010101L << c) >>> ((8 - r) * 8);
+                slideNorth[r][c] = getColMask(c) >>> ((8 - r) * 8);
+            }
+        }
+    }
+
+    public static void loadSlideEast() {
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 7; c++) {
+                long rowMask = getRowMask(r);
+                slideEast[r][c] = (rowMask << (c + 1)) & rowMask;
+            }
+        }
+    }
+
+    public static void loadSlideWest() {
+        for (int r = 0; r < 8; r++) {
+            for (int c = 1; c < 8; c++) {
+                long rowMask = getRowMask(r);
+                slideWest[r][c] = (rowMask >>> (8 - c)) & rowMask;
+            }
+        }
+    }
+
+    public static void loadSlideNorthWest() {
+        for (int r = 1; r < 8; r++) {
+            for (int c = 1; c < 8; c++) {
+                slideNorthWest[r][c] = northWestFill(getMask(r - 1, c - 1));
+            }
+        }
+    }
+
+    public static void loadSlideNorthEast() {
+        for (int r = 1; r < 8; r++) {
+            for (int c = 0; c < 7; c++) {
+                slideNorthEast[r][c] = northEastFill(getMask(r - 1, c + 1));
+            }
+        }
+    }
+
+    public static void loadSlideSouthWest() {
+        for (int r = 0; r < 7; r++) {
+            for (int c = 1; c < 8; c++) {
+                slideSouthWest[r][c] = southEastFill(getMask(r + 1, c - 1));
+            }
+        }
+    }
+
+    public static void loadSlideSouthEast() {
+        for (int r = 0; r < 7; r++) {
+            for (int c = 0; c < 7; c++) {
+                slideSouthEast[r][c] = southWestFill(getMask(r + 1, c + 1));
             }
         }
     }
@@ -199,10 +297,6 @@ public class BitBoard {
         long a = slideNorth[r][c] & (friend | foe);
         int n = 64 - Long.numberOfLeadingZeros(a);
         return slideNorth[r][c] & ~((1L << n) - 1L) & ~friend;
-    }
-
-    public static long getTopRows(int r) {
-        return (0xFFFFFFFFFFFFFFFFL >>> ((7 - r) * 8));
     }
 
     private static long getWhitePawnPassedForward(int r, int c) {

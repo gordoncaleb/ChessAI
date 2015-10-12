@@ -18,173 +18,6 @@ import static org.hamcrest.Matchers.*;
 
 public class BitBoardTest {
 
-    @Ignore
-    @Test
-    public void test() {
-
-        // long t1 = System.currentTimeMillis();
-        // for (long i = 0; i < 0xFFFFFFF; i++) {
-        // bitCountLongHardWay(i);
-        // }
-        //
-        // System.out.println("Hardway takes " + (System.currentTimeMillis() -
-        // t1) + " ms");
-        //
-        // t1 = System.currentTimeMillis();
-        // for (long i = 0; i < 0xFFFFFFF; i++) {
-        // bitCountLong(i);
-        // }
-        //
-        // System.out.println("Easy takes " + (System.currentTimeMillis() - t1)
-        // + " ms");
-
-        long val;
-
-        // System.out.println("white castle near");
-        // System.out.println(BitBoard.printBitBoard(WHITE_CASTLE_NEAR));
-        //
-        // System.out.println("white check near");
-        // System.out.println(BitBoard.printBitBoard(WHITE_CHECK_NEAR));
-        //
-        // System.out.println("white check near hardway");
-        // System.out.println(BitBoard.printBitBoard(getCastleMask(4, 2,
-        // Side.WHITE)));
-        //
-        // for (int r = 0; r < 8; r++) {
-        // System.out.println("Row mask =\n" +
-        // BitBoard.printBitBoard(getRowMask(r)));
-        // }
-        //
-        // for (int c = 0; c < 8; c++) {
-        // System.out.println("col mask = \n" +
-        // BitBoard.printBitBoard(getColMask(c)));
-        // }
-        //
-        // for (int r = 0; r < 8; r++) {
-        // System.out.println("Bottom Row mask =\n" +
-        // BitBoard.printBitBoard(getBottomRows(r)));
-        // }
-        //
-        // for (int c = 0; c < 8; c++) {
-        // System.out.println("Top Row mask = \n" +
-        // BitBoard.printBitBoard(getTopRows(c)));
-        // }
-        //
-        // for (int r = 0; r < 8; r++) {
-        // for (int c = 0; c < 8; c++) {
-        // System.out.println("White pawn forward mask =" + r + "," + c + "\n" +
-        // BitBoard.printBitBoard(getWhitePawnForward(r, c)));
-        // }
-        // }
-        //
-        // for (int r = 0; r < 8; r++) {
-        // for (int c = 0; c < 8; c++) {
-        // System.out.println("Black pawn forward mask =" + r + "," + c + "\n" +
-        // BitBoard.printBitBoard(getBlackPawnForward(r, c)));
-        // }
-        // }
-
-
-        // for (int r = 0; r < 8; r++) {
-        // for (int c = 0; c < 8; c++) {
-        // System.out.println(r + "," + c);
-        // System.out.println(BitBoard.printBitBoard(getKnightFootPrint(r, c)));
-        //
-        // if (getKnightFootPrint(r, c) != getKnightFootPrintMem(r, c)) {
-        // System.out.println("Error");
-        // }
-        // }
-        // }
-
-        // System.out.println(BitBoard.printBitBoard(0x7F7F7F7F7F7F7F7FL));
-
-        String blackPawn =
-                "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,1,0,1,0,1,0,\n" +
-                        "0,0,0,1,0,0,0,0,\n" +
-                        "0,1,0,0,0,0,0,0,\n" +
-                        "1,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n";
-
-        String whitePawn =
-                "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,1,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,1,0,1,0,\n" +
-                        "0,0,1,1,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n";
-
-        long bp = parseBitBoard(blackPawn);
-
-        long wp = parseBitBoard(whitePawn);
-
-        long wpattacks = getPawnAttacks(wp, Side.WHITE);
-
-        System.out.println(printBitBoard(~(northFill(wpattacks) | southFill(wpattacks)) & wp));
-
-        //System.out.println(canQueen(wp,bp,Side.WHITE));
-
-        String rooks =
-                "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "1,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,1,0,0,\n";
-
-        String king =
-                "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,0,0,\n" +
-                        "0,0,0,0,0,0,1,0,\n";
-
-        long rooksbb = parseBitBoard(rooks);
-
-        long kingbb = parseBitBoard(king);
-
-        //System.out.println(isCastled(kingbb,rooksbb,Side.WHITE));
-
-        // for (int r = 0; r < 8; r++) {
-        // for (int c = 0; c < 8; c++) {
-        // if (getKnightFootPrint(r, c) != getKnightAttacks(getMask(r, c))) {
-        //
-        // System.out.println(r + "," + c);
-        // System.out.println(BitBoard.printBitBoard(getKnightFootPrint(r, c)));
-        // System.out.println("!=");
-        // System.out.println(BitBoard.printBitBoard(getKnightAttacks(getMask(r,
-        // c))));
-        //
-        // System.out.println("Error!");
-        // }
-        // }
-        // }
-
-        // for (int r = 0; r < 8; r++) {
-        // for (int c = 0; c < 8; c++) {
-        // System.out.println(r + "," + c);
-        // System.out.println(printBitBoard(getPosSlope(r, c)));
-        // }
-        // }
-
-        // for (int r = 0; r < 8; r++) {
-        // for (int c = 0; c < 8; c++) {
-        // System.out.println(r + "," + c);
-        // System.out.println(printBitBoard(getNegSlope(r, c)));
-        // }
-        // }
-
-    }
-
     @Test
     public void testBitBoardToMoves() {
 
@@ -231,6 +64,42 @@ public class BitBoardTest {
     }
 
     @Test
+    public void testSlideSouthVector() {
+        assertThat(BitBoard.slideSouth[0][3], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,"
+        }))));
+
+        assertThat(BitBoard.slideSouth[7][3], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        assertThat(BitBoard.slideSouth[3][0], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "1,_,_,_,_,_,_,_,",
+                "1,_,_,_,_,_,_,_,",
+                "1,_,_,_,_,_,_,_,",
+                "1,_,_,_,_,_,_,_,"
+        }))));
+    }
+
+    @Test
     public void testSlideSouth() {
 
         String[] bbStringFriend = new String[]{
@@ -257,9 +126,52 @@ public class BitBoardTest {
 
         long friend = BitBoard.parseBitBoard(bbStringFriend);
         long foe = BitBoard.parseBitBoard(bbStringFoe);
-        long bb = BitBoard.slideSouth(0, 4, friend, foe);
-        assertThat(Long.bitCount(bb), is(equalTo(4)));
-        logger.info("\n" + BitBoard.printBitBoard(bb));
+        assertThat(BitBoard.slideSouth(0, 4, friend, foe), is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+    }
+
+    @Test
+    public void testSlideNorthVector() {
+        assertThat(BitBoard.slideNorth[0][3], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        assertThat(BitBoard.slideNorth[7][3], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        assertThat(BitBoard.slideNorth[3][0], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "1,_,_,_,_,_,_,_,",
+                "1,_,_,_,_,_,_,_,",
+                "1,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
     }
 
     @Test
@@ -290,6 +202,237 @@ public class BitBoardTest {
         long friend = BitBoard.parseBitBoard(bbStringFriend);
         long foe = BitBoard.parseBitBoard(bbStringFoe);
         logger.info("\n" + BitBoard.printBitBoard(BitBoard.slideNorth(7, 4, friend, foe)));
+    }
+
+    @Test
+    public void testSlideEastVector() {
+        assertThat(BitBoard.slideEast[0][3], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,1,1,1,1,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        assertThat(BitBoard.slideEast[7][3], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,1,1,1,1,"
+        }))));
+
+        assertThat(BitBoard.slideEast[3][0], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,1,1,1,1,1,1,1,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+    }
+
+    @Test
+    public void testSlideWestVector() {
+        logger.info("\n" + BitBoard.printBitBoard(BitBoard.slideWest[0][3]));
+        assertThat(BitBoard.slideWest[0][3], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "1,1,1,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        logger.info("\n" + BitBoard.printBitBoard(BitBoard.slideWest[7][3]));
+        assertThat(BitBoard.slideWest[7][3], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "1,1,1,_,_,_,_,_,"
+        }))));
+
+        logger.info("\n" + BitBoard.printBitBoard(BitBoard.slideWest[3][7]));
+        assertThat(BitBoard.slideWest[3][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "1,1,1,1,1,1,1,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+    }
+
+    @Test
+    public void testSlideNorthWestVector() {
+        logger.info("(3,5)\n" + BitBoard.printBitBoard(BitBoard.slideNorthWest[3][5]));
+        assertThat(BitBoard.slideNorthWest[3][5], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,1,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        logger.info("(7,7)\n" + BitBoard.printBitBoard(BitBoard.slideNorthWest[7][7]));
+        assertThat(BitBoard.slideNorthWest[7][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "1,_,_,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        logger.info("(3,7)\n" + BitBoard.printBitBoard(BitBoard.slideNorthWest[3][7]));
+        assertThat(BitBoard.slideNorthWest[3][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+    }
+
+    @Test
+    public void testSlideNorthEastVector() {
+        logger.info("(3,5)\n" + BitBoard.printBitBoard(BitBoard.slideNorthEast[3][5]));
+        assertThat(BitBoard.slideNorthEast[3][5], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,1,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        logger.info("(0,0)\n" + BitBoard.printBitBoard(BitBoard.slideNorthEast[0][0]));
+        assertThat(BitBoard.slideNorthEast[0][0], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,1,"
+        }))));
+
+        logger.info("(3,0)\n" + BitBoard.printBitBoard(BitBoard.slideNorthEast[3][0]));
+        assertThat(BitBoard.slideNorthEast[3][0], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,1,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+    }
+
+    @Test
+    public void testSlideSouthWestVector() {
+        logger.info("(3,5)\n" + BitBoard.printBitBoard(BitBoard.slideSouthWest[3][5]));
+        assertThat(BitBoard.slideSouthWest[3][5], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,1,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        logger.info("(7,7)\n" + BitBoard.printBitBoard(BitBoard.slideSouthWest[7][7]));
+        assertThat(BitBoard.slideSouthWest[7][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "1,_,_,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        logger.info("(3,7)\n" + BitBoard.printBitBoard(BitBoard.slideSouthWest[3][7]));
+        assertThat(BitBoard.slideSouthWest[3][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+    }
+
+    @Test
+    public void testSlideSouthEastVector() {
+        logger.info("(3,5)\n" + BitBoard.printBitBoard(BitBoard.slideSouthEast[3][5]));
+        assertThat(BitBoard.slideSouthEast[3][5], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,1,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        logger.info("(7,7)\n" + BitBoard.printBitBoard(BitBoard.slideSouthEast[7][7]));
+        assertThat(BitBoard.slideSouthEast[7][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "1,_,_,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
+
+        logger.info("(3,7)\n" + BitBoard.printBitBoard(BitBoard.slideSouthEast[3][7]));
+        assertThat(BitBoard.slideSouthEast[3][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }))));
     }
 
 }
