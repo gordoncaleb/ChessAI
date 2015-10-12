@@ -28,8 +28,8 @@ public class BitBoard {
     public static final long NOT_LEFT1 = 0xFEFEFEFEFEFEFEFEL;
     public static final long NOT_LEFT2 = 0xFCFCFCFCFCFCFCFCL;
     public static final long NOT_LEFT4 = 0xF0F0F0F0F0F0F0F0L;
-    public static final long NOT_RIGHT1 = 0xEFEFEFEFEFEFEFEFL;
-    public static final long NOT_RIGHT2 = 0xCFCFCFCFCFCFCFCFL;
+    public static final long NOT_RIGHT1 = 0x7F7F7F7F7F7F7F7FL;
+    public static final long NOT_RIGHT2 = 0x3F3F3F3F3F3F3F3FL;
     public static final long NOT_RIGHT4 = 0x0F0F0F0F0F0F0F0FL;
 
     public static final long[][] slideNorth = new long[8][8];
@@ -115,37 +115,37 @@ public class BitBoard {
     }
 
     public static long northWestFill(long gen) {
-        gen |= ((gen & NOT_LEFT1) >> 9);
-        gen |= ((gen & NOT_LEFT2) >> 18);
-        gen |= ((gen & NOT_LEFT4) >> 36);
+        gen |= ((gen & NOT_LEFT1) >>> 9);
+        gen |= ((gen & NOT_LEFT2) >>> 18);
+        gen |= ((gen & NOT_LEFT4) >>> 36);
         return gen;
     }
 
     public static long northEastFill(long gen) {
-        gen |= ((gen & NOT_RIGHT1) >> 7);
-        gen |= ((gen & NOT_RIGHT2) >> 14);
-        gen |= ((gen & NOT_RIGHT4) >> 28);
+        gen |= ((gen & NOT_RIGHT1) >>> 7);
+        gen |= ((gen & NOT_RIGHT2) >>> 14);
+        gen |= ((gen & NOT_RIGHT4) >>> 28);
         return gen;
     }
 
     public static long northFill(long gen) {
-        gen |= (gen >> 8);
-        gen |= (gen >> 16);
-        gen |= (gen >> 32);
+        gen |= (gen >>> 8);
+        gen |= (gen >>> 16);
+        gen |= (gen >>> 32);
         return gen;
     }
 
     public static long westFill(long gen) {
-        gen |= ((gen & NOT_LEFT1) >> 1);
-        gen |= ((gen & NOT_LEFT2) >> 16);
-        gen |= ((gen & NOT_LEFT4) >> 32);
+        gen |= ((gen & NOT_LEFT1) >>> 1);
+        gen |= ((gen & NOT_LEFT2) >>> 2);
+        gen |= ((gen & NOT_LEFT4) >>> 4);
         return gen;
     }
 
     public static long eastFill(long gen) {
-        gen |= ((gen & NOT_RIGHT1) >> 8);
-        gen |= ((gen & NOT_RIGHT2) >> 16);
-        gen |= ((gen & NOT_RIGHT4) >> 32);
+        gen |= ((gen & NOT_RIGHT1) << 1);
+        gen |= ((gen & NOT_RIGHT2) << 2);
+        gen |= ((gen & NOT_RIGHT4) << 4);
         return gen;
     }
 
@@ -274,7 +274,7 @@ public class BitBoard {
     public static void loadSlideSouthWest() {
         for (int r = 0; r < 7; r++) {
             for (int c = 1; c < 8; c++) {
-                slideSouthWest[r][c] = southEastFill(getMask(r + 1, c - 1));
+                slideSouthWest[r][c] = southWestFill(getMask(r + 1, c - 1));
             }
         }
     }
@@ -282,7 +282,7 @@ public class BitBoard {
     public static void loadSlideSouthEast() {
         for (int r = 0; r < 7; r++) {
             for (int c = 0; c < 7; c++) {
-                slideSouthEast[r][c] = southWestFill(getMask(r + 1, c + 1));
+                slideSouthEast[r][c] = southEastFill(getMask(r + 1, c + 1));
             }
         }
     }

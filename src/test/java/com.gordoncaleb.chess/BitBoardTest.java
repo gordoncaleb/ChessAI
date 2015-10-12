@@ -2,8 +2,6 @@ package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.backend.BitBoard;
 import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.backend.Side;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -332,16 +330,16 @@ public class BitBoardTest {
                 "_,_,_,_,_,_,_,_,"
         }))));
 
-        logger.info("(0,0)\n" + BitBoard.printBitBoard(BitBoard.slideNorthEast[0][0]));
-        assertThat(BitBoard.slideNorthEast[0][0], is(equalTo(BitBoard.parseBitBoard(new String[]{
-                "_,_,_,_,_,_,_,_,",
-                "_,1,_,_,_,_,_,_,",
-                "_,_,1,_,_,_,_,_,",
-                "_,_,_,1,_,_,_,_,",
-                "_,_,_,_,1,_,_,_,",
-                "_,_,_,_,_,1,_,_,",
+        logger.info("(7,0)\n" + BitBoard.printBitBoard(BitBoard.slideNorthEast[7][0]));
+        assertThat(BitBoard.slideNorthEast[7][0], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,1,",
                 "_,_,_,_,_,_,1,_,",
-                "_,_,_,_,_,_,_,1,"
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
         }))));
 
         logger.info("(3,0)\n" + BitBoard.printBitBoard(BitBoard.slideNorthEast[3][0]));
@@ -361,38 +359,38 @@ public class BitBoardTest {
     public void testSlideSouthWestVector() {
         logger.info("(3,5)\n" + BitBoard.printBitBoard(BitBoard.slideSouthWest[3][5]));
         assertThat(BitBoard.slideSouthWest[3][5], is(equalTo(BitBoard.parseBitBoard(new String[]{
-                "_,_,1,_,_,_,_,_,",
-                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,1,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,"
+                "_,_,_,1,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,"
         }))));
 
-        logger.info("(7,7)\n" + BitBoard.printBitBoard(BitBoard.slideSouthWest[7][7]));
-        assertThat(BitBoard.slideSouthWest[7][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
-                "1,_,_,_,_,_,_,_,",
-                "_,1,_,_,_,_,_,_,",
-                "_,_,1,_,_,_,_,_,",
-                "_,_,_,1,_,_,_,_,",
-                "_,_,_,_,1,_,_,_,",
-                "_,_,_,_,_,1,_,_,",
+        logger.info("(0,7)\n" + BitBoard.printBitBoard(BitBoard.slideSouthWest[0][7]));
+        assertThat(BitBoard.slideSouthWest[0][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,1,_,",
-                "_,_,_,_,_,_,_,_,"
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,1,_,_,_,_,_,_,",
+                "1,_,_,_,_,_,_,_,"
         }))));
 
         logger.info("(3,7)\n" + BitBoard.printBitBoard(BitBoard.slideSouthWest[3][7]));
         assertThat(BitBoard.slideSouthWest[3][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
-                "_,_,_,_,1,_,_,_,",
-                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,1,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,"
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,1,_,_,_,_,"
         }))));
     }
 
@@ -400,35 +398,35 @@ public class BitBoardTest {
     public void testSlideSouthEastVector() {
         logger.info("(3,5)\n" + BitBoard.printBitBoard(BitBoard.slideSouthEast[3][5]));
         assertThat(BitBoard.slideSouthEast[3][5], is(equalTo(BitBoard.parseBitBoard(new String[]{
-                "_,_,1,_,_,_,_,_,",
-                "_,_,_,1,_,_,_,_,",
-                "_,_,_,_,1,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,1,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,"
         }))));
 
-        logger.info("(7,7)\n" + BitBoard.printBitBoard(BitBoard.slideSouthEast[7][7]));
-        assertThat(BitBoard.slideSouthEast[7][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
-                "1,_,_,_,_,_,_,_,",
+        logger.info("(0,0)\n" + BitBoard.printBitBoard(BitBoard.slideSouthEast[0][0]));
+        assertThat(BitBoard.slideSouthEast[0][0], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
                 "_,1,_,_,_,_,_,_,",
                 "_,_,1,_,_,_,_,_,",
                 "_,_,_,1,_,_,_,_,",
                 "_,_,_,_,1,_,_,_,",
                 "_,_,_,_,_,1,_,_,",
                 "_,_,_,_,_,_,1,_,",
-                "_,_,_,_,_,_,_,_,"
+                "_,_,_,_,_,_,_,1,"
         }))));
 
-        logger.info("(3,7)\n" + BitBoard.printBitBoard(BitBoard.slideSouthEast[3][7]));
-        assertThat(BitBoard.slideSouthEast[3][7], is(equalTo(BitBoard.parseBitBoard(new String[]{
+        logger.info("(0,3)\n" + BitBoard.printBitBoard(BitBoard.slideSouthEast[0][3]));
+        assertThat(BitBoard.slideSouthEast[0][3], is(equalTo(BitBoard.parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,1,_,_,_,",
                 "_,_,_,_,_,1,_,_,",
                 "_,_,_,_,_,_,1,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,1,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,"
