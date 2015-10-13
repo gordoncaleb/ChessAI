@@ -1,5 +1,8 @@
 package com.gordoncaleb.chess.bitboard;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.gordoncaleb.chess.bitboard.BitBoard.*;
 
 public class Slide {
@@ -27,7 +30,6 @@ public class Slide {
         loadSlideSouthEast();
         loadSlideSouthWest();
     }
-
 
     public static long southFill(long gen) {
         gen |= (gen << 8);
@@ -151,50 +153,54 @@ public class Slide {
         }
     }
 
-    public static long slideSouth(int r, int c, long friendOrFoe, long friend, long foe) {
-        long a = slideSouth[r][c] & friendOrFoe;
-        int n = Long.numberOfTrailingZeros(a) + 1;
-        return slideSouth[r][c] & ((1L << n) - 1L) & ~friend;
+    public static long slideSouth(int r, int c, long friendOrFoe, long friend) {
+        long a = slideSouth[r][c] & friendOrFoe | TOP_BIT;
+        int n = Long.numberOfTrailingZeros(a);
+        long mask = (1L << n);
+        return slideSouth[r][c] & ((mask - 1L) | mask) & ~friend;
     }
 
-    public static long slideSouthWest(int r, int c, long friendOrFoe, long friend, long foe) {
-        long a = slideSouthWest[r][c] & friendOrFoe;
-        int n = Long.numberOfTrailingZeros(a) + 1;
-        return slideSouthWest[r][c] & ((1L << n) - 1L) & ~friend;
+    public static long slideSouthWest(int r, int c, long friendOrFoe, long friend) {
+        long a = slideSouthWest[r][c] & friendOrFoe | TOP_BIT;
+        int n = Long.numberOfTrailingZeros(a);
+        long mask = (1L << n);
+        return slideSouthWest[r][c] & ((mask - 1L) | mask) & ~friend;
     }
 
-    public static long slideSouthEast(int r, int c, long friendOrFoe, long friend, long foe) {
-        long a = slideSouthEast[r][c] & friendOrFoe;
-        int n = Long.numberOfTrailingZeros(a) + 1;
-        return slideSouthEast[r][c] & ((1L << n) - 1L) & ~friend;
+    public static long slideSouthEast(int r, int c, long friendOrFoe, long friend) {
+        long a = slideSouthEast[r][c] & friendOrFoe | TOP_BIT;
+        int n = Long.numberOfTrailingZeros(a);
+        long mask = (1L << n);
+        return slideSouthEast[r][c] & ((mask - 1L) | mask) & ~friend;
     }
 
-    public static long slideEast(int r, int c, long friendOrFoe, long friend, long foe) {
-        long a = slideEast[r][c] & friendOrFoe;
-        int n = Long.numberOfTrailingZeros(a) + 1;
-        return slideEast[r][c] & ((1L << n) - 1L) & ~friend;
+    public static long slideEast(int r, int c, long friendOrFoe, long friend) {
+        long a = slideEast[r][c] & friendOrFoe | TOP_BIT;
+        int n = Long.numberOfTrailingZeros(a);
+        long mask = (1L << n);
+        return slideEast[r][c] & ((mask - 1L) | mask) & ~friend;
     }
 
-    public static long slideNorth(int r, int c, long friendOrFoe, long friend, long foe) {
-        long a = slideNorth[r][c] & friendOrFoe;
+    public static long slideNorth(int r, int c, long friendOrFoe, long friend) {
+        long a = slideNorth[r][c] & friendOrFoe | 1L;
         int n = Long.numberOfLeadingZeros(a);
         return slideNorth[r][c] & (TOP_BIT >> n) & ~friend;
     }
 
-    public static long slideNorthWest(int r, int c, long friendOrFoe, long friend, long foe) {
-        long a = slideNorthWest[r][c] & friendOrFoe;
+    public static long slideNorthWest(int r, int c, long friendOrFoe, long friend) {
+        long a = (slideNorthWest[r][c] & friendOrFoe) | 1L;
         int n = Long.numberOfLeadingZeros(a);
         return slideNorthWest[r][c] & (TOP_BIT >> n) & ~friend;
     }
 
-    public static long slideNorthEast(int r, int c, long friendOrFoe, long friend, long foe) {
-        long a = slideNorthEast[r][c] & friendOrFoe;
+    public static long slideNorthEast(int r, int c, long friendOrFoe, long friend) {
+        long a = slideNorthEast[r][c] & friendOrFoe | 1L;
         int n = Long.numberOfLeadingZeros(a);
         return slideNorthEast[r][c] & (TOP_BIT >> n) & ~friend;
     }
 
-    public static long slideWest(int r, int c, long friendOrFoe, long friend, long foe) {
-        long a = slideWest[r][c] & friendOrFoe;
+    public static long slideWest(int r, int c, long friendOrFoe, long friend) {
+        long a = slideWest[r][c] & friendOrFoe | 1L;
         int n = Long.numberOfLeadingZeros(a);
         return slideWest[r][c] & (TOP_BIT >> n) & ~friend;
     }

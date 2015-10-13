@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess.piece;
 
-import com.gordoncaleb.chess.backend.BitBoard;
+import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.io.XMLParser;

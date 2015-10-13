@@ -37,7 +37,6 @@ public class BitBoard {
 
     public static final long TOP_BIT = 0x8000000000000000L;
 
-
     public final static long[] kingFootPrint = new long[64];
     public final static long[][] knightFootPrint = new long[8][8];
 
@@ -280,7 +279,7 @@ public class BitBoard {
     }
 
     public static String printBitBoard(long bitBoard) {
-        String bitBoardString = "";
+        String bitBoardString = "\"";
 
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
@@ -290,7 +289,11 @@ public class BitBoard {
                     bitBoardString += "_,";
                 }
             }
-            bitBoardString += "\n";
+
+            bitBoardString += "\"";
+            if (r < 7) {
+                bitBoardString += ",\n\"";
+            }
         }
 
         return bitBoardString;
