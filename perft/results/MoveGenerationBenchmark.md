@@ -11,72 +11,72 @@
 
 # Run progress: 0.00% complete, ETA 00:00:30
 # Fork: 1 of 10
-Iteration   1: 96462898.273 ns/op
-Iteration   2: 84650550.000 ns/op
-Iteration   3: 77083667.357 ns/op
+Iteration   1: 75389861.643 ns/op
+Iteration   2: 69476808.667 ns/op
+Iteration   3: 70204817.133 ns/op
 
-# Run progress: 10.00% complete, ETA 00:00:32
+# Run progress: 10.00% complete, ETA 00:00:31
 # Fork: 2 of 10
-Iteration   1: 94425147.545 ns/op
-Iteration   2: 76226091.929 ns/op
-Iteration   3: 77971377.154 ns/op
+Iteration   1: 74889902.929 ns/op
+Iteration   2: 68444109.867 ns/op
+Iteration   3: 68182265.333 ns/op
 
-# Run progress: 20.00% complete, ETA 00:00:28
+# Run progress: 20.00% complete, ETA 00:00:27
 # Fork: 3 of 10
-Iteration   1: 97281154.909 ns/op
-Iteration   2: 77887321.231 ns/op
-Iteration   3: 78858198.154 ns/op
+Iteration   1: 74259897.643 ns/op
+Iteration   2: 68135109.733 ns/op
+Iteration   3: 68933987.000 ns/op
 
 # Run progress: 30.00% complete, ETA 00:00:24
 # Fork: 4 of 10
-Iteration   1: 110522682.100 ns/op
-Iteration   2: 99741077.455 ns/op
-Iteration   3: 78164667.385 ns/op
+Iteration   1: 74581236.286 ns/op
+Iteration   2: 68645275.400 ns/op
+Iteration   3: 66758389.333 ns/op
 
-# Run progress: 40.00% complete, ETA 00:00:21
+# Run progress: 40.00% complete, ETA 00:00:20
 # Fork: 5 of 10
-Iteration   1: 106775052.600 ns/op
-Iteration   2: 87849036.167 ns/op
-Iteration   3: 78977815.154 ns/op
+Iteration   1: 73812523.643 ns/op
+Iteration   2: 68344951.867 ns/op
+Iteration   3: 67089725.467 ns/op
 
 # Run progress: 50.00% complete, ETA 00:00:17
 # Fork: 6 of 10
-Iteration   1: 93464623.909 ns/op
-Iteration   2: 84748259.000 ns/op
-Iteration   3: 76711852.786 ns/op
+Iteration   1: 74180014.143 ns/op
+Iteration   2: 70524737.267 ns/op
+Iteration   3: 69400004.400 ns/op
 
-# Run progress: 60.00% complete, ETA 00:00:14
+# Run progress: 60.00% complete, ETA 00:00:13
 # Fork: 7 of 10
-Iteration   1: 94162097.000 ns/op
-Iteration   2: 84634984.250 ns/op
-Iteration   3: 76132933.571 ns/op
+Iteration   1: 79985505.000 ns/op
+Iteration   2: 70163486.067 ns/op
+Iteration   3: 67411502.400 ns/op
 
 # Run progress: 70.00% complete, ETA 00:00:10
 # Fork: 8 of 10
-Iteration   1: 105684835.000 ns/op
-Iteration   2: 78333269.692 ns/op
-Iteration   3: 77600845.769 ns/op
+Iteration   1: 76009863.786 ns/op
+Iteration   2: 68646756.600 ns/op
+Iteration   3: 67840976.267 ns/op
 
-# Run progress: 80.00% complete, ETA 00:00:07
+# Run progress: 80.00% complete, ETA 00:00:06
 # Fork: 9 of 10
-Iteration   1: 98603476.455 ns/op
-Iteration   2: 77374044.692 ns/op
-Iteration   3: 78100395.077 ns/op
+Iteration   1: 74635435.000 ns/op
+Iteration   2: 68902741.333 ns/op
+Iteration   3: 67703070.067 ns/op
 
 # Run progress: 90.00% complete, ETA 00:00:03
 # Fork: 10 of 10
-Iteration   1: 93963665.545 ns/op
-Iteration   2: 86854687.167 ns/op
-Iteration   3: 77527643.923 ns/op
+Iteration   1: 73693673.214 ns/op
+Iteration   2: 67895519.133 ns/op
+Iteration   3: 67011744.438 ns/op
 
 
 Result "testMoveGeneration1":
-  86892478.375 ±(99.9%) 7057204.303 ns/op [Average]
-  (min, avg, max) = (76132933.571, 86892478.375, 110522682.100), stdev = 10562891.971
-  CI (99.9%): [79835274.071, 93949682.678] (assumes normal distribution)
+  70705129.702 ±(99.9%) 2314569.005 ns/op [Average]
+  (min, avg, max) = (66758389.333, 70705129.702, 79985505.000), stdev = 3464338.187
+  CI (99.9%): [68390560.696, 73019698.707] (assumes normal distribution)
 
 
-# Run complete. Total time: 00:00:35
+# Run complete. Total time: 00:00:34
 
 Benchmark                                    Mode  Cnt         Score         Error  Units
-MoveGenerationBenchmark.testMoveGeneration1  avgt   30  86892478.375 ± 7057204.303  ns/op
+MoveGenerationBenchmark.testMoveGeneration1  avgt   30  70705129.702 ± 2314569.005  ns/op

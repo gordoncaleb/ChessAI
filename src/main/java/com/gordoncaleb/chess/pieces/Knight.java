@@ -25,7 +25,7 @@ public class Knight {
         return "N";
     }
 
-    public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
+    public static List<Long> generateValidMoves2(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
         long footPrint = BitBoard.getKnightFootPrint(p.getRow(), p.getCol()) & ~posBitBoard[p.getSide().ordinal()];
         long foeBb = posBitBoard[p.getSide().otherSide().ordinal()];
 
@@ -45,6 +45,42 @@ public class Knight {
             int toCol = bitNum % 8;
             return new Move(fromRow, fromCol, toRow, toCol, 0, Move.MoveNote.NONE, b.getPiece(toRow, toCol));
         }
+    }
+
+    public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
+        int currentRow = p.getRow();
+        int currentCol = p.getCol();
+        int nextRow;
+        int nextCol;
+        Piece.PositionStatus pieceStatus;
+        Side player = p.getSide();
+        Long moveLong;
+
+        for (int i = 0; i < 8; i++) {
+            nextRow = currentRow + KNIGHTMOVES[0][i];
+            nextCol = currentCol + KNIGHTMOVES[1][i];
+            pieceStatus = board.checkPiece(nextRow, nextCol, player);
+
+            if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
+
+                if (pieceStatus == Piece.PositionStatus.NO_PIECE) {
+                    if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
+                        moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0);
+                        validMoves.add(moveLong);
+                    }
+                }
+
+                if (pieceStatus == Piece.PositionStatus.ENEMY) {
+                    if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
+                        moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
+                        validMoves.add(moveLong);
+                    }
+                }
+
+            }
+        }
+
+        return validMoves;
     }
 
 }
