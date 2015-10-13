@@ -1,6 +1,7 @@
 package com.gordoncaleb.chess.board;
 
 import com.gordoncaleb.chess.backend.*;
+import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.io.PGNParser;
 import com.gordoncaleb.chess.persistence.BoardDAO;
 import com.gordoncaleb.chess.pieces.Piece;

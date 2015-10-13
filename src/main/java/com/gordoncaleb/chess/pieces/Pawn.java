@@ -2,7 +2,7 @@ package com.gordoncaleb.chess.pieces;
 
 import java.util.List;
 
-import com.gordoncaleb.chess.backend.BitBoard;
+import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;

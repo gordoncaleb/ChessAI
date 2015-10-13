@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess.piece;
 
-import com.gordoncaleb.chess.backend.BitBoard;
+import com.gordoncaleb.chess.bitboard.BitBoard;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

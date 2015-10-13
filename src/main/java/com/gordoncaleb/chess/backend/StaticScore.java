@@ -1,5 +1,6 @@
 package com.gordoncaleb.chess.backend;
 
+import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.pieces.Piece;
 import com.gordoncaleb.chess.pieces.PositionBonus;
 import com.gordoncaleb.chess.pieces.Values;

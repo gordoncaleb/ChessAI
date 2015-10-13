@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.ArrayList;
 
 import com.gordoncaleb.chess.ai.AI;
+import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.io.XMLParser;
 import com.gordoncaleb.chess.pieces.*;
 import org.slf4j.Logger;
