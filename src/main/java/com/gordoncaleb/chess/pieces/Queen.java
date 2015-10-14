@@ -7,6 +7,7 @@ import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.bitboard.Slide;
 
 public class Queen {
 
@@ -25,6 +26,15 @@ public class Queen {
 
     public static String getStringID() {
         return "Q";
+    }
+
+    public static List<Long> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+        final int r = p.getRow();
+        final int c = p.getCol();
+        final long fnf = posBitBoard[0] | posBitBoard[1];
+        final long friend = posBitBoard[p.getSide().ordinal()];
+        final long footPrint = Slide.slideEast(r, c, fnf, friend);
+        return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
     public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {

@@ -25,44 +25,44 @@ public class Knight {
         return "N";
     }
 
-    public static List<Long> generateValidMoves2(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
-        long footPrint = BitBoard.getKnightFootPrint(p.getRow(), p.getCol()) & ~posBitBoard[p.getSide().ordinal()];
-        long foeBb = posBitBoard[p.getSide().otherSide().ordinal()];
+    public static List<Long> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+        long footPrint = BitBoard.getKnightFootPrintMem(p.getRow(), p.getCol()) & ~posBitBoard[p.getSide().ordinal()];
+        final long foeBb = posBitBoard[p.getSide().otherSide().ordinal()];
 
-        BitBoard.bitNumbers(footPrint).stream()
-                .map(n -> enrichMove(board, p.getRow(), p.getCol(), foeBb, n))
-                .filter(m -> p.isValidMove(m.getToRow(), m.getToCol(), nullMoveInfo))
-                .forEach(m -> validMoves.add(m.getMoveLong()));
+        int bitNum;
+        while ((bitNum = Long.numberOfTrailingZeros(footPrint)) < 64) {
+            final long mask = (1L << bitNum);
+            final int toRow = bitNum / 8;
+            final int toCol = bitNum % 8;
+
+            if (p.isValidMove(toRow, toCol, nullMoveInfo)) {
+
+                final long move = ((foeBb & mask) == 0) ?
+                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol) :
+                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol, 0, Move.MoveNote.NONE, board.getPiece(toRow, toCol));
+
+                validMoves.add(move);
+            }
+
+            footPrint ^= mask;
+        }
 
         return validMoves;
     }
 
-    private static Move enrichMove(Board b, int fromRow, int fromCol, long foeBb, int bitNum) {
-        if ((foeBb & (1L << bitNum)) == 0) {
-            return new Move(fromRow, fromCol, bitNum / 8, bitNum % 8);
-        } else {
-            int toRow = bitNum / 8;
-            int toCol = bitNum % 8;
-            return new Move(fromRow, fromCol, toRow, toCol, 0, Move.MoveNote.NONE, b.getPiece(toRow, toCol));
-        }
-    }
-
-    public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
-        int currentRow = p.getRow();
-        int currentCol = p.getCol();
-        int nextRow;
-        int nextCol;
-        Piece.PositionStatus pieceStatus;
-        Side player = p.getSide();
-        Long moveLong;
+    public static List<Long> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+        final int currentRow = p.getRow();
+        final int currentCol = p.getCol();
+        final Side player = p.getSide();
 
         for (int i = 0; i < 8; i++) {
-            nextRow = currentRow + KNIGHTMOVES[0][i];
-            nextCol = currentCol + KNIGHTMOVES[1][i];
-            pieceStatus = board.checkPiece(nextRow, nextCol, player);
+            final int nextRow = currentRow + KNIGHTMOVES[0][i];
+            final int nextCol = currentCol + KNIGHTMOVES[1][i];
+            final Piece.PositionStatus pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
             if (pieceStatus != Piece.PositionStatus.OFF_BOARD) {
 
+                long moveLong;
                 if (pieceStatus == Piece.PositionStatus.NO_PIECE) {
                     if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
                         moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0);

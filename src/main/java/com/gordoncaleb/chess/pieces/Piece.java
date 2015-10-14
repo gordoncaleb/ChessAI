@@ -287,6 +287,30 @@ public class Piece {
         }
     }
 
+    public static List<Long> generateValidMoves(long footPrint, final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+        final long foeBb = posBitBoard[p.getSide().otherSide().ordinal()];
+
+        int bitNum;
+        while ((bitNum = Long.numberOfTrailingZeros(footPrint)) < 64) {
+            final long mask = (1L << bitNum);
+            final int toRow = bitNum / 8;
+            final int toCol = bitNum % 8;
+
+            if (p.isValidMove(toRow, toCol, nullMoveInfo)) {
+
+                final long move = ((foeBb & mask) == 0) ?
+                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol) :
+                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol, 0, Move.MoveNote.NONE, board.getPiece(toRow, toCol));
+
+                validMoves.add(move);
+            }
+
+            footPrint ^= mask;
+        }
+
+        return validMoves;
+    }
+
     public Piece getCopy() {
         return new Piece(id, player, row, col, moved);
     }
