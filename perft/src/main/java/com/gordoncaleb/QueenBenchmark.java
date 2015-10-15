@@ -54,15 +54,22 @@ public class QueenBenchmark {
     @Benchmark
     @Warmup(iterations = 5, batchSize = 5000)
     @Measurement(iterations = 5, batchSize = 5000)
-    public void testKnightMoveGen() {
+    public void testQueenMoveGen() {
         Queen.generateValidMoves(queen, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
     @Benchmark
     @Warmup(iterations = 5, batchSize = 5000)
     @Measurement(iterations = 5, batchSize = 5000)
-    public void testKnightMoveGen2() {
+    public void testQueenMoveGen2() {
         Queen.generateValidMoves2(queen, board, nullMoveInfo, posBitBoard, validMoves);
+    }
+
+    @Benchmark
+    @Warmup(iterations = 5, batchSize = 5000)
+    @Measurement(iterations = 5, batchSize = 5000)
+    public void testQueenMoveGen3() {
+        Queen.generateValidMoves3(queen, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
     /*

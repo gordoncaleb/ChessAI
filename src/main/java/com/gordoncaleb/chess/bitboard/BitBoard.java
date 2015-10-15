@@ -1,7 +1,5 @@
 package com.gordoncaleb.chess.bitboard;
 
-import static com.gordoncaleb.chess.bitboard.Slide.*;
-
 import com.gordoncaleb.chess.backend.Side;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +34,7 @@ public class BitBoard {
     public static final long NOT_RIGHT4 = 0x0F0F0F0F0F0F0F0FL;
 
     public static final long TOP_BIT = 0x8000000000000000L;
+    public static final long BOT_BIT = 0x1L;
 
     public final static long[] kingFootPrint = new long[64];
     public final static long[][] knightFootPrint = new long[8][8];
@@ -43,6 +42,20 @@ public class BitBoard {
     static {
         loadKnightFootPrints();
         loadKingFootPrints();
+    }
+
+    public static long northFillInclusive(long gen) {
+        gen |= (gen >>> 8);
+        gen |= (gen >>> 16);
+        gen |= (gen >>> 32);
+        return gen;
+    }
+
+    public static long southFillInclusive(long gen) {
+        gen |= (gen << 8);
+        gen |= (gen << 16);
+        gen |= (gen << 32);
+        return gen;
     }
 
     public static boolean isCastled(long king, long rook, Side side) {
@@ -60,15 +73,15 @@ public class BitBoard {
 
     public static long getPassedPawns(long pawns, long otherPawns, Side side) {
         if (side == Side.WHITE) {
-            return (~northFill(pawns | getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
+            return (~northFillInclusive(pawns | getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
         } else {
-            return (~southFill(pawns | getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
+            return (~southFillInclusive(pawns | getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
         }
     }
 
     public static long getIsolatedPawns(long pawns, Side side) {
         long pawnAttacks = getPawnAttacks(pawns, side);
-        return ~(southFill(pawnAttacks) | northFill(pawnAttacks)) & pawns;
+        return ~(southFillInclusive(pawnAttacks) | northFillInclusive(pawnAttacks)) & pawns;
     }
 
     public static int canQueen(long p, long o, Side turn) {
@@ -108,7 +121,8 @@ public class BitBoard {
     }
 
     public static long getMask(int row, int col) {
-        return (1L << ((row << 3) + col));
+        return ((row | col) >> 3 == 0) ? (1L << ((row << 3) + col)) : 0;
+        //return (1L << ((row << 3) + col));
     }
 
     public static long rotateLeft(long bb, int r) {

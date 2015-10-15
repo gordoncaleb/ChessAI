@@ -1,6 +1,7 @@
 package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.ai.DecisionNode;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ public class DecisionNodeTest {
     public static Logger logger = LoggerFactory.getLogger(DecisionNodeTest.class);
 
     @Test
+    @Ignore
     public void test() {
 
         ArrayList<Integer> nums = new ArrayList<>();

@@ -27,7 +27,7 @@ public class Queen {
         return "Q";
     }
 
-    public static List<Long> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+    public static List<Long> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
         final int r = p.getRow();
         final int c = p.getCol();
         final long friendOrFoe = posBitBoard[0] | posBitBoard[1];
@@ -36,7 +36,16 @@ public class Queen {
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static List<Long> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+    public static List<Long> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+        final int r = p.getRow();
+        final int c = p.getCol();
+        final long friendOrFoe = posBitBoard[0] | posBitBoard[1];
+        final long friend = posBitBoard[p.getSide().ordinal()];
+        final long footPrint = Slide.slideAllDirectionsGen(r, c, friendOrFoe, friend);
+        return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+    }
+
+    public static List<Long> generateValidMoves3(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
         final int currentRow = p.getRow();
         final int currentCol = p.getCol();
         final Side player = p.getSide();
