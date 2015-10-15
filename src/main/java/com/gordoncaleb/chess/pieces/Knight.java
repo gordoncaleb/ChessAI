@@ -27,6 +27,11 @@ public class Knight {
 
     public static List<Long> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
         long footPrint = BitBoard.getKnightFootPrintMem(p.getRow(), p.getCol()) & ~posBitBoard[p.getSide().ordinal()];
+        return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+    }
+
+    public static List<Long> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+        long footPrint = BitBoard.getKnightFootPrintMem(p.getRow(), p.getCol()) & ~posBitBoard[p.getSide().ordinal()];
         final long foeBb = posBitBoard[p.getSide().otherSide().ordinal()];
 
         int bitNum;
@@ -50,7 +55,7 @@ public class Knight {
         return validMoves;
     }
 
-    public static List<Long> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+    public static List<Long> generateValidMoves3(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
         final int currentRow = p.getRow();
         final int currentCol = p.getCol();
         final Side player = p.getSide();

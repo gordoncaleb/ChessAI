@@ -205,4 +205,15 @@ public class Slide {
         return slideWest[r][c] & (TOP_BIT >> n) & ~friend;
     }
 
+    public static long slideAllDirections(final int r, final int c, final long friendOrFoe, final long friend) {
+        return slideNorth(r, c, friendOrFoe, friend) |
+                slideSouth(r, c, friendOrFoe, friend) |
+                slideWest(r, c, friendOrFoe, friend) |
+                slideEast(r, c, friendOrFoe, friend) |
+                slideNorthWest(r, c, friendOrFoe, friend) |
+                slideNorthEast(r, c, friendOrFoe, friend) |
+                slideSouthWest(r, c, friendOrFoe, friend) |
+                slideSouthEast(r, c, friendOrFoe, friend);
+    }
+
 }

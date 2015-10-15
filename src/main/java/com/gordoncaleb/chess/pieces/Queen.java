@@ -1,6 +1,5 @@
 package com.gordoncaleb.chess.pieces;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.gordoncaleb.chess.bitboard.BitBoard;
@@ -28,55 +27,42 @@ public class Queen {
         return "Q";
     }
 
-    public static List<Long> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+    public static List<Long> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
         final int r = p.getRow();
         final int c = p.getCol();
-        final long fnf = posBitBoard[0] | posBitBoard[1];
+        final long friendOrFoe = posBitBoard[0] | posBitBoard[1];
         final long friend = posBitBoard[p.getSide().ordinal()];
-        final long footPrint = Slide.slideEast(r, c, fnf, friend);
+        final long footPrint = Slide.slideAllDirections(r, c, friendOrFoe, friend);
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
-        int currentRow = p.getRow();
-        int currentCol = p.getCol();
-        Side player = p.getSide();
-        int nextRow;
-        int nextCol;
-        int value;
+    public static List<Long> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+        final int currentRow = p.getRow();
+        final int currentCol = p.getCol();
+        final Side player = p.getSide();
         Piece.PositionStatus pieceStatus;
 
         int i = 1;
         for (int d = 0; d < 8; d++) {
-            nextRow = currentRow + i * QUEENMOVES[0][d];
-            nextCol = currentCol + i * QUEENMOVES[1][d];
+            int nextRow = currentRow + i * QUEENMOVES[0][d];
+            int nextCol = currentCol + i * QUEENMOVES[1][d];
             pieceStatus = board.checkPiece(nextRow, nextCol, player);
 
             while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
 
                 if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-
-                    if ((nullMoveInfo[0] & BitBoard.getMask(nextRow, nextCol)) != 0) {
-                        value = -Values.QUEEN_VALUE >> 1;
-                    } else {
-                        value = 0;
-                    }
-
-                    validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, value, Move.MoveNote.NONE));
+                    validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE));
                 }
 
                 i++;
                 nextRow = currentRow + i * QUEENMOVES[0][d];
                 nextCol = currentCol + i * QUEENMOVES[1][d];
                 pieceStatus = board.checkPiece(nextRow, nextCol, player);
-
             }
 
             if (pieceStatus == Piece.PositionStatus.ENEMY) {
                 if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-
-                    Long moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
-                    validMoves.add(moveLong);
+                    validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol)));
                 }
             }
 
@@ -84,7 +70,6 @@ public class Queen {
         }
 
         return validMoves;
-
     }
 
 
