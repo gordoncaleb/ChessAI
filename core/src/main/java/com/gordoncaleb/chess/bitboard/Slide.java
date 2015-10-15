@@ -317,57 +317,58 @@ public class Slide {
     }
 
     public static long slideAllDirectionsGen(final int r, final int c, final long friendOrFoe, final long friend) {
+        final long mask = getMask(r, c);
 
         //North
-        final long north = genNorth(r, c);
+        final long north = northFill(mask) & ~mask;
         final long aN = north & friendOrFoe | BOT_BIT;
         final int nN = Long.numberOfLeadingZeros(aN);
         long allDir = north & (TOP_BIT >> nN) & ~friend;
 
         //South
-        final long south = genSouth(r, c);
+        final long south = southFill(mask) & ~mask;
         final long aS = south & friendOrFoe | TOP_BIT;
         final int nS = Long.numberOfTrailingZeros(aS);
-        final long maskS = (1L << nS);
+        final long maskS = (BOT_BIT << nS);
         allDir |= south & ((maskS - 1L) | maskS) & ~friend;
 
         //East
-        final long east = genEast(r, c);
+        final long east = eastFill(mask) & ~mask;
         final long aE = east & friendOrFoe | TOP_BIT;
         final int nE = Long.numberOfTrailingZeros(aE);
-        final long maskE = (1L << nE);
+        final long maskE = (BOT_BIT << nE);
         allDir |= east & ((maskE - 1L) | maskE) & ~friend;
 
         //West
-        final long west = genWest(r, c);
+        final long west = westFill(mask) & ~mask;
         final long aW = west & friendOrFoe | BOT_BIT;
         final int nW = Long.numberOfLeadingZeros(aW);
         allDir |= west & (TOP_BIT >> nW) & ~friend;
 
         //NW
-        final long northWest = genNorthWest(r, c);
+        final long northWest = northWestFill(mask) & ~mask;
         final long aNW = northWest & friendOrFoe | BOT_BIT;
         final int nNW = Long.numberOfLeadingZeros(aNW);
         allDir |= northWest & (TOP_BIT >> nNW) & ~friend;
 
         //NE
-        final long northEast = genNorthEast(r, c);
+        final long northEast = northEastFill(mask) & ~mask;
         final long aNE = northEast & friendOrFoe | BOT_BIT;
         final int nNE = Long.numberOfLeadingZeros(aNE);
         allDir |= northEast & (TOP_BIT >> nNE) & ~friend;
 
         //SW
-        final long southWest = genSouthWest(r, c);
+        final long southWest = southWestFill(mask) & ~mask;
         final long aSW = southWest & friendOrFoe | TOP_BIT;
         final int nSW = Long.numberOfTrailingZeros(aSW);
-        final long maskSW = (1L << nSW);
+        final long maskSW = (BOT_BIT << nSW);
         allDir |= southWest & ((maskSW - 1L) | maskSW) & ~friend;
 
         //SE
-        final long southEast = genSouthEast(r, c);
+        final long southEast = southEastFill(mask) & ~mask;
         final long aSE = southEast & friendOrFoe | TOP_BIT;
         final int nSE = Long.numberOfTrailingZeros(aSE);
-        final long maskSE = (1L << nSE);
+        final long maskSE = (BOT_BIT << nSE);
         allDir |= southEast & ((maskSE - 1L) | maskSE) & ~friend;
 
         return allDir;

@@ -41,8 +41,30 @@ public class Queen {
         final int c = p.getCol();
         final long friendOrFoe = posBitBoard[0] | posBitBoard[1];
         final long friend = posBitBoard[p.getSide().ordinal()];
-        final long footPrint = Slide.slideAllDirectionsGen(r, c, friendOrFoe, friend);
-        return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+        long footPrint = Slide.slideAllDirectionsGen(r, c, friendOrFoe, friend);
+        //return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+
+        final long foeBb = posBitBoard[p.getSide().otherSide().ordinal()];
+
+        int bitNum;
+        while ((bitNum = Long.numberOfTrailingZeros(footPrint)) < 64) {
+            final long mask = (1L << bitNum);
+            final int toRow = bitNum / 8;
+            final int toCol = bitNum % 8;
+
+            if (p.isValidMove(toRow, toCol, nullMoveInfo)) {
+
+                final long move = ((foeBb & mask) == 0) ?
+                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol) :
+                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol, 0, Move.MoveNote.NONE, board.getPiece(toRow, toCol));
+
+                validMoves.add(move);
+            }
+
+            footPrint ^= mask;
+        }
+
+        return validMoves;
     }
 
     public static List<Long> generateValidMoves3(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {

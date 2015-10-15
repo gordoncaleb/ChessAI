@@ -33,12 +33,18 @@ THE POSSIBILITY OF SUCH DAMAGE.
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.gordoncaleb</groupId>
+        <artifactId>ohword</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
     <groupId>com.gordoncaleb</groupId>
     <artifactId>ohword-perft</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>JMH benchmark sample: Java</name>
+    <name>Performance Tests</name>
 
     <!--
        This is the demo/sample template build script for building Java benchmarks with JMH.
@@ -100,7 +106,8 @@ THE POSSIBILITY OF SUCH DAMAGE.
                         <configuration>
                             <finalName>${uberjar.name}</finalName>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.openjdk.jmh.Main</mainClass>
                                 </transformer>
                             </transformers>
