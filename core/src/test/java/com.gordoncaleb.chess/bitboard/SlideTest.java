@@ -568,37 +568,17 @@ public class SlideTest {
     private void testFixtureAllDirections(String[] friendString, String[] foeString, int r, int c, String[] solution) {
         long friend = BitBoard.parseBitBoard(friendString) | BitBoard.getMask(r, c);
         long foe = BitBoard.parseBitBoard(foeString);
-        long result = slideAllDirections(r, c, friend, foe);
+        long friendOrFoe = friend | foe;
+
+        long result = Slide.slideAllDirections(r, c, friendOrFoe, friend);
         logger.info("Friend Of Foe\n" + BitBoard.printBitBoard(friend | foe));
         logger.info("(" + r + "," + c + ")\n" + BitBoard.printBitBoard(result));
         assertThat(result, is(equalTo(BitBoard.parseBitBoard(solution))));
-    }
 
-    private long slideAllDirections(int r, int c, long friend, long foe) {
-        long friendOrFoe = friend | foe;
-        return Slide.slideAllDirections(r, c, friendOrFoe, friend);
-    }
-
-    private long slideAllDirectionsGen(int r, int c, long friend, long foe) {
-        long friendOrFoe = friend | foe;
-        return Slide.slideAllDirectionsGen(r, c, friendOrFoe, friend);
-    }
-
-    @Test
-    public void testSlideGen() {
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                logger.info(r + "," + c);
-                assertThat(BitBoard.printBitBoard(Slide.slideNorth[r][c]), is(equalTo(BitBoard.printBitBoard(Slide.genNorth(r, c)))));
-                assertThat(BitBoard.printBitBoard(Slide.slideNorthWest[r][c]), is(equalTo(BitBoard.printBitBoard(Slide.genNorthWest(r, c)))));
-                assertThat(BitBoard.printBitBoard(Slide.slideNorthEast[r][c]), is(equalTo(BitBoard.printBitBoard(Slide.genNorthEast(r, c)))));
-                assertThat(BitBoard.printBitBoard(Slide.slideSouth[r][c]), is(equalTo(BitBoard.printBitBoard(Slide.genSouth(r, c)))));
-                assertThat(BitBoard.printBitBoard(Slide.slideSouthWest[r][c]), is(equalTo(BitBoard.printBitBoard(Slide.genSouthWest(r, c)))));
-                assertThat(BitBoard.printBitBoard(Slide.slideSouthEast[r][c]), is(equalTo(BitBoard.printBitBoard(Slide.genSouthEast(r, c)))));
-                assertThat(BitBoard.printBitBoard(Slide.slideWest[r][c]), is(equalTo(BitBoard.printBitBoard(Slide.genWest(r, c)))));
-                assertThat(BitBoard.printBitBoard(Slide.slideEast[r][c]), is(equalTo(BitBoard.printBitBoard(Slide.genEast(r, c)))));
-            }
-        }
+        result = Slide.slideAllDirectionsGen(r, c, friendOrFoe, friend);
+        logger.info("Gen Friend Of Foe\n" + BitBoard.printBitBoard(friend | foe));
+        logger.info("(" + r + "," + c + ")\n" + BitBoard.printBitBoard(result));
+        assertThat(result, is(equalTo(BitBoard.parseBitBoard(solution))));
     }
 
 }

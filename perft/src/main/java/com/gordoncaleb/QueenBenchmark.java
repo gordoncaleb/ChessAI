@@ -7,13 +7,13 @@ import com.gordoncaleb.chess.persistence.BoardDAO;
 import com.gordoncaleb.chess.pieces.Knight;
 import com.gordoncaleb.chess.pieces.Piece;
 import com.gordoncaleb.chess.pieces.Queen;
+import com.gordoncaleb.util.MockList;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -22,54 +22,67 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class QueenBenchmark {
 
-    public Board board;
-    public long[] nullMoveInfo;
-    public long[] posBitBoard;
+    public Board[] board = new Board[2];
+    public long[][] nullMoveInfo = new long[2][];
+    public long[][] posBitBoard = new long[2][];
+    public Piece[] queen = new Piece[2];
+
     public List<Long> validMoves;
-    public Piece queen;
+
+    @Param({"0", "1"})
+    private int s;
 
     @Setup
     public void init() {
-        BitBoard.loadKnightFootPrints();
+        validMoves = new MockList<>();
+        BoardDAO boardDAO = new BoardDAO();
 
-        String[] setup = {
+        String[] setup1 = {
                 "R,_,_,_,_,_,Q,_,",
                 "_,P,_,N,_,B,_,_,",
                 "_,_,_,_,_,_,K,_,",
                 "_,P,_,_,P,_,p,P,",
-                "_,_,_,_,p,_,k,p,",
+                "_,_,_,p,p,p,k,p,",
                 "_,p,_,_,_,_,_,_,",
                 "p,b,_,n,_,q,_,_,",
                 "r,_,_,_,_,_,_,r,"
         };
 
-        BoardDAO boardDAO = new BoardDAO();
-        board = boardDAO.getFromSetup(Side.WHITE, setup);
-        queen = board.getPiece(6, 3);
-        nullMoveInfo = board.makeNullMove();
-        posBitBoard = board.getAllPosBitBoard();
-        validMoves = new ArrayList<Long>();
+        board[0] = boardDAO.getFromSetup(Side.WHITE, setup1);
+        queen[0] = board[0].getPiece(6, 3);
+        nullMoveInfo[0] = board[0].makeNullMove();
+        posBitBoard[0] = board[0].getAllPosBitBoard();
+
+
+        String[] setup2 = {
+                "R,_,_,_,_,_,Q,_,",
+                "_,P,_,N,_,B,_,_,",
+                "_,_,_,_,_,_,K,_,",
+                "_,P,_,_,_,_,_,P,",
+                "_,_,_,_,_,_,k,p,",
+                "_,_,_,_,q,_,_,_,",
+                "p,b,_,_,_,_,_,_,",
+                "r,_,_,_,_,_,_,r,"
+        };
+
+        board[1] = boardDAO.getFromSetup(Side.WHITE, setup2);
+        queen[1] = board[1].getPiece(5, 4);
+        nullMoveInfo[1] = board[1].makeNullMove();
+        posBitBoard[1] = board[1].getAllPosBitBoard();
     }
 
     @Benchmark
-    @Warmup(iterations = 5, batchSize = 5000)
-    @Measurement(iterations = 5, batchSize = 5000)
-    public void testQueenMoveGen() {
-        Queen.generateValidMoves(queen, board, nullMoveInfo, posBitBoard, validMoves);
+    @Warmup(iterations = 5, batchSize = 100000)
+    @Measurement(iterations = 5, batchSize = 10000)
+    public List<Long> testQueenMoveGen2() {
+        return Queen.generateValidMoves2(queen[s], board[s], nullMoveInfo[s], posBitBoard[s], validMoves);
     }
 
     @Benchmark
-    @Warmup(iterations = 5, batchSize = 5000)
-    @Measurement(iterations = 5, batchSize = 5000)
-    public void testQueenMoveGen2() {
-        Queen.generateValidMoves2(queen, board, nullMoveInfo, posBitBoard, validMoves);
-    }
-
-    @Benchmark
-    @Warmup(iterations = 5, batchSize = 5000)
-    @Measurement(iterations = 5, batchSize = 5000)
-    public void testQueenMoveGen3() {
-        Queen.generateValidMoves3(queen, board, nullMoveInfo, posBitBoard, validMoves);
+    @Warmup(iterations = 5, batchSize = 100000)
+    @Measurement(iterations = 5, batchSize = 10000)
+    public List<Long> testQueenMoveGen() {
+        return Queen.generateValidMoves(queen[s], board[s], nullMoveInfo[s], posBitBoard[s], validMoves);
     }
 
     /*

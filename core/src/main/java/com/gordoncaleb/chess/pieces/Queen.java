@@ -27,47 +27,14 @@ public class Queen {
         return "Q";
     }
 
-    public static List<Long> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
-        final int r = p.getRow();
-        final int c = p.getCol();
+    public static List<Long> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
         final long friendOrFoe = posBitBoard[0] | posBitBoard[1];
         final long friend = posBitBoard[p.getSide().ordinal()];
-        final long footPrint = Slide.slideAllDirections(r, c, friendOrFoe, friend);
+        final long footPrint = Slide.slideAllDirections(p.getRow(), p.getCol(), friendOrFoe, friend);
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static List<Long> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
-        final int r = p.getRow();
-        final int c = p.getCol();
-        final long friendOrFoe = posBitBoard[0] | posBitBoard[1];
-        final long friend = posBitBoard[p.getSide().ordinal()];
-        long footPrint = Slide.slideAllDirectionsGen(r, c, friendOrFoe, friend);
-        //return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
-
-        final long foeBb = posBitBoard[p.getSide().otherSide().ordinal()];
-
-        int bitNum;
-        while ((bitNum = Long.numberOfTrailingZeros(footPrint)) < 64) {
-            final long mask = (1L << bitNum);
-            final int toRow = bitNum / 8;
-            final int toCol = bitNum % 8;
-
-            if (p.isValidMove(toRow, toCol, nullMoveInfo)) {
-
-                final long move = ((foeBb & mask) == 0) ?
-                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol) :
-                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol, 0, Move.MoveNote.NONE, board.getPiece(toRow, toCol));
-
-                validMoves.add(move);
-            }
-
-            footPrint ^= mask;
-        }
-
-        return validMoves;
-    }
-
-    public static List<Long> generateValidMoves3(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
+    public static List<Long> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
         final int currentRow = p.getRow();
         final int currentCol = p.getCol();
         final Side player = p.getSide();
@@ -104,8 +71,15 @@ public class Queen {
     }
 
 
-    public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors,
-                                       long friendly) {
+    public static void getNullMoveInfo(final Piece piece,
+                                       final Board board,
+                                       final long[] nullMoveInfo,
+                                       final long updown,
+                                       final long left,
+                                       final long right,
+                                       final long kingBitBoard,
+                                       final long kingCheckVectors,
+                                       final long friendly) {
 
         long bitPiece = piece.getBit();
 

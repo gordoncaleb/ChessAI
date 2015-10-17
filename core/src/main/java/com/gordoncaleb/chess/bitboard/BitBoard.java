@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.gordoncaleb.chess.bitboard.Slide.northFill;
+import static com.gordoncaleb.chess.bitboard.Slide.southFill;
+
 public class BitBoard {
     public static Logger logger = LoggerFactory.getLogger(BitBoard.class);
 
@@ -23,8 +26,6 @@ public class BitBoard {
     public static final long BLACK_CHECK_FAR = 0x8L;
 
     public static final long noAG = 0x7E7E7E7E7E7E7E7EL;
-
-    public static long[][] bitMask;
 
     public static final long NOT_LEFT1 = 0xFEFEFEFEFEFEFEFEL;
     public static final long NOT_LEFT2 = 0xFCFCFCFCFCFCFCFCL;
@@ -44,20 +45,6 @@ public class BitBoard {
         loadKingFootPrints();
     }
 
-    public static long northFillInclusive(long gen) {
-        gen |= (gen >>> 8);
-        gen |= (gen >>> 16);
-        gen |= (gen >>> 32);
-        return gen;
-    }
-
-    public static long southFillInclusive(long gen) {
-        gen |= (gen << 8);
-        gen |= (gen << 16);
-        gen |= (gen << 32);
-        return gen;
-    }
-
     public static boolean isCastled(long king, long rook, Side side) {
 
         if (side == Side.WHITE) {
@@ -73,15 +60,15 @@ public class BitBoard {
 
     public static long getPassedPawns(long pawns, long otherPawns, Side side) {
         if (side == Side.WHITE) {
-            return (~northFillInclusive(pawns | getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
+            return (~northFill(pawns | getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
         } else {
-            return (~southFillInclusive(pawns | getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
+            return (~southFill(pawns | getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
         }
     }
 
     public static long getIsolatedPawns(long pawns, Side side) {
         long pawnAttacks = getPawnAttacks(pawns, side);
-        return ~(southFillInclusive(pawnAttacks) | northFillInclusive(pawnAttacks)) & pawns;
+        return ~(southFill(pawnAttacks) | northFill(pawnAttacks)) & pawns;
     }
 
     public static int canQueen(long p, long o, Side turn) {
@@ -121,8 +108,7 @@ public class BitBoard {
     }
 
     public static long getMask(int row, int col) {
-        return ((row | col) >> 3 == 0) ? (1L << ((row << 3) + col)) : 0;
-        //return (1L << ((row << 3) + col));
+        return (1L << ((row << 3) + col));
     }
 
     public static long rotateLeft(long bb, int r) {

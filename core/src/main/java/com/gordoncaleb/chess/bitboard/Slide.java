@@ -1,8 +1,5 @@
 package com.gordoncaleb.chess.bitboard;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static com.gordoncaleb.chess.bitboard.BitBoard.*;
 
 public class Slide {
@@ -87,11 +84,6 @@ public class Slide {
         return gen;
     }
 
-    public static long genSouth(int r, int c) {
-        final long mask = getMask(r, c);
-        return southFill(mask) & ~mask;
-    }
-
     public static void loadSlideSouth() {
         for (int r = 0; r < 7; r++) {
             for (int c = 0; c < 8; c++) {
@@ -100,22 +92,12 @@ public class Slide {
         }
     }
 
-    public static long genNorth(int r, int c) {
-        final long mask = getMask(r, c);
-        return northFill(mask) & ~mask;
-    }
-
     public static void loadSlideNorth() {
         for (int r = 1; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
                 slideNorth[r][c] = getColMask(c) >>> ((8 - r) * 8);
             }
         }
-    }
-
-    public static long genEast(int r, int c) {
-        final long mask = getMask(r, c);
-        return eastFill(mask) & ~mask;
     }
 
     public static void loadSlideEast() {
@@ -127,11 +109,6 @@ public class Slide {
         }
     }
 
-    public static long genWest(int r, int c) {
-        final long mask = getMask(r, c);
-        return westFill(mask) & ~mask;
-    }
-
     public static void loadSlideWest() {
         for (int r = 0; r < 8; r++) {
             for (int c = 1; c < 8; c++) {
@@ -139,11 +116,6 @@ public class Slide {
                 slideWest[r][c] = (rowMask >>> (8 - c)) & rowMask;
             }
         }
-    }
-
-    public static long genNorthWest(int r, int c) {
-        final long mask = getMask(r, c);
-        return northWestFill(mask) & ~mask;
     }
 
     public static void loadSlideNorthWest() {
@@ -154,11 +126,6 @@ public class Slide {
         }
     }
 
-    public static long genNorthEast(int r, int c) {
-        final long mask = getMask(r, c);
-        return northEastFill(mask) & ~mask;
-    }
-
     public static void loadSlideNorthEast() {
         for (int r = 1; r < 8; r++) {
             for (int c = 0; c < 7; c++) {
@@ -167,22 +134,12 @@ public class Slide {
         }
     }
 
-    public static long genSouthWest(int r, int c) {
-        final long mask = getMask(r, c);
-        return southWestFill(mask) & ~mask;
-    }
-
     public static void loadSlideSouthWest() {
         for (int r = 0; r < 7; r++) {
             for (int c = 1; c < 8; c++) {
                 slideSouthWest[r][c] = southWestFill(getMask(r + 1, c - 1));
             }
         }
-    }
-
-    public static long genSouthEast(int r, int c) {
-        final long mask = getMask(r, c);
-        return southEastFill(mask) & ~mask;
     }
 
     public static void loadSlideSouthEast() {
@@ -245,61 +202,65 @@ public class Slide {
         return slideWest[r][c] & (TOP_BIT >> n) & ~friend;
     }
 
-    public static long south(final int r, final int c, final long friendOrFoe, final long friend) {
-        final long south = genSouth(r, c);
+    public static long south(final long mask, final long friendOrFoe, final long friend) {
+        final long south = southFill(mask) & ~mask;
         final long a = south & friendOrFoe | TOP_BIT;
         final int n = Long.numberOfTrailingZeros(a);
-        final long mask = (1L << n);
-        return south & ((mask - 1L) | mask) & ~friend;
+        final long m = (1L << n);
+        return south & ((m - 1L) | m) & ~friend;
     }
 
-    public static long southWest(final int r, final int c, final long friendOrFoe, final long friend) {
-        final long southWest = genSouthWest(r, c);
+    public static long southWest(final long mask, final long friendOrFoe, final long friend) {
+        final long southWest = southWestFill(mask) & ~mask;
+        ;
         final long a = southWest & friendOrFoe | TOP_BIT;
         final int n = Long.numberOfTrailingZeros(a);
-        final long mask = (1L << n);
-        return southWest & ((mask - 1L) | mask) & ~friend;
+        final long m = (1L << n);
+        return southWest & ((m - 1L) | m) & ~friend;
     }
 
-    public static long southEast(final int r, final int c, final long friendOrFoe, final long friend) {
-        final long southEast = genSouthEast(r, c);
+    public static long southEast(final long mask, final long friendOrFoe, final long friend) {
+        final long southEast = southEastFill(mask) & ~mask;
+        ;
         final long a = southEast & friendOrFoe | TOP_BIT;
         final int n = Long.numberOfTrailingZeros(a);
-        final long mask = (1L << n);
-        return southEast & ((mask - 1L) | mask) & ~friend;
+        final long m = (1L << n);
+        return southEast & ((m - 1L) | m) & ~friend;
     }
 
-    public static long east(final int r, final int c, final long friendOrFoe, final long friend) {
-        final long east = genEast(r, c);
+    public static long east(final long mask, final long friendOrFoe, final long friend) {
+        final long east = eastFill(mask) & ~mask;
+        ;
         final long a = east & friendOrFoe | TOP_BIT;
         final int n = Long.numberOfTrailingZeros(a);
-        final long mask = (1L << n);
-        return east & ((mask - 1L) | mask) & ~friend;
+        final long m = (1L << n);
+        return east & ((m - 1L) | m) & ~friend;
     }
 
-    public static long north(final int r, final int c, final long friendOrFoe, final long friend) {
-        final long north = genNorth(r, c);
+    public static long north(final long mask, final long friendOrFoe, final long friend) {
+        final long north = northFill(mask) & ~mask;
         final long a = north & friendOrFoe | BOT_BIT;
         final int n = Long.numberOfLeadingZeros(a);
         return north & (TOP_BIT >> n) & ~friend;
     }
 
-    public static long northWest(final int r, final int c, final long friendOrFoe, final long friend) {
-        final long northWest = genNorthWest(r, c);
+    public static long northWest(final long mask, final long friendOrFoe, final long friend) {
+        final long northWest = northWestFill(mask) & ~mask;
+        ;
         final long a = northWest & friendOrFoe | BOT_BIT;
         final int n = Long.numberOfLeadingZeros(a);
         return northWest & (TOP_BIT >> n) & ~friend;
     }
 
-    public static long northEast(final int r, final int c, final long friendOrFoe, final long friend) {
-        final long northEast = genNorthEast(r, c);
+    public static long northEast(final long mask, final long friendOrFoe, final long friend) {
+        final long northEast = northEastFill(mask) & ~mask;
         final long a = northEast & friendOrFoe | BOT_BIT;
         final int n = Long.numberOfLeadingZeros(a);
         return northEast & (TOP_BIT >> n) & ~friend;
     }
 
-    public static long west(final int r, final int c, final long friendOrFoe, final long friend) {
-        final long west = genWest(r, c);
+    public static long west(final long mask, final long friendOrFoe, final long friend) {
+        final long west = westFill(mask) & ~mask;
         final long a = west & friendOrFoe | BOT_BIT;
         final int n = Long.numberOfLeadingZeros(a);
         return west & (TOP_BIT >> n) & ~friend;
@@ -318,60 +279,14 @@ public class Slide {
 
     public static long slideAllDirectionsGen(final int r, final int c, final long friendOrFoe, final long friend) {
         final long mask = getMask(r, c);
-
-        //North
-        final long north = northFill(mask) & ~mask;
-        final long aN = north & friendOrFoe | BOT_BIT;
-        final int nN = Long.numberOfLeadingZeros(aN);
-        long allDir = north & (TOP_BIT >> nN) & ~friend;
-
-        //South
-        final long south = southFill(mask) & ~mask;
-        final long aS = south & friendOrFoe | TOP_BIT;
-        final int nS = Long.numberOfTrailingZeros(aS);
-        final long maskS = (BOT_BIT << nS);
-        allDir |= south & ((maskS - 1L) | maskS) & ~friend;
-
-        //East
-        final long east = eastFill(mask) & ~mask;
-        final long aE = east & friendOrFoe | TOP_BIT;
-        final int nE = Long.numberOfTrailingZeros(aE);
-        final long maskE = (BOT_BIT << nE);
-        allDir |= east & ((maskE - 1L) | maskE) & ~friend;
-
-        //West
-        final long west = westFill(mask) & ~mask;
-        final long aW = west & friendOrFoe | BOT_BIT;
-        final int nW = Long.numberOfLeadingZeros(aW);
-        allDir |= west & (TOP_BIT >> nW) & ~friend;
-
-        //NW
-        final long northWest = northWestFill(mask) & ~mask;
-        final long aNW = northWest & friendOrFoe | BOT_BIT;
-        final int nNW = Long.numberOfLeadingZeros(aNW);
-        allDir |= northWest & (TOP_BIT >> nNW) & ~friend;
-
-        //NE
-        final long northEast = northEastFill(mask) & ~mask;
-        final long aNE = northEast & friendOrFoe | BOT_BIT;
-        final int nNE = Long.numberOfLeadingZeros(aNE);
-        allDir |= northEast & (TOP_BIT >> nNE) & ~friend;
-
-        //SW
-        final long southWest = southWestFill(mask) & ~mask;
-        final long aSW = southWest & friendOrFoe | TOP_BIT;
-        final int nSW = Long.numberOfTrailingZeros(aSW);
-        final long maskSW = (BOT_BIT << nSW);
-        allDir |= southWest & ((maskSW - 1L) | maskSW) & ~friend;
-
-        //SE
-        final long southEast = southEastFill(mask) & ~mask;
-        final long aSE = southEast & friendOrFoe | TOP_BIT;
-        final int nSE = Long.numberOfTrailingZeros(aSE);
-        final long maskSE = (BOT_BIT << nSE);
-        allDir |= southEast & ((maskSE - 1L) | maskSE) & ~friend;
-
-        return allDir;
+        return north(mask, friendOrFoe, friend) |
+                south(mask, friendOrFoe, friend) |
+                west(mask, friendOrFoe, friend) |
+                east(mask, friendOrFoe, friend) |
+                northWest(mask, friendOrFoe, friend) |
+                northEast(mask, friendOrFoe, friend) |
+                southWest(mask, friendOrFoe, friend) |
+                southEast(mask, friendOrFoe, friend);
     }
 
 }
