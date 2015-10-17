@@ -28,9 +28,10 @@ public class Queen {
     }
 
     public static List<Long> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
-        final long friendOrFoe = posBitBoard[0] | posBitBoard[1];
         final long friend = posBitBoard[p.getSide().ordinal()];
-        final long footPrint = Slide.slideAllDirections(p.getRow(), p.getCol(), friendOrFoe, friend);
+        final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
+        final long footPrint = Slide.slideAllDirectionsGen(p.getRow(), p.getCol(), friendOrFoe, friend);
+
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
