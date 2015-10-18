@@ -4,14 +4,9 @@ import java.util.List;
 
 import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.bitboard.Slide;
+import static com.gordoncaleb.chess.bitboard.Slide.*;
 
 public class Queen {
-
-    public static int[][] QUEENMOVES = {{1, 1, -1, -1, 1, -1, 0, 0}, {1, -1, 1, -1, 0, 0, 1, -1}};
-
-    public Queen() {
-    }
 
     public static Piece.PieceID getPieceID() {
         return Piece.PieceID.QUEEN;
@@ -33,8 +28,21 @@ public class Queen {
 
         final long friend = posBitBoard[p.getSide().ordinal()];
         final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
-        final long footPrint = Slide.slideQueen(p.getRow(), p.getCol(), friendOrFoe, friend);
+        final long footPrint = slideQueen(p.getBit(), friendOrFoe, friend);
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+    }
+
+    public static long slideQueen(final long mask, final long friendOrFoe, final long friend) {
+        final long friendOrFoeNotMe = friendOrFoe & ~mask;
+        final long slide = north(mask, friendOrFoeNotMe) |
+                south(mask, friendOrFoeNotMe) |
+                west(mask, friendOrFoeNotMe) |
+                east(mask, friendOrFoeNotMe) |
+                northWest(mask, friendOrFoeNotMe) |
+                northEast(mask, friendOrFoeNotMe) |
+                southWest(mask, friendOrFoeNotMe) |
+                southEast(mask, friendOrFoeNotMe);
+        return slide & ~friend;
     }
 
     public static void getNullMoveInfo(final Piece piece,

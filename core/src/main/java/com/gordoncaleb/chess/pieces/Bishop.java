@@ -4,15 +4,11 @@ import java.util.List;
 
 import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.bitboard.Slide;
+import static com.gordoncaleb.chess.bitboard.Slide.*;
+
+import static com.gordoncaleb.chess.bitboard.BitBoard.getMask;
 
 public class Bishop {
-    private static final int[][] BISHOPMOVES = {{1, 1, -1, -1}, {1, -1, 1, -1}};
-
-    public Bishop() {
-    }
 
     public static Piece.PieceID getPieceID() {
         return Piece.PieceID.BISHOP;
@@ -34,8 +30,17 @@ public class Bishop {
 
         final long friend = posBitBoard[p.getSide().ordinal()];
         final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
-        final long footPrint = Slide.slideBishop(p.getRow(), p.getCol(), friendOrFoe, friend);
+        final long footPrint = slideBishop(p.getBit(), friendOrFoe, friend);
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+    }
+
+    public static long slideBishop(final long mask, final long friendOrFoe, final long friend) {
+        final long friendOrFoeNotMe = friendOrFoe & ~mask;
+        final long slide = northWest(mask, friendOrFoeNotMe) |
+                northEast(mask, friendOrFoeNotMe) |
+                southWest(mask, friendOrFoeNotMe) |
+                southEast(mask, friendOrFoeNotMe);
+        return slide & ~friend;
     }
 
     public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors,

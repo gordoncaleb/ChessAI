@@ -10,6 +10,8 @@ import com.gordoncaleb.chess.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
+
 public class Board {
     private static final Logger logger = LoggerFactory.getLogger(Board.class);
     private final RNGTable rngTable = RNGTable.instance;
@@ -53,8 +55,8 @@ public class Board {
         this.turn = Side.WHITE;
         this.nullMoveInfo = new long[3];
 
-        kings[Side.BLACK.ordinal()] = new Piece(Piece.PieceID.KING, Side.BLACK, -1, -1, false);
-        kings[Side.WHITE.ordinal()] = new Piece(Piece.PieceID.KING, Side.WHITE, -1, -1, false);
+        kings[Side.BLACK.ordinal()] = new Piece(KING, Side.BLACK, -1, -1, false);
+        kings[Side.WHITE.ordinal()] = new Piece(KING, Side.WHITE, -1, -1, false);
 
         placePiece(kings[Side.BLACK.ordinal()], 0, 0);
         placePiece(kings[Side.WHITE.ordinal()], 7, 0);
@@ -91,14 +93,14 @@ public class Board {
 
                 posBitBoard[temp.getPieceID().ordinal()][i] |= temp.getBit();
 
-                if (temp.getPieceID() == Piece.PieceID.PAWN) {
+                if (temp.getPieceID() == PAWN) {
 
                     if (temp.getRow() != pawnRow[i]) {
                         temp.setMoved(true);
                     }
                 }
 
-                if (temp.getPieceID() == Piece.PieceID.KING) {
+                if (temp.getPieceID() == KING) {
 
                     kings[i] = temp;
 
@@ -277,13 +279,13 @@ public class Board {
         pieceMoving.setMoved(true);
 
         if (note == Move.MoveNote.NEW_QUEEN) {
-            pieceMoving.setPieceID(Piece.PieceID.QUEEN);
-            posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
-            posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+            pieceMoving.setPieceID(QUEEN);
+            posBitBoard[PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+            posBitBoard[QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
         } else if (note == Move.MoveNote.NEW_KNIGHT) {
-            pieceMoving.setPieceID(Piece.PieceID.KNIGHT);
-            posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
-            posBitBoard[Piece.PieceID.KNIGHT.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+            pieceMoving.setPieceID(KNIGHT);
+            posBitBoard[PAWN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+            posBitBoard[KNIGHT.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
         }
 
         // add hash of piece at new location
@@ -395,13 +397,13 @@ public class Board {
         pieceMoving.setMoved(hadMoved);
 
         if (note == Move.MoveNote.NEW_QUEEN) {
-            pieceMoving.setPieceID(Piece.PieceID.PAWN);
-            posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
-            posBitBoard[Piece.PieceID.QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+            pieceMoving.setPieceID(PAWN);
+            posBitBoard[PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
+            posBitBoard[QUEEN.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
         } else if (note == Move.MoveNote.NEW_KNIGHT) {
-            pieceMoving.setPieceID(Piece.PieceID.PAWN);
-            posBitBoard[Piece.PieceID.PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
-            posBitBoard[Piece.PieceID.KNIGHT.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
+            pieceMoving.setPieceID(PAWN);
+            posBitBoard[PAWN.ordinal()][pieceMoving.getSide().ordinal()] |= pieceMoving.getBit();
+            posBitBoard[KNIGHT.ordinal()][pieceMoving.getSide().ordinal()] ^= pieceMoving.getBit();
         }
 
     }
@@ -471,20 +473,22 @@ public class Board {
         // nullMoveInfo[1] = inCheckArrayList;
         // nullMoveInfo[2] = bitAttackCompliment;
 
+        final Side otherSide = turn.otherSide();
+
         // recalculating check info
         clearBoardStatus();
 
-        for (Piece p : pieces[turn.ordinal()]) {
-            p.clearBlocking();
-        }
+        pieces[turn.ordinal()].forEach(Piece::clearBlocking);
 
-        nullMoveInfo[0] = BitBoard.getPawnAttacks(posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.otherSide().ordinal()], turn.otherSide());
-        nullMoveInfo[0] |= BitBoard.getKnightAttacks(posBitBoard[Piece.PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()]);
-        nullMoveInfo[0] |= BitBoard.getKingAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.otherSide().ordinal()]);
+        nullMoveInfo[0] = BitBoard.getPawnAttacks(posBitBoard[PAWN.ordinal()][otherSide.ordinal()], otherSide);
+        nullMoveInfo[0] |= BitBoard.getKnightAttacks(posBitBoard[KNIGHT.ordinal()][otherSide.ordinal()]);
+        nullMoveInfo[0] |= BitBoard.getKingAttacks(posBitBoard[KING.ordinal()][otherSide.ordinal()]);
 
-        nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()], turn) & posBitBoard[Piece.PieceID.PAWN.ordinal()][turn.otherSide().ordinal()];
+        nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[KING.ordinal()][turn.ordinal()], turn)
+                & posBitBoard[PAWN.ordinal()][otherSide.ordinal()];
 
-        nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()]) & posBitBoard[Piece.PieceID.KNIGHT.ordinal()][turn.otherSide().ordinal()];
+        nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[KING.ordinal()][turn.ordinal()])
+                & posBitBoard[KNIGHT.ordinal()][otherSide.ordinal()];
 
         if (nullMoveInfo[1] == 0) {
             nullMoveInfo[1] = BitBoard.ALL_ONES;
@@ -492,13 +496,15 @@ public class Board {
 
         nullMoveInfo[2] = 0;
 
-        long updown = ~(allPosBitBoard[0] | allPosBitBoard[1]);
-        long left = 0xFEFEFEFEFEFEFEFEL & updown;
-        long right = 0x7F7F7F7F7F7F7F7FL & updown;
+        final long updown = ~(allPosBitBoard[0] | allPosBitBoard[1]);
+        final long left = 0xFEFEFEFEFEFEFEFEL & updown;
+        final long right = 0x7F7F7F7F7F7F7F7FL & updown;
 
         for (Piece p : pieces[turn.otherSide().ordinal()]) {
-            p.getNullMoveInfo(this, nullMoveInfo, updown, left, right, posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()],
-                    King.getKingCheckVectors(posBitBoard[Piece.PieceID.KING.ordinal()][turn.ordinal()], updown, left, right), allPosBitBoard[turn.ordinal()]);
+            p.getNullMoveInfo(this, nullMoveInfo, updown, left, right,
+                    posBitBoard[KING.ordinal()][turn.ordinal()],
+                    King.getKingCheckVectors(posBitBoard[KING.ordinal()][turn.ordinal()], updown, left, right),
+                    allPosBitBoard[turn.ordinal()]);
         }
 
         if ((kings[turn.ordinal()].getBit() & nullMoveInfo[0]) != 0) {
@@ -574,7 +580,7 @@ public class Board {
             for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
                 if (board[materialRow[s]][c] != null) {
-                    if (board[materialRow[s]][c].getPieceID() == Piece.PieceID.ROOK) {
+                    if (board[materialRow[s]][c].getPieceID() == ROOK) {
                         rookCols[s][0] = c;
                         break;
                     }
@@ -583,7 +589,7 @@ public class Board {
 
             for (int c = kings[s].getCol() + 1; c < 8; c++) {
                 if (board[materialRow[s]][c] != null) {
-                    if (board[materialRow[s]][c].getPieceID() == Piece.PieceID.ROOK) {
+                    if (board[materialRow[s]][c].getPieceID() == ROOK) {
                         rookCols[s][1] = c;
                         break;
                     }
@@ -599,13 +605,13 @@ public class Board {
 
         if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
             if (board[toRow][toCol] != null) {
-                if (board[toRow][toCol].getPieceID() == Piece.PieceID.KING) {
+                if (board[toRow][toCol].getPieceID() == KING) {
                     return false;
                 }
             }
         }
 
-        if (piece.getPieceID() == Piece.PieceID.KING) {
+        if (piece.getPieceID() == KING) {
             if (toRow < 0 || toCol < 0) {
                 return false;
             } else {
@@ -651,7 +657,7 @@ public class Board {
             board[toRow][toCol] = piece;
         } else {
             // piece is being taken off the board. Remove
-            if (piece.getPieceID() != Piece.PieceID.KING) {
+            if (piece.getPieceID() != KING) {
                 pieces[piece.getSide().ordinal()].remove(piece);
             }
         }
@@ -768,15 +774,15 @@ public class Board {
 
                     p = board[row][col];
 
-                    if (p.hasMoved() && (p.getPieceID() == Piece.PieceID.PAWN || p.getPieceID() == Piece.PieceID.KING || p.getPieceID() == Piece.PieceID.ROOK)) {
+                    if (p.hasMoved() && (p.getPieceID() == PAWN || p.getPieceID() == KING || p.getPieceID() == ROOK)) {
                         pieceDetails |= 1;
                     }
 
-                    if (p.getPieceID() == Piece.PieceID.ROOK && kingHasMoved(p.getSide())) {
+                    if (p.getPieceID() == ROOK && kingHasMoved(p.getSide())) {
                         pieceDetails |= 1;
                     }
 
-                    if (p.getPieceID() == Piece.PieceID.KING && nearRookHasMoved(p.getSide()) && farRookHasMoved(p.getSide())) {
+                    if (p.getPieceID() == KING && nearRookHasMoved(p.getSide()) && farRookHasMoved(p.getSide())) {
                         pieceDetails |= 1;
                     }
 
@@ -872,7 +878,7 @@ public class Board {
 
         for (List<Piece> ps : pieces) {
             for (Piece p : ps) {
-                if ((p.getPieceID() == Piece.PieceID.PAWN) || (p.getPieceID() == Piece.PieceID.QUEEN) || (p.getPieceID() == Piece.PieceID.ROOK)) {
+                if ((p.getPieceID() == PAWN) || (p.getPieceID() == QUEEN) || (p.getPieceID() == ROOK)) {
                     return false;
                 }
             }

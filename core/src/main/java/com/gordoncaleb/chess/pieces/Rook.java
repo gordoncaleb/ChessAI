@@ -4,12 +4,11 @@ import java.util.List;
 
 import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.bitboard.Slide;
+import static com.gordoncaleb.chess.bitboard.Slide.*;
+
+import static com.gordoncaleb.chess.bitboard.BitBoard.getMask;
 
 public class Rook {
-    private static int[][] ROOKMOVES = {{1, -1, 0, 0}, {0, 0, 1, -1}};
 
     public static Piece.PieceID getPieceID() {
         return Piece.PieceID.ROOK;
@@ -31,8 +30,17 @@ public class Rook {
 
         final long friend = posBitBoard[p.getSide().ordinal()];
         final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
-        final long footPrint = Slide.slideRook(p.getRow(), p.getCol(), friendOrFoe, friend);
+        final long footPrint = slideRook(p.getBit(), friendOrFoe, friend);
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+    }
+
+    public static long slideRook(final long mask, final long friendOrFoe, final long friend) {
+        final long friendOrFoeNotMe = friendOrFoe & ~mask;
+        final long slide = north(mask, friendOrFoeNotMe) |
+                south(mask, friendOrFoeNotMe) |
+                west(mask, friendOrFoeNotMe) |
+                east(mask, friendOrFoeNotMe);
+        return slide & ~friend;
     }
 
     public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors,
