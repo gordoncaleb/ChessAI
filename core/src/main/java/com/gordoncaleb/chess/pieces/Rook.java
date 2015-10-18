@@ -6,12 +6,10 @@ import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.bitboard.Slide;
 
 public class Rook {
     private static int[][] ROOKMOVES = {{1, -1, 0, 0}, {0, 0, 1, -1}};
-
-    public Rook() {
-    }
 
     public static Piece.PieceID getPieceID() {
         return Piece.PieceID.ROOK;
@@ -25,7 +23,19 @@ public class Rook {
         return "R";
     }
 
-    public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
+    public static List<Long> generateValidMoves(final Piece p,
+                                                final Board board,
+                                                final long[] nullMoveInfo,
+                                                final long[] posBitBoard,
+                                                final List<Long> validMoves) {
+
+        final long friend = posBitBoard[p.getSide().ordinal()];
+        final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
+        final long footPrint = Slide.slideRook(p.getRow(), p.getCol(), friendOrFoe, friend);
+        return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+    }
+
+    public static List<Long> generateValidMoves2(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
         int currentRow = p.getRow();
         int currentCol = p.getCol();
         Side player = p.getSide();

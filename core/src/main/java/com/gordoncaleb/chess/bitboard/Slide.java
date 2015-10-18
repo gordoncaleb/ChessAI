@@ -116,7 +116,7 @@ public class Slide {
         return (TOP_BIT >> Long.numberOfLeadingZeros(n));
     }
 
-    public static long slideAllDirections(final int r, final int c, final long friendOrFoe, final long friend) {
+    public static long slideQueen(final int r, final int c, final long friendOrFoe, final long friend) {
         final long mask = getMask(r, c);
         final long friendOrFoeNotMe = friendOrFoe & ~mask;
         final long slide = north(mask, friendOrFoeNotMe) |
@@ -124,6 +124,26 @@ public class Slide {
                 west(mask, friendOrFoeNotMe) |
                 east(mask, friendOrFoeNotMe) |
                 northWest(mask, friendOrFoeNotMe) |
+                northEast(mask, friendOrFoeNotMe) |
+                southWest(mask, friendOrFoeNotMe) |
+                southEast(mask, friendOrFoeNotMe);
+        return slide & ~friend;
+    }
+
+    public static long slideRook(final int r, final int c, final long friendOrFoe, final long friend) {
+        final long mask = getMask(r, c);
+        final long friendOrFoeNotMe = friendOrFoe & ~mask;
+        final long slide = north(mask, friendOrFoeNotMe) |
+                south(mask, friendOrFoeNotMe) |
+                west(mask, friendOrFoeNotMe) |
+                east(mask, friendOrFoeNotMe);
+        return slide & ~friend;
+    }
+
+    public static long slideBishop(final int r, final int c, final long friendOrFoe, final long friend) {
+        final long mask = getMask(r, c);
+        final long friendOrFoeNotMe = friendOrFoe & ~mask;
+        final long slide = northWest(mask, friendOrFoeNotMe) |
                 northEast(mask, friendOrFoeNotMe) |
                 southWest(mask, friendOrFoeNotMe) |
                 southEast(mask, friendOrFoeNotMe);

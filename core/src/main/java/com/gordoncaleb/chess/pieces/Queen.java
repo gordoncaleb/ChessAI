@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.bitboard.Slide;
 
 public class Queen {
@@ -35,7 +33,7 @@ public class Queen {
 
         final long friend = posBitBoard[p.getSide().ordinal()];
         final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
-        final long footPrint = Slide.slideAllDirections(p.getRow(), p.getCol(), friendOrFoe, friend);
+        final long footPrint = Slide.slideQueen(p.getRow(), p.getCol(), friendOrFoe, friend);
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 

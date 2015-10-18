@@ -6,6 +6,7 @@ import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.bitboard.Slide;
 
 public class Bishop {
     private static final int[][] BISHOPMOVES = {{1, 1, -1, -1}, {1, -1, 1, -1}};
@@ -25,7 +26,19 @@ public class Bishop {
         return "B";
     }
 
-    public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
+    public static List<Long> generateValidMoves(final Piece p,
+                                                final Board board,
+                                                final long[] nullMoveInfo,
+                                                final long[] posBitBoard,
+                                                final List<Long> validMoves) {
+
+        final long friend = posBitBoard[p.getSide().ordinal()];
+        final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
+        final long footPrint = Slide.slideBishop(p.getRow(), p.getCol(), friendOrFoe, friend);
+        return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+    }
+
+    public static List<Long> generateValidMoves2(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
         int currentRow = p.getRow();
         int currentCol = p.getCol();
         int nextRow;

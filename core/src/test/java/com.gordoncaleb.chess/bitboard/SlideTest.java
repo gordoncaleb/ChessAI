@@ -579,7 +579,7 @@ public class SlideTest {
 
         long bbSolution = BitBoard.parseBitBoard(solution);
 
-        long result = Slide.slideAllDirections(r, c, friendOrFoe, friend);
+        long result = Slide.slideQueen(r, c, friendOrFoe, friend);
         logger.info("Friend Of Foe\n" + BitBoard.printBitBoard(friend | foe));
         logger.info("(" + r + "," + c + ")\n" + BitBoard.printBitBoard(result));
         assertThat(BitBoard.printBitBoard(result), is(equalTo(BitBoard.printBitBoard(bbSolution))));
