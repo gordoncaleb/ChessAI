@@ -77,13 +77,6 @@ public class BishopBenchmark {
         return Bishop.generateValidMoves(bishop[s], board[s], nullMoveInfo[s], posBitBoard[s], validMoves);
     }
 
-    @Benchmark
-    @Warmup(iterations = 5, batchSize = 100000)
-    @Measurement(iterations = 5, batchSize = 100000)
-    public List<Long> testBishopMoveGenOld() {
-        return Bishop.generateValidMoves2(bishop[s], board[s], nullMoveInfo[s], posBitBoard[s], validMoves);
-    }
-
     /*
      * ============================== HOW TO RUN THIS TEST: ====================================
      *    $ mvn clean install

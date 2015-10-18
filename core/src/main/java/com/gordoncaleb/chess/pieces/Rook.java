@@ -35,50 +35,6 @@ public class Rook {
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static List<Long> generateValidMoves2(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
-        int currentRow = p.getRow();
-        int currentCol = p.getCol();
-        Side player = p.getSide();
-        int nextRow;
-        int nextCol;
-        Piece.PositionStatus pieceStatus;
-        Long moveLong;
-
-        int i = 1;
-        for (int d = 0; d < 4; d++) {
-            nextRow = currentRow + i * ROOKMOVES[0][d];
-            nextCol = currentCol + i * ROOKMOVES[1][d];
-            pieceStatus = board.checkPiece(nextRow, nextCol, player);
-
-            while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
-
-                if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0);
-                    validMoves.add(moveLong);
-                }
-
-                i++;
-                nextRow = currentRow + i * ROOKMOVES[0][d];
-                nextCol = currentCol + i * ROOKMOVES[1][d];
-                pieceStatus = board.checkPiece(nextRow, nextCol, player);
-
-            }
-
-            if (pieceStatus == Piece.PositionStatus.ENEMY) {
-                if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-
-                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol));
-                    validMoves.add(moveLong);
-                }
-            }
-
-            i = 1;
-        }
-
-        return validMoves;
-
-    }
-
     public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors,
                                        long friendly) {
 
