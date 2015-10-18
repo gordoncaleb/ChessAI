@@ -59,20 +59,6 @@ public class KnightBenchmark {
         Knight.generateValidMoves(knight, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    @Benchmark
-    @Warmup(iterations = 5, batchSize = 5000)
-    @Measurement(iterations = 5, batchSize = 5000)
-    public void testKnightMoveGen2() {
-        Knight.generateValidMoves2(knight, board, nullMoveInfo, posBitBoard, validMoves);
-    }
-
-    @Benchmark
-    @Warmup(iterations = 5, batchSize = 5000)
-    @Measurement(iterations = 5, batchSize = 5000)
-    public void testKnightMoveGen3() {
-        Knight.generateValidMoves3(knight, board, nullMoveInfo, posBitBoard, validMoves);
-    }
-
     /*
      * ============================== HOW TO RUN THIS TEST: ====================================
      *    $ mvn clean install

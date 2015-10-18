@@ -39,47 +39,6 @@ public class Queen {
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static List<Long> generateValidMoves2(final Piece p,
-                                                 final Board board,
-                                                 final long[] nullMoveInfo,
-                                                 final long[] posBitBoard,
-                                                 final List<Long> validMoves) {
-        final int currentRow = p.getRow();
-        final int currentCol = p.getCol();
-        final Side player = p.getSide();
-        Piece.PositionStatus pieceStatus;
-
-        int i = 1;
-        for (int d = 0; d < 8; d++) {
-            int nextRow = currentRow + i * QUEENMOVES[0][d];
-            int nextCol = currentCol + i * QUEENMOVES[1][d];
-            pieceStatus = board.checkPiece(nextRow, nextCol, player);
-
-            while (pieceStatus == Piece.PositionStatus.NO_PIECE) {
-
-                if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-                    validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE));
-                }
-
-                i++;
-                nextRow = currentRow + i * QUEENMOVES[0][d];
-                nextCol = currentCol + i * QUEENMOVES[1][d];
-                pieceStatus = board.checkPiece(nextRow, nextCol, player);
-            }
-
-            if (pieceStatus == Piece.PositionStatus.ENEMY) {
-                if (p.isValidMove(nextRow, nextCol, nullMoveInfo)) {
-                    validMoves.add(Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE, board.getPiece(nextRow, nextCol)));
-                }
-            }
-
-            i = 1;
-        }
-
-        return validMoves;
-    }
-
-
     public static void getNullMoveInfo(final Piece piece,
                                        final Board board,
                                        final long[] nullMoveInfo,
