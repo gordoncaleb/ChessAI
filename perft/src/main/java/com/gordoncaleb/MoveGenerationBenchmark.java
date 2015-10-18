@@ -22,8 +22,6 @@ public class MoveGenerationBenchmark {
 
     @Setup
     public void init() {
-        Slide.loadSlidingBitBoards();
-
         String[] setup = {
                 "R,_,_,_,_,_,Q,_,",
                 "_,P,_,N,_,B,_,_,",
