@@ -7,6 +7,8 @@ import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
 
+import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+
 public class Pawn {
 
     public static String getName() {
@@ -98,6 +100,14 @@ public class Pawn {
 
         return validMoves;
 
+    }
+
+    public static long getPawnAttacks(long pawns, int side) {
+        if (side == Side.BLACK) {
+            return ((pawns & NOT_RIGHT1) << 9) | ((pawns & NOT_LEFT1) << 7);
+        } else {
+            return ((pawns & NOT_RIGHT1) >>> 7) | ((pawns & NOT_LEFT1) >>> 9);
+        }
     }
 
 }

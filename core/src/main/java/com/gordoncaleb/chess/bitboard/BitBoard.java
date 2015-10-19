@@ -1,6 +1,7 @@
 package com.gordoncaleb.chess.bitboard;
 
 import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.pieces.Pawn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class BitBoard {
     public static final long BLACK_CHECK_NEAR = 0x20L;
     public static final long BLACK_CHECK_FAR = 0x8L;
 
-    public static final long noAG = 0x7E7E7E7E7E7E7E7EL;
+    public static final long NOT_LEFT1_RIGHT1 = 0x7E7E7E7E7E7E7E7EL;
 
     public static final long NOT_LEFT1 = 0xFEFEFEFEFEFEFEFEL;
     public static final long NOT_LEFT2 = 0xFCFCFCFCFCFCFCFCL;
@@ -45,47 +46,17 @@ public class BitBoard {
         loadKingFootPrints();
     }
 
-    public static boolean isCastled(long king, long rook, int side) {
-
-        if (side == Side.WHITE) {
-            king &= 0xFF00000000000000L;
-            rook &= 0xFF00000000000000L;
-        } else {
-            king &= 0xFFL;
-            rook &= 0xFFL;
-        }
-
-        return (king != 0 && rook != 0 && ((((removeBottomBit(king | rook, 1)) & king) == 0) || ((removeBottomBit(king | rook, 2)) & king) != 0));
-    }
-
     public static long getPassedPawns(long pawns, long otherPawns, int side) {
         if (side == Side.WHITE) {
-            return (~northFill(pawns | getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
+            return (~northFill(pawns | Pawn.getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
         } else {
-            return (~southFill(pawns | getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
+            return (~southFill(pawns | Pawn.getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
         }
     }
 
     public static long getIsolatedPawns(long pawns, int side) {
-        long pawnAttacks = getPawnAttacks(pawns, side);
+        long pawnAttacks = Pawn.getPawnAttacks(pawns, side);
         return ~(southFill(pawnAttacks) | northFill(pawnAttacks)) & pawns;
-    }
-
-    public static int canQueen(long p, long o, int turn) {
-
-        if (turn == Side.WHITE) {
-            return Long.bitCount((((p >>> 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFFL);
-        } else {
-            return Long.bitCount((((p << 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFF00000000000000L);
-        }
-    }
-
-    public static long removeBottomBit(long bb, int i) {
-        for (; i > 0; i--) {
-            bb &= bb - 1;
-        }
-
-        return bb;
     }
 
     public static long getCastleMask(int col1, int col2, int side) {
@@ -111,24 +82,12 @@ public class BitBoard {
         return (1L << ((row << 3) + col));
     }
 
-    public static long rotateLeft(long bb, int r) {
-        return ((bb << r) | (bb >> (-r)));
-    }
-
     public static long getColMask(int col) {
         return (0x0101010101010101L << col);
     }
 
     public static long getRowMask(int row) {
         return (0xFFL << (row * 8));
-    }
-
-    public static long getBottomRows(int r) {
-        return (0xFFFFFFFFFFFFFFFFL >>> ((7 - r) << 3));
-    }
-
-    public static long getTopRows(int r) {
-        return (0xFF00000000000000L >> (r << 3));
     }
 
     public static long getNegSlope(int row, int col) {
@@ -149,24 +108,8 @@ public class BitBoard {
         }
     }
 
-    private static long getWhitePawnPassedForward(int r, int c) {
-        return (0x0080808080808080L >> ((7 - r) * 8 + (7 - c)));
-    }
-
-    private static long getBlackPawnPassedForward(int r, int c) {
-        return (0x0101010101010100L << (r << 8 + c));
-    }
-
     public static int getBackedPawns(long pawns) {
-        return Long.bitCount(((pawns & 0x7F7F7F7F7F7F7F7FL) << 7) & pawns) + Long.bitCount(((pawns & 0xFEFEFEFEFEFEFEFEL) << 9));
-    }
-
-    public static long getPawnAttacks(long pawns, int side) {
-        if (side == Side.BLACK) {
-            return ((pawns & 0x7F7F7F7F7F7F7F7FL) << 9) | ((pawns & 0xFEFEFEFEFEFEFEFEL) << 7);
-        } else {
-            return ((pawns & 0x7F7F7F7F7F7F7F7FL) >>> 7) | ((pawns & 0xFEFEFEFEFEFEFEFEL) >>> 9);
-        }
+        return Long.bitCount(((pawns & NOT_RIGHT1) << 7) & pawns) + Long.bitCount(((pawns & NOT_LEFT1) << 9));
     }
 
     public static void loadKingFootPrints() {
@@ -202,43 +145,17 @@ public class BitBoard {
         int shift = ((row - 1) * 8 + col - 1);
 
         if (shift >= 0) {
-            return (0x70507L << shift) & (~getColMask(col ^ 7) | (0x7E7E7E7E7E7E7E7EL));
+            return (0x70507L << shift) & (~getColMask(col ^ 7) | NOT_LEFT1_RIGHT1);
         } else {
-            return (0x70507L >> -shift) & (~getColMask(col ^ 7) | (0x7E7E7E7E7E7E7E7EL));
+            return (0x70507L >> -shift) & (~getColMask(col ^ 7) | NOT_LEFT1_RIGHT1);
         }
 
     }
 
-    public static long getKingAttacks(long king) {
-        return (king << 8) | // down 1
-                (king >>> 8) | // up 1
-                ((king & 0xFEFEFEFEFEFEFEFEL) >>> 1) | // left 1
-                ((king & 0x7F7F7F7F7F7F7F7FL) << 1) | // right 1
-                ((king & 0x7F7F7F7F7F7F7F7FL) >>> 7) | // up 1 right 1
-                ((king & 0x7F7F7F7F7F7F7F7FL) << 9) | // down 1 right 1
-                ((king & 0xFEFEFEFEFEFEFEFEL) >>> 9) | // up 1 left 1
-                ((king & 0xFEFEFEFEFEFEFEFEL) << 7); // down 1 left 1
-    }
-
     public static void loadKnightFootPrints() {
-
-        int[][] KNIGHT_MOVES = {{2, 2, -2, -2, 1, -1, 1, -1}, {1, -1, 1, -1, 2, -2, -2, 2}};
-
-        int nextRow;
-        int nextCol;
-
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
-                knightFootPrint[r][c] = 0;
-
-                for (int m = 0; m < 8; m++) {
-                    nextRow = r + KNIGHT_MOVES[0][m];
-                    nextCol = c + KNIGHT_MOVES[1][m];
-
-                    if (nextRow >= 0 && nextRow < 8 && nextCol >= 0 && nextCol < 8) {
-                        knightFootPrint[r][c] |= getMask(nextRow, nextCol);
-                    }
-                }
+                knightFootPrint[r][c] = getKnightFootPrint(r, c);
             }
         }
     }
@@ -255,17 +172,6 @@ public class BitBoard {
         } else {
             return (0x0A1100110AL >> -shift) & (~(0xC0C0C0C0C0C0C0C0L >>> (col & 6)) | (0x3c3c3c3c3c3c3c3cL));
         }
-    }
-
-    public static long getKnightAttacks(long knights) {
-        return ((knights & 0xFCFCFCFCFCFCFCFCL) << 6) | // down 1 left 2
-                ((knights & 0xFCFCFCFCFCFCFCFCL) >>> 10) | // up 1 left 2
-                ((knights & 0xFEFEFEFEFEFEFEFEL) << 15) | // down 2 left 1
-                ((knights & 0xFEFEFEFEFEFEFEFEL) >>> 17) | // up 2 left 1
-                ((knights & 0x3F3F3F3F3F3F3F3FL) >>> 6) | // up 1 right 2
-                ((knights & 0x3F3F3F3F3F3F3F3FL) << 10) | // down 1 right 2
-                ((knights & 0x7F7F7F7F7F7F7F7FL) >>> 15) | // up 2 right 1
-                ((knights & 0x7F7F7F7F7F7F7F7FL) << 17);
     }
 
     public static List<Integer> bitNumbers(long bb) {

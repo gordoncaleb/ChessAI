@@ -1,6 +1,7 @@
 package com.gordoncaleb.chess.backend;
 
 import com.gordoncaleb.chess.bitboard.BitBoard;
+import com.gordoncaleb.chess.pieces.Pawn;
 import com.gordoncaleb.chess.pieces.Piece;
 import com.gordoncaleb.chess.pieces.PositionBonus;
 import com.gordoncaleb.chess.pieces.Values;
@@ -192,9 +193,9 @@ public class StaticScore {
         final long o = b.getAllPosBitBoard()[Side.otherSide(turn)];
 
         if (turn == Side.WHITE) {
-            return (((((p >>> 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFFL) != 0);
+            return (((((p >>> 8) & ~o) | (Pawn.getPawnAttacks(p, turn) & o)) & 0xFFL) != 0);
         } else {
-            return (((((p << 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFF00000000000000L) != 0);
+            return (((((p << 8) & ~o) | (Pawn.getPawnAttacks(p, turn) & o)) & 0xFF00000000000000L) != 0);
         }
     }
 

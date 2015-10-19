@@ -2,9 +2,12 @@ package com.gordoncaleb.chess.pieces;
 
 import java.util.List;
 
+import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
+
 import static com.gordoncaleb.chess.bitboard.Slide.*;
+import static com.gordoncaleb.chess.backend.Side.*;
 
 public class Queen {
 
@@ -41,6 +44,18 @@ public class Queen {
         return slide & ~friend;
     }
 
+    public static void getQueenAttacks(long queens,
+                                       final long friendOrFoe,
+                                       final long friend,
+                                       final long[] nullMoveInfo) {
+        long mask;
+        while ((mask = Long.lowestOneBit(queens)) != 0) {
+            nullMoveInfo[0] |= slideQueen(mask, friendOrFoe, friend);
+            queens ^= mask;
+        }
+
+    }
+
     public static void getNullMoveInfo(final Piece piece,
                                        final Board board,
                                        final long[] nullMoveInfo,
@@ -51,7 +66,7 @@ public class Queen {
                                        final long kingCheckVectors,
                                        final long friendly) {
 
-        long bitPiece = piece.getBit();
+        final long bitPiece = piece.getBit();
 
         // up ------------------------------------------------------------
         long temp = bitPiece;

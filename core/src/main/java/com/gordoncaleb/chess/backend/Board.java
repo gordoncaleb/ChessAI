@@ -495,15 +495,14 @@ public class Board {
 
         pieces[turn].forEach(Piece::clearBlocking);
 
-        nullMoveInfo[0] = BitBoard.getPawnAttacks(posBitBoard[PAWN][otherSide], otherSide);
-        nullMoveInfo[0] |= BitBoard.getKnightAttacks(posBitBoard[KNIGHT][otherSide]);
-        nullMoveInfo[0] |= BitBoard.getKingAttacks(posBitBoard[KING][otherSide]);
+        final long friendOrFoe = allPosBitBoard[0] | allPosBitBoard[1];
 
-        nullMoveInfo[1] = BitBoard.getPawnAttacks(posBitBoard[KING][turn], turn)
-                & posBitBoard[PAWN][otherSide];
+        nullMoveInfo[0] = Pawn.getPawnAttacks(posBitBoard[PAWN][otherSide], otherSide);
+        nullMoveInfo[0] |= Knight.getKnightAttacks(posBitBoard[KNIGHT][otherSide]);
+        nullMoveInfo[0] |= King.getKingAttacks(posBitBoard[KING][otherSide]);
 
-        nullMoveInfo[1] |= BitBoard.getKnightAttacks(posBitBoard[KING][turn])
-                & posBitBoard[KNIGHT][otherSide];
+        nullMoveInfo[1] = Pawn.getPawnAttacks(posBitBoard[KING][turn], turn) & posBitBoard[PAWN][otherSide];
+        nullMoveInfo[1] |= Knight.getKnightAttacks(posBitBoard[KING][turn]) & posBitBoard[KNIGHT][otherSide];
 
         if (nullMoveInfo[1] == 0) {
             nullMoveInfo[1] = BitBoard.ALL_ONES;
@@ -511,14 +510,19 @@ public class Board {
 
         nullMoveInfo[2] = 0;
 
-        final long updown = ~(allPosBitBoard[0] | allPosBitBoard[1]);
-        final long left = 0xFEFEFEFEFEFEFEFEL & updown;
-        final long right = 0x7F7F7F7F7F7F7F7FL & updown;
+        final long updown = ~friendOrFoe;
+        final long left = BitBoard.NOT_LEFT1 & updown;
+        final long right = BitBoard.NOT_RIGHT1 & updown;
+        final long kingCheckVectors = King.getKingCheckVectors(posBitBoard[KING][turn], updown, left, right);
 
         for (Piece p : pieces[otherSide]) {
-            p.getNullMoveInfo(this, nullMoveInfo, updown, left, right,
+            p.getNullMoveInfo(this,
+                    nullMoveInfo,
+                    updown,
+                    left,
+                    right,
                     posBitBoard[KING][turn],
-                    King.getKingCheckVectors(posBitBoard[KING][turn], updown, left, right),
+                    kingCheckVectors,
                     allPosBitBoard[turn]);
         }
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
+
 import static com.gordoncaleb.chess.bitboard.Slide.*;
 
 import static com.gordoncaleb.chess.bitboard.BitBoard.getMask;
