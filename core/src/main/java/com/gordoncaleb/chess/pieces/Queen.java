@@ -22,7 +22,7 @@ public class Queen {
                                                 final long[] posBitBoard,
                                                 final List<Long> validMoves) {
 
-        final long friend = posBitBoard[p.getSide().ordinal()];
+        final long friend = posBitBoard[p.getSide()];
         final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
         final long footPrint = slideQueen(p.getBit(), friendOrFoe, friend);
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);

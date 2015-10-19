@@ -1,31 +1,44 @@
 package com.gordoncaleb.chess.backend;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+public class Side {
 
-public enum Side {
-	BLACK, WHITE, NONE, BOTH;
+    public static final int BLACK = 0;
+    public static final int WHITE = 1;
+    public static final int NONE = 2;
+    public static final int BOTH = 3;
 
-	public Side otherSide() {
+    public static String toString(int side) {
+        switch (side) {
+            case WHITE:
+                return "WHITE";
+            case BLACK:
+                return "BLACK";
+            case NONE:
+                return "NONE";
+            case BOTH:
+                return "BOTH";
+            default:
+                return "UNKNOWN";
+        }
+    }
 
-		if (this == Side.WHITE) {
-			return Side.BLACK;
-		} else {
-			if (this == Side.BLACK) {
-				return Side.WHITE;
-			} else {
-				return this;
-			}
-		}
-	}
+    public static int fromString(String side) {
+        switch (side) {
+            case "WHITE":
+                return WHITE;
+            case "BLACK":
+                return BLACK;
+            case "NONE":
+                return NONE;
+            case "BOTH":
+                return BOTH;
+            default:
+                return NONE;
+        }
+    }
 
-	@JsonCreator
-	public Side fromString(String s){
-		return Side.valueOf(s);
-	}
+    public static int otherSide(final int side) {
+        return side ^ 1;
+    }
 
-	@JsonValue
-	public String asString(){
-		return toString();
-	}
 }

@@ -257,7 +257,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		}
 	}
 
-	private String getPlayerTimeString(Side side) {
+	private String getPlayerTimeString(int side) {
 		if (boardGUI != null) {
 			long time = boardGUI.getPlayerTime(side);
 			long min = time / 60000;
@@ -287,8 +287,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		}
 	}
 
-	public ImageIcon getChessIcon(int id, Side player) {
-		return pieceIcons[player.ordinal()][id];
+	public ImageIcon getChessIcon(int id, int player) {
+		return pieceIcons[player][id];
 	}
 
 	public void setFlipBoard(boolean flipBoard) {
@@ -310,7 +310,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
 	}
 
-	public Side getTurn() {
+	public int getTurn() {
 		return adjudicator.getTurn();
 	}
 
@@ -451,7 +451,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		// setFlipBoard(adjudicator.getTurn() == Side.BLACK);
 	}
 
-	public void setGameSatus(Game.GameStatus status, Side playerTurn) {
+	public void setGameSatus(Game.GameStatus status, int playerTurn) {
 
 		if (status == Game.GameStatus.CHECK) {
 			logger.debug("Check!");
@@ -622,7 +622,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		}
 	}
 
-	private void takePiece(int pieceTakenID, Side pieceTakenSide) {
+	private void takePiece(int pieceTakenID, int pieceTakenSide) {
 		JPieceTakenLabel picLabel = new JPieceTakenLabel(pieceTakenID, pieceTakenSide);
 		picLabel.addMouseListener(this);
 

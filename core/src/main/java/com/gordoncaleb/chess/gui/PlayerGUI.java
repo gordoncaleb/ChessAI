@@ -56,12 +56,12 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		AI playerTwo = new AI(null);
 		playerTwo.setUseBook(true);
 
-		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
+		Hashtable<Integer, Player> players = new Hashtable<Integer, Player>();
 
-		Side humanSide = playerOne.optionForSide();
+		int humanSide = playerOne.optionForSide();
 
 		players.put(humanSide, playerOne);
-		players.put(humanSide.otherSide(), playerTwo);
+		players.put(Side.otherSide(humanSide), playerTwo);
 
 		Game game = new Game(players);
 
@@ -142,9 +142,9 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 	}
 
-	public Side optionForSide() {
+	public int optionForSide() {
 
-		Side playerSide;
+		int playerSide;
 
 		Object[] options = { "White", "Black" };
 		int n = JOptionPane.showOptionDialog(frame, "Wanna play as black or white?", "New Game", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
@@ -267,7 +267,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public String getPlayerName(Side side) {
+	public String getPlayerName(int side) {
 		if (game != null) {
 			return game.getPlayerName(side);
 		} else {
@@ -276,7 +276,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public long getPlayerTime(Side side) {
+	public long getPlayerTime(int side) {
 		if (game != null) {
 			return game.getPlayerTime(side);
 		} else {
@@ -349,7 +349,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 
 				Board board = XMLParser.XMLToBoard(FileIO.readResource(fc.getSelectedFile().getPath()));
 
-				Side side = optionForSide();
+				int side = optionForSide();
 				game.setSide(side, this);
 				game.newGame(board, false);
 
@@ -364,7 +364,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		if (arg0.getSource() == newGameMenu) {
 			Board board = BoardFactory.getStandardChessBoard();
 
-			Side side = optionForSide();
+			int side = optionForSide();
 			game.setSide(side, this);
 			game.newGame(board, false);
 
@@ -373,7 +373,7 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 		if (arg0.getSource() == new960GameMenu) {
 			Board board = BoardFactory.getRandomChess960Board();
 
-			Side side = optionForSide();
+			int side = optionForSide();
 			game.setSide(side, this);
 			game.newGame(board, false);
 

@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 public class Game implements PlayerContainer {
     private static final Logger logger = LoggerFactory.getLogger(PlayerContainer.class);
 
-    private Hashtable<Side, Player> players;
+    private Hashtable<Integer, Player> players;
     private ArrayList<Player> observers;
-    private Side turn;
+    private int turn;
     private boolean paused;
     private GameClock clock;
     private Adjudicator adjudicator;
@@ -22,7 +22,7 @@ public class Game implements PlayerContainer {
 
     private Boolean gameActive;
 
-    public Game(Hashtable<Side, Player> players) {
+    public Game(Hashtable<Integer, Player> players) {
 
         paused = false;
 
@@ -84,8 +84,13 @@ public class Game implements PlayerContainer {
                 }
             }
 
-            return new GameResults(adjudicator.getGameStatus(), adjudicator.getWinner(), -scorer.staticScore(adjudicator.getBoard()),
-                    clock.getTime(Side.WHITE), clock.getTime(Side.BLACK), adjudicator.getMoveHistory().size(), clock.getMaxTime(Side.WHITE),
+            return new GameResults(adjudicator.getGameStatus(),
+                    adjudicator.getWinner(),
+                    -scorer.staticScore(adjudicator.getBoard()),
+                    clock.getTime(Side.WHITE),
+                    clock.getTime(Side.BLACK),
+                    adjudicator.getMoveHistory().size(),
+                    clock.getMaxTime(Side.WHITE),
                     clock.getMaxTime(Side.BLACK));
         }
 
@@ -137,7 +142,7 @@ public class Game implements PlayerContainer {
         }
     }
 
-    public synchronized void setSide(Side side, Player player) {
+    public synchronized void setSide(int side, Player player) {
         if (players.get(side) != player) {
             Player whitePlayer = players.get(Side.WHITE);
             players.put(Side.WHITE, players.get(Side.BLACK));
@@ -162,7 +167,7 @@ public class Game implements PlayerContainer {
                 observers.get(i).undoMove();
             }
 
-            turn = turn.otherSide();
+            turn = Side.otherSide(turn);
 
             return true;
 
@@ -174,7 +179,7 @@ public class Game implements PlayerContainer {
     public synchronized boolean makeMove(long move) {
 
         if (clock.hit()) {
-            logger.debug("Game Over " + turn.otherSide() + " wins by time!");
+            logger.debug("Game Over " + Side.otherSide(turn) + " wins by time!");
             // adjudicator.getBoard().setBoardStatus(GameStatus.TIMES_UP);
 
             synchronized (gameActive) {
@@ -184,7 +189,7 @@ public class Game implements PlayerContainer {
             return false;
         }
 
-        turn = turn.otherSide();
+        turn = Side.otherSide(turn);
 
         if (adjudicator.move(move)) {
 
@@ -213,7 +218,7 @@ public class Game implements PlayerContainer {
             if (players.get(Side.BOTH) == null) {
                 if (adjudicator.getGameStatus() == GameStatus.CHECKMATE) {
                     players.get(adjudicator.getWinner()).gameOver(1);
-                    players.get(adjudicator.getWinner().otherSide()).gameOver(-1);
+                    players.get(Side.otherSide(adjudicator.getWinner())).gameOver(-1);
                 } else {
                     players.get(Side.WHITE).gameOver(0);
                     players.get(Side.BLACK).gameOver(0);
@@ -253,7 +258,7 @@ public class Game implements PlayerContainer {
 
     }
 
-    public String getPlayerName(Side side) {
+    public String getPlayerName(int side) {
         if (players.get(side) != null) {
             return players.get(side).getVersion();
         } else {
@@ -261,7 +266,7 @@ public class Game implements PlayerContainer {
         }
     }
 
-    public long getPlayerTime(Side side) {
+    public long getPlayerTime(int side) {
         if (clock != null) {
             return clock.getTime(side);
         } else {

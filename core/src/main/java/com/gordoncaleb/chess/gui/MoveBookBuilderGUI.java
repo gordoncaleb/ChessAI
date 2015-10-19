@@ -74,7 +74,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
         PositionBonus.applyScale();
 
-        java.util.Hashtable<Side, Player> players = new java.util.Hashtable<>();
+        java.util.Hashtable<Integer, Player> players = new java.util.Hashtable<>();
 
         AI ai = new AI(null);
         MoveBookBuilderGUI mbBuilder = new MoveBookBuilderGUI(ai);
@@ -521,12 +521,12 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     }
 
     @Override
-    public String getPlayerName(Side side) {
+    public String getPlayerName(int side) {
         return "N/A";
     }
 
     @Override
-    public long getPlayerTime(Side side) {
+    public long getPlayerTime(int side) {
         // TODO Auto-generated method stub
         return 0;
     }

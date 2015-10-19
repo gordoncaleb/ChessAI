@@ -223,7 +223,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public String getPlayerName(Side side) {
+	public String getPlayerName(int side) {
 		if (game != null) {
 			return game.getPlayerName(side);
 		} else {
@@ -232,7 +232,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public long getPlayerTime(Side side) {
+	public long getPlayerTime(int side) {
 		if (game != null) {
 			return game.getPlayerTime(side);
 		} else {

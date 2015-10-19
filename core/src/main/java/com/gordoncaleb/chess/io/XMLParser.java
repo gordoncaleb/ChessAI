@@ -43,10 +43,10 @@ public class XMLParser {
 
 	private static Board buildBoard(Element boardElement) {
 		ArrayList<Piece>[] pieces = new ArrayList[2];
-		pieces[Side.WHITE.ordinal()] = new ArrayList<>();
-		pieces[Side.BLACK.ordinal()] = new ArrayList<>();
+		pieces[Side.WHITE] = new ArrayList<>();
+		pieces[Side.BLACK] = new ArrayList<>();
 
-		Side player;
+		int player;
 		String stringBoard = getCharacterDataFromElement((Element) boardElement.getElementsByTagName("setup").item(0));
 
 		String[] stringPieces = stringBoard.split(",");
@@ -59,7 +59,7 @@ public class XMLParser {
 				piece = Piece.fromString(stringPiece, row, col);
 
 				if (piece != null) {
-					pieces[piece.getSide().ordinal()].add(piece);
+					pieces[piece.getSide()].add(piece);
 				}
 
 			}
@@ -67,7 +67,7 @@ public class XMLParser {
 
 		String turn = getCharacterDataFromElement((Element) boardElement.getElementsByTagName("turn").item(0));
 
-		if (turn.compareTo(Side.WHITE.toString()) == 0) {
+		if (turn.compareTo(Side.toString(Side.WHITE)) == 0) {
 			player = Side.WHITE;
 		} else {
 			player = Side.BLACK;
@@ -80,7 +80,7 @@ public class XMLParser {
 			moveHistory.push(new Move(m));
 		}
 
-		if (pieces[Side.BLACK.ordinal()].size() == 0 || pieces[Side.WHITE.ordinal()].size() == 0) {
+		if (pieces[Side.BLACK].size() == 0 || pieces[Side.WHITE].size() == 0) {
 			logger.debug("Error loading xml board!");
 			return null;
 		}
@@ -295,7 +295,7 @@ public class XMLParser {
 			}
 
 			xmlBoard += "<setup>\n" + b.toString() + "</setup>\n";
-			xmlBoard += "<turn>" + b.getTurn().toString() + "</turn>\n";
+			xmlBoard += "<turn>" + Side.toString(b.getTurn()) + "</turn>\n";
 
 			while (!movesToRedo.isEmpty()) {
 				b.makeMove(movesToRedo.pop().getMoveLong());
@@ -308,7 +308,7 @@ public class XMLParser {
 
 		} else {
 			xmlBoard += "<setup>\n" + b.toString() + "</setup>\n";
-			xmlBoard += "<turn>" + b.getTurn().toString() + "</turn>\n";
+			xmlBoard += "<turn>" + Side.toString(b.getTurn()) + "</turn>\n";
 		}
 
 		xmlBoard += "</board>";

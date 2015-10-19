@@ -52,7 +52,7 @@ public class TournamentGUI {
 
 		((AI) playerOne).setUseBook(true);
 
-		Hashtable<Side, Player> players = new Hashtable<Side, Player>();
+		Hashtable<Integer, Player> players = new Hashtable<>();
 
 		players.put(Side.WHITE, playerOne);
 		players.put(Side.BLACK, playerTwo);
@@ -107,13 +107,13 @@ public class TournamentGUI {
 				results = game.newGame(board, true);
 
 				winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));
-				loserScore = playerScore.get(playerNames.get(players.get(results.getWinner().otherSide())));
+				loserScore = playerScore.get(playerNames.get(players.get(Side.otherSide(results.getWinner()))));
 
 				FileIO.writeFile((".\\tournament\\game" + (i * 2 + s) + "_" + results.getEndGameStatus() + ".xml"), ((AI) playerOne).getBoard().toXML(true), false);
 
 				if (results.getEndGameStatus() == Game.GameStatus.CHECKMATE) {
 
-					winnerScore[results.getWinner().ordinal()]++;
+					winnerScore[results.getWinner()]++;
 					winnerScore[2] += results.getWinBy();
 					winnerScore[3] += results.getNumOfMoves() / 2;
 					winnerScore[4] += results.getTime(results.getWinner());
@@ -122,9 +122,9 @@ public class TournamentGUI {
 					}
 
 					loserScore[3] += results.getNumOfMoves() / 2;
-					loserScore[4] += results.getTime(results.getWinner().otherSide());
-					if (loserScore[5] < results.getMaxTime(results.getWinner().otherSide())) {
-						loserScore[5] = results.getMaxTime(results.getWinner().otherSide());
+					loserScore[4] += results.getTime(Side.otherSide(results.getWinner()));
+					if (loserScore[5] < results.getMaxTime(Side.otherSide(results.getWinner()))) {
+						loserScore[5] = results.getMaxTime(Side.otherSide(results.getWinner()));
 					}
 				} else {
 					if (results.getEndGameStatus() == Game.GameStatus.DRAW || results.getEndGameStatus() == Game.GameStatus.STALEMATE) {
@@ -218,7 +218,7 @@ public class TournamentGUI {
 		double avgDrawPts = (double) score[8] / ((double) totalDraws);
 
 		String out = "Player: " + playerName + "\n";
-		out += "Total wins: " + totalWins + " (" + score[Side.BLACK.ordinal()] + " black, " + score[Side.WHITE.ordinal()] + " white)\n";
+		out += "Total wins: " + totalWins + " (" + score[Side.BLACK] + " black, " + score[Side.WHITE] + " white)\n";
 		out += "Average pts won by: " + avgWinby + "\n";
 		out += "Draws: " + totalDraws + " (" + score[6] + " good, " + score[7] + " bad)\n";
 		out += "Caused Stalemate: " + score[9] + "\n";

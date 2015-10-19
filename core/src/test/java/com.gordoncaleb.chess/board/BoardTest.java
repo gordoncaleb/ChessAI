@@ -306,17 +306,17 @@ public class BoardTest {
                 .forEach(b::makeMove);
     }
 
-    public void testNumberOfMoves(Side side, String[] setup, int numberOfMoves) {
+    public void testNumberOfMoves(int side, String[] setup, int numberOfMoves) {
         List<Move> moves = getValidMoves(side, setup);
         assertEquals(numberOfMoves, moves.size());
     }
 
-    public void testContainsMove(Side side, String[] setup, Move move) {
+    public void testContainsMove(int side, String[] setup, Move move) {
         List<Move> moves = getValidMoves(side, setup);
         assertTrue(moves.contains(move));
     }
 
-    public List<Move> getValidMoves(Side side, String[] setup) {
+    public List<Move> getValidMoves(int side, String[] setup) {
         Board b1 = boardDAO.getFromSetup(side, setup);
         b1.makeNullMove();
         return Move.fromLongs(b1.generateValidMoves());
@@ -340,7 +340,7 @@ public class BoardTest {
                 piece = b.getPiece(r, c);
 
                 if (piece != null) {
-                    allBitBoard[piece.getPieceID()][piece.getSide().ordinal()] ^= BitBoard.getMask(r, c);
+                    allBitBoard[piece.getPieceID()][piece.getSide()] ^= BitBoard.getMask(r, c);
                 }
 
             }

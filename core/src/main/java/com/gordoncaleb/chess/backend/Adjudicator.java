@@ -93,7 +93,7 @@ public class Adjudicator {
         return board.getMoveHistory();
     }
 
-    public Side getTurn() {
+    public int getTurn() {
         return board.getTurn();
     }
 
@@ -101,7 +101,7 @@ public class Adjudicator {
         return board.getPieceID(row, col);
     }
 
-    public Side getPiecePlayer(int row, int col) {
+    public int getPiecePlayer(int row, int col) {
         Piece p = board.getPiece(row,col);
         return p.getSide();
     }
@@ -126,7 +126,7 @@ public class Adjudicator {
         return matchingMove.orElse(0L);
     }
 
-    public List<Piece> getPiecesTaken(Side player) {
+    public List<Piece> getPiecesTaken(int player) {
         return board.getPiecesTakenFor(player);
     }
 
@@ -144,11 +144,11 @@ public class Adjudicator {
         return board.isGameOver();
     }
 
-    public Side getWinner() {
+    public int getWinner() {
         if (board.isGameOver()) {
-            return board.getTurn().otherSide();
+            return Side.otherSide(board.getTurn());
         } else {
-            return null;
+            return Side.NONE;
         }
     }
 

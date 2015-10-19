@@ -36,10 +36,12 @@ public class BoardDAO {
         return XMLParser.XMLToBoard(FileIO.readResource(fileName));
     }
 
-    public Board getFromSetup(Side turn, String[] setup) {
+    public Board getFromSetup(int turn, String[] setup) {
         BoardJSON boardJSON = new BoardJSON();
-        boardJSON.setCastle(ImmutableMap.of(Side.WHITE, BoardJSON.NO_CASTLE_RIGHTS, Side.BLACK, BoardJSON.NO_CASTLE_RIGHTS));
-        boardJSON.setTurn(turn);
+        boardJSON.setCastle(ImmutableMap.of(Side.toString(Side.WHITE), BoardJSON.NO_CASTLE_RIGHTS,
+                Side.toString(Side.BLACK), BoardJSON.NO_CASTLE_RIGHTS));
+
+        boardJSON.setTurn(Side.toString(turn));
 
         Map<String, String> setupMap = new HashMap<>();
         Arrays.stream(setup).forEach(l -> setupMap.put(8 - setupMap.size() + "", l));
@@ -49,7 +51,7 @@ public class BoardDAO {
     }
 
     private Board buildBoard(BoardJSON boardJSON) {
-        Map<Side, ArrayList<Piece>> pieces = ImmutableMap.of(Side.WHITE, new ArrayList<>(), Side.BLACK, new ArrayList<>());
+        Map<Integer, ArrayList<Piece>> pieces = ImmutableMap.of(Side.WHITE, new ArrayList<>(), Side.BLACK, new ArrayList<>());
 
         String stringBoard = boardJSON.getSetup().entrySet().stream()
                 .sorted((b, a) -> a.getKey().compareTo(b.getKey()))
@@ -70,11 +72,17 @@ public class BoardDAO {
             }
         }
 
-        Board board = new Board(new ArrayList[]{pieces.get(Side.BLACK), pieces.get(Side.WHITE)}, boardJSON.getTurn(), new Stack<>(), null, null);
+        Board board = new Board(new ArrayList[]{pieces.get(Side.BLACK),
+                pieces.get(Side.WHITE)},
+                Side.fromString(boardJSON.getTurn()),
+                new Stack<>(),
+                null,
+                null
+        );
 
         boardJSON.getCastle()
                 .forEach((side, rights) ->
-                        board.applyCastleRights(side, rights.isNear(), rights.isFar()));
+                        board.applyCastleRights(Side.fromString(side), rights.isNear(), rights.isFar()));
 
         return board;
     }
@@ -82,7 +90,7 @@ public class BoardDAO {
     private Piece piecePieceFromString(String stringPiece, int row, int col) {
         return Optional.ofNullable(pieceIDMap.get(stringPiece.toUpperCase()))
                 .map(id -> {
-                    Side player = stringPiece.matches("[a-z]") ? Side.WHITE : Side.BLACK;
+                    int player = stringPiece.matches("[a-z]") ? Side.WHITE : Side.BLACK;
                     return new Piece(id, player, row, col, false);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Piece: " + stringPiece));

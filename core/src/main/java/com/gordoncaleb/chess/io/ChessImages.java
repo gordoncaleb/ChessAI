@@ -64,13 +64,13 @@ public class ChessImages {
 		}
 	}
 
-	public static Image getChessImage(int id, Side player) {
+	public static Image getChessImage(int id, int player) {
 
 		if (!loaded) {
 			loadChessImages();
 			loaded = true;
 		}
-		return chessPieceGraphics[player.ordinal()][id];
+		return chessPieceGraphics[player][id];
 	}
 
 	public static ImageIcon[][] getScaledIcons(int height) {
@@ -95,14 +95,14 @@ public class ChessImages {
 		return icons;
 	}
 
-	public static ImageIcon getChessIcon(int id, Side player) {
+	public static ImageIcon getChessIcon(int id, int player) {
 
 		if (!loaded) {
 			loadChessImages();
 			loaded = true;
 		}
 
-		return chessPieceIcons[player.ordinal()][id];
+		return chessPieceIcons[player][id];
 	}
 
 }

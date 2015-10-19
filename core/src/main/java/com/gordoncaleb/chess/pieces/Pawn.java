@@ -20,7 +20,7 @@ public class Pawn {
     public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
         int currentRow = p.getRow();
         int currentCol = p.getCol();
-        Side player = p.getSide();
+        int player = p.getSide();
         int dir;
         int fifthRank;
         Long moveLong;

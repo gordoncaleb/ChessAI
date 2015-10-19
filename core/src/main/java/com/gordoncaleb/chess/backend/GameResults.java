@@ -2,7 +2,7 @@ package com.gordoncaleb.chess.backend;
 
 public class GameResults {
 
-	private Side winner;
+	private int winner;
 	private int winBy;
 
 	private long whiteTime;
@@ -15,7 +15,7 @@ public class GameResults {
 	
 	private Game.GameStatus endGameStatus;
 
-	public GameResults(Game.GameStatus endGameStatus, Side winner, int winBy, long whiteTime, long blackTime, int numOfMoves, long maxWhiteTime, long maxBlackTime) {
+	public GameResults(Game.GameStatus endGameStatus, int winner, int winBy, long whiteTime, long blackTime, int numOfMoves, long maxWhiteTime, long maxBlackTime) {
 		this.winner = winner;
 		this.winBy = winBy;
 
@@ -30,11 +30,11 @@ public class GameResults {
 		this.endGameStatus = endGameStatus;
 	}
 
-	public Side getWinner() {
+	public int getWinner() {
 		return winner;
 	}
 
-	public void setWinner(Side winner) {
+	public void setWinner(int winner) {
 		this.winner = winner;
 	}
 
@@ -46,7 +46,7 @@ public class GameResults {
 		this.winBy = winBy;
 	}
 
-	public long getTime(Side side) {
+	public long getTime(int side) {
 		if (side == Side.WHITE) {
 			return whiteTime;
 		} else {
@@ -62,7 +62,7 @@ public class GameResults {
 		this.numOfMoves = numOfMoves;
 	}
 
-	public long getMaxTime(Side side) {
+	public long getMaxTime(int side) {
 		if (side == Side.WHITE) {
 			return maxWhiteTime;
 		} else {

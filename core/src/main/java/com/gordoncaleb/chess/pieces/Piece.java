@@ -12,7 +12,7 @@ import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
 public class Piece {
     private int row;
     private int col;
-    private Side player;
+    private int player;
     private boolean moved;
     private long blockingVector;
     private int id;
@@ -32,7 +32,7 @@ public class Piece {
         NO_PIECE, ENEMY, FRIEND, OFF_BOARD
     }
 
-    public Piece(int id, Side player, int row, int col, boolean moved) {
+    public Piece(int id, int player, int row, int col, boolean moved) {
         this.id = id;
         this.moved = moved;
         this.player = player;
@@ -67,7 +67,7 @@ public class Piece {
         setPos(Move.getFromRow(newMove), Move.getFromCol(newMove));
     }
 
-    public Side getSide() {
+    public int getSide() {
         return player;
     }
 
@@ -116,7 +116,7 @@ public class Piece {
     }
 
     public static Piece fromString(String stringPiece, int row, int col) {
-        Side player;
+        int player;
 
         boolean hasMoved = false;
 
@@ -296,8 +296,13 @@ public class Piece {
         }
     }
 
-    public static List<Long> generateValidMoves(long footPrint, final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Long> validMoves) {
-        final long foeBb = posBitBoard[p.getSide().otherSide().ordinal()];
+    public static List<Long> generateValidMoves(long footPrint,
+                                                final Piece p,
+                                                final Board board,
+                                                final long[] nullMoveInfo,
+                                                final long[] posBitBoard,
+                                                final List<Long> validMoves) {
+        final long foeBb = posBitBoard[Side.otherSide(p.getSide())];
 
         int bitNum;
         while ((bitNum = Long.numberOfTrailingZeros(footPrint)) < 64) {

@@ -26,19 +26,19 @@ public class BoardFactory {
         pieces[1] = new ArrayList<>();
 
         int[] pawnRow = new int[2];
-        pawnRow[Side.BLACK.ordinal()] = 1;
-        pawnRow[Side.WHITE.ordinal()] = 6;
+        pawnRow[Side.BLACK] = 1;
+        pawnRow[Side.WHITE] = 6;
 
         int[] mainRow = new int[2];
-        mainRow[Side.BLACK.ordinal()] = 0;
-        mainRow[Side.WHITE.ordinal()] = 7;
+        mainRow[Side.BLACK] = 0;
+        mainRow[Side.WHITE] = 7;
 
         // public Piece(PieceID id, Side player, int row, int col, boolean
         // moved) {
         Piece temp;
         for (int s = 0; s < 2; s++) {
             for (int p = 0; p < 8; p++) {
-                temp = new Piece(Piece.PieceID.PAWN, Side.values()[s], pawnRow[s], p, false);
+                temp = new Piece(Piece.PieceID.PAWN, s, pawnRow[s], p, false);
                 pieces[s].add(temp);
             }
         }
@@ -61,7 +61,7 @@ public class BoardFactory {
 
         for (int s = 0; s < 2; s++) {
             for (int p = 0; p < 8; p++) {
-                temp = new Piece(setup[p], Side.values()[s], mainRow[s], p, false);
+                temp = new Piece(setup[p], s, mainRow[s], p, false);
                 pieces[s].add(temp);
             }
         }
@@ -88,7 +88,7 @@ public class BoardFactory {
         return r.nextInt(dieSize);
     }
 
-    public static Stack<Piece> getFullPieceSet(Side player) {
+    public static Stack<Piece> getFullPieceSet(int player) {
         Stack<Piece> pieces = new Stack<>();
 
         for (int i = 0; i < 8; i++) {

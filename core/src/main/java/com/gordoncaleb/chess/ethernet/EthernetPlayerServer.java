@@ -196,13 +196,13 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 	}
 
 	@Override
-	public String getPlayerName(Side side) {
+	public String getPlayerName(int side) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public long getPlayerTime(Side side) {
+	public long getPlayerTime(int side) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -213,7 +213,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 	}
 
 	@Override
-	public void setSide(Side side, Player player) {
+	public void setSide(int side, Player player) {
 
 	}
 

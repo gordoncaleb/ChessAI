@@ -6,9 +6,9 @@ import com.gordoncaleb.chess.pieces.Piece;
 public interface PieceGUI {
     int getPieceID();
 
-    Side getPlayer();
+    int getPlayer();
 
-    void showChessPiece(int pieceID, Side player);
+    void showChessPiece(int pieceID, int player);
 
     void showAsSelected(boolean selected);
 }

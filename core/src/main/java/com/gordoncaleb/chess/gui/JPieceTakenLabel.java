@@ -11,9 +11,9 @@ import com.gordoncaleb.chess.pieces.Piece;
 
 public class JPieceTakenLabel extends JLabel implements PieceGUI{
 	private int pieceID;
-	private Side player;
+	private int player;
 	
-	public JPieceTakenLabel(int pieceID, Side side){
+	public JPieceTakenLabel(int pieceID, int side){
 		this.pieceID = pieceID;
 		this.player = side;
 		
@@ -25,11 +25,11 @@ public class JPieceTakenLabel extends JLabel implements PieceGUI{
 		return pieceID;
 	}
 	
-	public Side getPlayer(){
+	public int getPlayer(){
 		return player;
 	}
 
-	public void showChessPiece(int pieceID, Side player) {
+	public void showChessPiece(int pieceID, int player) {
 		this.pieceID = pieceID;
 		this.player = player;
 		this.setIcon(ChessImages.getChessIcon(pieceID, player));

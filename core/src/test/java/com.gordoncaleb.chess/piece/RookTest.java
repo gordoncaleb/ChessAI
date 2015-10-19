@@ -33,15 +33,15 @@ public class RookTest {
         Piece piece = board.getPiece(4, 1);
         long[] nullMoveInfo = new long[3];
 
-        Side turn = board.getTurn();
+        int turn = board.getTurn();
         long updown = ~(board.getAllPosBitBoard()[0] | board.getAllPosBitBoard()[1]);
-        long friendly = board.getAllPosBitBoard()[turn.ordinal()];
-        long kingBitBoard = board.getPosBitBoard()[Piece.PieceID.KING][turn.ordinal()];
+        long friendly = board.getAllPosBitBoard()[turn];
+        long kingBitBoard = board.getPosBitBoard()[Piece.PieceID.KING][turn];
 
         long left = 0xFEFEFEFEFEFEFEFEL & updown;
         long right = 0x7F7F7F7F7F7F7F7FL & updown;
 
-        long kingCheckVectors = King.getKingCheckVectors(board.getPosBitBoard()[Piece.PieceID.KING][turn.ordinal()], updown, left, right);
+        long kingCheckVectors = King.getKingCheckVectors(board.getPosBitBoard()[Piece.PieceID.KING][turn], updown, left, right);
 
         piece.getNullMoveInfo(board, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
 
@@ -64,15 +64,15 @@ public class RookTest {
         Piece piece = board.getPiece(6, 0);
         long[] nullMoveInfo = new long[3];
 
-        Side turn = board.getTurn();
+        int turn = board.getTurn();
         long updown = ~(board.getAllPosBitBoard()[0] | board.getAllPosBitBoard()[1]);
-        long friendly = board.getAllPosBitBoard()[turn.ordinal()];
-        long kingBitBoard = board.getPosBitBoard()[Piece.PieceID.KING][turn.ordinal()];
+        long friendly = board.getAllPosBitBoard()[turn];
+        long kingBitBoard = board.getPosBitBoard()[Piece.PieceID.KING][turn];
 
         long left = 0xFEFEFEFEFEFEFEFEL & updown;
         long right = 0x7F7F7F7F7F7F7F7FL & updown;
 
-        long kingCheckVectors = King.getKingCheckVectors(board.getPosBitBoard()[Piece.PieceID.KING][turn.ordinal()], updown, left, right);
+        long kingCheckVectors = King.getKingCheckVectors(board.getPosBitBoard()[Piece.PieceID.KING][turn], updown, left, right);
 
         piece.getNullMoveInfo(board, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
 

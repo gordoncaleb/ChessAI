@@ -20,12 +20,12 @@ public interface PlayerContainer {
 
     boolean isPaused();
 
-    String getPlayerName(Side side);
+    String getPlayerName(int side);
 
-    long getPlayerTime(Side side);
+    long getPlayerTime(int side);
 
     void switchSides();
 
-    void setSide(Side side, Player player);
+    void setSide(int side, Player player);
 
 }

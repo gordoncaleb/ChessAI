@@ -46,7 +46,7 @@ public class StaticScoreTest {
         testWinning(setup, Side.WHITE);
     }
 
-    private void testWinning(String[] setup, Side winner) {
+    private void testWinning(String[] setup, int winner) {
         Board board = boardDAO.getFromSetup(Side.WHITE, setup);
         int delta = scorer.staticScore(board, winner);
         assertThat("Delta", delta, greaterThan(0));

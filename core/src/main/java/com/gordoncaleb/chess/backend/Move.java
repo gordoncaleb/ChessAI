@@ -109,8 +109,12 @@ public class Move {
     public static String toString(long moveLong) {
         String moveString;
         if (hasPieceTaken(moveLong)) {
-            Piece pieceTaken = new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong),
-                    getPieceTakenHasMoved(moveLong));
+            Piece pieceTaken = new Piece(getPieceTakenID(moveLong),
+                    Side.NONE,
+                    getPieceTakenRow(moveLong),
+                    getPieceTakenCol(moveLong),
+                    getPieceTakenHasMoved(moveLong)
+            );
             moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong)
                     + " Move Note: " + getNote(moveLong).toString() + " Value:" + getValue(moveLong) + " PieceTaken: " + pieceTaken.toString();
         } else {
@@ -142,8 +146,12 @@ public class Move {
         }
 
         if (hasPieceTaken(moveLong)) {
-            xmlMove += new Piece(getPieceTakenID(moveLong), null, getPieceTakenRow(moveLong), getPieceTakenCol(moveLong),
-                    getPieceTakenHasMoved(moveLong)).toXML();
+            xmlMove += new Piece(getPieceTakenID(moveLong),
+                    Side.NONE,
+                    getPieceTakenRow(moveLong),
+                    getPieceTakenCol(moveLong),
+                    getPieceTakenHasMoved(moveLong)
+            ).toXML();
         }
 
         xmlMove += "</move>\n";

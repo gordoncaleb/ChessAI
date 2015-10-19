@@ -97,8 +97,8 @@ public class RNGTable {
         }
     }
 
-    public long getPiecePerSquareRandom(Side player, int id, int row, int col) {
-        return piecePerSquare[player.ordinal()][id][row][col];
+    public long getPiecePerSquareRandom(int player, int id, int row, int col) {
+        return piecePerSquare[player][id][row][col];
     }
 
     private void generateBlackToMove() {

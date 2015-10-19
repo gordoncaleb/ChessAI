@@ -24,7 +24,7 @@ public class King {
 	public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
 		int currentRow = p.getRow();
 		int currentCol = p.getCol();
-		Side player = p.getSide();
+		int player = p.getSide();
 		int nextRow;
 		int nextCol;
 		Piece.PositionStatus pieceStatus;
@@ -162,7 +162,7 @@ public class King {
 		return  ((mask & (nullMoveInfo[0] | nullMoveInfo[2])) == 0);
 	}
 
-	public static boolean canCastleFar(Piece king, Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
+	public static boolean canCastleFar(Piece king, Board board, int player, long[] nullMoveInfo, long allPosBitBoard) {
 
 		if (board.kingHasMoved(player) || board.farRookHasMoved(player)) {
 			return false;
@@ -185,7 +185,7 @@ public class King {
 
 	}
 
-	public static boolean canCastleNear(Piece king, Board board, Side player, long[] nullMoveInfo, long allPosBitBoard) {
+	public static boolean canCastleNear(Piece king, Board board, int player, long[] nullMoveInfo, long allPosBitBoard) {
 
 		if (board.kingHasMoved(player) || board.nearRookHasMoved(player)) {
 			return false;

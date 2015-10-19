@@ -14,11 +14,11 @@ public class StaticScore {
 
     private long openFiles = 0;
 
-    public int getPieceValue(int row, int col, Board b) {
+    public int getPieceValue(final int row, final int col, final Board b) {
         return Values.getPieceValue(b.getPiece(row, col).getPieceID()) + getOpeningPositionValue(b.getPiece(row, col));
     }
 
-    public int getOpeningPositionValue(Piece piece) {
+    public int getOpeningPositionValue(final Piece piece) {
 
         if (piece == null) {
             return 0;
@@ -44,7 +44,7 @@ public class StaticScore {
 
     }
 
-    public int getEndGamePositionValue(Piece piece) {
+    public int getEndGamePositionValue(final Piece piece) {
 
         switch (piece.getPieceID()) {
             case KNIGHT:
@@ -66,39 +66,39 @@ public class StaticScore {
 
     }
 
-    public int openingPositionScore(Side side, Board b) {
+    public int openingPositionScore(final int side, final Board b) {
         int score = 0;
 
-        for (Piece p : b.getPieces()[side.ordinal()]) {
+        for (Piece p : b.getPieces()[side]) {
             score += getOpeningPositionValue(p);
         }
 
         return score;
     }
 
-    public int endGamePositionScore(Side side, Board b) {
+    public int endGamePositionScore(final int side, final Board b) {
         int score = 0;
 
-        for (Piece p : b.getPieces()[side.ordinal()]) {
+        for (Piece p : b.getPieces()[side]) {
             score += getEndGamePositionValue(p);
         }
 
         return score;
     }
 
-    public int materialScore(Side side, Board b) {
+    public int materialScore(final int side, final Board b) {
         int score = 0;
 
-        for (Piece p : b.getPieces()[side.ordinal()]) {
+        for (Piece p : b.getPieces()[side]) {
             score += Values.getPieceValue(p.getPieceID());
         }
 
         return score;
     }
 
-    public int castleScore(Side side, int[] castleRights) {
+    public int castleScore(final int side, final int[] castleRights) {
         int score = 0;
-        int castleRight = castleRights[side.ordinal()];
+        final int castleRight = castleRights[side];
 
         switch (castleRight) {
             case 1:
@@ -112,10 +112,10 @@ public class StaticScore {
         return score;
     }
 
-    public int pawnStructureScore(Side side, int phase, Board b) {
+    public int pawnStructureScore(final int side, final int phase, final Board b) {
 
-        long pawns = b.getPosBitBoard()[Piece.PieceID.PAWN][side.ordinal()];
-        long otherPawns = b.getPosBitBoard()[Piece.PieceID.PAWN][side.otherSide().ordinal()];
+        final long pawns = b.getPosBitBoard()[Piece.PieceID.PAWN][side];
+        final long otherPawns = b.getPosBitBoard()[Piece.PieceID.PAWN][Side.otherSide(side)];
 
         long files = 0x0101010101010101L;
 
@@ -132,22 +132,22 @@ public class StaticScore {
             files = files << 1;
         }
 
-        int doubledPawns = Long.bitCount(pawns) - occupiedCol;
+        final int doubledPawns = Long.bitCount(pawns) - occupiedCol;
 
-        long passedBB = BitBoard.getPassedPawns(pawns, otherPawns, side);
+        final long passedBB = BitBoard.getPassedPawns(pawns, otherPawns, side);
 
         int passedPawns = 0;
 
         for (int i = 0; i < 8; i++) {
-            passedPawns += Long.bitCount(passedBB & BitBoard.getRowMask(i)) * Values.PASSED_PAWN_BONUS[side.ordinal()][i];
+            passedPawns += Long.bitCount(passedBB & BitBoard.getRowMask(i)) * Values.PASSED_PAWN_BONUS[side][i];
         }
 
-        int isolatedPawns = Long.bitCount(BitBoard.getIsolatedPawns(pawns, side)) * Values.ISOLATED_PAWN_BONUS;
+        final int isolatedPawns = Long.bitCount(BitBoard.getIsolatedPawns(pawns, side)) * Values.ISOLATED_PAWN_BONUS;
 
         return BitBoard.getBackedPawns(pawns) * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * phase) / 256) + isolatedPawns;
     }
 
-    public int calcGamePhase(Board b) {
+    public int calcGamePhase(final Board b) {
 
         int phase = Values.TOTALPHASE;
 
@@ -162,33 +162,34 @@ public class StaticScore {
         return phase;
     }
 
-    public int staticScore(Board b) {
+    public int staticScore(final Board b) {
         return staticScore(b, b.getTurn());
     }
 
-    public int staticScore(Board b, Side side) {
-        int phase = calcGamePhase(b);
+    public int staticScore(final Board b, final int side) {
+        final int otherSide = Side.otherSide(side);
+        final int phase = calcGamePhase(b);
 
-        int myPawnScore = pawnStructureScore(side, phase, b);
-        int yourPawnScore = pawnStructureScore(side.otherSide(), phase, b);
+        final int myPawnScore = pawnStructureScore(side, phase, b);
+        final int yourPawnScore = pawnStructureScore(otherSide, phase, b);
 
-        int openingMyScore = castleScore(side, b.getCastleHistory()) + openingPositionScore(side, b);
-        int openingYourScore = castleScore(side.otherSide(), b.getCastleHistory()) + openingPositionScore(side.otherSide(), b);
+        final int openingMyScore = castleScore(side, b.getCastleHistory()) + openingPositionScore(side, b);
+        final int openingYourScore = castleScore(otherSide, b.getCastleHistory()) + openingPositionScore(otherSide, b);
 
-        int endGameMyScore = endGamePositionScore(side, b);
-        int endGameYourScore = endGamePositionScore(side.otherSide(), b);
+        final int endGameMyScore = endGamePositionScore(side, b);
+        final int endGameYourScore = endGamePositionScore(otherSide, b);
 
-        int myScore = (openingMyScore * (256 - phase) + endGameMyScore * phase) / 256 + materialScore(side, b) + myPawnScore;
-        int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + materialScore(side.otherSide(), b) + yourPawnScore;
+        final int myScore = (openingMyScore * (256 - phase) + endGameMyScore * phase) / 256 + materialScore(side, b) + myPawnScore;
+        final int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + materialScore(otherSide, b) + yourPawnScore;
 
         return myScore - yourScore;
     }
 
-    public boolean canQueen(Board b) {
+    public boolean canQueen(final Board b) {
 
-        Side turn = b.getTurn();
-        long p = b.getPosBitBoard()[Piece.PieceID.PAWN][turn.ordinal()];
-        long o = b.getAllPosBitBoard()[turn.otherSide().ordinal()];
+        final int turn = b.getTurn();
+        final long p = b.getPosBitBoard()[Piece.PieceID.PAWN][turn];
+        final long o = b.getAllPosBitBoard()[Side.otherSide(turn)];
 
         if (turn == Side.WHITE) {
             return (((((p >>> 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFFL) != 0);
@@ -201,33 +202,34 @@ public class StaticScore {
 
         String score = "";
 
-        Side turn = b.getTurn();
+        int turn = b.getTurn();
+        int otherSide = Side.otherSide(turn);
         int phase = calcGamePhase(b);
 
         score += ("int phase = " + phase) + "\n";
 
         score += ("int myPawnScore = " + pawnStructureScore(turn, phase, b)) + "\n";
-        score += ("int yourPawnScore = " + pawnStructureScore(turn.otherSide(), phase, b)) + "\n";
+        score += ("int yourPawnScore = " + pawnStructureScore(otherSide, phase, b)) + "\n";
 
         score += ("int openingMyScore = " + materialScore(turn, b) + "(openingMaterialScore)+" + castleScore(turn, b.getCastleHistory()) + "(castleScore)+" + openingPositionScore(turn, b))
                 + "(openPositionScore)" + "\n";
-        score += ("int openingYourScore = " + materialScore(turn.otherSide(), b) + "(openMaterialScore)+" + castleScore(turn.otherSide(), b.getCastleHistory()) + "(castleScore)+"
-                + openingPositionScore(turn.otherSide(), b) + "(openPositionScore)")
+        score += ("int openingYourScore = " + materialScore(otherSide, b) + "(openMaterialScore)+" + castleScore(otherSide, b.getCastleHistory()) + "(castleScore)+"
+                + openingPositionScore(otherSide, b) + "(openPositionScore)")
                 + "\n";
 
         score += ("int endGameMyScore = " + materialScore(turn, b) + "(endGameMaterial)+" + endGamePositionScore(turn, b) + "(endGamePosition)") + "\n";
-        score += ("int endGameYourScore = " + materialScore(turn.otherSide(), b) + "(endGameMaterial)+" + endGamePositionScore(turn.otherSide(), b) + "(endGamePosition)")
+        score += ("int endGameYourScore = " + materialScore(otherSide, b) + "(endGameMaterial)+" + endGamePositionScore(otherSide, b) + "(endGamePosition)")
                 + "\n";
 
         int myopen = materialScore(turn, b) + castleScore(turn, b.getCastleHistory()) + openingPositionScore(turn, b);
-        int youropen = materialScore(turn.otherSide(), b) + castleScore(turn.otherSide(), b.getCastleHistory()) + openingPositionScore(turn.otherSide(), b);
+        int youropen = materialScore(otherSide, b) + castleScore(otherSide, b.getCastleHistory()) + openingPositionScore(otherSide, b);
 
         int myend = materialScore(turn, b) + endGamePositionScore(turn, b);
-        int yourend = materialScore(turn.otherSide(), b) + endGamePositionScore(turn.otherSide(), b);
+        int yourend = materialScore(otherSide, b) + endGamePositionScore(otherSide, b);
 
         int myscore = (myopen * (256 - phase) + myend * phase) / 256 + pawnStructureScore(turn, phase, b);
 
-        int yourscore = (youropen * (256 - phase) + yourend * phase) / 256 + pawnStructureScore(turn.otherSide(), phase, b);
+        int yourscore = (youropen * (256 - phase) + yourend * phase) / 256 + pawnStructureScore(otherSide, phase, b);
 
         score += ("int myScore = " + myscore + "\n");
         score += ("int yourScore = " + yourscore + "\n");

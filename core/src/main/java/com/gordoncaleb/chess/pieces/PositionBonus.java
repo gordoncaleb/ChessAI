@@ -129,7 +129,7 @@ public class PositionBonus {
 		}
 	}
 
-	public static int getKnightMoveBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
+	public static int getKnightMoveBonus(int fromRow, int fromCol, int toRow, int toCol, int player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = knightBonus[toRow][toCol] - knightBonus[fromRow][fromCol];
@@ -139,7 +139,7 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static int getKnightPositionBonus(int row, int col, Side player) {
+	public static int getKnightPositionBonus(int row, int col, int player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = knightBonus[row][col];
@@ -149,7 +149,7 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static int getKingOpeningPositionBonus(int row, int col, Side player) {
+	public static int getKingOpeningPositionBonus(int row, int col, int player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = kingOpeningBonus[row][col];
@@ -159,7 +159,7 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static int getKingEndGamePositionBonus(int row, int col, Side player) {
+	public static int getKingEndGamePositionBonus(int row, int col, int player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = kingEndGameBonus[row][col];
@@ -173,7 +173,7 @@ public class PositionBonus {
 		return rookBonus[row][col];
 	}
 
-	public static int getPawnMoveBonus(int fromRow, int fromCol, int toRow, int toCol, Side player) {
+	public static int getPawnMoveBonus(int fromRow, int fromCol, int toRow, int toCol, int player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = pawnBonus[toRow][toCol] - pawnBonus[fromRow][fromCol];
@@ -183,7 +183,7 @@ public class PositionBonus {
 		return bonus;
 	}
 
-	public static int getPawnPositionBonus(int row, int col, Side player) {
+	public static int getPawnPositionBonus(int row, int col, int player) {
 		int bonus;
 		if (player == Side.BLACK) {
 			bonus = pawnBonus[row][col];

@@ -11,7 +11,7 @@ public interface BoardGUI {
 
 	public void gameOverDraw();
 
-	public String getPlayerName(Side side);
+	public String getPlayerName(int side);
 
-	public long getPlayerTime(Side side);
+	public long getPlayerTime(int side);
 }

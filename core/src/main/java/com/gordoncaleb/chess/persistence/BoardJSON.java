@@ -39,23 +39,23 @@ public class BoardJSON {
         }
     }
 
-    private Side turn;
-    private Map<Side, CastleRights> castle;
+    private String turn;
+    private Map<String, CastleRights> castle;
     private Map<String, String> setup;
 
-    public Side getTurn() {
+    public String getTurn() {
         return turn;
     }
 
-    public void setTurn(Side turn) {
+    public void setTurn(String turn) {
         this.turn = turn;
     }
 
-    public Map<Side, CastleRights> getCastle() {
+    public Map<String, CastleRights> getCastle() {
         return castle;
     }
 
-    public void setCastle(Map<Side, CastleRights> castle) {
+    public void setCastle(Map<String, CastleRights> castle) {
         this.castle = castle;
     }
 

@@ -6,7 +6,7 @@ public class GameClock {
 	private long[] time;
 	private long startTime;
 	private boolean active;
-	private Side turn;
+	private int turn;
 	private String[] name;
 	private long timeLimit;
 	private boolean paused;
@@ -14,7 +14,7 @@ public class GameClock {
 
 	private Timer timer;
 
-	public GameClock(String whitePlayerName, String blackPlayerName, long whitePlayerTime, long blackPlayerTime, Side turn) {
+	public GameClock(String whitePlayerName, String blackPlayerName, long whitePlayerTime, long blackPlayerTime, int turn) {
 
 		this.name = new String[2];
 
@@ -54,13 +54,13 @@ public class GameClock {
 
 		if (active) {
 			timeDiff = System.currentTimeMillis() - startTime;
-			time[turn.ordinal()] += timeDiff;
+			time[turn] += timeDiff;
 
-			if (timeDiff > maxTime[turn.ordinal()]) {
-				maxTime[turn.ordinal()] = timeDiff;
+			if (timeDiff > maxTime[turn]) {
+				maxTime[turn] = timeDiff;
 			}
 
-			if (time[turn.ordinal()] > timeLimit && timeLimit != 0) {
+			if (time[turn] > timeLimit && timeLimit != 0) {
 				// game over
 				return true;
 			}
@@ -70,12 +70,12 @@ public class GameClock {
 		}
 
 		startTime = System.currentTimeMillis();
-		turn = turn.otherSide();
+		turn = Side.otherSide(turn);
 
 		return false;
 	}
 
-	public long getTime(Side side) {
+	public long getTime(int side) {
 
 		if (side == Side.NONE) {
 			return 0;
@@ -84,25 +84,25 @@ public class GameClock {
 		if (active) {
 			if (side != turn) {
 
-				return time[side.ordinal()];
+				return time[side];
 			} else {
-				return time[side.ordinal()] + (System.currentTimeMillis() - startTime);
+				return time[side] + (System.currentTimeMillis() - startTime);
 			}
 		} else {
-			return time[side.ordinal()];
+			return time[side];
 		}
 	}
 
-	public long getMaxTime(Side side) {
+	public long getMaxTime(int side) {
 		if (side == Side.NONE) {
 			return 0;
 		}
 
-		return maxTime[side.ordinal()];
+		return maxTime[side];
 	}
 
-	public String getName(Side side) {
-		return name[side.ordinal()];
+	public String getName(int side) {
+		return name[side];
 	}
 
 	public boolean isActive() {
@@ -116,7 +116,7 @@ public class GameClock {
 	public void pause() {
 
 		if (!paused) {
-			time[turn.ordinal()] += System.currentTimeMillis() - startTime;
+			time[turn] += System.currentTimeMillis() - startTime;
 		} else {
 			startTime = System.currentTimeMillis();
 		}

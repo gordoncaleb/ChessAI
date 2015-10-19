@@ -45,7 +45,7 @@ public class BitBoard {
         loadKingFootPrints();
     }
 
-    public static boolean isCastled(long king, long rook, Side side) {
+    public static boolean isCastled(long king, long rook, int side) {
 
         if (side == Side.WHITE) {
             king &= 0xFF00000000000000L;
@@ -58,7 +58,7 @@ public class BitBoard {
         return (king != 0 && rook != 0 && ((((removeBottomBit(king | rook, 1)) & king) == 0) || ((removeBottomBit(king | rook, 2)) & king) != 0));
     }
 
-    public static long getPassedPawns(long pawns, long otherPawns, Side side) {
+    public static long getPassedPawns(long pawns, long otherPawns, int side) {
         if (side == Side.WHITE) {
             return (~northFill(pawns | getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
         } else {
@@ -66,12 +66,12 @@ public class BitBoard {
         }
     }
 
-    public static long getIsolatedPawns(long pawns, Side side) {
+    public static long getIsolatedPawns(long pawns, int side) {
         long pawnAttacks = getPawnAttacks(pawns, side);
         return ~(southFill(pawnAttacks) | northFill(pawnAttacks)) & pawns;
     }
 
-    public static int canQueen(long p, long o, Side turn) {
+    public static int canQueen(long p, long o, int turn) {
 
         if (turn == Side.WHITE) {
             return Long.bitCount((((p >>> 8) & ~o) | (BitBoard.getPawnAttacks(p, turn) & o)) & 0xFFL);
@@ -88,7 +88,7 @@ public class BitBoard {
         return bb;
     }
 
-    public static long getCastleMask(int col1, int col2, Side side) {
+    public static long getCastleMask(int col1, int col2, int side) {
         int lowCol;
         int highCol;
 
@@ -161,7 +161,7 @@ public class BitBoard {
         return Long.bitCount(((pawns & 0x7F7F7F7F7F7F7F7FL) << 7) & pawns) + Long.bitCount(((pawns & 0xFEFEFEFEFEFEFEFEL) << 9));
     }
 
-    public static long getPawnAttacks(long pawns, Side side) {
+    public static long getPawnAttacks(long pawns, int side) {
         if (side == Side.BLACK) {
             return ((pawns & 0x7F7F7F7F7F7F7F7FL) << 9) | ((pawns & 0xFEFEFEFEFEFEFEFEL) << 7);
         } else {

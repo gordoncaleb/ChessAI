@@ -21,7 +21,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 	private int row;
 	private int col;
 	private int id;
-	private Side player;
+	private int player;
 	private ArrayList<Long> validMoves;
 
 	// Debug components
@@ -184,7 +184,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 		updateBackgroundColor();
 	}
 
-	public void showChessPiece(int id, Side player) {
+	public void showChessPiece(int id, int player) {
 
 		if (this.id == id && this.player == player) {
 			return;
@@ -201,7 +201,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 	}
 
 	public void updateIcon() {
-		if (id != Piece.PieceID.NONE && player != null) {
+		if (id != Piece.PieceID.NONE && player != Side.NONE) {
 			picLabel.setIcon(boardPanel.getChessIcon(id, player));
 			picLabel.updateUI();
 		}
@@ -255,7 +255,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 		return col;
 	}
 
-	public Side getPlayer() {
+	public int getPlayer() {
 		return player;
 	}
 
