@@ -18,7 +18,7 @@ import static com.gordoncaleb.chess.pieces.Piece.*;
 public class BoardDAO {
 
     private static final String EMPTY_SPACE = "_";
-    private static final Map<String, PieceID> pieceIDMap = new ImmutableMap.Builder<String, PieceID>()
+    private static final Map<String, Integer> pieceIDMap = new ImmutableMap.Builder<String, Integer>()
             .put("R", ROOK)
             .put("N", KNIGHT)
             .put("B", BISHOP)

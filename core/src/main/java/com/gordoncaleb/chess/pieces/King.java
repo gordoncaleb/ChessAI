@@ -13,10 +13,6 @@ public class King {
 	public King() {
 	}
 
-	public static Piece.PieceID getPieceID() {
-		return Piece.PieceID.KING;
-	}
-
 	public static String getName() {
 		return "King";
 	}

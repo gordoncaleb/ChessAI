@@ -97,7 +97,7 @@ public class Adjudicator {
         return board.getTurn();
     }
 
-    public Piece.PieceID getPieceID(int row, int col) {
+    public int getPieceID(int row, int col) {
         return board.getPieceID(row, col);
     }
 

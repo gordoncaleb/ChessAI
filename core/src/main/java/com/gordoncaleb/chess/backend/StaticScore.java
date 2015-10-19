@@ -7,6 +7,8 @@ import com.gordoncaleb.chess.pieces.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
+
 public class StaticScore {
     private static final Logger logger = LoggerFactory.getLogger(StaticScore.class);
 
@@ -112,8 +114,8 @@ public class StaticScore {
 
     public int pawnStructureScore(Side side, int phase, Board b) {
 
-        long pawns = b.getPosBitBoard()[Piece.PieceID.PAWN.ordinal()][side.ordinal()];
-        long otherPawns = b.getPosBitBoard()[Piece.PieceID.PAWN.ordinal()][side.otherSide().ordinal()];
+        long pawns = b.getPosBitBoard()[Piece.PieceID.PAWN][side.ordinal()];
+        long otherPawns = b.getPosBitBoard()[Piece.PieceID.PAWN][side.otherSide().ordinal()];
 
         long files = 0x0101010101010101L;
 
@@ -151,7 +153,7 @@ public class StaticScore {
 
         for (int i = 0; i < 2; i++) {
             for (Piece p : b.getPieces()[i]) {
-                phase -= Values.PIECE_PHASE_VAL[p.getPieceID().ordinal()];
+                phase -= Values.PIECE_PHASE_VAL[p.getPieceID()];
             }
         }
 
@@ -185,7 +187,7 @@ public class StaticScore {
     public boolean canQueen(Board b) {
 
         Side turn = b.getTurn();
-        long p = b.getPosBitBoard()[Piece.PieceID.PAWN.ordinal()][turn.ordinal()];
+        long p = b.getPosBitBoard()[Piece.PieceID.PAWN][turn.ordinal()];
         long o = b.getAllPosBitBoard()[turn.otherSide().ordinal()];
 
         if (turn == Side.WHITE) {

@@ -8,10 +8,6 @@ import static com.gordoncaleb.chess.bitboard.Slide.*;
 
 public class Queen {
 
-    public static Piece.PieceID getPieceID() {
-        return Piece.PieceID.QUEEN;
-    }
-
     public static String getName() {
         return "Queen";
     }

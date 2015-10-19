@@ -74,7 +74,7 @@ public class Move {
         }
 
         if (pieceTaken != null) {
-            moveLong |= (pieceTaken.getPieceID().ordinal() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
+            moveLong |= (pieceTaken.getPieceID() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
 
             if (pieceTaken.hasMoved()) {
                 moveLong |= pieceTakenHasMoved;
@@ -231,7 +231,7 @@ public class Move {
     public long setPieceTaken(Piece pieceTaken) {
         moveLong &= notPieceTaken;
         if (pieceTaken != null) {
-            moveLong |= (pieceTaken.getPieceID().ordinal() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
+            moveLong |= (pieceTaken.getPieceID() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
 
             if (pieceTaken.hasMoved()) {
                 moveLong |= pieceTakenHasMoved;
@@ -244,7 +244,7 @@ public class Move {
     public static long setPieceTaken(long moveLong, Piece pieceTaken) {
         moveLong &= notPieceTaken;
         if (pieceTaken != null) {
-            moveLong |= (pieceTaken.getPieceID().ordinal() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
+            moveLong |= (pieceTaken.getPieceID() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
 
             if (pieceTaken.hasMoved()) {
                 moveLong |= pieceTakenHasMoved;
@@ -314,12 +314,12 @@ public class Move {
         return (int) ((moveLong >> 17) & 0x7);
     }
 
-    public Piece.PieceID getPieceTakenID() {
-        return Piece.PieceID.values()[(int) ((moveLong >> 23) & 0x7)];
+    public int getPieceTakenID() {
+        return (int) ((moveLong >> 23) & 0x7);
     }
 
-    public static Piece.PieceID getPieceTakenID(long moveLong) {
-        return Piece.PieceID.values()[(int) ((moveLong >> 23) & 0x7)];
+    public static int getPieceTakenID(long moveLong) {
+        return (int) ((moveLong >> 23) & 0x7);
     }
 
     public Move getCopy() {

@@ -37,8 +37,8 @@ public class Values {
 
 	public static final int[] PIECE_VALUE = { ROOK_VALUE, KNIGHT_VALUE, BISHOP_VALUE, QUEEN_VALUE, KING_VALUE, PAWN_VALUE };
 
-	public static int getPieceValue(Piece.PieceID id) {
-		return PIECE_VALUE[id.ordinal()];
+	public static int getPieceValue(int id) {
+		return PIECE_VALUE[id];
 	}
 
 }

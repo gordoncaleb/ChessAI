@@ -1,10 +1,12 @@
 package com.gordoncaleb.chess.backend;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Stack;
 
 import com.gordoncaleb.chess.pieces.Piece;
+import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
 
 public class BoardFactory {
 
@@ -41,20 +43,21 @@ public class BoardFactory {
             }
         }
 
-        Piece.PieceID[] setup = new Piece.PieceID[8];
+        int[] setup = new int[8];
+        Arrays.fill(setup, NONE);
 
-        setup[r1 * 2] = Piece.PieceID.BISHOP;
-        setup[r2 * 2 + 1] = Piece.PieceID.BISHOP;
+        setup[r1 * 2] = BISHOP;
+        setup[r2 * 2 + 1] = BISHOP;
 
-        setup[ithEmptyPosition(r3 + 1, setup)] = Piece.PieceID.QUEEN;
+        setup[ithEmptyPosition(r3 + 1, setup)] = QUEEN;
 
-        setup[ithEmptyPosition(r4 + 1, setup)] = Piece.PieceID.KNIGHT;
-        setup[ithEmptyPosition(r5 + 1, setup)] = Piece.PieceID.KNIGHT;
+        setup[ithEmptyPosition(r4 + 1, setup)] = KNIGHT;
+        setup[ithEmptyPosition(r5 + 1, setup)] = KNIGHT;
 
-        setup[ithEmptyPosition(2, setup)] = Piece.PieceID.KING;
+        setup[ithEmptyPosition(2, setup)] = KING;
 
-        setup[ithEmptyPosition(1, setup)] = Piece.PieceID.ROOK;
-        setup[ithEmptyPosition(1, setup)] = Piece.PieceID.ROOK;
+        setup[ithEmptyPosition(1, setup)] = ROOK;
+        setup[ithEmptyPosition(1, setup)] = ROOK;
 
         for (int s = 0; s < 2; s++) {
             for (int p = 0; p < 8; p++) {
@@ -66,10 +69,10 @@ public class BoardFactory {
         return new Board(pieces, Side.WHITE, new Stack<>(), null, null);
     }
 
-    private static int ithEmptyPosition(int i, Piece.PieceID[] setup) {
+    private static int ithEmptyPosition(int i, int[] setup) {
         for (int n = 0; n < setup.length; n++) {
 
-            if (setup[n] == null) {
+            if (setup[n] == NONE) {
                 i--;
             }
 

@@ -287,8 +287,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		}
 	}
 
-	public ImageIcon getChessIcon(Piece.PieceID id, Side player) {
-		return pieceIcons[player.ordinal()][id.ordinal()];
+	public ImageIcon getChessIcon(int id, Side player) {
+		return pieceIcons[player.ordinal()][id];
 	}
 
 	public void setFlipBoard(boolean flipBoard) {
@@ -357,7 +357,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			Piece piece = adjudicator.getPiece(flipTrans(fromSqr.getRow()), flipTrans(fromSqr.getCol()));
 
 			if (adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()))) {
-				if (toSqr.getPieceID() != null) {
+				if (toSqr.getPieceID() != Piece.PieceID.NONE) {
 					takePiece(toSqr.getPieceID(), toSqr.getPlayer());
 				}
 
@@ -391,7 +391,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 			Piece piece = new Piece(fromLbl.getPieceID(), fromLbl.getPlayer(), -1, -1, false);
 
 			if (adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()))) {
-				if (toSqr.getPieceID() != null) {
+				if (toSqr.getPieceID() != Piece.PieceID.NONE) {
 					takePiece(toSqr.getPieceID(), toSqr.getPlayer());
 				}
 
@@ -540,11 +540,11 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 
-				if (adjudicator.getPieceID(row, col) == null && getChessSquare(row, col).getPieceID() != null) {
+				if (adjudicator.getPieceID(row, col) == Piece.PieceID.NONE && getChessSquare(row, col).getPieceID() != Piece.PieceID.NONE) {
 					getChessSquare(row, col).clearChessPiece();
 				}
 
-				if (adjudicator.getPieceID(row, col) != null) {
+				if (adjudicator.getPieceID(row, col) != Piece.PieceID.NONE) {
 					getChessSquare(row, col).showChessPiece(adjudicator.getPieceID(row, col), adjudicator.getPiecePlayer(row, col));
 				}
 
@@ -622,7 +622,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 		}
 	}
 
-	private void takePiece(Piece.PieceID pieceTakenID, Side pieceTakenSide) {
+	private void takePiece(int pieceTakenID, Side pieceTakenSide) {
 		JPieceTakenLabel picLabel = new JPieceTakenLabel(pieceTakenID, pieceTakenSide);
 		picLabel.addMouseListener(this);
 

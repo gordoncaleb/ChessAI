@@ -20,7 +20,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 
 	private int row;
 	private int col;
-	private Piece.PieceID id;
+	private int id;
 	private Side player;
 	private ArrayList<Long> validMoves;
 
@@ -184,7 +184,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 		updateBackgroundColor();
 	}
 
-	public void showChessPiece(Piece.PieceID id, Side player) {
+	public void showChessPiece(int id, Side player) {
 
 		if (this.id == id && this.player == player) {
 			return;
@@ -201,7 +201,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 	}
 
 	public void updateIcon() {
-		if (id != null && player != null) {
+		if (id != Piece.PieceID.NONE && player != null) {
 			picLabel.setIcon(boardPanel.getChessIcon(id, player));
 			picLabel.updateUI();
 		}
@@ -233,17 +233,17 @@ public class SquarePanel extends JPanel implements PieceGUI {
 	public void clearChessPiece() {
 
 		picLabel.setIcon(null);
-		id = null;
+		id = Piece.PieceID.NONE;
 
 		if (debug)
 			debugPieceValue.setText("");
 	}
 
 	public boolean hasPiece() {
-		return id != null;
+		return id != Piece.PieceID.NONE;
 	}
 
-	public Piece.PieceID getPieceID() {
+	public int getPieceID() {
 		return id;
 	}
 

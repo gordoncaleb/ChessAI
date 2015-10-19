@@ -10,10 +10,6 @@ import static com.gordoncaleb.chess.bitboard.BitBoard.getMask;
 
 public class Rook {
 
-    public static Piece.PieceID getPieceID() {
-        return Piece.PieceID.ROOK;
-    }
-
     public static String getName() {
         return "Rook";
     }

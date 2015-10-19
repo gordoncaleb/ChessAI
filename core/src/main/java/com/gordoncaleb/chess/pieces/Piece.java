@@ -7,23 +7,32 @@ import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Move;
 
+import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
+
 public class Piece {
     private int row;
     private int col;
     private Side player;
     private boolean moved;
     private long blockingVector;
-    private PieceID id;
+    private int id;
 
-    public enum PieceID {
-        ROOK, KNIGHT, BISHOP, QUEEN, KING, PAWN
+    public static class PieceID {
+        public static final int ROOK = 0;
+        public static final int KNIGHT = 1;
+        public static final int BISHOP = 2;
+        public static final int QUEEN = 3;
+        public static final int KING = 4;
+        public static final int PAWN = 5;
+        public static final int NONE = -1;
+        public static final int PIECES_COUNT = 6;
     }
 
     public enum PositionStatus {
         NO_PIECE, ENEMY, FRIEND, OFF_BOARD
     }
 
-    public Piece(PieceID id, Side player, int row, int col, boolean moved) {
+    public Piece(int id, Side player, int row, int col, boolean moved) {
         this.id = id;
         this.moved = moved;
         this.player = player;
@@ -116,7 +125,7 @@ public class Piece {
                 hasMoved = true;
             }
         } catch (Exception e) {
-
+            //Ignoring with reason
         }
 
         if (stringPiece.charAt(0) < 'a') {
@@ -125,12 +134,12 @@ public class Piece {
             player = Side.WHITE;
         }
 
-        PieceID id;
+        int id;
         char type = stringPiece.toUpperCase().charAt(0);
 
         id = charIDtoPieceID(type);
 
-        if (id != null) {
+        if (id != PieceID.NONE) {
             return new Piece(id, player, row, col, hasMoved);
         } else {
             return null;
@@ -138,9 +147,9 @@ public class Piece {
 
     }
 
-    public static PieceID charIDtoPieceID(char type) {
+    public static int charIDtoPieceID(char type) {
 
-        PieceID id;
+        int id;
 
         switch (type) {
             case 'R':
@@ -162,7 +171,7 @@ public class Piece {
                 id = PieceID.PAWN;
                 break;
             default:
-                id = null;
+                id = PieceID.NONE;
         }
 
         return id;
@@ -210,11 +219,11 @@ public class Piece {
 
     }
 
-    public PieceID getPieceID() {
+    public int getPieceID() {
         return id;
     }
 
-    public void setPieceID(PieceID id) {
+    public void setPieceID(int id) {
         this.id = id;
     }
 

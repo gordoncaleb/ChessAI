@@ -6,13 +6,7 @@ import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
 import static com.gordoncaleb.chess.bitboard.Slide.*;
 
-import static com.gordoncaleb.chess.bitboard.BitBoard.getMask;
-
 public class Bishop {
-
-    public static Piece.PieceID getPieceID() {
-        return Piece.PieceID.BISHOP;
-    }
 
     public static String getName() {
         return "Bishop";

@@ -82,8 +82,7 @@ public class RNGTable {
     }
 
     private void generatePiecePerSquare() {
-        Piece.PieceID[] pieceIDs = Piece.PieceID.values();
-        int numPieceType = pieceIDs.length;
+        int numPieceType = Piece.PieceID.PIECES_COUNT;
 
         piecePerSquare = new long[2][numPieceType][8][8];
 
@@ -98,8 +97,8 @@ public class RNGTable {
         }
     }
 
-    public long getPiecePerSquareRandom(Side player, Piece.PieceID id, int row, int col) {
-        return piecePerSquare[player.ordinal()][id.ordinal()][row][col];
+    public long getPiecePerSquareRandom(Side player, int id, int row, int col) {
+        return piecePerSquare[player.ordinal()][id][row][col];
     }
 
     private void generateBlackToMove() {

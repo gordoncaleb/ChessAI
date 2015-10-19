@@ -207,7 +207,7 @@ public class PGNParser {
         int toCol = -1;
 
         Move.MoveNote note = null;
-        Piece.PieceID pieceMovingID = null;
+        int pieceMovingID = Piece.PieceID.NONE;
 
         if (notation.contains("=")) {
 
@@ -249,7 +249,7 @@ public class PGNParser {
 
                             pieceMovingID = Piece.charIDtoPieceID(leftRight[0].charAt(0));
 
-                            if (pieceMovingID == null) {
+                            if (pieceMovingID == Piece.PieceID.NONE) {
                                 pieceMovingID = Piece.PieceID.PAWN;
                                 fromCol = leftRight[0].charAt(0) - 97;
                             }
@@ -294,7 +294,7 @@ public class PGNParser {
     }
 
 
-    private long matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, Move.MoveNote note, Piece.PieceID pieceMovingID) throws Exception {
+    private long matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, Move.MoveNote note, int pieceMovingID) throws Exception {
 
         board.makeNullMove();
         ArrayList<Long> moves = board.generateValidMoves();
@@ -339,7 +339,7 @@ public class PGNParser {
                 }
             }
 
-            if (pieceMovingID != null) {
+            if (pieceMovingID != Piece.PieceID.NONE) {
                 if (board.getPiece(Move.getFromRow(move), Move.getFromCol(move)).getPieceID() != pieceMovingID) {
                     match = false;
                 }

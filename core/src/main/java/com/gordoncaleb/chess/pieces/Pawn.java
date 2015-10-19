@@ -9,13 +9,6 @@ import com.gordoncaleb.chess.backend.Move;
 
 public class Pawn {
 
-    public Pawn() {
-    }
-
-    public static Piece.PieceID getPieceID() {
-        return Piece.PieceID.PAWN;
-    }
-
     public static String getName() {
         return "Pawn";
     }

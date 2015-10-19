@@ -328,9 +328,9 @@ public class BoardTest {
         long[][] posBitBoard = b.getPosBitBoard();
         Piece piece;
 
-        long[][] allBitBoard = new long[Piece.PieceID.values().length][2];
+        long[][] allBitBoard = new long[Piece.PieceID.PIECES_COUNT][2];
 
-        for (int i = 0; i < Piece.PieceID.values().length; i++) {
+        for (int i = 0; i < Piece.PieceID.PIECES_COUNT; i++) {
             allBitBoard[i][0] = posBitBoard[i][0];
             allBitBoard[i][1] = posBitBoard[i][1];
         }
@@ -340,13 +340,13 @@ public class BoardTest {
                 piece = b.getPiece(r, c);
 
                 if (piece != null) {
-                    allBitBoard[piece.getPieceID().ordinal()][piece.getSide().ordinal()] ^= BitBoard.getMask(r, c);
+                    allBitBoard[piece.getPieceID()][piece.getSide().ordinal()] ^= BitBoard.getMask(r, c);
                 }
 
             }
         }
 
-        for (int i = 0; i < Piece.PieceID.values().length; i++) {
+        for (int i = 0; i < Piece.PieceID.PIECES_COUNT; i++) {
             assertTrue(allBitBoard[i][0] == 0);
             assertTrue(allBitBoard[i][1] == 0);
         }
