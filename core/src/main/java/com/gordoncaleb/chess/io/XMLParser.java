@@ -85,7 +85,7 @@ public class XMLParser {
 			return null;
 		}
 
-		Board newBoard = new Board(pieces, player, new Stack<Move>(), null, null);
+		Board newBoard = new Board(pieces, player, new ArrayDeque<>(), null, null);
 
 		for (int i = 0; i < moveHistory.size(); i++) {
 			newBoard.makeMove(moveHistory.elementAt(i).getMoveLong());

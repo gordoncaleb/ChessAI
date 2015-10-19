@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess;
+package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.ai.DecisionNode;
 import org.junit.Ignore;

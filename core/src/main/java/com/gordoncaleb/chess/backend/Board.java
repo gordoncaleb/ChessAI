@@ -26,7 +26,7 @@ public class Board {
     private Game.GameStatus boardStatus = Game.GameStatus.IN_PLAY;
     private ArrayList<Long> validMoves = new ArrayList<>(100);
     private LinkedList<Piece>[] pieces = new LinkedList[2];
-    private Stack<Piece>[] piecesTaken = new Stack[2];
+    private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
     private int[] castleHistory = new int[2];
 
     private Piece[] kings = new Piece[2];
@@ -36,8 +36,8 @@ public class Board {
     private int turn;
     private long hashCode;
     private int hashCodeFreq;
-    private Stack<Move> moveHistory = new Stack();
-    private Stack<Long> hashCodeHistory = new Stack<>();
+    private Deque<Move> moveHistory = new ArrayDeque<>();
+    private Deque<Long> hashCodeHistory = new ArrayDeque<>();
     private Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
     private long[] nullMoveInfo = {0, BitBoard.ALL_ONES, 0};
@@ -49,8 +49,8 @@ public class Board {
         this.pieces[Side.WHITE] = new LinkedList<>();
         this.pieces[Side.BLACK] = new LinkedList<>();
 
-        this.piecesTaken[Side.WHITE] = new Stack<>();
-        this.piecesTaken[Side.BLACK] = new Stack<>();
+        this.piecesTaken[Side.WHITE] = new ArrayDeque<>();
+        this.piecesTaken[Side.BLACK] = new ArrayDeque<>();
 
         this.turn = Side.WHITE;
         this.nullMoveInfo = new long[3];
@@ -62,12 +62,12 @@ public class Board {
         placePiece(kings[Side.WHITE], 7, 0);
     }
 
-    public Board(List<Piece>[] pieces, int turn, Stack<Move> moveHistory, int[][] rookStartCols, int[] kingCols) {
+    public Board(List<Piece>[] pieces, int turn, Deque<Move> moveHistory, int[][] rookStartCols, int[] kingCols) {
         this.pieces[Side.WHITE] = new LinkedList<>();
         this.pieces[Side.BLACK] = new LinkedList<>();
 
-        this.piecesTaken[Side.WHITE] = new Stack<>();
-        this.piecesTaken[Side.BLACK] = new Stack<>();
+        this.piecesTaken[Side.WHITE] = new ArrayDeque<>();
+        this.piecesTaken[Side.BLACK] = new ArrayDeque<>();
 
         this.turn = turn;
         this.nullMoveInfo = new long[3];
@@ -123,7 +123,6 @@ public class Board {
         hashCodeFreq = incrementHashCodeFrequency(hashCode);
 
         if (moveHistory.size() > 0) {
-            Long move;
             int moveSide;
             if (moveHistory.size() % 2 == 0) {
                 moveSide = turn;
@@ -131,16 +130,15 @@ public class Board {
                 moveSide = Side.otherSide(turn);
             }
 
-            for (int i = 0; i < moveHistory.size(); i++) {
-                move = moveHistory.elementAt(i).getMoveLong();
-                this.moveHistory.push(new Move(move));
-                if (Move.hasPieceTaken(move)) {
+            for(Move m: moveHistory){
+                this.moveHistory.push(new Move(m.getMoveLong()));
+                if (m.hasPieceTaken()) {
                     piecesTaken[Side.otherSide(moveSide)]
-                            .push(new Piece(Move.getPieceTakenID(move),
-                                    Side.otherSide(moveSide),
-                                    Move.getPieceTakenRow(move),
-                                    Move.getPieceTakenCol(move),
-                                    Move.getPieceTakenHasMoved(move))
+                            .push(new Piece(m.getPieceTakenID(),
+                                            Side.otherSide(moveSide),
+                                            m.getPieceTakenRow(),
+                                            m.getPieceTakenCol(),
+                                            m.getPieceTakenHasMoved())
                             );
                 }
 
@@ -309,7 +307,7 @@ public class Board {
     public long undoMove() {
 
         // if no there is no last move then undoMove is impossible
-        if (moveHistory.empty()) {
+        if (moveHistory.isEmpty()) {
             // logger.debug("Can not undo move");
             return 0;
         }
@@ -381,7 +379,7 @@ public class Board {
         // move was undone so show move made before that as the last move made
         moveHistory.pop();
 
-        if (hashCodeHistory.empty()) {
+        if (hashCodeHistory.isEmpty()) {
             // if no hashCode was saved then generate it the hard way
             hashCode = generateHashCode();
         } else {
@@ -551,14 +549,14 @@ public class Board {
     }
 
     public long getLastMoveMade() {
-        if (!moveHistory.empty()) {
+        if (!moveHistory.isEmpty()) {
             return moveHistory.peek().getMoveLong();
         } else {
             return 0;
         }
     }
 
-    public List<Move> getMoveHistory() {
+    public Deque<Move> getMoveHistory() {
         return moveHistory;
     }
 
@@ -586,7 +584,7 @@ public class Board {
         this.turn = turn;
     }
 
-    public Stack<Piece> getPiecesTakenFor(int player) {
+    public Deque<Piece> getPiecesTakenFor(int player) {
         return piecesTaken[player];
     }
 
@@ -914,19 +912,20 @@ public class Board {
 
         for (int i = 0; i < pieces.length; i++) {
 
-            piecesTaken[i] = BoardFactory.getFullPieceSet(i);
+            List<Piece> tempPieces = BoardFactory.getFullPieceSet(i);
 
-            Piece piecePresent;
             for (int p = 0; p < pieces[i].size(); p++) {
-                piecePresent = pieces[i].get(p);
+                Piece piecePresent = pieces[i].get(p);
 
-                for (int t = 0; t < piecesTaken[i].size(); t++) {
-                    if (piecesTaken[i].elementAt(t).getPieceID() == piecePresent.getPieceID()) {
-                        piecesTaken[i].remove(t);
+                for (int t = 0; t < tempPieces.size(); t++) {
+                    if (tempPieces.get(t).getPieceID() == piecePresent.getPieceID()) {
+                        tempPieces.remove(t);
                         break;
                     }
                 }
             }
+
+            piecesTaken[i] = new ArrayDeque<>(tempPieces);
         }
 
     }

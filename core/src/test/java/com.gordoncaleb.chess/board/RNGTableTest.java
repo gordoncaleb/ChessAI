@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess;
+package com.gordoncaleb.chess.board;
 
 import com.gordoncaleb.chess.backend.RNGTable;
 import com.gordoncaleb.chess.backend.Side;

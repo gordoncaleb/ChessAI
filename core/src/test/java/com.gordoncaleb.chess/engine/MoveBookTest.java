@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess;
+package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.io.MoveBook;

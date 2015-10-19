@@ -1,7 +1,5 @@
 package com.gordoncaleb.chess.pieces;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
 
 public class Values {
 	public static final int CHECKMATE_MASK = (int) Math.pow(2, 19);

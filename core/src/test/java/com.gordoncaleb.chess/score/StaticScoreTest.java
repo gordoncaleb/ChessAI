@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess;
+package com.gordoncaleb.chess.score;
 
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Side;

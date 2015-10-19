@@ -50,7 +50,7 @@ public class MoveBook {
         return move;
     }
 
-    public Optional<List<Long>> getAllRecommendations(Long hashCode) {
+    public Optional<List<Long>> getRecommendations(Long hashCode) {
         return Optional.ofNullable(hashMoveBook.get(hashCode));
     }
 

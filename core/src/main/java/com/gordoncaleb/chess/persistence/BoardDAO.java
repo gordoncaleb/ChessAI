@@ -75,7 +75,7 @@ public class BoardDAO {
         Board board = new Board(new ArrayList[]{pieces.get(Side.BLACK),
                 pieces.get(Side.WHITE)},
                 Side.fromString(boardJSON.getTurn()),
-                new Stack<>(),
+                new ArrayDeque<>(),
                 null,
                 null
         );

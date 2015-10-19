@@ -1,9 +1,6 @@
 package com.gordoncaleb.chess.backend;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 import com.gordoncaleb.chess.pieces.Piece;
 import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
@@ -66,7 +63,7 @@ public class BoardFactory {
             }
         }
 
-        return new Board(pieces, Side.WHITE, new Stack<>(), null, null);
+        return new Board(pieces, Side.WHITE, new ArrayDeque<>(), null, null);
     }
 
     private static int ithEmptyPosition(int i, int[] setup) {
@@ -88,8 +85,8 @@ public class BoardFactory {
         return r.nextInt(dieSize);
     }
 
-    public static Stack<Piece> getFullPieceSet(int player) {
-        Stack<Piece> pieces = new Stack<>();
+    public static List<Piece> getFullPieceSet(int player) {
+        List<Piece> pieces = new ArrayList<>();
 
         for (int i = 0; i < 8; i++) {
             pieces.add(new Piece(Piece.PieceID.PAWN, player, 0, 0, false));

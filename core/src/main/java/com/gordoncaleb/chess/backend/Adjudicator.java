@@ -1,9 +1,6 @@
 package com.gordoncaleb.chess.backend;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 
 import com.gordoncaleb.chess.pieces.*;
 import org.slf4j.Logger;
@@ -89,7 +86,7 @@ public class Adjudicator {
         return validMoves;
     }
 
-    public List<Move> getMoveHistory() {
+    public Deque<Move> getMoveHistory() {
         return board.getMoveHistory();
     }
 
@@ -126,7 +123,7 @@ public class Adjudicator {
         return matchingMove.orElse(0L);
     }
 
-    public List<Piece> getPiecesTaken(int player) {
+    public Deque<Piece> getPiecesTaken(int player) {
         return board.getPiecesTakenFor(player);
     }
 

@@ -233,7 +233,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     private void populateMoveList() {
         listModel.removeAllElements();
 
-        Optional<List<Long>> recommendations = moveBook.getAllRecommendations(boardPanel.getBoard().getHashCode());
+        Optional<List<Long>> recommendations = moveBook.getRecommendations(boardPanel.getBoard().getHashCode());
 
         recommendations.ifPresent(moves -> moves.stream()
                         .forEach(m -> listModel.addElement(new Move(m)))

@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess;
+package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.ai.Engine;
 import com.gordoncaleb.chess.backend.Board;
@@ -13,9 +13,9 @@ public class EngineTest {
     BoardDAO boardDAO = new BoardDAO();
 
     @Test
-    public void testScenarios(){
+    public void testScenarios() {
 
-        Engine engine = new Engine();
+        Engine engine = new Engine(null, null);
 
         Board board = boardDAO.getByXMLFileName("/positions/test_position_2.xml");
 

@@ -36,11 +36,6 @@
             <version>${jmh.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.gordoncaleb</groupId>
-            <artifactId>ohword</artifactId>
-            <version>0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
     <properties>
