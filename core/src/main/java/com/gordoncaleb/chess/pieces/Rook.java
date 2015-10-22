@@ -31,12 +31,12 @@ public class Rook {
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static long slideRook(final long mask, final long friendOrFoe, final long friend) {
-        final long friendOrFoeNotMe = friendOrFoe & ~mask;
-        final long slide = north(mask, friendOrFoeNotMe) |
-                south(mask, friendOrFoeNotMe) |
-                west(mask, friendOrFoeNotMe) |
-                east(mask, friendOrFoeNotMe);
+    public static long slideRook(final long me, final long friendOrFoe, final long friend) {
+        final long allExceptMe = friendOrFoe & ~me;
+        final long slide = northFillAndSlide(me, allExceptMe) |
+                southFillAndSlide(me, allExceptMe) |
+                westFillAndSlide(me, allExceptMe) |
+                eastFillAndSlide(me, allExceptMe);
         return slide & ~friend;
     }
 

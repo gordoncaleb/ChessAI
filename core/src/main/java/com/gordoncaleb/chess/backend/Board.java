@@ -499,6 +499,7 @@ public class Board {
         nullMoveInfo[0] |= Knight.getKnightAttacks(posBitBoard[KNIGHT][otherSide]);
         nullMoveInfo[0] |= King.getKingAttacks(posBitBoard[KING][otherSide]);
 
+
         nullMoveInfo[1] = Pawn.getPawnAttacks(posBitBoard[KING][turn], turn) & posBitBoard[PAWN][otherSide];
         nullMoveInfo[1] |= Knight.getKnightAttacks(posBitBoard[KING][turn]) & posBitBoard[KNIGHT][otherSide];
 

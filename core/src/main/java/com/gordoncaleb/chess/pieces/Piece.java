@@ -63,10 +63,6 @@ public class Piece {
         moved = true;
     }
 
-    public void reverseMove(long newMove) {
-        setPos(Move.getFromRow(newMove), Move.getFromCol(newMove));
-    }
-
     public int getSide() {
         return player;
     }
@@ -186,13 +182,12 @@ public class Piece {
                 && piece.getPieceID() == this.getPieceID());
     }
 
-    public boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
-        return isValidMove(toRow, toCol, nullMoveInfo, 0);
+    public boolean isValidMove(long position, long[] nullMoveInfo) {
+        return isValidMove(nullMoveInfo, position, position);
     }
 
-    public boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo, long enpassantAttack) {
-        long mask = BitBoard.getMask(toRow, toCol);
-        if (((mask | enpassantAttack) & nullMoveInfo[1]) != 0 & (mask & blockingVector) != 0) {
+    public boolean isValidMove(long[] nullMoveInfo, long position, long attacks) {
+        if ((attacks & nullMoveInfo[1]) != 0 && (position & blockingVector) != 0) {
             return true;
         } else {
             return false;
@@ -216,7 +211,6 @@ public class Piece {
             default:
                 return "";
         }
-
     }
 
     public int getPieceID() {
@@ -225,25 +219,6 @@ public class Piece {
 
     public void setPieceID(int id) {
         this.id = id;
-    }
-
-    public String getName() {
-        switch (id) {
-            case ROOK:
-                return Rook.getName();
-            case KNIGHT:
-                return Knight.getName();
-            case BISHOP:
-                return Bishop.getName();
-            case QUEEN:
-                return Queen.getName();
-            case KING:
-                return King.getName();
-            case PAWN:
-                return Pawn.getName();
-            default:
-                return "";
-        }
     }
 
     public void generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
@@ -278,48 +253,39 @@ public class Piece {
             case ROOK:
                 Rook.getNullMoveInfo(this, board, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
                 break;
-            case KNIGHT:
-                //Knight.getNullMoveInfo(this, board, nullMoveBitBoards);
-                break;
             case BISHOP:
                 Bishop.getNullMoveInfo(this, board, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
                 break;
             case QUEEN:
                 Queen.getNullMoveInfo(this, board, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
                 break;
-            case KING:
-                //King.getNullMoveInfo(this, board, nullMoveBitBoards);
-                break;
-            case PAWN:
-                //Pawn.getNullMoveInfo(this, board, nullMoveBitBoards);
+            default:
                 break;
         }
     }
 
-    public static List<Long> generateValidMoves(long footPrint,
+    public static List<Long> generateValidMoves(final long footPrint,
                                                 final Piece p,
                                                 final Board board,
                                                 final long[] nullMoveInfo,
                                                 final long[] posBitBoard,
                                                 final List<Long> validMoves) {
-        final long foeBb = posBitBoard[Side.otherSide(p.getSide())];
+        final long foes = posBitBoard[Side.otherSide(p.getSide())];
 
+        long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector;
         int bitNum;
-        while ((bitNum = Long.numberOfTrailingZeros(footPrint)) < 64) {
+        while ((bitNum = Long.numberOfTrailingZeros(validFootPrint)) < 64) {
             final long mask = (1L << bitNum);
             final int toRow = bitNum / 8;
             final int toCol = bitNum % 8;
 
-            if (p.isValidMove(toRow, toCol, nullMoveInfo)) {
+            final long move = ((foes & mask) == 0) ?
+                    Move.moveLong(p.getRow(), p.getCol(), toRow, toCol) :
+                    Move.moveLong(p.getRow(), p.getCol(), toRow, toCol, 0, Move.MoveNote.NONE, board.getPiece(toRow, toCol));
 
-                final long move = ((foeBb & mask) == 0) ?
-                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol) :
-                        Move.moveLong(p.getRow(), p.getCol(), toRow, toCol, 0, Move.MoveNote.NONE, board.getPiece(toRow, toCol));
+            validMoves.add(move);
 
-                validMoves.add(move);
-            }
-
-            footPrint ^= mask;
+            validFootPrint ^= mask;
         }
 
         return validMoves;

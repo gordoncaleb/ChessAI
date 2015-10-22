@@ -2,12 +2,10 @@ package com.gordoncaleb.chess.pieces;
 
 import java.util.List;
 
-import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
 
 import static com.gordoncaleb.chess.bitboard.Slide.*;
-import static com.gordoncaleb.chess.backend.Side.*;
 
 public class Queen {
 
@@ -31,16 +29,16 @@ public class Queen {
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static long slideQueen(final long mask, final long friendOrFoe, final long friend) {
-        final long friendOrFoeNotMe = friendOrFoe & ~mask;
-        final long slide = north(mask, friendOrFoeNotMe) |
-                south(mask, friendOrFoeNotMe) |
-                west(mask, friendOrFoeNotMe) |
-                east(mask, friendOrFoeNotMe) |
-                northWest(mask, friendOrFoeNotMe) |
-                northEast(mask, friendOrFoeNotMe) |
-                southWest(mask, friendOrFoeNotMe) |
-                southEast(mask, friendOrFoeNotMe);
+    public static long slideQueen(final long me, final long friendOrFoe, final long friend) {
+        final long allExceptMe = friendOrFoe & ~me;
+        final long slide = northFillAndSlide(me, allExceptMe) |
+                southFillAndSlide(me, allExceptMe) |
+                westFillAndSlide(me, allExceptMe) |
+                eastFillAndSlide(me, allExceptMe) |
+                northWestFillAndSlide(me, allExceptMe) |
+                northEastFillAndSlide(me, allExceptMe) |
+                southWestFillAndSlide(me, allExceptMe) |
+                southEastFillAndSlide(me, allExceptMe);
         return slide & ~friend;
     }
 
@@ -50,10 +48,9 @@ public class Queen {
                                        final long[] nullMoveInfo) {
         long mask;
         while ((mask = Long.lowestOneBit(queens)) != 0) {
-            nullMoveInfo[0] |= slideQueen(mask, friendOrFoe, friend);
+            nullMoveInfo[0] |= slideQueen(mask,friendOrFoe,friend);
             queens ^= mask;
         }
-
     }
 
     public static void getNullMoveInfo(final Piece piece,

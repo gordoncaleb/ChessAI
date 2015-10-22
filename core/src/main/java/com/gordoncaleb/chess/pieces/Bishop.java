@@ -29,12 +29,12 @@ public class Bishop {
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static long slideBishop(final long mask, final long friendOrFoe, final long friend) {
-        final long friendOrFoeNotMe = friendOrFoe & ~mask;
-        final long slide = northWest(mask, friendOrFoeNotMe) |
-                northEast(mask, friendOrFoeNotMe) |
-                southWest(mask, friendOrFoeNotMe) |
-                southEast(mask, friendOrFoeNotMe);
+    public static long slideBishop(final long me, final long friendOrFoe, final long friend) {
+        final long allExceptMe = friendOrFoe & ~me;
+        final long slide = northWestFillAndSlide(me, allExceptMe) |
+                northEastFillAndSlide(me, allExceptMe) |
+                southWestFillAndSlide(me, allExceptMe) |
+                southEastFillAndSlide(me, allExceptMe);
         return slide & ~friend;
     }
 

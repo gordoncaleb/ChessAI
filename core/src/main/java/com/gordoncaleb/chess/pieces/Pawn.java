@@ -39,7 +39,7 @@ public class Pawn {
 
         if (board.checkPiece(currentRow + dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
 
-            if (p.isValidMove(currentRow + dir, currentCol, nullMoveInfo)) {
+            if (p.isValidMove(getMask(currentRow + dir, currentCol), nullMoveInfo)) {
 
                 moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol, 0, Move.MoveNote.NONE);
 
@@ -52,7 +52,7 @@ public class Pawn {
 
             if (!p.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
 
-                if (p.isValidMove(currentRow + 2 * dir, currentCol, nullMoveInfo)) {
+                if (p.isValidMove(getMask(currentRow + 2 * dir, currentCol), nullMoveInfo)) {
 
                     validMoves.add(Move.moveLong(currentRow, currentCol, currentRow + 2 * dir, currentCol, 0, Move.MoveNote.PAWN_LEAP));
 
@@ -65,7 +65,7 @@ public class Pawn {
         for (int i : lr) {
             if (board.checkPiece(currentRow + dir, currentCol + i, player) == Piece.PositionStatus.ENEMY) {
 
-                if (p.isValidMove(currentRow + dir, currentCol + i, nullMoveInfo)) {
+                if (p.isValidMove(getMask(currentRow + dir, currentCol + i), nullMoveInfo)) {
 
                     moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + i);
 
@@ -87,7 +87,8 @@ public class Pawn {
 
                     if ((Move.getToCol(board.getLastMoveMade()) == (currentCol + i)) && Move.getNote(board.getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
 
-                        if (p.isValidMove(currentRow + dir, currentCol + i, nullMoveInfo, BitBoard.getMask(fifthRank, currentCol + i))) {
+                        long position = getMask(currentRow + dir, currentCol + i);
+                        if (p.isValidMove(nullMoveInfo, position, position | getMask(fifthRank, currentCol + i))) {
 
                             moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + i, 0, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + i));
                             validMoves.add(moveLong);

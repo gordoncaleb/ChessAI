@@ -5,8 +5,10 @@ import java.util.List;
 import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.bitboard.Slide;
 
 import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.bitboard.Slide.*;
 
 public class King {
     private static int[][] KINGMOVES = {{1, 1, -1, -1, 1, -1, 0, 0}, {1, -1, 1, -1, 0, 0, 1, -1}};
@@ -87,6 +89,62 @@ public class King {
 
         return validMoves;
 
+    }
+
+    public static void getKingCheckInfo(long king,
+                                        final long foeQueens,
+                                        final long foeRooks,
+                                        final long foeBishops,
+                                        final long[] nullMoveInfo) {
+
+        if ((nullMoveInfo[0] & king) != 0 && nullMoveInfo[1] != ALL_ONES) {
+            //is in check by sliders
+        }
+    }
+
+    public static void checkBlockingVectors(long king,
+                                            final long foeQueens,
+                                            final long foeRooks,
+                                            final long foeBishops,
+                                            final long[] nullMoveInfo) {
+        final long foeDiagonalSliders = foeBishops | foeQueens;
+        final long foeStraightSliders = foeRooks | foeQueens;
+
+        final long northSlide = northSlideNoEdge(northFill(king), foeStraightSliders);
+        final long southSlide = southSlideNoEdge(southFill(king), foeStraightSliders);
+        final long westSlide = westSlideNoEdge(westFill(king), foeStraightSliders);
+        final long eastSlide = eastSlideNoEdge(eastFill(king), foeStraightSliders);
+
+        final long northWestSlide = northWestSlideNoEdge(northWestFill(king), foeDiagonalSliders);
+        final long northEastSlide = northEastSlideNoEdge(northEastFill(king), foeDiagonalSliders);
+        final long southWestSlide = southWestSlideNoEdge(southWestFill(king), foeDiagonalSliders);
+        final long southEastSlide = southEastSlideNoEdge(southEastFill(king), foeDiagonalSliders);
+
+
+        nullMoveInfo[1] &= northSlide;
+        nullMoveInfo[2] |= northSlide << 8;
+
+        nullMoveInfo[1] &= southSlide;
+        nullMoveInfo[2] |= southSlide >>> 8;
+
+        nullMoveInfo[1] &= westSlide;
+        nullMoveInfo[2] |= westSlide << 1;
+
+        nullMoveInfo[1] &= eastSlide;
+        nullMoveInfo[2] |= eastSlide >>> 1;
+
+
+        nullMoveInfo[1] &= northWestSlide;
+        nullMoveInfo[2] |= northWestSlide << 8;
+
+        nullMoveInfo[1] &= northEastSlide;
+        nullMoveInfo[2] |= northEastSlide >>> 8;
+
+        nullMoveInfo[1] &= southWestSlide;
+        nullMoveInfo[2] |= southWestSlide << 1;
+
+        nullMoveInfo[1] &= southEastSlide;
+        nullMoveInfo[2] |= southEastSlide >>> 1;
     }
 
     public static long getKingCheckVectors(long king, long updown, long left, long right) {

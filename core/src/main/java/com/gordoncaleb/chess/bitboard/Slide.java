@@ -60,52 +60,116 @@ public class Slide {
         return gen;
     }
 
-    public static long south(final long mask, final long friendOrFoeNotMe) {
-        final long south = southFill(mask);
-        final long a = south & friendOrFoeNotMe | TOP_BIT;
-        return south & maskUpToBottomBit(a);
+    public static long southSlideNoEdge(final long southFill, final long allExceptMe) {
+        final long a = southFill & allExceptMe;
+        return southFill & maskUpToBottomBit(a);
     }
 
-    public static long southWest(final long mask, final long friendOrFoeNotMe) {
-        final long southWest = southWestFill(mask);
-        final long a = southWest & friendOrFoeNotMe | TOP_BIT;
-        return southWest & maskUpToBottomBit(a);
+    public static long southSlide(final long southFill, final long allExceptMe) {
+        final long a = southFill & allExceptMe | TOP_BIT;
+        return southFill & maskUpToBottomBit(a);
     }
 
-    public static long southEast(final long mask, final long friendOrFoeNotMe) {
-        final long southEast = southEastFill(mask);
-        final long a = southEast & friendOrFoeNotMe | TOP_BIT;
-        return southEast & maskUpToBottomBit(a);
+    public static long southFillAndSlide(final long mask, final long allExceptMe) {
+        return southSlide(southFill(mask), allExceptMe);
     }
 
-    public static long east(final long mask, final long friendOrFoeNotMe) {
-        final long east = eastFill(mask);
-        final long a = east & friendOrFoeNotMe | TOP_BIT;
-        return east & maskUpToBottomBit(a);
+    public static long southWestSlideNoEdge(final long southWestFill, final long allExceptMe) {
+        final long a = southWestFill & allExceptMe;
+        return southWestFill & maskUpToBottomBit(a);
     }
 
-    public static long north(final long mask, final long friendOrFoeNotMe) {
-        final long north = northFill(mask);
-        final long a = north & friendOrFoeNotMe | BOT_BIT;
-        return north & maskBeyondTopBit(a);
+    public static long southWestSlide(final long southWestFill, final long allExceptMe) {
+        final long a = southWestFill & allExceptMe | TOP_BIT;
+        return southWestFill & maskUpToBottomBit(a);
     }
 
-    public static long northWest(final long mask, final long friendOrFoeNotMe) {
-        final long northWest = northWestFill(mask);
-        final long a = northWest & friendOrFoeNotMe | BOT_BIT;
-        return northWest & maskBeyondTopBit(a);
+    public static long southWestFillAndSlide(final long mask, final long allExceptMe) {
+        return southWestSlide(southWestFill(mask), allExceptMe);
     }
 
-    public static long northEast(final long mask, final long friendOrFoeNotMe) {
-        final long northEast = northEastFill(mask);
-        final long a = northEast & friendOrFoeNotMe | BOT_BIT;
-        return northEast & maskBeyondTopBit(a);
+    public static long southEastSlideNoEdge(final long southEastFill, final long allExceptMe) {
+        final long a = southEastFill & allExceptMe;
+        return southEastFill & maskUpToBottomBit(a);
     }
 
-    public static long west(final long mask, final long friendOrFoeNotMe) {
-        final long west = westFill(mask);
-        final long a = west & friendOrFoeNotMe | BOT_BIT;
-        return west & maskBeyondTopBit(a);
+    public static long southEastSlide(final long southEastFill, final long allExceptMe) {
+        final long a = southEastFill & allExceptMe | TOP_BIT;
+        return southEastFill & maskUpToBottomBit(a);
+    }
+
+    public static long southEastFillAndSlide(final long mask, final long allExceptMe) {
+        return southEastSlide(southEastFill(mask), allExceptMe);
+    }
+
+    public static long eastSlideNoEdge(final long eastFill, final long allExceptMe) {
+        final long a = eastFill & allExceptMe;
+        return eastFill & maskUpToBottomBit(a);
+    }
+
+    public static long eastSlide(final long eastFill, final long allExceptMe) {
+        final long a = eastFill & allExceptMe | TOP_BIT;
+        return eastFill & maskUpToBottomBit(a);
+    }
+
+    public static long eastFillAndSlide(final long mask, final long allExceptMe) {
+        return eastSlide(eastFill(mask), allExceptMe);
+    }
+
+    public static long northSlideNoEdge(final long northFill, final long allExceptMe) {
+        final long a = northFill & allExceptMe;
+        return northFill & maskBeyondTopBit(a);
+    }
+
+    public static long northSlide(final long northFill, final long allExceptMe) {
+        final long a = northFill & allExceptMe | BOT_BIT;
+        return northFill & maskBeyondTopBit(a);
+    }
+
+    public static long northFillAndSlide(final long mask, final long allExceptMe) {
+        return northSlide(northFill(mask), allExceptMe);
+    }
+
+    public static long northWestSlideNoEdge(final long northWestFill, final long allExceptMe) {
+        final long a = northWestFill & allExceptMe;
+        return northWestFill & maskBeyondTopBit(a);
+    }
+
+    public static long northWestSlide(final long northWestFill, final long allExceptMe) {
+        final long a = northWestFill & allExceptMe | BOT_BIT;
+        return northWestFill & maskBeyondTopBit(a);
+    }
+
+    public static long northWestFillAndSlide(final long mask, final long allExceptMe) {
+        return northWestSlide(northWestFill(mask), allExceptMe);
+    }
+
+    public static long northEastSlideNoEdge(final long northEastFill, final long allExceptMe) {
+        final long a = northEastFill & allExceptMe;
+        return northEastFill & maskBeyondTopBit(a);
+    }
+
+    public static long northEastSlide(final long northEastFill, final long allExceptMe) {
+        final long a = northEastFill & allExceptMe | BOT_BIT;
+        return northEastFill & maskBeyondTopBit(a);
+    }
+
+    public static long northEastFillAndSlide(final long mask, final long allExceptMe) {
+        return northEastSlide(northEastFill(mask), allExceptMe);
+    }
+
+    public static long westSlideNoEdge(final long westFill, final long allExceptMe) {
+        final long a = westFill & allExceptMe;
+        return westFill & maskBeyondTopBit(a);
+    }
+
+    public static long westSlide(final long westFill, final long allExceptMe) {
+        final long a = westFill & allExceptMe | BOT_BIT;
+        return westFill & maskBeyondTopBit(a);
+    }
+
+    public static long westFillAndSlide(final long mask, final long allExceptMe) {
+        return westSlide(westFill(mask), allExceptMe);
     }
 
     public static long maskUpToBottomBit(long n) {
@@ -114,16 +178,6 @@ public class Slide {
 
     public static long maskBeyondTopBit(long n) {
         return (TOP_BIT >> Long.numberOfLeadingZeros(n));
-    }
-
-    public static long slideBishop(final int r, final int c, final long friendOrFoe, final long friend) {
-        final long mask = getMask(r, c);
-        final long friendOrFoeNotMe = friendOrFoe & ~mask;
-        final long slide = northWest(mask, friendOrFoeNotMe) |
-                northEast(mask, friendOrFoeNotMe) |
-                southWest(mask, friendOrFoeNotMe) |
-                southEast(mask, friendOrFoeNotMe);
-        return slide & ~friend;
     }
 
 }

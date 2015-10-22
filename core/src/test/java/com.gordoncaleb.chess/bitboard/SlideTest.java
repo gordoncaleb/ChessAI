@@ -66,7 +66,7 @@ public class SlideTest {
         };
 
         long bbA = BitBoard.parseBitBoard(bbStringA);
-        assertThat(south(getMask(0, 4), bbA), is(equalTo(BitBoard.parseBitBoard(new String[]{
+        assertThat(southFillAndSlide(getMask(0, 4), bbA), is(equalTo(BitBoard.parseBitBoard(new String[]{
                 "_,_,_,_,1,_,_,_,",
                 "_,_,_,_,1,_,_,_,",
                 "_,_,_,_,1,_,_,_,",
@@ -88,7 +88,7 @@ public class SlideTest {
                 "_,_,_,_,_,_,_,1,"
         };
         long bbB = BitBoard.parseBitBoard(bbStringB);
-        assertThat(south(getMask(0, 4), bbB), is(equalTo(BitBoard.parseBitBoard(new String[]{
+        assertThat(southFillAndSlide(getMask(0, 4), bbB), is(equalTo(BitBoard.parseBitBoard(new String[]{
                 "_,_,_,_,1,_,_,_,",
                 "_,_,_,_,1,_,_,_,",
                 "_,_,_,_,1,_,_,_,",
@@ -151,7 +151,7 @@ public class SlideTest {
         };
 
         long bbA = BitBoard.parseBitBoard(bbStringA);
-        long result = north(getMask(7, 4), bbA);
+        long result = northFillAndSlide(getMask(7, 4), bbA);
         logger.info("\n" + BitBoard.printBitBoard(result));
         assertThat(result, is(equalTo(BitBoard.parseBitBoard(new String[]{
                 "_,_,_,_,_,_,_,_,",
@@ -176,7 +176,7 @@ public class SlideTest {
         };
 
         long bbB = BitBoard.parseBitBoard(bbStringB);
-        result = north(getMask(7, 4), bbB);
+        result = northFillAndSlide(getMask(7, 4), bbB);
         logger.info("\n" + BitBoard.printBitBoard(result));
         assertThat(result, is(equalTo(BitBoard.parseBitBoard(new String[]{
                 "_,_,_,_,_,_,_,_,",
@@ -319,7 +319,7 @@ public class SlideTest {
         };
 
         long bbA = BitBoard.parseBitBoard(bbStringA);
-        long result = northWest(getMask(7, 4), bbA);
+        long result = northWestFillAndSlide(getMask(7, 4), bbA);
         logger.info("\n" + BitBoard.printBitBoard(result));
         assertThat(result, is(equalTo(BitBoard.parseBitBoard(new String[]{
                 "_,_,_,_,_,_,_,_,",
@@ -344,7 +344,7 @@ public class SlideTest {
         };
 
         long bbB = BitBoard.parseBitBoard(bbStringB);
-        result = northWest(getMask(7, 4), bbB);
+        result = northWestFillAndSlide(getMask(7, 4), bbB);
         logger.info("\n" + BitBoard.printBitBoard(result));
         assertThat(result, is(equalTo(BitBoard.parseBitBoard(new String[]{
                 "_,_,_,_,_,_,_,_,",
@@ -462,7 +462,7 @@ public class SlideTest {
                 "_,_,_,_,_,_,_,1,"
         }))));
 
-        logger.info("(0,3)\n" + BitBoard.printBitBoard(southEastFill(getMask(0, 3))));
+        logger.info("(0,3)\n" + printBitBoard(southEastFill(getMask(0, 3))));
         assertThat(southEastFill(getMask(0, 3)), is(equalTo(BitBoard.parseBitBoard(new String[]{
                 "_,_,_,1,_,_,_,_,",
                 "_,_,_,_,1,_,_,_,",
@@ -474,5 +474,96 @@ public class SlideTest {
                 "_,_,_,_,_,_,_,_,"
         }))));
     }
+
+    @Test
+    public void testNorthSlideZeroIfNoCollision() {
+
+        long allExceptMe = parseBitBoard(new String[]{
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,1,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        });
+
+
+        long me = parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,1,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        });
+
+        testNorthSlideNoEdge(me, allExceptMe, parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }));
+    }
+
+    @Test
+    public void testNorthSlideNonZeroIfCollision() {
+
+        long allExceptMe = parseBitBoard(new String[]{
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,_,_,",
+                "_,_,_,_,_,1,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,1,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        });
+
+
+        long me = parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        });
+
+        testNorthSlideNoEdge(me, allExceptMe, parseBitBoard(new String[]{
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        }));
+    }
+
+    public void testNorthSlideNoEdge(long me, long allExceptMe, long solution){
+        long northFill = northFill(me);
+        long northSlide = northSlideNoEdge(northFill, allExceptMe);
+
+        logger.info("NorthSlideNoEdge\n" + printBitBoard(me) +
+                "\n to \n" +
+                printBitBoard(allExceptMe) +
+                "\n is \n" +
+                printBitBoard(northSlide)
+        );
+
+        assertThat(printBitBoard(northSlide),is(equalTo(printBitBoard(solution))));
+    }
+
 
 }
