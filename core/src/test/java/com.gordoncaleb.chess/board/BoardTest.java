@@ -10,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -181,7 +178,104 @@ public class BoardTest {
         };
 
         testNumberOfMoves(Side.WHITE, setup, 1);
-        testContainsMove(Side.WHITE, setup, new Move(6, 7, 7, 7));
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(new Move(6, 7, 7, 7)));
+    }
+
+    @Test
+    public void testCheckByPawn() throws Exception {
+        String[] setup = {
+                "R,N,B,Q,K,B,N,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,p,p,P,_,_,",
+                "_,_,_,q,k,b,p,_,",
+                "p,p,p,_,b,p,_,p,",
+                "r,n,_,_,_,_,n,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(5, 4, 4, 5),
+                new Move(5, 6, 4, 5),
+                new Move(5, 4, 6, 3)
+        ));
+    }
+
+    @Test
+    public void testCheckQueenUseDefBlock() throws Exception {
+        String[] setup = {
+                "R,N,B,_,K,B,N,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,_,_,Q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,p,p,_,_,_,",
+                "_,_,_,q,k,p,p,_,",
+                "p,p,p,_,b,n,_,p,",
+                "r,n,_,_,_,_,_,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(5, 5, 4, 5)
+        ));
+    }
+
+    @Test
+    public void testCheckQueenMoveKing() throws Exception {
+        String[] setup = {
+                "R,N,B,_,K,B,N,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,_,_,Q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,p,p,_,_,_,",
+                "_,_,_,q,k,p,p,_,",
+                "p,p,p,_,_,n,_,p,",
+                "r,n,_,_,_,_,_,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(5, 5, 4, 5),
+                new Move(5, 4, 6, 4)
+        ));
+    }
+
+    @Test
+    public void testCheckKnight() throws Exception {
+        String[] setup = {
+                "R,N,B,Q,K,B,N,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,p,p,_,N,_,",
+                "_,_,_,q,k,_,p,_,",
+                "p,p,p,_,_,p,n,p,",
+                "r,n,_,_,_,_,_,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(5, 4, 4, 5),
+                new Move(5, 4, 5, 5),
+                new Move(5, 4, 6, 4),
+                new Move(5, 4, 6, 3)
+        ));
+    }
+
+    @Test
+    public void testCheckKnightWithRookThreat() throws Exception {
+        String[] setup = {
+                "_,N,B,Q,K,B,N,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,R,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,p,p,_,N,_,",
+                "_,_,_,q,k,_,p,_,",
+                "p,p,p,_,_,p,n,p,",
+                "r,n,_,_,_,_,_,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(5, 4, 6, 4),
+                new Move(5, 4, 6, 3)
+        ));
     }
 
     @Test
@@ -311,9 +405,12 @@ public class BoardTest {
         assertEquals(numberOfMoves, moves.size());
     }
 
-    public void testContainsMove(int side, String[] setup, Move move) {
+    public void testContainsExpectedMoves(int side, String[] setup, List<Move> expectedMoves) {
         List<Move> moves = getValidMoves(side, setup);
-        assertTrue(moves.contains(move));
+        assertThat(moves.size(), is(equalTo(expectedMoves.size())));
+        for (Move m : expectedMoves) {
+            assertTrue(moves.contains(m));
+        }
     }
 
     public List<Move> getValidMoves(int side, String[] setup) {
