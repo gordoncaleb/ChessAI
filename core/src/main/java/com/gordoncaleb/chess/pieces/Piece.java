@@ -173,15 +173,6 @@ public class Piece {
         return id;
     }
 
-    public boolean equals(Piece piece) {
-
-        return (piece != null
-                && piece.getRow() == row
-                && piece.getCol() == col
-                && piece.getSide() == player
-                && piece.getPieceID() == this.getPieceID());
-    }
-
     public boolean isValidMove(long position, long[] nullMoveInfo) {
         return isValidMove(nullMoveInfo, position, position);
     }
@@ -245,7 +236,6 @@ public class Piece {
             default:
         }
 
-
     }
 
     public void getNullMoveInfo(Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors, long friendly) {
@@ -273,6 +263,7 @@ public class Piece {
         final long foes = posBitBoard[Side.otherSide(p.getSide())];
 
         long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector;
+
         int bitNum;
         while ((bitNum = Long.numberOfTrailingZeros(validFootPrint)) < 64) {
             final long mask = (1L << bitNum);

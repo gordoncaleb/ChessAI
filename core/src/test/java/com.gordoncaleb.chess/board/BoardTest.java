@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static com.gordoncaleb.chess.bitboard.BitBoard.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -279,6 +280,154 @@ public class BoardTest {
     }
 
     @Test
+    public void testCheckKnightTakeKnight() throws Exception {
+        String[] setup = {
+                "R,N,B,Q,K,B,N,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,_,q,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,p,p,_,N,_,",
+                "_,_,_,n,k,_,p,_,",
+                "p,p,p,_,_,p,n,p,",
+                "r,_,_,_,_,_,_,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(5, 4, 4, 5),
+                new Move(5, 4, 5, 5),
+                new Move(5, 4, 6, 4),
+                new Move(5, 4, 6, 3),
+                new Move(2, 6, 4, 6)
+        ));
+    }
+
+    @Test
+    public void testCheckKnightTakeKnightNoOption() throws Exception {
+        String[] setup = {
+                "R,N,B,Q,K,B,N,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,_,q,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,p,p,p,N,_,",
+                "_,_,_,n,k,n,p,_,",
+                "p,p,p,p,p,p,_,p,",
+                "r,_,_,_,_,_,_,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(2, 6, 4, 6)
+        ));
+    }
+
+    @Test
+    public void testCheckPawnAndKnight() throws Exception {
+        String[] setup = {
+                "R,_,B,_,K,B,_,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,Q,q,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,N,p,p,P,N,_,",
+                "_,_,_,n,k,n,p,_,",
+                "p,p,p,p,_,p,_,p,",
+                "r,_,_,_,_,_,_,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(5, 4, 6, 4)
+        ));
+    }
+
+    @Test
+    public void testCheckDoubleKnight() throws Exception {
+        String[] setup = {
+                "R,_,B,Q,K,B,_,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,_,q,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,N,p,p,p,N,_,",
+                "_,_,_,n,k,n,p,_,",
+                "p,p,p,p,_,p,_,p,",
+                "r,_,_,_,_,_,_,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(5, 4, 6, 4)
+        ));
+    }
+
+    @Test
+    public void testCheckDoubleKnightNullMove() throws Exception {
+        String[] setup = {
+                "R,_,B,Q,K,B,_,R,",
+                "P,P,P,_,_,P,P,P,",
+                "_,_,_,_,_,_,q,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,N,p,p,p,N,_,",
+                "_,_,_,n,k,n,p,_,",
+                "p,p,p,p,_,p,_,p,",
+                "r,_,_,_,_,_,_,r,"
+        };
+
+        long[] nullMoveInfo = getNullMoveInfo(Side.WHITE, setup);
+
+        assertThat(printBitBoard(nullMoveInfo[1]), is(equalTo(printBitBoard(parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+        })))));
+    }
+
+    @Test
+    public void testCheckDoubleSliderNullMove() throws Exception {
+        String[] setup = {
+                "R,_,B,_,K,_,_,R,",
+                "P,P,_,_,_,P,P,P,",
+                "_,Q,_,q,_,_,_,Q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,p,_,_,_,",
+                "_,_,_,n,k,n,p,_,",
+                "p,p,p,p,_,p,_,p,",
+                "r,_,_,_,_,_,_,r,"
+        };
+
+        long[] nullMoveInfo = getNullMoveInfo(Side.WHITE, setup);
+
+        assertThat(printBitBoard(nullMoveInfo[1]), is(equalTo(printBitBoard(parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+        })))));
+    }
+
+    @Test
+    public void testCheckDoubleSlider() throws Exception {
+        String[] setup = {
+                "R,_,B,_,K,_,_,R,",
+                "P,P,_,_,_,P,P,P,",
+                "_,Q,_,q,_,_,_,Q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,p,_,_,_,",
+                "_,_,_,n,k,n,p,_,",
+                "p,p,p,p,_,p,_,p,",
+                "r,_,_,_,_,_,_,r,"
+        };
+
+        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+                new Move(5, 4, 6, 4)
+        ));
+    }
+
+    @Test
     public void testQueenLeftEdge() throws Exception {
         String[] setup = {
                 "_,_,_,_,_,_,_,_,",
@@ -417,6 +566,11 @@ public class BoardTest {
         Board b1 = boardDAO.getFromSetup(side, setup);
         b1.makeNullMove();
         return Move.fromLongs(b1.generateValidMoves());
+    }
+
+    public long[] getNullMoveInfo(int side, String[] setup) {
+        Board b1 = boardDAO.getFromSetup(side, setup);
+        return b1.makeNullMove();
     }
 
 

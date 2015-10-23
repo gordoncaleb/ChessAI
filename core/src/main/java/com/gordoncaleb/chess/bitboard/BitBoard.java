@@ -78,6 +78,10 @@ public class BitBoard {
         }
     }
 
+    public static boolean hasOneBitOrLess(long bb) {
+        return (bb & (bb - 1)) == 0;
+    }
+
     public static long getMask(int row, int col) {
         return (1L << ((row << 3) + col));
     }

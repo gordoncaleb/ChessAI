@@ -4,13 +4,13 @@ import java.util.*;
 import java.util.ArrayList;
 
 import com.gordoncaleb.chess.ai.AI;
-import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.io.XMLParser;
 import com.gordoncaleb.chess.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
+import static com.gordoncaleb.chess.bitboard.BitBoard.*;
 
 public class Board {
     private static final Logger logger = LoggerFactory.getLogger(Board.class);
@@ -40,7 +40,7 @@ public class Board {
     private Deque<Long> hashCodeHistory = new ArrayDeque<>();
     private Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
-    private long[] nullMoveInfo = {0, BitBoard.ALL_ONES, 0};
+    private long[] nullMoveInfo = {0, ALL_ONES, 0};
 
     private long[][] posBitBoard = new long[PIECES_COUNT][2];
     private long[] allPosBitBoard = new long[2];
@@ -130,15 +130,15 @@ public class Board {
                 moveSide = Side.otherSide(turn);
             }
 
-            for(Move m: moveHistory){
+            for (Move m : moveHistory) {
                 this.moveHistory.push(new Move(m.getMoveLong()));
                 if (m.hasPieceTaken()) {
                     piecesTaken[Side.otherSide(moveSide)]
                             .push(new Piece(m.getPieceTakenID(),
-                                            Side.otherSide(moveSide),
-                                            m.getPieceTakenRow(),
-                                            m.getPieceTakenCol(),
-                                            m.getPieceTakenHasMoved())
+                                    Side.otherSide(moveSide),
+                                    m.getPieceTakenRow(),
+                                    m.getPieceTakenCol(),
+                                    m.getPieceTakenHasMoved())
                             );
                 }
 
@@ -272,7 +272,7 @@ public class Board {
 
     private void movePiece(final Piece pieceMoving, final int toRow, final int toCol, final Move.MoveNote note) {
 
-        final long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ BitBoard.getMask(toRow, toCol);
+        final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ getMask(toRow, toCol);
 
         // remove bit position from where piece was and add where it is now
         posBitBoard[pieceMoving.getPieceID()][pieceMoving.getSide()] ^= bitMove;
@@ -392,7 +392,7 @@ public class Board {
 
     private void undoMovePiece(final Piece pieceMoving, final int fromRow, final int fromCol, final Move.MoveNote note, final boolean hadMoved) {
 
-        final long bitMove = BitBoard.getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ BitBoard.getMask(fromRow, fromCol);
+        final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ getMask(fromRow, fromCol);
 
         // remove bit position from where piece was and add where it is now
         posBitBoard[pieceMoving.getPieceID()][pieceMoving.getSide()] ^= bitMove;
@@ -479,39 +479,32 @@ public class Board {
 
     public long[] makeNullMove() {
         // long nullMoveAttacks = 0;
-        // long inCheckArrayList = BitBoard.ALL_ONES;
+        // long inCheckArrayList = ALL_ONES;
         // long bitAttackCompliment = 0;
         //
         // nullMoveInfo[0] = nullMoveAttacks;
         // nullMoveInfo[1] = inCheckArrayList;
         // nullMoveInfo[2] = bitAttackCompliment;
 
-        final int otherSide = Side.otherSide(turn);
-
         // recalculating check info
         clearBoardStatus();
-
         pieces[turn].forEach(Piece::clearBlocking);
 
-        final long friendOrFoe = allPosBitBoard[0] | allPosBitBoard[1];
-
+        final int otherSide = Side.otherSide(turn);
         nullMoveInfo[0] = Pawn.getPawnAttacks(posBitBoard[PAWN][otherSide], otherSide);
         nullMoveInfo[0] |= Knight.getKnightAttacks(posBitBoard[KNIGHT][otherSide]);
         nullMoveInfo[0] |= King.getKingAttacks(posBitBoard[KING][otherSide]);
 
+        final long jumperAttacks = Pawn.getPawnAttacks(posBitBoard[KING][turn], turn) & posBitBoard[PAWN][otherSide] |
+                Knight.getKnightAttacks(posBitBoard[KING][turn]) & posBitBoard[KNIGHT][otherSide];
 
-        nullMoveInfo[1] = Pawn.getPawnAttacks(posBitBoard[KING][turn], turn) & posBitBoard[PAWN][otherSide];
-        nullMoveInfo[1] |= Knight.getKnightAttacks(posBitBoard[KING][turn]) & posBitBoard[KNIGHT][otherSide];
-
-        if (nullMoveInfo[1] == 0) {
-            nullMoveInfo[1] = BitBoard.ALL_ONES;
-        }
-
+        nullMoveInfo[1] = jumperAttacks == 0 ? ALL_ONES : (hasOneBitOrLess(jumperAttacks) ? jumperAttacks : 0);
         nullMoveInfo[2] = 0;
 
+        final long friendOrFoe = allPosBitBoard[0] | allPosBitBoard[1];
         final long updown = ~friendOrFoe;
-        final long left = BitBoard.NOT_LEFT1 & updown;
-        final long right = BitBoard.NOT_RIGHT1 & updown;
+        final long left = NOT_LEFT1 & updown;
+        final long right = NOT_RIGHT1 & updown;
         final long kingCheckVectors = King.getKingCheckVectors(posBitBoard[KING][turn], updown, left, right);
 
         for (Piece p : pieces[otherSide]) {
