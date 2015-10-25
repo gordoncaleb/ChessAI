@@ -514,22 +514,6 @@ public class Board {
                 friendOrFoe,
                 nullMoveInfo);
 
-//        final long updown = ~friendOrFoe;
-//        final long left = NOT_LEFT1 & updown;
-//        final long right = NOT_RIGHT1 & updown;
-//        final long kingCheckVectors = King.getKingCheckVectors(posBitBoard[KING][turn], updown, left, right);
-//
-//        for (Piece p : pieces[otherSide]) {
-//            p.getNullMoveInfo(this,
-//                    nullMoveInfo,
-//                    updown,
-//                    left,
-//                    right,
-//                    posBitBoard[KING][turn],
-//                    kingCheckVectors,
-//                    allPosBitBoard[turn]);
-//        }
-
         if ((kings[turn].getBit() & nullMoveInfo[0]) != 0) {
             setBoardStatus(Game.GameStatus.CHECK);
         }

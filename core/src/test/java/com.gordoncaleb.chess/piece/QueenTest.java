@@ -20,40 +20,6 @@ public class QueenTest {
     public static final Logger logger = LoggerFactory.getLogger(QueenTest.class);
 
     @Test
-    public void test() {
-        long[] nullMoveInfo = new long[3];
-
-        nullMoveInfo[1] = -1L;
-
-        Piece queen = new Piece(Piece.PieceID.QUEEN, Side.WHITE, 6, 0, false);
-        long piece = queen.getBit();
-        long kingBitBoard = BitBoard.getMask(1, 0);
-
-        long friendly = kingBitBoard | BitBoard.getMask(1, 5);// |
-        // BitBoard.getMask(4,0);
-        long enemy = piece | BitBoard.getMask(4, 4);
-        long bb = friendly | enemy;
-
-        long updown = ~bb;
-        long left = 0xFEFEFEFEFEFEFEFEL & ~bb;
-        long right = 0x7F7F7F7F7F7F7F7FL & ~bb;
-
-        logger.info("pos\n" + BitBoard.printBitBoard(bb));
-
-        long kingCheckVectors = King.getKingCheckVectors(kingBitBoard, updown, left, right);
-
-        logger.info("king check\n" + BitBoard.printBitBoard(kingCheckVectors));
-
-        Queen.getNullMoveInfo(queen, null, nullMoveInfo, updown, left, right, kingBitBoard, kingCheckVectors, friendly);
-
-        logger.info("king\n" + BitBoard.printBitBoard(kingBitBoard));
-
-        logger.info("[0]\n" + BitBoard.printBitBoard(nullMoveInfo[0]));
-        logger.info("[1]\n" + BitBoard.printBitBoard(nullMoveInfo[1]));
-        logger.info("[2]\n" + BitBoard.printBitBoard(nullMoveInfo[2]));
-    }
-
-    @Test
     public void testSlideAllDirections1() {
 
         String[] friendString = new String[]{
