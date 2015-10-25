@@ -27,17 +27,26 @@ public class Rook {
 
         final long friend = posBitBoard[p.getSide()];
         final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
-        final long footPrint = slideRook(p.getBit(), friendOrFoe, friend);
+        final long footPrint = slideRook(p.getBit(), friendOrFoe) & ~friend;
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static long slideRook(final long me, final long friendOrFoe, final long friend) {
+    public static long slideRook(final long me, final long friendOrFoe) {
         final long allExceptMe = friendOrFoe & ~me;
-        final long slide = northFillAndSlide(me, allExceptMe) |
+        return northFillAndSlide(me, allExceptMe) |
                 southFillAndSlide(me, allExceptMe) |
                 westFillAndSlide(me, allExceptMe) |
                 eastFillAndSlide(me, allExceptMe);
-        return slide & ~friend;
+    }
+
+    public static void getRookAttacks(long rooks,
+                                      final long friendOrFoe,
+                                      final long[] nullMoveInfo) {
+        long mask;
+        while ((mask = Long.lowestOneBit(rooks)) != 0) {
+            nullMoveInfo[0] |= slideRook(mask, friendOrFoe) & ~mask;
+            rooks ^= mask;
+        }
     }
 
     public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors,

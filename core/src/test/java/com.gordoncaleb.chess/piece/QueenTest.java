@@ -13,6 +13,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+
 public class QueenTest {
 
     public static final Logger logger = LoggerFactory.getLogger(QueenTest.class);
@@ -157,9 +159,53 @@ public class QueenTest {
 
         long bbSolution = BitBoard.parseBitBoard(solution);
 
-        long result = Queen.slideQueen(mask, friendOrFoe, friend);
+        long result = Queen.slideQueen(mask, friendOrFoe) & ~friend;
         logger.info("Friend Of Foe\n" + BitBoard.printBitBoard(friendOrFoe));
         logger.info("(" + r + "," + c + ")\n" + BitBoard.printBitBoard(result));
         assertThat(BitBoard.printBitBoard(result), is(equalTo(BitBoard.printBitBoard(bbSolution))));
     }
+
+    @Test
+    public void testGetAttacks() {
+
+        long friendOrFoe = parseBitBoard(new String[]{
+                "1,_,_,_,1,_,_,1,",
+                "1,_,_,_,_,_,1,1,",
+                "_,1,_,1,_,1,_,_,",
+                "_,_,1,_,_,_,1,_,",
+                "_,_,1,1,_,_,_,_,",
+                "_,_,1,_,_,_,1,_,",
+                "1,1,_,_,_,1,_,1,",
+                "1,_,_,_,_,1,1,_,"
+        });
+
+        long queens = parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,1,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        });
+
+
+        long[] nullMoveInfo = new long[]{0, ALL_ONES, 0};
+        Queen.getQueenAttacks(queens, friendOrFoe, nullMoveInfo);
+
+        assertThat(printBitBoard(nullMoveInfo[0]), is(equalTo(printBitBoard(parseBitBoard(new String[]{
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,1,_,_,_,_,",
+                "_,_,_,_,1,_,1,_,",
+                "_,_,_,_,_,1,1,1,",
+                "_,_,1,1,1,1,_,1,",
+                "_,_,_,_,_,1,1,1,",
+                "_,_,_,_,_,_,1,_,"
+        })))));
+
+    }
+
+
 }

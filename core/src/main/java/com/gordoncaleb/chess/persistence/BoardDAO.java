@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
-import static com.gordoncaleb.chess.pieces.Piece.*;
 
 public class BoardDAO {
 

@@ -25,13 +25,13 @@ public class Queen {
 
         final long friend = posBitBoard[p.getSide()];
         final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
-        final long footPrint = slideQueen(p.getBit(), friendOrFoe, friend);
+        final long footPrint = slideQueen(p.getBit(), friendOrFoe) & ~friend;
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static long slideQueen(final long me, final long friendOrFoe, final long friend) {
+    public static long slideQueen(final long me, final long friendOrFoe) {
         final long allExceptMe = friendOrFoe & ~me;
-        final long slide = northFillAndSlide(me, allExceptMe) |
+        return northFillAndSlide(me, allExceptMe) |
                 southFillAndSlide(me, allExceptMe) |
                 westFillAndSlide(me, allExceptMe) |
                 eastFillAndSlide(me, allExceptMe) |
@@ -39,16 +39,14 @@ public class Queen {
                 northEastFillAndSlide(me, allExceptMe) |
                 southWestFillAndSlide(me, allExceptMe) |
                 southEastFillAndSlide(me, allExceptMe);
-        return slide & ~friend;
     }
 
     public static void getQueenAttacks(long queens,
                                        final long friendOrFoe,
-                                       final long friend,
                                        final long[] nullMoveInfo) {
         long mask;
         while ((mask = Long.lowestOneBit(queens)) != 0) {
-            nullMoveInfo[0] |= slideQueen(mask,friendOrFoe,friend);
+            nullMoveInfo[0] |= slideQueen(mask, friendOrFoe) & ~mask;
             queens ^= mask;
         }
     }

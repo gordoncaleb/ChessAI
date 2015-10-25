@@ -491,37 +491,53 @@ public class Board {
         pieces[turn].forEach(Piece::clearBlocking);
 
         final int otherSide = Side.otherSide(turn);
+        final long friendOrFoe = allPosBitBoard[0] | allPosBitBoard[1];
         nullMoveInfo[0] = Pawn.getPawnAttacks(posBitBoard[PAWN][otherSide], otherSide);
         nullMoveInfo[0] |= Knight.getKnightAttacks(posBitBoard[KNIGHT][otherSide]);
         nullMoveInfo[0] |= King.getKingAttacks(posBitBoard[KING][otherSide]);
 
+        Queen.getQueenAttacks(posBitBoard[QUEEN][otherSide], friendOrFoe, nullMoveInfo);
+        Rook.getRookAttacks(posBitBoard[ROOK][otherSide], friendOrFoe, nullMoveInfo);
+        Bishop.getBishopAttacks(posBitBoard[BISHOP][otherSide], friendOrFoe, nullMoveInfo);
+
         final long jumperAttacks = Pawn.getPawnAttacks(posBitBoard[KING][turn], turn) & posBitBoard[PAWN][otherSide] |
                 Knight.getKnightAttacks(posBitBoard[KING][turn]) & posBitBoard[KNIGHT][otherSide];
 
-        nullMoveInfo[1] = jumperAttacks == 0 ? ALL_ONES : (hasOneBitOrLess(jumperAttacks) ? jumperAttacks : 0);
+        nullMoveInfo[1] = jumperAttacks == 0 ? ~posBitBoard[KING][turn] : (hasOneBitOrLess(jumperAttacks) ? jumperAttacks : 0);
         nullMoveInfo[2] = 0;
 
-        final long friendOrFoe = allPosBitBoard[0] | allPosBitBoard[1];
-        final long updown = ~friendOrFoe;
-        final long left = NOT_LEFT1 & updown;
-        final long right = NOT_RIGHT1 & updown;
-        final long kingCheckVectors = King.getKingCheckVectors(posBitBoard[KING][turn], updown, left, right);
+        King.getKingCheckInfo(this,
+                posBitBoard[KING][turn],
+                posBitBoard[QUEEN][otherSide],
+                posBitBoard[ROOK][otherSide],
+                posBitBoard[BISHOP][otherSide],
+                friendOrFoe,
+                nullMoveInfo);
 
-        for (Piece p : pieces[otherSide]) {
-            p.getNullMoveInfo(this,
-                    nullMoveInfo,
-                    updown,
-                    left,
-                    right,
-                    posBitBoard[KING][turn],
-                    kingCheckVectors,
-                    allPosBitBoard[turn]);
-        }
+//        final long updown = ~friendOrFoe;
+//        final long left = NOT_LEFT1 & updown;
+//        final long right = NOT_RIGHT1 & updown;
+//        final long kingCheckVectors = King.getKingCheckVectors(posBitBoard[KING][turn], updown, left, right);
+//
+//        for (Piece p : pieces[otherSide]) {
+//            p.getNullMoveInfo(this,
+//                    nullMoveInfo,
+//                    updown,
+//                    left,
+//                    right,
+//                    posBitBoard[KING][turn],
+//                    kingCheckVectors,
+//                    allPosBitBoard[turn]);
+//        }
 
         if ((kings[turn].getBit() & nullMoveInfo[0]) != 0) {
             setBoardStatus(Game.GameStatus.CHECK);
         }
 
+        return nullMoveInfo;
+    }
+
+    public long[] getNullMoveInfo() {
         return nullMoveInfo;
     }
 

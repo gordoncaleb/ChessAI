@@ -62,11 +62,11 @@ public class Slide {
 
     public static long southSlideNoEdge(final long southFill, final long allExceptMe) {
         final long a = southFill & allExceptMe;
-        return southFill & maskUpToBottomBit(a);
+        return southFill & maskUpToBottomBitOrZero(a);
     }
 
     public static long southSlide(final long southFill, final long allExceptMe) {
-        final long a = southFill & allExceptMe | TOP_BIT;
+        final long a = southFill & allExceptMe;
         return southFill & maskUpToBottomBit(a);
     }
 
@@ -76,11 +76,11 @@ public class Slide {
 
     public static long southWestSlideNoEdge(final long southWestFill, final long allExceptMe) {
         final long a = southWestFill & allExceptMe;
-        return southWestFill & maskUpToBottomBit(a);
+        return southWestFill & maskUpToBottomBitOrZero(a);
     }
 
     public static long southWestSlide(final long southWestFill, final long allExceptMe) {
-        final long a = southWestFill & allExceptMe | TOP_BIT;
+        final long a = southWestFill & allExceptMe;
         return southWestFill & maskUpToBottomBit(a);
     }
 
@@ -90,11 +90,11 @@ public class Slide {
 
     public static long southEastSlideNoEdge(final long southEastFill, final long allExceptMe) {
         final long a = southEastFill & allExceptMe;
-        return southEastFill & maskUpToBottomBit(a);
+        return southEastFill & maskUpToBottomBitOrZero(a);
     }
 
     public static long southEastSlide(final long southEastFill, final long allExceptMe) {
-        final long a = southEastFill & allExceptMe | TOP_BIT;
+        final long a = southEastFill & allExceptMe;
         return southEastFill & maskUpToBottomBit(a);
     }
 
@@ -104,11 +104,11 @@ public class Slide {
 
     public static long eastSlideNoEdge(final long eastFill, final long allExceptMe) {
         final long a = eastFill & allExceptMe;
-        return eastFill & maskUpToBottomBit(a);
+        return eastFill & maskUpToBottomBitOrZero(a);
     }
 
     public static long eastSlide(final long eastFill, final long allExceptMe) {
-        final long a = eastFill & allExceptMe | TOP_BIT;
+        final long a = eastFill & allExceptMe;
         return eastFill & maskUpToBottomBit(a);
     }
 
@@ -118,7 +118,7 @@ public class Slide {
 
     public static long northSlideNoEdge(final long northFill, final long allExceptMe) {
         final long a = northFill & allExceptMe;
-        return northFill & maskBeyondTopBit(a);
+        return northFill & maskBeyondTopBitOrZero(a);
     }
 
     public static long northSlide(final long northFill, final long allExceptMe) {
@@ -132,7 +132,7 @@ public class Slide {
 
     public static long northWestSlideNoEdge(final long northWestFill, final long allExceptMe) {
         final long a = northWestFill & allExceptMe;
-        return northWestFill & maskBeyondTopBit(a);
+        return northWestFill & maskBeyondTopBitOrZero(a);
     }
 
     public static long northWestSlide(final long northWestFill, final long allExceptMe) {
@@ -146,7 +146,7 @@ public class Slide {
 
     public static long northEastSlideNoEdge(final long northEastFill, final long allExceptMe) {
         final long a = northEastFill & allExceptMe;
-        return northEastFill & maskBeyondTopBit(a);
+        return northEastFill & maskBeyondTopBitOrZero(a);
     }
 
     public static long northEastSlide(final long northEastFill, final long allExceptMe) {
@@ -160,7 +160,7 @@ public class Slide {
 
     public static long westSlideNoEdge(final long westFill, final long allExceptMe) {
         final long a = westFill & allExceptMe;
-        return westFill & maskBeyondTopBit(a);
+        return westFill & maskBeyondTopBitOrZero(a);
     }
 
     public static long westSlide(final long westFill, final long allExceptMe) {
@@ -176,8 +176,16 @@ public class Slide {
         return (n - 1) ^ n;
     }
 
+    public static long maskUpToBottomBitOrZero(long n) {
+        return n == 0 ? 0 : maskUpToBottomBit(n);
+    }
+
     public static long maskBeyondTopBit(long n) {
         return (TOP_BIT >> Long.numberOfLeadingZeros(n));
+    }
+
+    public static long maskBeyondTopBitOrZero(long n) {
+        return n == 0 ? 0 : maskBeyondTopBit(n);
     }
 
 }

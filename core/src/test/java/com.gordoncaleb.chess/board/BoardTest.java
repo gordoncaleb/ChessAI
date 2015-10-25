@@ -179,7 +179,7 @@ public class BoardTest {
         };
 
         testNumberOfMoves(Side.WHITE, setup, 1);
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(new Move(6, 7, 7, 7)));
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(new Move(6, 7, 7, 7)));
     }
 
     @Test
@@ -195,7 +195,7 @@ public class BoardTest {
                 "r,n,_,_,_,_,n,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(5, 4, 4, 5),
                 new Move(5, 6, 4, 5),
                 new Move(5, 4, 6, 3)
@@ -215,7 +215,7 @@ public class BoardTest {
                 "r,n,_,_,_,_,_,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(5, 5, 4, 5)
         ));
     }
@@ -233,7 +233,7 @@ public class BoardTest {
                 "r,n,_,_,_,_,_,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(5, 5, 4, 5),
                 new Move(5, 4, 6, 4)
         ));
@@ -252,7 +252,7 @@ public class BoardTest {
                 "r,n,_,_,_,_,_,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(5, 4, 4, 5),
                 new Move(5, 4, 5, 5),
                 new Move(5, 4, 6, 4),
@@ -273,7 +273,7 @@ public class BoardTest {
                 "r,n,_,_,_,_,_,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(5, 4, 6, 4),
                 new Move(5, 4, 6, 3)
         ));
@@ -292,7 +292,7 @@ public class BoardTest {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(5, 4, 4, 5),
                 new Move(5, 4, 5, 5),
                 new Move(5, 4, 6, 4),
@@ -314,7 +314,7 @@ public class BoardTest {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(2, 6, 4, 6)
         ));
     }
@@ -332,7 +332,7 @@ public class BoardTest {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(5, 4, 6, 4)
         ));
     }
@@ -350,7 +350,7 @@ public class BoardTest {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(5, 4, 6, 4)
         ));
     }
@@ -422,7 +422,7 @@ public class BoardTest {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        testContainsExpectedMoves(Side.WHITE, setup, Arrays.asList(
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
                 new Move(5, 4, 6, 4)
         ));
     }
@@ -441,6 +441,24 @@ public class BoardTest {
         };
 
         testNumberOfMoves(Side.WHITE, setup, 13);
+    }
+
+    @Test
+    public void testBishopKingThreat() {
+        String[] setup = new String[]{
+                "_,_,R,_,_,R,K,_,",
+                "_,_,_,_,B,P,P,P,",
+                "P,_,_,_,P,N,_,_,",
+                "Q,P,N,_,n,_,_,_,",
+                "_,_,_,_,_,b,_,_,",
+                "_,_,n,_,_,_,p,_,",
+                "p,p,_,_,p,p,B,p,",
+                "_,q,r,r,_,_,k,_,"
+        };
+
+        testContainsMove(Side.WHITE, setup,
+                new Move(7, 6, 6, 6)
+        );
     }
 
     @Test
@@ -554,12 +572,17 @@ public class BoardTest {
         assertEquals(numberOfMoves, moves.size());
     }
 
-    public void testContainsExpectedMoves(int side, String[] setup, List<Move> expectedMoves) {
+    public void testContainsExactlyMoves(int side, String[] setup, List<Move> expectedMoves) {
         List<Move> moves = getValidMoves(side, setup);
         assertThat(moves.size(), is(equalTo(expectedMoves.size())));
         for (Move m : expectedMoves) {
             assertTrue(moves.contains(m));
         }
+    }
+
+    public void testContainsMove(int side, String[] setup, Move expectedMove) {
+        List<Move> moves = getValidMoves(side, setup);
+        assertTrue(moves.contains(expectedMove));
     }
 
     public List<Move> getValidMoves(int side, String[] setup) {

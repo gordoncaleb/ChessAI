@@ -25,17 +25,26 @@ public class Bishop {
 
         final long friend = posBitBoard[p.getSide()];
         final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
-        final long footPrint = slideBishop(p.getBit(), friendOrFoe, friend);
+        final long footPrint = slideBishop(p.getBit(), friendOrFoe) & ~friend;
         return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
     }
 
-    public static long slideBishop(final long me, final long friendOrFoe, final long friend) {
+    public static long slideBishop(final long me, final long friendOrFoe) {
         final long allExceptMe = friendOrFoe & ~me;
-        final long slide = northWestFillAndSlide(me, allExceptMe) |
+        return northWestFillAndSlide(me, allExceptMe) |
                 northEastFillAndSlide(me, allExceptMe) |
                 southWestFillAndSlide(me, allExceptMe) |
                 southEastFillAndSlide(me, allExceptMe);
-        return slide & ~friend;
+    }
+
+    public static void getBishopAttacks(long bishops,
+                                        final long friendOrFoe,
+                                        final long[] nullMoveInfo) {
+        long mask;
+        while ((mask = Long.lowestOneBit(bishops)) != 0) {
+            nullMoveInfo[0] |= slideBishop(mask, friendOrFoe) & ~mask;
+            bishops ^= mask;
+        }
     }
 
     public static void getNullMoveInfo(Piece piece, Board board, long[] nullMoveInfo, long updown, long left, long right, long kingBitBoard, long kingCheckVectors,

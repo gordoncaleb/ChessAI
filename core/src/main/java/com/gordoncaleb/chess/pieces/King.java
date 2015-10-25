@@ -91,60 +91,115 @@ public class King {
 
     }
 
-    public static void getKingCheckInfo(long king,
+    public static void getKingCheckInfo(final Board board,
+                                        final long king,
                                         final long foeQueens,
                                         final long foeRooks,
                                         final long foeBishops,
+                                        final long friendsOrFoes,
                                         final long[] nullMoveInfo) {
 
-        if ((nullMoveInfo[0] & king) != 0 && nullMoveInfo[1] != ALL_ONES) {
-            //is in check by sliders
-        }
-    }
-
-    public static void checkBlockingVectors(long king,
-                                            final long foeQueens,
-                                            final long foeRooks,
-                                            final long foeBishops,
-                                            final long[] nullMoveInfo) {
+        final long allExceptMe = friendsOrFoes & ~king;
         final long foeDiagonalSliders = foeBishops | foeQueens;
         final long foeStraightSliders = foeRooks | foeQueens;
+        final long allExceptMeAndStraightSliders = allExceptMe & ~foeStraightSliders;
+        final long allExceptMeAndDiagonalSliders = allExceptMe & ~foeDiagonalSliders;
 
         final long northSlide = northSlideNoEdge(northFill(king), foeStraightSliders);
+        if (northSlide != 0) {
+            final long northSlideBlockers = northSlide & allExceptMeAndStraightSliders;
+            if (northSlideBlockers == 0) {
+                nullMoveInfo[1] &= northSlide;
+                nullMoveInfo[2] |= king << 8;
+            } else if (hasOneBitOrLess(northSlideBlockers)) {
+                setBlocker(board, northSlideBlockers, northSlide);
+            }
+        }
+
         final long southSlide = southSlideNoEdge(southFill(king), foeStraightSliders);
+        if (southSlide != 0) {
+            final long southSlideBlockers = southSlide & allExceptMeAndStraightSliders;
+            if (southSlideBlockers == 0) {
+                nullMoveInfo[1] &= southSlide;
+                nullMoveInfo[2] |= king >>> 8;
+            } else if (hasOneBitOrLess(southSlideBlockers)) {
+                setBlocker(board, southSlideBlockers, southSlide);
+            }
+        }
+
         final long westSlide = westSlideNoEdge(westFill(king), foeStraightSliders);
+        if (westSlide != 0) {
+            final long westSlideBlockers = westSlide & allExceptMeAndStraightSliders;
+            if (westSlideBlockers == 0) {
+                nullMoveInfo[1] &= westSlide;
+                nullMoveInfo[2] |= king << 1;
+            } else if (hasOneBitOrLess(westSlideBlockers)) {
+                setBlocker(board, westSlideBlockers, westSlide);
+            }
+        }
+
         final long eastSlide = eastSlideNoEdge(eastFill(king), foeStraightSliders);
+        if (eastSlide != 0) {
+            final long eastSlideBlockers = eastSlide & allExceptMeAndStraightSliders;
+            if (eastSlideBlockers == 0) {
+                nullMoveInfo[1] &= eastSlide;
+                nullMoveInfo[2] |= king >>> 1;
+            } else if (hasOneBitOrLess(eastSlideBlockers)) {
+                setBlocker(board, eastSlideBlockers, eastSlide);
+            }
+        }
 
         final long northWestSlide = northWestSlideNoEdge(northWestFill(king), foeDiagonalSliders);
+        if (northWestSlide != 0) {
+            final long northWestSlideBlockers = northWestSlide & allExceptMeAndDiagonalSliders;
+            if (northWestSlideBlockers == 0) {
+                nullMoveInfo[1] &= northWestSlide;
+                nullMoveInfo[2] |= king << 9;
+            } else if (hasOneBitOrLess(northWestSlideBlockers)) {
+                setBlocker(board, northWestSlideBlockers, northWestSlide);
+            }
+        }
+
         final long northEastSlide = northEastSlideNoEdge(northEastFill(king), foeDiagonalSliders);
+        if (northEastSlide != 0) {
+            final long northEastSlideBlockers = northEastSlide & allExceptMeAndDiagonalSliders;
+            if (northEastSlideBlockers == 0) {
+                nullMoveInfo[1] &= northEastSlide;
+                nullMoveInfo[2] |= king << 7;
+            } else if (hasOneBitOrLess(northEastSlideBlockers)) {
+                setBlocker(board, northEastSlideBlockers, northEastSlide);
+            }
+        }
+
         final long southWestSlide = southWestSlideNoEdge(southWestFill(king), foeDiagonalSliders);
+        if (southWestSlide != 0) {
+            final long southWestSlideBlockers = southWestSlide & allExceptMeAndDiagonalSliders;
+            if (southWestSlideBlockers == 0) {
+                nullMoveInfo[1] &= southWestSlide;
+                nullMoveInfo[2] |= king >>> 7;
+            } else if (hasOneBitOrLess(southWestSlideBlockers)) {
+                setBlocker(board, southWestSlideBlockers, southWestSlide);
+            }
+        }
+
         final long southEastSlide = southEastSlideNoEdge(southEastFill(king), foeDiagonalSliders);
+        if (southEastSlide != 0) {
+            final long southEastSlideBlockers = southEastSlide & allExceptMeAndDiagonalSliders;
+            if (southEastSlideBlockers == 0) {
+                nullMoveInfo[1] &= southEastSlide;
+                nullMoveInfo[2] |= king >> 9;
+            } else if (hasOneBitOrLess(southEastSlideBlockers)) {
+                setBlocker(board, southEastSlideBlockers, southEastSlide);
+            }
+        }
 
+    }
 
-        nullMoveInfo[1] &= northSlide;
-        nullMoveInfo[2] |= northSlide << 8;
-
-        nullMoveInfo[1] &= southSlide;
-        nullMoveInfo[2] |= southSlide >>> 8;
-
-        nullMoveInfo[1] &= westSlide;
-        nullMoveInfo[2] |= westSlide << 1;
-
-        nullMoveInfo[1] &= eastSlide;
-        nullMoveInfo[2] |= eastSlide >>> 1;
-
-
-        nullMoveInfo[1] &= northWestSlide;
-        nullMoveInfo[2] |= northWestSlide << 8;
-
-        nullMoveInfo[1] &= northEastSlide;
-        nullMoveInfo[2] |= northEastSlide >>> 8;
-
-        nullMoveInfo[1] &= southWestSlide;
-        nullMoveInfo[2] |= southWestSlide << 1;
-
-        nullMoveInfo[1] &= southEastSlide;
-        nullMoveInfo[2] |= southEastSlide >>> 1;
+    private static void setBlocker(Board b, long mask, long blockingVector) {
+        int bitNum = Long.numberOfTrailingZeros(mask);
+        int r = bitNum / 8;
+        int c = bitNum % 8;
+        b.getPiece(r, c).setBlockingVector(blockingVector);
     }
 
     public static long getKingCheckVectors(long king, long updown, long left, long right) {
