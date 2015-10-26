@@ -3,37 +3,33 @@ package com.gordoncaleb;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.persistence.BoardDAO;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.Warmup;
+import com.gordoncaleb.chess.util.Perft;
+import org.openjdk.jmh.annotations.*;
 
+import java.util.concurrent.TimeUnit;
+
+@State(Scope.Thread)
+@BenchmarkMode(Mode.SampleTime)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class PerftBenchmark {
 
-    private Board b1;
+    @Param({"0", "1"})
+    private int perftNum;
+    private int perftDepth = 3;
+
+    private final Board[] perftBoards = new Board[2];
+    private final Perft perft = new Perft();
 
     @Setup
     public void init() {
-        String[] setup = {
-                "R,_,_,_,_,_,Q,_,",
-                "_,P,_,N,_,B,_,_,",
-                "_,_,_,_,_,_,K,_,",
-                "_,P,_,_,P,_,p,P,",
-                "_,_,_,_,p,_,k,p,",
-                "_,p,_,_,_,_,_,_,",
-                "p,b,_,n,_,q,_,_,",
-                "r,_,_,_,_,_,_,r,"
-        };
-
-        BoardDAO boardDAO = new BoardDAO();
-        b1 = boardDAO.getFromSetup(Side.WHITE, setup);
+        perftBoards[0] = perft.standardInitialPosition();
+        perftBoards[1] = perft.kiwiPetePosition();
     }
 
     @Benchmark
-    @Warmup(iterations = 5, batchSize = 5000)
-    @Measurement(iterations = 5, batchSize = 5000)
-    public void testMoveGeneration1() {
-        b1.makeNullMove();
-        b1.generateValidMoves();
+    @Warmup(iterations = 5)
+    @Measurement(iterations = 5)
+    public void testPerft() {
+        perft.perftBoard(perftBoards[perftNum], perftDepth);
     }
 }

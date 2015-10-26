@@ -10,7 +10,11 @@ import com.gordoncaleb.chess.util.JSON;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
 
@@ -36,9 +40,13 @@ public class BoardDAO {
     }
 
     public Board getFromSetup(int turn, String[] setup) {
+        return getFromSetup(turn, setup, BoardJSON.CASTLE_RIGHTS, BoardJSON.CASTLE_RIGHTS);
+    }
+
+    public Board getFromSetup(int turn, String[] setup, BoardJSON.CastleRights white, BoardJSON.CastleRights black) {
         BoardJSON boardJSON = new BoardJSON();
-        boardJSON.setCastle(ImmutableMap.of(Side.toString(Side.WHITE), BoardJSON.NO_CASTLE_RIGHTS,
-                Side.toString(Side.BLACK), BoardJSON.NO_CASTLE_RIGHTS));
+        boardJSON.setCastle(ImmutableMap.of(Side.toString(Side.WHITE), white,
+                Side.toString(Side.BLACK), black));
 
         boardJSON.setTurn(Side.toString(turn));
 
@@ -95,16 +103,51 @@ public class BoardDAO {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Piece: " + stringPiece));
     }
 
-//    public Board fromFEN(String fen) {
-//        String setupSection = fen.substring(0, fen.indexOf(" "));
-//
-//        String[] fenLines = setupSection.split("/");
-//
-//    }
-//
-//    private String fen2Json(String fenLine){
-//
-//    }
+    public Board fromFEN(String fen) {
+        Pattern p = Pattern.compile("([a-zA-Z0-9\\/]+) ([wb]) ([KQkq]+|[-]) ([a-z][0-9]|[-])\\s?([0-9]?)\\s?([0-9]?)");
+        Matcher m = p.matcher(fen.trim());
+
+        if (!m.matches() || m.groupCount() < 3) {
+            throw new IllegalArgumentException("FEN is malformed " + fen);
+        }
+
+        String setupSection = m.group(1);
+        int turn = m.group(2).matches("w") ? Side.WHITE : Side.BLACK;
+
+        String castleSection = m.group(3);
+        BoardJSON.CastleRights whiteCastleRights = new BoardJSON.CastleRights(castleSection.contains("K"), castleSection.contains("Q"));
+        BoardJSON.CastleRights blackCastleRights = new BoardJSON.CastleRights(castleSection.contains("k"), castleSection.contains("q"));
+
+        String enPassentFile = Optional.ofNullable(m.group(4)).orElse("-");
+
+        int halfMoves = Optional.ofNullable(m.group(5))
+                .map(s -> s.isEmpty() ? "0" : s)
+                .map(Integer::parseInt)
+                .orElse(0);
+
+        int fullMoves = Optional.ofNullable(m.group(6))
+                .map(s -> s.isEmpty() ? "0" : s)
+                .map(Integer::parseInt)
+                .orElse(0);
+
+        List<String> setup = Stream.of(setupSection.split("/"))
+                .map(this::fen2Json)
+                .collect(Collectors.toList());
+
+        return getFromSetup(turn, setup.toArray(new String[setup.size()]), whiteCastleRights, blackCastleRights);
+    }
+
+    private String fen2Json(String fenLine) {
+
+        return fenLine.chars().mapToObj(c -> Character.toString((char) c))
+                .map(s -> {
+                    if (s.matches("[0-9]")) {
+                        int count = Integer.parseInt(s);
+                        return new String(new char[count]).replace("\0", "_,");
+                    }
+                    return s + ",";
+                }).collect(Collectors.joining());
+    }
 
 
 }

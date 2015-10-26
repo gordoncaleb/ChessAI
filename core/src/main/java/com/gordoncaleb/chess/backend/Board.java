@@ -805,11 +805,11 @@ public class Board {
                         }
                     }
 
-                    stringBoard += board[row][col].toString() + pieceDetails + ",";
+                    stringBoard += board[row][col].toString() + ",";
                     pieceDetails = 0;
 
                 } else {
-                    stringBoard += "__,";
+                    stringBoard += "_,";
                 }
 
             }
