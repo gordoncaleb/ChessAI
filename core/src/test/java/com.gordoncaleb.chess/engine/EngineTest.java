@@ -17,9 +17,6 @@ public class EngineTest {
 
         Engine engine = new Engine(null, null);
 
-        Board board = boardDAO.getByXMLFileName("/positions/test_position_2.xml");
-
-        logger.info("\n" + board.toString());
 
     }
 }

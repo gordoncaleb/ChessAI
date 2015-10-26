@@ -99,9 +99,9 @@ public class BoardTest {
     @Test
     public void testPawnKnighting() {
         String[] setup = {
-                "_,_,_,_,_,k,_,_,",
-                "R,_,_,_,_,_,p,_,",
                 "_,_,_,_,_,K,_,_,",
+                "r,_,_,_,_,_,P,_,",
+                "_,_,_,_,_,k,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
@@ -121,9 +121,9 @@ public class BoardTest {
     @Test
     public void testPawnQueening() {
         String[] setup = {
-                "_,_,_,_,_,k,_,_,",
-                "R,_,_,_,_,_,p,_,",
                 "_,_,_,_,_,K,_,_,",
+                "r,_,_,_,_,_,P,_,",
+                "_,_,_,_,_,k,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
@@ -144,12 +144,12 @@ public class BoardTest {
     public void testEnPassantOutOfCheck() {
         String[] setup = {
                 "_,_,_,_,_,_,_,_,",
-                "_,P,_,N,_,_,_,_,",
-                "_,_,_,_,_,_,K,_,",
-                "_,P,_,_,P,_,p,P,",
-                "_,_,_,_,p,_,k,p,",
-                "_,p,_,_,_,_,_,_,",
-                "p,b,_,_,_,_,_,_,",
+                "_,p,_,n,_,_,_,_,",
+                "_,_,_,_,_,_,k,_,",
+                "_,p,_,_,p,_,P,p,",
+                "_,_,_,_,P,_,K,P,",
+                "_,P,_,_,_,_,_,_,",
+                "P,B,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,"
         };
 
@@ -168,13 +168,13 @@ public class BoardTest {
     @Test
     public void testDoubleCheck() throws Exception {
         String[] setup = {
-                "_,_,_,_,K,_,_,_,",
-                "_,_,_,_,_,_,R,_,",
+                "_,_,_,_,k,_,_,_,",
+                "_,_,_,_,_,_,r,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,Q,_,_,_,",
+                "_,_,_,_,q,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,r,r,_,p,",
-                "R,_,_,_,_,_,_,k,",
+                "_,_,_,_,R,R,_,P,",
+                "r,_,_,_,_,_,_,K,",
                 "_,_,_,_,_,_,_,_,"
         };
 
@@ -185,14 +185,14 @@ public class BoardTest {
     @Test
     public void testCheckByPawn() throws Exception {
         String[] setup = {
-                "R,N,B,Q,K,B,N,R,",
-                "P,P,P,_,_,P,P,P,",
+                "r,n,b,q,k,b,n,r,",
+                "p,p,p,_,_,p,p,p,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,p,p,P,_,_,",
-                "_,_,_,q,k,b,p,_,",
-                "p,p,p,_,b,p,_,p,",
-                "r,n,_,_,_,_,n,r,"
+                "_,_,_,P,P,p,_,_,",
+                "_,_,_,Q,K,B,P,_,",
+                "P,P,p,_,B,P,_,P,",
+                "R,N,_,_,_,_,N,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -205,14 +205,14 @@ public class BoardTest {
     @Test
     public void testCheckQueenUseDefBlock() throws Exception {
         String[] setup = {
-                "R,N,B,_,K,B,N,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,_,_,Q,",
+                "r,n,b,_,k,b,n,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,_,_,q,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,p,p,_,_,_,",
-                "_,_,_,q,k,p,p,_,",
-                "p,p,p,_,b,n,_,p,",
-                "r,n,_,_,_,_,_,r,"
+                "_,_,_,P,P,_,_,_,",
+                "_,_,_,Q,K,P,P,_,",
+                "P,P,p,_,B,N,_,P,",
+                "R,N,_,_,_,_,_,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -223,14 +223,14 @@ public class BoardTest {
     @Test
     public void testCheckQueenMoveKing() throws Exception {
         String[] setup = {
-                "R,N,B,_,K,B,N,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,_,_,Q,",
+                "r,n,b,_,k,b,n,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,_,_,q,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,p,p,_,_,_,",
-                "_,_,_,q,k,p,p,_,",
-                "p,p,p,_,_,n,_,p,",
-                "r,n,_,_,_,_,_,r,"
+                "_,_,_,P,P,_,_,_,",
+                "_,_,_,Q,K,P,P,_,",
+                "P,P,p,_,_,N,_,P,",
+                "R,N,_,_,_,_,_,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -242,14 +242,14 @@ public class BoardTest {
     @Test
     public void testCheckKnight() throws Exception {
         String[] setup = {
-                "R,N,B,Q,K,B,N,R,",
-                "P,P,P,_,_,P,P,P,",
+                "r,n,b,q,k,b,n,r,",
+                "p,p,p,_,_,p,p,p,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,p,p,_,N,_,",
-                "_,_,_,q,k,_,p,_,",
-                "p,p,p,_,_,p,n,p,",
-                "r,n,_,_,_,_,_,r,"
+                "_,_,_,P,P,_,n,_,",
+                "_,_,_,Q,K,_,P,_,",
+                "P,P,p,_,_,P,N,P,",
+                "R,N,_,_,_,_,_,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -263,14 +263,14 @@ public class BoardTest {
     @Test
     public void testCheckKnightWithRookThreat() throws Exception {
         String[] setup = {
-                "_,N,B,Q,K,B,N,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,R,_,_,",
+                "_,n,b,q,k,b,n,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,r,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,p,p,_,N,_,",
-                "_,_,_,q,k,_,p,_,",
-                "p,p,p,_,_,p,n,p,",
-                "r,n,_,_,_,_,_,r,"
+                "_,_,_,P,P,_,n,_,",
+                "_,_,_,Q,K,_,P,_,",
+                "P,P,p,_,_,P,N,P,",
+                "R,N,_,_,_,_,_,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -282,14 +282,14 @@ public class BoardTest {
     @Test
     public void testCheckKnightTakeKnight() throws Exception {
         String[] setup = {
-                "R,N,B,Q,K,B,N,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,_,q,_,",
+                "r,n,b,q,k,b,n,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,_,Q,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,p,p,_,N,_,",
-                "_,_,_,n,k,_,p,_,",
-                "p,p,p,_,_,p,n,p,",
-                "r,_,_,_,_,_,_,r,"
+                "_,_,_,P,P,_,n,_,",
+                "_,_,_,N,K,_,P,_,",
+                "P,P,p,_,_,P,N,P,",
+                "R,_,_,_,_,_,_,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -304,14 +304,14 @@ public class BoardTest {
     @Test
     public void testCheckKnightTakeKnightNoOption() throws Exception {
         String[] setup = {
-                "R,N,B,Q,K,B,N,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,_,q,_,",
+                "r,n,b,q,k,b,n,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,_,Q,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,p,p,p,N,_,",
-                "_,_,_,n,k,n,p,_,",
-                "p,p,p,p,p,p,_,p,",
-                "r,_,_,_,_,_,_,r,"
+                "_,_,_,P,P,P,n,_,",
+                "_,_,_,N,K,N,P,_,",
+                "P,P,P,P,P,P,_,P,",
+                "R,_,_,_,_,_,_,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -322,14 +322,14 @@ public class BoardTest {
     @Test
     public void testCheckPawnAndKnight() throws Exception {
         String[] setup = {
-                "R,_,B,_,K,B,_,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,Q,q,_,",
+                "r,_,b,_,k,b,_,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,q,Q,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,N,p,p,P,N,_,",
-                "_,_,_,n,k,n,p,_,",
-                "p,p,p,p,_,p,_,p,",
-                "r,_,_,_,_,_,_,r,"
+                "_,_,n,P,P,p,n,_,",
+                "_,_,_,N,K,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,_,_,_,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -340,14 +340,14 @@ public class BoardTest {
     @Test
     public void testCheckDoubleKnight() throws Exception {
         String[] setup = {
-                "R,_,B,Q,K,B,_,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,_,q,_,",
+                "r,_,b,q,k,b,_,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,_,Q,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,N,p,p,p,N,_,",
-                "_,_,_,n,k,n,p,_,",
-                "p,p,p,p,_,p,_,p,",
-                "r,_,_,_,_,_,_,r,"
+                "_,_,n,P,P,P,n,_,",
+                "_,_,_,N,K,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,_,_,_,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -358,14 +358,14 @@ public class BoardTest {
     @Test
     public void testCheckDoubleKnightNullMove() throws Exception {
         String[] setup = {
-                "R,_,B,Q,K,B,_,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,_,q,_,",
+                "r,_,b,q,k,b,_,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,_,Q,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,N,p,p,p,N,_,",
-                "_,_,_,n,k,n,p,_,",
-                "p,p,p,p,_,p,_,p,",
-                "r,_,_,_,_,_,_,r,"
+                "_,_,n,P,P,P,n,_,",
+                "_,_,_,N,K,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,_,_,_,R,"
         };
 
         long[] nullMoveInfo = getNullMoveInfo(Side.WHITE, setup);
@@ -385,14 +385,14 @@ public class BoardTest {
     @Test
     public void testCheckDoubleSliderNullMove() throws Exception {
         String[] setup = {
-                "R,_,B,_,K,_,_,R,",
-                "P,P,_,_,_,P,P,P,",
-                "_,Q,_,q,_,_,_,Q,",
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,q,_,Q,_,_,_,q,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,p,_,_,_,",
-                "_,_,_,n,k,n,p,_,",
-                "p,p,p,p,_,p,_,p,",
-                "r,_,_,_,_,_,_,r,"
+                "_,_,_,_,P,_,_,_,",
+                "_,_,_,N,K,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,_,_,_,R,"
         };
 
         long[] nullMoveInfo = getNullMoveInfo(Side.WHITE, setup);
@@ -412,14 +412,14 @@ public class BoardTest {
     @Test
     public void testCheckDoubleSlider() throws Exception {
         String[] setup = {
-                "R,_,B,_,K,_,_,R,",
-                "P,P,_,_,_,P,P,P,",
-                "_,Q,_,q,_,_,_,Q,",
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,q,_,Q,_,_,_,q,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,p,_,_,_,",
-                "_,_,_,n,k,n,p,_,",
-                "p,p,p,p,_,p,_,p,",
-                "r,_,_,_,_,_,_,r,"
+                "_,_,_,_,P,_,_,_,",
+                "_,_,_,N,K,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,_,_,_,R,"
         };
 
         testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(
@@ -434,9 +434,9 @@ public class BoardTest {
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,P,_,_,_,",
+                "_,_,_,_,p,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "r,_,_,_,Q,K,_,k,",
+                "R,_,_,_,q,k,_,K,",
                 "_,_,_,_,_,_,_,_,"
         };
 
@@ -446,14 +446,14 @@ public class BoardTest {
     @Test
     public void testBishopKingThreat() {
         String[] setup = new String[]{
-                "_,_,R,_,_,R,K,_,",
-                "_,_,_,_,B,P,P,P,",
-                "P,_,_,_,P,N,_,_,",
-                "Q,P,N,_,n,_,_,_,",
-                "_,_,_,_,_,b,_,_,",
-                "_,_,n,_,_,_,p,_,",
-                "p,p,_,_,p,p,B,p,",
-                "_,q,r,r,_,_,k,_,"
+                "_,_,r,_,_,r,k,_,",
+                "_,_,_,_,b,p,p,p,",
+                "p,_,_,_,p,n,_,_,",
+                "q,p,n,_,N,_,_,_,",
+                "_,_,_,_,_,B,_,_,",
+                "_,_,N,_,_,_,P,_,",
+                "P,P,_,_,P,P,b,P,",
+                "_,Q,R,r,_,_,K,_,"
         };
 
         testContainsMove(Side.WHITE, setup,
@@ -468,9 +468,9 @@ public class BoardTest {
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,P,_,_,_,",
+                "_,_,_,_,p,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "r,_,_,_,R,K,_,k,",
+                "R,_,_,_,r,k,_,K,",
                 "_,_,_,_,_,_,_,_,"
         };
 
@@ -484,9 +484,9 @@ public class BoardTest {
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,P,_,_,_,_,",
+                "_,_,_,p,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "k,_,K,R,_,_,_,r,",
+                "K,_,k,r,_,_,_,R,",
                 "_,_,_,_,_,_,_,_,"
         };
 
@@ -496,14 +496,14 @@ public class BoardTest {
     @Test
     public void testRookTopEdge() throws Exception {
         String[] setup = {
-                "_,_,_,_,r,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,R,_,_,_,",
-                "_,_,_,_,K,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,k,_,_,_,"
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,r,_,_,_,",
+                "_,_,_,_,k,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,K,_,_,_,"
         };
 
         testNumberOfMoves(Side.WHITE, setup, 13);
@@ -512,14 +512,14 @@ public class BoardTest {
     @Test
     public void testRookBottomEdge() throws Exception {
         String[] setup = {
-                "_,_,_,_,k,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,K,_,_,_,",
-                "_,_,_,_,R,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,k,_,_,_,",
+                "_,_,_,_,r,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,r,_,_,_,"
+                "_,_,_,_,R,_,_,_,"
         };
 
         testNumberOfMoves(Side.WHITE, setup, 13);
@@ -528,14 +528,14 @@ public class BoardTest {
     @Test
     public void testDrawByThreeRule() throws Exception {
         String[] setup = {
-                "_,_,_,_,K,_,_,_,",
-                "_,_,_,_,_,_,_,Q,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,k,_,_,_,",
                 "_,_,_,_,_,_,_,q,",
-                "_,_,_,_,k,_,_,_,"
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,Q,",
+                "_,_,_,_,K,_,_,_,"
         };
 
         Move[] moves = new Move[]{

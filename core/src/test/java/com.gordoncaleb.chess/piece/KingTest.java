@@ -20,14 +20,14 @@ public class KingTest {
     public void testKingCheckInfo1() {
 
         String[] setup = {
-                "R,_,B,_,K,B,_,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,B,_,_,_,Q,_,_,",
+                "r,_,b,_,k,b,_,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,b,_,_,_,q,_,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,p,_,_,_,_,",
-                "_,_,_,_,_,_,p,_,",
-                "p,p,R,_,p,k,_,p,",
-                "r,_,_,_,_,_,_,r,"
+                "_,_,_,P,_,_,_,_,",
+                "_,_,_,_,_,_,P,_,",
+                "P,P,r,_,P,K,_,P,",
+                "R,_,_,_,_,_,_,R,"
         };
 
         testCheckVector(setup, new String[]{
@@ -110,14 +110,14 @@ public class KingTest {
     @Test
     public void testKingCheckInfo2() {
         String[] setup = {
-                "R,N,B,_,K,B,N,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,_,_,Q,",
+                "r,n,b,_,k,b,n,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,_,_,q,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,_,p,p,_,_,_,",
-                "_,_,_,q,k,p,p,_,",
-                "p,p,p,_,b,n,_,p,",
-                "r,n,_,_,_,_,_,r,"
+                "_,_,_,P,P,_,_,_,",
+                "_,_,_,Q,K,P,P,_,",
+                "P,P,P,_,B,N,_,P,",
+                "R,N,_,_,_,_,_,R,"
         };
 
         testCheckVector(setup, new String[]{
@@ -147,14 +147,14 @@ public class KingTest {
     @Test
     public void testKingCheckInfo3() {
         String[] setup = {
-                "R,_,B,_,K,B,_,R,",
-                "P,P,P,_,_,P,P,P,",
-                "_,_,_,_,_,Q,q,_,",
+                "r,_,b,_,k,b,_,r,",
+                "p,p,p,_,_,p,p,p,",
+                "_,_,_,_,_,q,Q,_,",
                 "_,_,_,_,_,_,_,_,",
-                "_,_,N,p,p,P,N,_,",
-                "_,_,_,n,k,n,p,_,",
-                "p,p,p,p,_,p,_,p,",
-                "r,_,_,_,_,_,_,r,"
+                "_,_,n,P,P,p,n,_,",
+                "_,_,_,N,K,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,_,_,_,R,"
         };
 
         testCheckVector(setup, new String[]{

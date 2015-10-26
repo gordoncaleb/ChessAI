@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>com.gordoncaleb</groupId>
-    <artifactId>ohword-perft</artifactId>
+    <artifactId>ohword-benchmark</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 

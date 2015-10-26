@@ -89,11 +89,22 @@ public class BoardDAO {
     private Piece piecePieceFromString(String stringPiece, int row, int col) {
         return Optional.ofNullable(pieceIDMap.get(stringPiece.toUpperCase()))
                 .map(id -> {
-                    int player = stringPiece.matches("[a-z]") ? Side.WHITE : Side.BLACK;
+                    int player = stringPiece.matches("[a-z]") ? Side.BLACK : Side.WHITE;
                     return new Piece(id, player, row, col, false);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Piece: " + stringPiece));
     }
+
+//    public Board fromFEN(String fen) {
+//        String setupSection = fen.substring(0, fen.indexOf(" "));
+//
+//        String[] fenLines = setupSection.split("/");
+//
+//    }
+//
+//    private String fen2Json(String fenLine){
+//
+//    }
 
 
 }

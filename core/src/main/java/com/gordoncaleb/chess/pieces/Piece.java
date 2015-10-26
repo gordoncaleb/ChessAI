@@ -90,7 +90,7 @@ public class Piece {
     public String toString() {
         String id;
 
-        if (this.getSide() == Side.BLACK) {
+        if (this.getSide() == Side.WHITE) {
             id = this.getStringID();
         } else {
             id = this.getStringID().toLowerCase();
