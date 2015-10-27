@@ -425,11 +425,19 @@ public class Board {
         return (moveHistory.size() != 0);
     }
 
-    public ArrayList<Long> generateValidMoves() {
-        return generateValidMoves(0, AI.noKillerMoves);
+    public List<Long> generateValidMoves() {
+        return generateValidMoves(0, AI.noKillerMoves, this.validMoves);
     }
 
-    public ArrayList<Long> generateValidMoves(long hashMove, long[] killerMoves) {
+    public List<Long> generateValidMoves(List<Long> validMoves) {
+        return generateValidMoves(0, AI.noKillerMoves, validMoves);
+    }
+
+    public List<Long> generateValidMoves(long hashMove, long[] killerMoves) {
+        return generateValidMoves(hashMove, killerMoves, this.validMoves);
+    }
+
+    public List<Long> generateValidMoves(long hashMove, long[] killerMoves, List<Long> validMoves) {
 
         validMoves.clear();
 

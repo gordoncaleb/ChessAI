@@ -2,6 +2,7 @@ package com.gordoncaleb.chess.ai;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.pieces.Values;
@@ -194,7 +195,7 @@ public class AIProcessor extends Thread {
 
     public void attachValidMoves(DecisionNode branch, long hashMove, int level) {
 
-        ArrayList<Long> moves;
+        List<Long> moves;
 
         if (level >= 0) {
             moves = board.generateValidMoves(hashMove, killerMoves[level]);

@@ -564,7 +564,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
         clearValidMoves();
 
-        ArrayList<Long> validMoves = adjudicator.getValidMoves();
+        List<Long> validMoves = adjudicator.getValidMoves();
 
         long move;
         for (int m = 0; m < validMoves.size(); m++) {

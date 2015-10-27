@@ -1,8 +1,6 @@
 package com.gordoncaleb;
 
 import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.persistence.BoardDAO;
 import com.gordoncaleb.chess.util.Perft;
 import org.openjdk.jmh.annotations.*;
 
@@ -30,6 +28,6 @@ public class PerftBenchmark {
     @Warmup(iterations = 5)
     @Measurement(iterations = 5)
     public void testPerft() {
-        perft.perftBoard(perftBoards[perftNum], perftDepth);
+        perft.perftBoardFunctional(perftBoards[perftNum], perftDepth);
     }
 }

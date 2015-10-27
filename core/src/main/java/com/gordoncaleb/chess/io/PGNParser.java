@@ -297,7 +297,7 @@ public class PGNParser {
     private long matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, Move.MoveNote note, int pieceMovingID) throws Exception {
 
         board.makeNullMove();
-        ArrayList<Long> moves = board.generateValidMoves();
+        List<Long> moves = board.generateValidMoves();
 
         ArrayList<Long> matchMoves = new ArrayList<>();
         boolean match;

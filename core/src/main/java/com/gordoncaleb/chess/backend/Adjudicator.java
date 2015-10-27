@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 public class Adjudicator {
     private static final Logger logger = LoggerFactory.getLogger(Adjudicator.class);
 
-    private ArrayList<Long> validMoves;
+    private List<Long> validMoves;
     private Stack<Long> undoneMoves;
     private Board board;
 
@@ -79,7 +79,7 @@ public class Adjudicator {
         return (undoneMoves.size() > 0);
     }
 
-    public ArrayList<Long> getValidMoves() {
+    public List<Long> getValidMoves() {
         board.makeNullMove();
         validMoves = board.generateValidMoves();
 

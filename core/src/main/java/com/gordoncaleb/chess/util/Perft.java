@@ -3,6 +3,7 @@ package com.gordoncaleb.chess.util;
 
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.BoardFactory;
+import com.gordoncaleb.chess.backend.Move;
 import com.gordoncaleb.chess.persistence.BoardDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,25 +40,57 @@ public class Perft {
         return boardDAO.fromFEN(fen);
     }
 
-    public int[][] perftBoard(Board b, int stopDepth) {
+    public int[][] perftBoardFunctional(Board b, int stopDepth) {
         int[][] metrics = new int[stopDepth + 1][7];
-        perftBoardRecursive(b, 0, stopDepth, metrics);
+        perftBoardRecursiveFunctional(b, 0, stopDepth, metrics, getMoveContainers(stopDepth + 1));
         return metrics;
     }
 
-    private void perftBoardRecursive(Board b, int depth, int stopDepth, int[][] metrics) {
+    private void perftBoardRecursiveFunctional(Board b, int depth, int stopDepth, int[][] metrics, List<List<Long>> moveContainers) {
         b.makeNullMove();
-        List<Long> moves = new ArrayList<>(b.generateValidMoves());
+        List<Long> moves = moveContainers.get(depth);
+        b.generateValidMoves(moves);
 
-        metrics[depth][0] += moves.size();
+        long pawnQueenings = moves.stream().filter(m -> Move.getNote(m) == Move.MoveNote.NEW_QUEEN).count();
+
+        metrics[depth][0] += moves.size() + pawnQueenings * 3;
+        metrics[depth][1] += moves.stream().filter(m -> Move.hasPieceTaken(m)).count();
+        metrics[depth][2] += moves.stream().filter(m -> Move.getNote(m) == Move.MoveNote.ENPASSANT).count();
+
+        metrics[depth][3] += moves.stream().filter(m -> Move.getNote(m) == Move.MoveNote.CASTLE_FAR ||
+                Move.getNote(m) == Move.MoveNote.CASTLE_NEAR).count();
+
+        metrics[depth][4] += moves.stream().filter(m -> Move.getNote(m) == Move.MoveNote.NEW_QUEEN).count() * 4;
 
         if (depth < stopDepth) {
             moves.forEach(m -> {
                 b.makeMove(m);
-                perftBoardRecursive(b, depth + 1, stopDepth, metrics);
+                perftBoardRecursiveFunctional(b, depth + 1, stopDepth, metrics, moveContainers);
                 b.undoMove();
             });
         }
+    }
+
+    private void perftBoardRecursiveTimed(Board b, int depth, int stopDepth, List<List<Long>> moveContainers) {
+        b.makeNullMove();
+        List<Long> moves = moveContainers.get(depth);
+        b.generateValidMoves(moves);
+
+        if (depth < stopDepth) {
+            moves.forEach(m -> {
+                b.makeMove(m);
+                perftBoardRecursiveTimed(b, depth + 1, stopDepth, moveContainers);
+                b.undoMove();
+            });
+        }
+    }
+
+    private List<List<Long>> getMoveContainers(int size) {
+        List<List<Long>> containers = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            containers.add(new ArrayList<>());
+        }
+        return containers;
     }
 }
 
