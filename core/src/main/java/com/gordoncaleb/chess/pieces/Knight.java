@@ -2,16 +2,14 @@ package com.gordoncaleb.chess.pieces;
 
 import java.util.List;
 
-import com.gordoncaleb.chess.bitboard.BitBoard;
+import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.backend.Board;
 
 import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.pieces.Piece.buildValidMoves;
+import static com.gordoncaleb.chess.pieces.Piece.buildValidMovesWithPiecesTaken;
 
 public class Knight {
-
-    public static String getName() {
-        return "Knight";
-    }
 
     public static String getStringID() {
         return "N";
@@ -22,8 +20,17 @@ public class Knight {
                                                 final long[] nullMoveInfo,
                                                 final long[] posBitBoard,
                                                 final List<Long> validMoves) {
-        long footPrint = BitBoard.getKnightFootPrintMem(p.getRow(), p.getCol()) & ~posBitBoard[p.getSide()];
-        return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+        final long foes = posBitBoard[Side.otherSide(p.getSide())];
+        final long footPrint = getKnightAttacks(p.getBit()) & ~posBitBoard[p.getSide()];
+
+        final long validFootPrint = footPrint & nullMoveInfo[1] & p.getBlockingVector();
+        final long validFootPrintWithPiecesTaken = validFootPrint & foes;
+        final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
+
+        buildValidMovesWithPiecesTaken(validFootPrintWithPiecesTaken, p.getRow(), p.getCol(), board, validMoves);
+        buildValidMoves(validFootPrintWoPiecesTaken, p.getRow(), p.getCol(), validMoves);
+
+        return validMoves;
     }
 
     public static long getKnightAttacks(long knights) {

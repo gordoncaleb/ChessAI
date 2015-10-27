@@ -238,15 +238,10 @@ public class Piece {
 
     }
 
-    public static List<Long> generateValidMoves(final long footPrint,
-                                                final Piece p,
-                                                final Board board,
-                                                final long[] nullMoveInfo,
-                                                final long[] posBitBoard,
-                                                final List<Long> validMoves) {
-        final long foes = posBitBoard[Side.otherSide(p.getSide())];
-
-        long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector;
+    public static List<Long> buildValidMoves(long validFootPrint,
+                                             final int fromRow,
+                                             final int fromCol,
+                                             final List<Long> validMoves) {
 
         int bitNum;
         while ((bitNum = Long.numberOfTrailingZeros(validFootPrint)) < 64) {
@@ -254,11 +249,31 @@ public class Piece {
             final int toRow = bitNum / 8;
             final int toCol = bitNum % 8;
 
-            final long move = ((foes & mask) == 0) ?
-                    Move.moveLong(p.getRow(), p.getCol(), toRow, toCol) :
-                    Move.moveLong(p.getRow(), p.getCol(), toRow, toCol, 0, Move.MoveNote.NONE, board.getPiece(toRow, toCol));
+            validMoves.add(
+                    Move.moveLong(fromRow, fromCol, toRow, toCol)
+            );
 
-            validMoves.add(move);
+            validFootPrint ^= mask;
+        }
+
+        return validMoves;
+    }
+
+    public static List<Long> buildValidMovesWithPiecesTaken(long validFootPrint,
+                                                            final int fromRow,
+                                                            final int fromCol,
+                                                            final Board board,
+                                                            final List<Long> validMoves) {
+
+        int bitNum;
+        while ((bitNum = Long.numberOfTrailingZeros(validFootPrint)) < 64) {
+            final long mask = (1L << bitNum);
+            final int toRow = bitNum / 8;
+            final int toCol = bitNum % 8;
+
+            validMoves.add(
+                    Move.moveLong(fromRow, fromCol, toRow, toCol, 0, Move.MoveNote.NONE, board.getPiece(toRow, toCol))
+            );
 
             validFootPrint ^= mask;
         }

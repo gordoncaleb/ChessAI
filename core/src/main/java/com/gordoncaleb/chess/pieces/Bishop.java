@@ -3,8 +3,10 @@ package com.gordoncaleb.chess.pieces;
 import java.util.List;
 
 import com.gordoncaleb.chess.backend.Board;
+import com.gordoncaleb.chess.backend.Side;
 
 import static com.gordoncaleb.chess.bitboard.Slide.*;
+import static com.gordoncaleb.chess.pieces.Piece.*;
 
 public class Bishop {
 
@@ -18,10 +20,19 @@ public class Bishop {
                                                 final long[] posBitBoard,
                                                 final List<Long> validMoves) {
 
-        final long friend = posBitBoard[p.getSide()];
-        final long friendOrFoe = (posBitBoard[0] | posBitBoard[1]);
-        final long footPrint = slideBishop(p.getBit(), friendOrFoe) & ~friend;
-        return Piece.generateValidMoves(footPrint, p, board, nullMoveInfo, posBitBoard, validMoves);
+        final long friends = posBitBoard[p.getSide()];
+        final long foes = posBitBoard[Side.otherSide(p.getSide())];
+        final long friendOrFoe = (friends | foes);
+        final long footPrint = slideBishop(p.getBit(), friendOrFoe) & ~friends;
+
+        final long validFootPrint = footPrint & nullMoveInfo[1] & p.getBlockingVector();
+        final long validFootPrintWithPiecesTaken = validFootPrint & foes;
+        final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
+
+        buildValidMovesWithPiecesTaken(validFootPrintWithPiecesTaken, p.getRow(), p.getCol(), board, validMoves);
+        buildValidMoves(validFootPrintWoPiecesTaken, p.getRow(), p.getCol(), validMoves);
+
+        return validMoves;
     }
 
     public static long slideBishop(final long me, final long friendOrFoe) {

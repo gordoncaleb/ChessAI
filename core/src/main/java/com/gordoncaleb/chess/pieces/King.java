@@ -2,85 +2,60 @@ package com.gordoncaleb.chess.pieces;
 
 import java.util.List;
 
+import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.bitboard.BitBoard;
 import com.gordoncaleb.chess.backend.Board;
 import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.bitboard.Slide;
 
 import static com.gordoncaleb.chess.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.bitboard.Slide.*;
+import static com.gordoncaleb.chess.pieces.Piece.*;
 
 public class King {
-    private static int[][] KINGMOVES = {{1, 1, -1, -1, 1, -1, 0, 0}, {1, -1, 1, -1, 0, 0, 1, -1}};
-
-    public static String getName() {
-        return "King";
-    }
 
     public static String getStringID() {
         return "K";
     }
 
-    public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
-        int currentRow = p.getRow();
-        int currentCol = p.getCol();
-        int player = p.getSide();
-        int nextRow;
-        int nextCol;
-        Piece.PositionStatus pieceStatus;
-        Long moveLong;
+    public static List<Long> generateValidMoves(final Piece p,
+                                                 final Board board,
+                                                 final long[] nullMoveInfo,
+                                                 final long[] posBitBoard,
+                                                 final List<Long> validMoves) {
 
-        for (int d = 0; d < 8; d++) {
-            nextRow = currentRow + KINGMOVES[0][d];
-            nextCol = currentCol + KINGMOVES[1][d];
-            pieceStatus = board.checkPiece(nextRow, nextCol, player);
+        final long foes = posBitBoard[Side.otherSide(p.getSide())];
+        final long friendsOrFoes = posBitBoard[0] | posBitBoard[1];
+        final long footPrint = getKingAttacks(p.getBit()) & ~posBitBoard[p.getSide()];
 
-            if (pieceStatus == Piece.PositionStatus.NO_PIECE) {
+        final long validFootPrint = footPrint & ~(nullMoveInfo[0] | nullMoveInfo[2]);
+        final long validFootPrintWithPiecesTaken = validFootPrint & foes;
+        final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
 
-                if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
-                    if (!p.hasMoved() && (!board.farRookHasMoved(player) || !board.nearRookHasMoved(player))) {
-                        // The player loses points for losing the ability to
-                        // castle
-                        moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, Values.CASTLE_ABILITY_LOST_VALUE);
-                    } else {
-                        moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE);
-                    }
+        buildValidMovesWithPiecesTaken(validFootPrintWithPiecesTaken, p.getRow(), p.getCol(), board, validMoves);
+        buildValidMoves(validFootPrintWoPiecesTaken, p.getRow(), p.getCol(), validMoves);
 
-                    validMoves.add(moveLong);
-                }
-            }
-
-            if (pieceStatus == Piece.PositionStatus.ENEMY) {
-                if (isValidMove(nextRow, nextCol, nullMoveInfo)) {
-                    moveLong = Move.moveLong(currentRow, currentCol, nextRow, nextCol, 0, Move.MoveNote.NONE,
-                            board.getPiece(nextRow, nextCol));
-                    validMoves.add(moveLong);
-                }
-            }
-
-        }
-
-        long allPosBitBoard = posBitBoard[0] | posBitBoard[1];
+        final int currentRow = p.getRow();
+        final int currentCol = p.getCol();
 
         if (!board.isInCheck()) {
             // add possible castle move
-            if (canCastleFar(p, board, player, nullMoveInfo, allPosBitBoard)) {
+            if (canCastleFar(p, board, p.getSide(), nullMoveInfo, friendsOrFoes)) {
                 if (isValidMove(currentRow, 2, nullMoveInfo)) {
                     if (currentCol > 3) {
                         validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 2, Values.FAR_CASTLE_VALUE, Move.MoveNote.CASTLE_FAR));
                     } else {
-                        validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 0), currentRow, 3, Values.FAR_CASTLE_VALUE,
+                        validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(p.getSide(), 0), currentRow, 3, Values.FAR_CASTLE_VALUE,
                                 Move.MoveNote.CASTLE_FAR));
                     }
                 }
             }
 
-            if (canCastleNear(p, board, player, nullMoveInfo, allPosBitBoard)) {
+            if (canCastleNear(p, board, p.getSide(), nullMoveInfo, friendsOrFoes)) {
                 if (isValidMove(currentRow, 6, nullMoveInfo)) {
                     if (currentCol < 5) {
                         validMoves.add(Move.moveLong(currentRow, currentCol, currentRow, 6, Values.NEAR_CASTLE_VALUE, Move.MoveNote.CASTLE_NEAR));
                     } else {
-                        validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(player, 1), currentRow, 5, Values.NEAR_CASTLE_VALUE,
+                        validMoves.add(Move.moveLong(currentRow, board.getRookStartingCol(p.getSide(), 1), currentRow, 5, Values.NEAR_CASTLE_VALUE,
                                 Move.MoveNote.CASTLE_NEAR));
                     }
                 }
@@ -88,7 +63,17 @@ public class King {
         }
 
         return validMoves;
+    }
 
+    public static long getKingAttacks(long king) {
+        return (king << 8) | // down 1
+                (king >>> 8) | // up 1
+                ((king & NOT_LEFT1) >>> 1) | // left 1
+                ((king & NOT_RIGHT1) << 1) | // right 1
+                ((king & NOT_RIGHT1) >>> 7) | // up 1 right 1
+                ((king & NOT_RIGHT1) << 9) | // down 1 right 1
+                ((king & NOT_LEFT1) >>> 9) | // up 1 left 1
+                ((king & NOT_LEFT1) << 7); // down 1 left 1
     }
 
     public static void getKingCheckInfo(final Board board,
@@ -252,14 +237,5 @@ public class King {
         return false;
     }
 
-    public static long getKingAttacks(long king) {
-        return (king << 8) | // down 1
-                (king >>> 8) | // up 1
-                ((king & NOT_LEFT1) >>> 1) | // left 1
-                ((king & NOT_RIGHT1) << 1) | // right 1
-                ((king & NOT_RIGHT1) >>> 7) | // up 1 right 1
-                ((king & NOT_RIGHT1) << 9) | // down 1 right 1
-                ((king & NOT_LEFT1) >>> 9) | // up 1 left 1
-                ((king & NOT_LEFT1) << 7); // down 1 left 1
-    }
+
 }
