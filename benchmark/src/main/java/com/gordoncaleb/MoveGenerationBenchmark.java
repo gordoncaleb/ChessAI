@@ -2,7 +2,7 @@ package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.persistence.JSONParser;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -31,7 +31,6 @@ public class MoveGenerationBenchmark {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        JSONParser JSONParser = new JSONParser();
         b1 = JSONParser.getFromSetup(Side.WHITE, setup);
     }
 

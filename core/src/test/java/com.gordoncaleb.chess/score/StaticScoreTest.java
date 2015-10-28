@@ -3,7 +3,7 @@ package com.gordoncaleb.chess.score;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.engine.score.StaticScore;
-import com.gordoncaleb.chess.board.persistence.JSONParser;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,7 +12,6 @@ import static org.hamcrest.Matchers.*;
 public class StaticScoreTest {
 
     StaticScore scorer = new StaticScore();
-    JSONParser JSONParser = new JSONParser();
 
     @Test
     public void testMaterialValue() {

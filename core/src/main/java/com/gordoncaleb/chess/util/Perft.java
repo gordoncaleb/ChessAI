@@ -4,7 +4,7 @@ package com.gordoncaleb.chess.util;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.persistence.JSONParser;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +13,6 @@ import java.util.List;
 
 public class Perft {
     public static final Logger logger = LoggerFactory.getLogger(Perft.class);
-
-    private final JSONParser JSONParser = new JSONParser();
 
     public Board standardInitialPosition() {
         return BoardFactory.getStandardChessBoard();

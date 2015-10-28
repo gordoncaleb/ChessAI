@@ -2,7 +2,7 @@ package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.persistence.JSONParser;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Bishop;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.util.MockList;
@@ -34,7 +34,6 @@ public class BishopBenchmark {
     @Setup
     public void init() {
         validMoves = new MockList<>();
-        JSONParser JSONParser = new JSONParser();
 
         String[] setup1 = {
                 "R,_,_,_,_,_,Q,_,",

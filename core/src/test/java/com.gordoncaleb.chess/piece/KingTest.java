@@ -2,7 +2,7 @@ package com.gordoncaleb.chess.piece;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.persistence.JSONParser;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.King;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -95,7 +95,7 @@ public class KingTest {
     }
 
     private Board testSetupKingCheckInfo(String[] setup, long[] nullMoveInfo) {
-        Board board = new JSONParser().getFromSetup(Side.WHITE, setup);
+        Board board = JSONParser.getFromSetup(Side.WHITE, setup);
         long king = board.getPosBitBoard()[KING][Side.WHITE];
         long foeQueens = board.getPosBitBoard()[QUEEN][Side.BLACK];
         long foeRooks = board.getPosBitBoard()[ROOK][Side.BLACK];

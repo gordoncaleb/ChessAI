@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.board.persistence;
+package com.gordoncaleb.chess.board.serdes;
 
 import com.google.common.collect.ImmutableMap;
 import com.gordoncaleb.chess.board.Board;
@@ -18,6 +18,9 @@ import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class JSONParser {
 
+    private JSONParser() {
+    }
+
     private static final String EMPTY_SPACE = "_";
     private static final Map<String, Integer> pieceIDMap = new ImmutableMap.Builder<String, Integer>()
             .put("R", ROOK)
@@ -28,16 +31,16 @@ public class JSONParser {
             .put("P", PAWN)
             .build();
 
-    public Board getByFileName(String fileName) throws IOException {
+    public static Board getByFileName(String fileName) throws IOException {
         BoardJSON boardJSON = JSON.fromJSON(FileIO.readResource(fileName), BoardJSON.class);
         return buildBoard(boardJSON);
     }
 
-    public Board getFromSetup(int turn, String[] setup) {
+    public static Board getFromSetup(int turn, String[] setup) {
         return getFromSetup(turn, setup, BoardJSON.CASTLE_RIGHTS, BoardJSON.CASTLE_RIGHTS);
     }
 
-    public Board getFromSetup(int turn, String[] setup, BoardJSON.CastleRights white, BoardJSON.CastleRights black) {
+    public static Board getFromSetup(int turn, String[] setup, BoardJSON.CastleRights white, BoardJSON.CastleRights black) {
         BoardJSON boardJSON = new BoardJSON();
         boardJSON.setCastle(ImmutableMap.of(Side.toString(Side.WHITE), white,
                 Side.toString(Side.BLACK), black));
@@ -51,7 +54,7 @@ public class JSONParser {
         return buildBoard(boardJSON);
     }
 
-    private Board buildBoard(BoardJSON boardJSON) {
+    private static Board buildBoard(BoardJSON boardJSON) {
         Map<Integer, ArrayList<Piece>> pieces = ImmutableMap.of(Side.WHITE, new ArrayList<>(), Side.BLACK, new ArrayList<>());
 
         String stringBoard = boardJSON.getSetup().entrySet().stream()
@@ -88,7 +91,7 @@ public class JSONParser {
         return board;
     }
 
-    private Piece piecePieceFromString(String stringPiece, int row, int col) {
+    private static Piece piecePieceFromString(String stringPiece, int row, int col) {
         return Optional.ofNullable(pieceIDMap.get(stringPiece.toUpperCase()))
                 .map(id -> {
                     int player = stringPiece.matches("[a-z]") ? Side.BLACK : Side.WHITE;
@@ -97,7 +100,7 @@ public class JSONParser {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Piece: " + stringPiece));
     }
 
-    public Board fromFEN(String fen) {
+    public static Board fromFEN(String fen) {
         Pattern p = Pattern.compile("([a-zA-Z0-9\\/]+) ([wb]) ([KQkq]+|[-]) ([a-z][0-9]|[-])\\s?([0-9]?)\\s?([0-9]?)");
         Matcher m = p.matcher(fen.trim());
 
@@ -125,13 +128,13 @@ public class JSONParser {
                 .orElse(0);
 
         List<String> setup = Stream.of(setupSection.split("/"))
-                .map(this::fen2Json)
+                .map(JSONParser::fen2Json)
                 .collect(Collectors.toList());
 
         return getFromSetup(turn, setup.toArray(new String[setup.size()]), whiteCastleRights, blackCastleRights);
     }
 
-    private String fen2Json(String fenLine) {
+    private static String fen2Json(String fenLine) {
 
         return fenLine.chars().mapToObj(c -> Character.toString((char) c))
                 .map(s -> {

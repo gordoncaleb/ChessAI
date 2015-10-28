@@ -2,7 +2,7 @@ package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.persistence.JSONParser;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Knight;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import org.openjdk.jmh.annotations.*;
@@ -43,7 +43,6 @@ public class KnightBenchmark {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        JSONParser JSONParser = new JSONParser();
         board = JSONParser.getFromSetup(Side.WHITE, setup);
         knight = board.getPiece(6, 3);
         nullMoveInfo = board.makeNullMove();

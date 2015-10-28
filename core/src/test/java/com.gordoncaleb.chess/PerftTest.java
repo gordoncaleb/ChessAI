@@ -2,7 +2,7 @@ package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
-import com.gordoncaleb.chess.board.persistence.JSONParser;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.util.Perft;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -16,8 +16,6 @@ import static org.hamcrest.Matchers.*;
 public class PerftTest {
     public static final Logger logger = LoggerFactory.getLogger(PerftTest.class);
     private final Perft perft = new Perft();
-
-    private final JSONParser JSONParser = new JSONParser();
 
     public Board standardInitialPosition() {
         return BoardFactory.getStandardChessBoard();

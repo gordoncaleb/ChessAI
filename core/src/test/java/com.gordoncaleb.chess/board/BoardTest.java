@@ -2,7 +2,7 @@ package com.gordoncaleb.chess.board;
 
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
-import com.gordoncaleb.chess.board.persistence.JSONParser;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -23,8 +23,6 @@ import static org.junit.Assert.assertTrue;
 
 public class BoardTest {
     public static final Logger logger = LoggerFactory.getLogger(BoardTest.class);
-
-    JSONParser JSONParser = new JSONParser();
 
     @Test
     public void testSerialization() throws IOException {
