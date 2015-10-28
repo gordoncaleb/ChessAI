@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.parsers.PGNParser;
-import com.gordoncaleb.chess.board.parsers.XMLParser;
+import com.gordoncaleb.chess.board.serdes.PGNParser;
+import com.gordoncaleb.chess.board.serdes.XMLParser;
 import com.gordoncaleb.chess.util.FileIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,11 +89,6 @@ public class MoveBook {
             e.printStackTrace();
         }
         return hashMoveBook;
-    }
-
-    private void loadVerboseMoveBook() {
-        verboseMoveBook = XMLParser.XMLToVerboseMoveBook(FileIO.readResource("verboseMoveBook.xml"));
-        loadMoveBook();
     }
 
     public void saveMoveBook() {

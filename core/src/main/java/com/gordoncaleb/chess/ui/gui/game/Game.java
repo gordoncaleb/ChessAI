@@ -9,7 +9,7 @@ import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.engine.score.StaticScore;
 import com.gordoncaleb.chess.util.FileIO;
-import com.gordoncaleb.chess.board.parsers.XMLParser;
+import com.gordoncaleb.chess.board.serdes.XMLParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

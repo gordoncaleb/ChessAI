@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.board.parsers;
+package com.gordoncaleb.chess.board.serdes;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;

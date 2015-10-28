@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import com.gordoncaleb.chess.engine.AI;
 import com.gordoncaleb.chess.ui.gui.game.Game;
-import com.gordoncaleb.chess.board.parsers.XMLParser;
+import com.gordoncaleb.chess.board.serdes.XMLParser;
 import com.gordoncaleb.chess.board.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

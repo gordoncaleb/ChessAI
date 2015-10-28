@@ -2,7 +2,7 @@ package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.persistence.JSONParser;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -31,8 +31,8 @@ public class MoveGenerationBenchmark {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        BoardDAO boardDAO = new BoardDAO();
-        b1 = boardDAO.getFromSetup(Side.WHITE, setup);
+        JSONParser JSONParser = new JSONParser();
+        b1 = JSONParser.getFromSetup(Side.WHITE, setup);
     }
 
     @Benchmark

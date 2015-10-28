@@ -1,7 +1,7 @@
 package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.parsers.PGNParser;
+import com.gordoncaleb.chess.board.serdes.PGNParser;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

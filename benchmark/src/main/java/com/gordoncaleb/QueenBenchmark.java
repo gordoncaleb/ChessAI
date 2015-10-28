@@ -2,7 +2,7 @@ package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.persistence.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.board.pieces.Queen;
 import com.gordoncaleb.util.MockList;
@@ -33,7 +33,7 @@ public class QueenBenchmark {
     @Setup
     public void init() {
         validMoves = new MockList<>();
-        BoardDAO boardDAO = new BoardDAO();
+        JSONParser JSONParser = new JSONParser();
 
         String[] setup1 = {
                 "R,_,_,_,_,_,Q,_,",
@@ -46,7 +46,7 @@ public class QueenBenchmark {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        board[0] = boardDAO.getFromSetup(Side.WHITE, setup1);
+        board[0] = JSONParser.getFromSetup(Side.WHITE, setup1);
         queen[0] = board[0].getPiece(6, 3);
         nullMoveInfo[0] = board[0].makeNullMove();
         posBitBoard[0] = board[0].getAllPosBitBoard();
@@ -63,7 +63,7 @@ public class QueenBenchmark {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        board[1] = boardDAO.getFromSetup(Side.WHITE, setup2);
+        board[1] = JSONParser.getFromSetup(Side.WHITE, setup2);
         queen[1] = board[1].getPiece(5, 4);
         nullMoveInfo[1] = board[1].makeNullMove();
         posBitBoard[1] = board[1].getAllPosBitBoard();

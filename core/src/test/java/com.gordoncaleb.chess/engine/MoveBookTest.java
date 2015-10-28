@@ -1,7 +1,7 @@
 package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.parsers.PGNParser;
+import com.gordoncaleb.chess.board.serdes.PGNParser;
 import org.junit.Test;
 
 import java.util.*;

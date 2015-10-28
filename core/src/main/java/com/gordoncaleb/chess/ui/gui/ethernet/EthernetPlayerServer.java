@@ -21,7 +21,7 @@ import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.ui.gui.game.Player;
 import com.gordoncaleb.chess.ui.gui.game.PlayerContainer;
 import com.gordoncaleb.chess.ui.gui.AISettingsGUI;
-import com.gordoncaleb.chess.board.parsers.XMLParser;
+import com.gordoncaleb.chess.board.serdes.XMLParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

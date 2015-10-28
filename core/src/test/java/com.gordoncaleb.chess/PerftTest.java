@@ -2,7 +2,7 @@ package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
-import com.gordoncaleb.chess.board.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.persistence.JSONParser;
 import com.gordoncaleb.chess.util.Perft;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ public class PerftTest {
     public static final Logger logger = LoggerFactory.getLogger(PerftTest.class);
     private final Perft perft = new Perft();
 
-    private final BoardDAO boardDAO = new BoardDAO();
+    private final JSONParser JSONParser = new JSONParser();
 
     public Board standardInitialPosition() {
         return BoardFactory.getStandardChessBoard();
@@ -25,22 +25,22 @@ public class PerftTest {
 
     public Board kiwiPetePosition() {
         String fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -";
-        return boardDAO.fromFEN(fen);
+        return JSONParser.fromFEN(fen);
     }
 
     public Board position3() {
         String fen = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -";
-        return boardDAO.fromFEN(fen);
+        return JSONParser.fromFEN(fen);
     }
 
     public Board position4() {
         String fen = "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1";
-        return boardDAO.fromFEN(fen);
+        return JSONParser.fromFEN(fen);
     }
 
     public Board position5() {
         String fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8 ";
-        return boardDAO.fromFEN(fen);
+        return JSONParser.fromFEN(fen);
     }
 
     //Solutions columns

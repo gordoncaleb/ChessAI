@@ -2,7 +2,7 @@ package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.persistence.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.board.pieces.Rook;
 import com.gordoncaleb.util.MockList;
@@ -33,7 +33,7 @@ public class RookBenchmark {
     @Setup
     public void init() {
         validMoves = new MockList<>();
-        BoardDAO boardDAO = new BoardDAO();
+        JSONParser JSONParser = new JSONParser();
 
         String[] setup1 = {
                 "R,_,_,_,_,_,Q,_,",
@@ -46,7 +46,7 @@ public class RookBenchmark {
                 "r,_,_,_,_,k,_,r,"
         };
 
-        board[0] = boardDAO.getFromSetup(Side.WHITE, setup1);
+        board[0] = JSONParser.getFromSetup(Side.WHITE, setup1);
         rook[0] = board[0].getPiece(7, 7);
         nullMoveInfo[0] = board[0].makeNullMove();
         posBitBoard[0] = board[0].getAllPosBitBoard();
@@ -63,7 +63,7 @@ public class RookBenchmark {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        board[1] = boardDAO.getFromSetup(Side.WHITE, setup2);
+        board[1] = JSONParser.getFromSetup(Side.WHITE, setup2);
         rook[1] = board[1].getPiece(5, 4);
         nullMoveInfo[1] = board[1].makeNullMove();
         posBitBoard[1] = board[1].getAllPosBitBoard();

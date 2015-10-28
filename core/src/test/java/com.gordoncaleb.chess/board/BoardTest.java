@@ -1,8 +1,8 @@
 package com.gordoncaleb.chess.board;
 
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
-import com.gordoncaleb.chess.board.parsers.PGNParser;
-import com.gordoncaleb.chess.board.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.serdes.PGNParser;
+import com.gordoncaleb.chess.board.persistence.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -24,11 +24,11 @@ import static org.junit.Assert.assertTrue;
 public class BoardTest {
     public static final Logger logger = LoggerFactory.getLogger(BoardTest.class);
 
-    BoardDAO boardDAO = new BoardDAO();
+    JSONParser JSONParser = new JSONParser();
 
     @Test
     public void testSerialization() throws IOException {
-        Board b1 = boardDAO.getByFileName("/positions/standardSetup.json");
+        Board b1 = JSONParser.getByFileName("/positions/standardSetup.json");
         Board b2 = BoardFactory.getStandardChessBoard();
         assertEquals(b1.getHashCode(), b2.getHashCode());
         assertFalse(b2.getHashCode() == 0L);
@@ -108,7 +108,7 @@ public class BoardTest {
                 "_,_,_,_,_,_,_,_,"
         };
 
-        Board b = boardDAO.getFromSetup(Side.WHITE, setup);
+        Board b = JSONParser.getFromSetup(Side.WHITE, setup);
         long hashCode = b.generateHashCode();
         b.makeMove(new Move(1, 6, 0, 6, 0, Move.MoveNote.NEW_KNIGHT).getMoveLong());
         assertEquals(Piece.PieceID.KNIGHT, b.getPieceID(0, 6));
@@ -130,7 +130,7 @@ public class BoardTest {
                 "_,_,_,_,_,_,_,_,"
         };
 
-        Board b = boardDAO.getFromSetup(Side.WHITE, setup);
+        Board b = JSONParser.getFromSetup(Side.WHITE, setup);
         long hashCode = b.generateHashCode();
         b.makeMove(new Move(1, 6, 0, 6, 0, Move.MoveNote.NEW_QUEEN).getMoveLong());
         assertEquals(Piece.PieceID.QUEEN, b.getPieceID(0, 6));
@@ -152,7 +152,7 @@ public class BoardTest {
                 "_,_,_,_,_,_,_,_,"
         };
 
-        Board b1 = boardDAO.getFromSetup(Side.WHITE, setup);
+        Board b1 = JSONParser.getFromSetup(Side.WHITE, setup);
         b1.getMoveHistory().add(new Move(1, 7, 3, 7, 0, Move.MoveNote.PAWN_LEAP));
 
         logger.info(b1.toXML(true));
@@ -544,7 +544,7 @@ public class BoardTest {
                 new Move(1, 0, 1, 7),
         };
 
-        Board board = boardDAO.getFromSetup(Side.WHITE, setup);
+        Board board = JSONParser.getFromSetup(Side.WHITE, setup);
 
         assertFalse(board.drawByThreeRule());
         assertThat(board.getHashCodeFreq(), is(equalTo(1)));
@@ -585,13 +585,13 @@ public class BoardTest {
     }
 
     public List<Move> getValidMoves(int side, String[] setup) {
-        Board b1 = boardDAO.getFromSetup(side, setup);
+        Board b1 = JSONParser.getFromSetup(side, setup);
         b1.makeNullMove();
         return Move.fromLongs(b1.generateValidMoves());
     }
 
     public long[] getNullMoveInfo(int side, String[] setup) {
-        Board b1 = boardDAO.getFromSetup(side, setup);
+        Board b1 = JSONParser.getFromSetup(side, setup);
         return b1.makeNullMove();
     }
 

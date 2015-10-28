@@ -3,7 +3,7 @@ package com.gordoncaleb.chess.score;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.engine.score.StaticScore;
-import com.gordoncaleb.chess.board.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.persistence.JSONParser;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,7 +12,7 @@ import static org.hamcrest.Matchers.*;
 public class StaticScoreTest {
 
     StaticScore scorer = new StaticScore();
-    BoardDAO boardDAO = new BoardDAO();
+    JSONParser JSONParser = new JSONParser();
 
     @Test
     public void testMaterialValue() {
@@ -47,7 +47,7 @@ public class StaticScoreTest {
     }
 
     private void testWinning(String[] setup, int winner) {
-        Board board = boardDAO.getFromSetup(Side.WHITE, setup);
+        Board board = JSONParser.getFromSetup(Side.WHITE, setup);
         int delta = scorer.staticScore(board, winner);
         assertThat("Delta", delta, greaterThan(0));
     }

@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
-public class BoardDAO {
+public class JSONParser {
 
     private static final String EMPTY_SPACE = "_";
     private static final Map<String, Integer> pieceIDMap = new ImmutableMap.Builder<String, Integer>()

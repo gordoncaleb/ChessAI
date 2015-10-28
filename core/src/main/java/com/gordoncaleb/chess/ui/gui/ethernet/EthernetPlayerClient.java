@@ -6,7 +6,7 @@ import java.net.UnknownHostException;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.parsers.XMLParser;
+import com.gordoncaleb.chess.board.serdes.XMLParser;
 import com.gordoncaleb.chess.ui.gui.game.Game;
 import com.gordoncaleb.chess.ui.gui.game.Player;
 import com.gordoncaleb.chess.ui.gui.game.PlayerContainer;
