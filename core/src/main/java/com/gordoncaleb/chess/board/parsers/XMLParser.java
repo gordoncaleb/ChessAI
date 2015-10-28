@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.io;
+package com.gordoncaleb.chess.board.parsers;
 
 import java.io.StringReader;
 import java.math.BigInteger;
@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.gordoncaleb.chess.io.FileIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.CharacterData;

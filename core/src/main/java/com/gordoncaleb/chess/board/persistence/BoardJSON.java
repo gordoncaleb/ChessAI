@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.persistence;
+package com.gordoncaleb.chess.board.persistence;
 
 import java.util.Map;
 

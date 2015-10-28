@@ -29,7 +29,7 @@ import com.gordoncaleb.chess.backend.PlayerContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.io.MoveBook;
-import com.gordoncaleb.chess.io.XMLParser;
+import com.gordoncaleb.chess.board.parsers.XMLParser;
 import com.gordoncaleb.chess.pieces.PositionBonus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -2,7 +2,7 @@ package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.io.MoveBook;
-import com.gordoncaleb.chess.io.PGNParser;
+import com.gordoncaleb.chess.board.parsers.PGNParser;
 import org.junit.Test;
 
 import java.util.*;

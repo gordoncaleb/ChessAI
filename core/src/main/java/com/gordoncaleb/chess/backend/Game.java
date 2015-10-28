@@ -8,7 +8,7 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.io.FileIO;
-import com.gordoncaleb.chess.io.XMLParser;
+import com.gordoncaleb.chess.board.parsers.XMLParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

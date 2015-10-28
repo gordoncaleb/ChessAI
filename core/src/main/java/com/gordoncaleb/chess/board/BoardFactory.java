@@ -10,14 +10,14 @@ public class BoardFactory {
     private static final Random r = new Random();
 
     public static Board getStandardChessBoard() {
-        return makeBoard(1, 2, 2, 1, 2);
+        return make960Board(1, 2, 2, 1, 2);
     }
 
     public static Board getRandomChess960Board() {
-        return makeBoard(rollDie(4), rollDie(4), rollDie(6), rollDie(5), rollDie(4));
+        return make960Board(rollDie(4), rollDie(4), rollDie(6), rollDie(5), rollDie(4));
     }
 
-    public static Board makeBoard(int r1, int r2, int r3, int r4, int r5) {
+    private static Board make960Board(int r1, int r2, int r3, int r4, int r5) {
         ArrayList<Piece>[] pieces = new ArrayList[2];
         pieces[0] = new ArrayList<>();
         pieces[1] = new ArrayList<>();
@@ -81,7 +81,7 @@ public class BoardFactory {
         return setup.length;
     }
 
-    public static int rollDie(int dieSize) {
+    private static int rollDie(int dieSize) {
         return r.nextInt(dieSize);
     }
 

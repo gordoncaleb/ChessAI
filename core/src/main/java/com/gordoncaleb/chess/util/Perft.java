@@ -4,7 +4,7 @@ package com.gordoncaleb.chess.util;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.persistence.BoardDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

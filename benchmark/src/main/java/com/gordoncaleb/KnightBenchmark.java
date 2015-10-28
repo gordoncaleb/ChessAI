@@ -2,7 +2,7 @@ package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.persistence.BoardDAO;
 import com.gordoncaleb.chess.pieces.Knight;
 import com.gordoncaleb.chess.pieces.Piece;
 import org.openjdk.jmh.annotations.*;

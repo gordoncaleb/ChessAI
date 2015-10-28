@@ -22,7 +22,7 @@ import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.PlayerContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.io.FileIO;
-import com.gordoncaleb.chess.io.XMLParser;
+import com.gordoncaleb.chess.board.parsers.XMLParser;
 import com.gordoncaleb.chess.pieces.PositionBonus;
 
 public class PlayerGUI implements Player, BoardGUI, MouseListener {

@@ -1,10 +1,9 @@
-package com.gordoncaleb.chess.persistence;
+package com.gordoncaleb.chess.board.persistence;
 
 import com.google.common.collect.ImmutableMap;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.io.FileIO;
-import com.gordoncaleb.chess.io.XMLParser;
 import com.gordoncaleb.chess.pieces.Piece;
 import com.gordoncaleb.chess.util.JSON;
 
@@ -32,10 +31,6 @@ public class BoardDAO {
     public Board getByFileName(String fileName) throws IOException {
         BoardJSON boardJSON = JSON.fromJSON(FileIO.readResource(fileName), BoardJSON.class);
         return buildBoard(boardJSON);
-    }
-
-    public Board getByXMLFileName(String fileName) {
-        return XMLParser.XMLToBoard(FileIO.readResource(fileName));
     }
 
     public Board getFromSetup(int turn, String[] setup) {

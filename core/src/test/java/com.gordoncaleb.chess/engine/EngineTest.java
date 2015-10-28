@@ -1,7 +1,7 @@
 package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.ai.Engine;
-import com.gordoncaleb.chess.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.persistence.BoardDAO;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

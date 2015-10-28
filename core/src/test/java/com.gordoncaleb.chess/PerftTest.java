@@ -2,7 +2,7 @@ package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
-import com.gordoncaleb.chess.persistence.BoardDAO;
+import com.gordoncaleb.chess.board.persistence.BoardDAO;
 import com.gordoncaleb.chess.util.Perft;
 import org.junit.Test;
 import org.slf4j.Logger;

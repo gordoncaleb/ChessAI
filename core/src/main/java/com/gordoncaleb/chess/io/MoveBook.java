@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.parsers.PGNParser;
+import com.gordoncaleb.chess.board.parsers.XMLParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
