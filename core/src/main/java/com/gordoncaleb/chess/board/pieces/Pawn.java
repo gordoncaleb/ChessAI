@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.pieces;
+package com.gordoncaleb.chess.board.pieces;
 
 import java.util.List;
 

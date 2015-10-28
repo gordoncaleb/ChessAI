@@ -1,7 +1,7 @@
 package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.pieces.Piece;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

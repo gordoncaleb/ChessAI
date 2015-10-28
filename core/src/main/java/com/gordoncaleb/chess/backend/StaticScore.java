@@ -3,14 +3,14 @@ package com.gordoncaleb.chess.backend;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.pieces.Pawn;
-import com.gordoncaleb.chess.pieces.Piece;
-import com.gordoncaleb.chess.pieces.PositionBonus;
-import com.gordoncaleb.chess.pieces.Values;
+import com.gordoncaleb.chess.board.pieces.Pawn;
+import com.gordoncaleb.chess.board.pieces.Piece;
+import com.gordoncaleb.chess.board.pieces.PositionBonus;
+import com.gordoncaleb.chess.board.pieces.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class StaticScore {
     private static final Logger logger = LoggerFactory.getLogger(StaticScore.class);

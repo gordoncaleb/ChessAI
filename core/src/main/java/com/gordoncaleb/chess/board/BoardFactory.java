@@ -2,8 +2,8 @@ package com.gordoncaleb.chess.board;
 
 import java.util.*;
 
-import com.gordoncaleb.chess.pieces.Piece;
-import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
+import com.gordoncaleb.chess.board.pieces.Piece;
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class BoardFactory {
 

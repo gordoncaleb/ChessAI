@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.pieces;
+package com.gordoncaleb.chess.board.pieces;
 
 import java.util.List;
 
@@ -6,8 +6,8 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;
-import static com.gordoncaleb.chess.pieces.Piece.buildValidMoves;
-import static com.gordoncaleb.chess.pieces.Piece.buildValidMovesWithPiecesTaken;
+import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMoves;
+import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMovesWithPiecesTaken;
 
 public class Rook {
 

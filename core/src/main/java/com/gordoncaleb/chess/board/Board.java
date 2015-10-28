@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.backend.Game;
 import com.gordoncaleb.chess.board.parsers.XMLParser;
-import com.gordoncaleb.chess.pieces.*;
+import com.gordoncaleb.chess.board.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
 public class Board {

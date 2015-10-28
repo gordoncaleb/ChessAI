@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.pieces;
+package com.gordoncaleb.chess.board.pieces;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.Move;
 
-import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class Piece {
     private int row;

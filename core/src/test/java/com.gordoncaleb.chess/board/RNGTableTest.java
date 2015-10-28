@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess.board;
 
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.pieces.Piece;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -6,7 +6,7 @@ import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.io.MoveBook;
-import com.gordoncaleb.chess.pieces.Values;
+import com.gordoncaleb.chess.board.pieces.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

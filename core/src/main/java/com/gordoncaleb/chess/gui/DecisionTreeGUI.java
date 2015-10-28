@@ -19,7 +19,6 @@ import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.ai.DecisionNode;
 import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.StaticScore;
-import com.gordoncaleb.chess.pieces.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

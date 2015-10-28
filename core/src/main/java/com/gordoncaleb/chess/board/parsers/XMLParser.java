@@ -21,7 +21,7 @@ import org.xml.sax.InputSource;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.pieces.Piece;
 
 public class XMLParser {
 	private static final Logger logger = LoggerFactory.getLogger(XMLParser.class);

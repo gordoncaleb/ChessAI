@@ -3,7 +3,7 @@ package com.gordoncaleb.chess.board;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.parsers.PGNParser;
 import com.gordoncaleb.chess.board.persistence.BoardDAO;
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.pieces.Piece;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -10,7 +10,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import com.gordoncaleb.chess.io.FileIO;
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.pieces.Piece;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

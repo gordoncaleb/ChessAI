@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.io.FileIO;
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.util.JSON;
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class BoardDAO {
 

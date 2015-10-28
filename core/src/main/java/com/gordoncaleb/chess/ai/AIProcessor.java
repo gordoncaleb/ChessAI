@@ -7,7 +7,7 @@ import java.util.List;
 import com.gordoncaleb.chess.backend.*;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.pieces.Values;
+import com.gordoncaleb.chess.board.pieces.Values;
 
 public class AIProcessor extends Thread {
     private DecisionNode rootNode;

@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess.board;
 
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.pieces.Piece;
 
 import java.util.List;
 import java.util.stream.Collectors;

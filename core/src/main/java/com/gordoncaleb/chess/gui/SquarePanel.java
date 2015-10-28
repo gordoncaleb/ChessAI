@@ -13,7 +13,7 @@ import javax.swing.border.BevelBorder;
 
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.pieces.Piece;
 
 public class SquarePanel extends JPanel implements PieceGUI {
 	private static final long serialVersionUID = 1L;

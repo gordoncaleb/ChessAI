@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.pieces;
+package com.gordoncaleb.chess.board.pieces;
 
 import com.gordoncaleb.chess.board.Side;
 import org.slf4j.Logger;

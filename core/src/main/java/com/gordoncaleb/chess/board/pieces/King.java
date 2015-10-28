@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.pieces;
+package com.gordoncaleb.chess.board.pieces;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import com.gordoncaleb.chess.board.Move;
 
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;
-import static com.gordoncaleb.chess.pieces.Piece.*;
+import static com.gordoncaleb.chess.board.pieces.Piece.*;
 
 public class King {
 

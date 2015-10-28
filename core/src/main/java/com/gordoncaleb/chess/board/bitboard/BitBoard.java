@@ -1,7 +1,7 @@
 package com.gordoncaleb.chess.board.bitboard;
 
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.pieces.Pawn;
+import com.gordoncaleb.chess.board.pieces.Pawn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
