@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.board.pieces;
+package com.gordoncaleb.chess.engine.score;
 
 import com.gordoncaleb.chess.board.Side;
 import org.slf4j.Logger;

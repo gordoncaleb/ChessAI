@@ -5,8 +5,6 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.pieces.Pawn;
 import com.gordoncaleb.chess.board.pieces.Piece;
-import com.gordoncaleb.chess.board.pieces.PositionBonus;
-import com.gordoncaleb.chess.board.pieces.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

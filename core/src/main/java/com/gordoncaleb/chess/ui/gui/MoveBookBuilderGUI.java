@@ -30,7 +30,7 @@ import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.engine.MoveBook;
 import com.gordoncaleb.chess.board.serdes.XMLParser;
-import com.gordoncaleb.chess.board.pieces.PositionBonus;
+import com.gordoncaleb.chess.engine.score.PositionBonus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

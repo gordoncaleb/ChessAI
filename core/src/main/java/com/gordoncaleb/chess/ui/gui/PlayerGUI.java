@@ -23,7 +23,7 @@ import com.gordoncaleb.chess.ui.gui.game.PlayerContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.board.serdes.XMLParser;
-import com.gordoncaleb.chess.board.pieces.PositionBonus;
+import com.gordoncaleb.chess.engine.score.PositionBonus;
 
 public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	private JFrame frame;

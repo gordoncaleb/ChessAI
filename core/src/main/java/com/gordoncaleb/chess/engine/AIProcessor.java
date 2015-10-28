@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.pieces.Values;
+import com.gordoncaleb.chess.engine.score.Values;
 import com.gordoncaleb.chess.engine.score.StaticScore;
 import com.gordoncaleb.chess.ui.gui.game.Game;
 

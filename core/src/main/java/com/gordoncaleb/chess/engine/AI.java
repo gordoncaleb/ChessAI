@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.pieces.Values;
+import com.gordoncaleb.chess.engine.score.Values;
 import com.gordoncaleb.chess.ui.gui.game.Game;
 import com.gordoncaleb.chess.ui.gui.game.Player;
 import com.gordoncaleb.chess.ui.gui.game.PlayerContainer;

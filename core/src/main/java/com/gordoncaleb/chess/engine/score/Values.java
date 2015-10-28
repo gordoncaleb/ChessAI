@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.board.pieces;
+package com.gordoncaleb.chess.engine.score;
 
 
 public class Values {

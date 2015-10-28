@@ -36,6 +36,8 @@ public class JSONParser {
         return buildBoard(boardJSON);
     }
 
+    //public static toBoardJSON
+
     public static Board getFromSetup(int turn, String[] setup) {
         return getFromSetup(turn, setup, BoardJSON.CASTLE_RIGHTS, BoardJSON.CASTLE_RIGHTS);
     }
