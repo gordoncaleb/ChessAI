@@ -13,7 +13,7 @@ public class RNGTableTest {
     public void testFileLoaded() {
         RNGTable rngTable = RNGTable.instance;
         assertEquals(7477762210045365562L, rngTable.getBlackToMoveRandom());
-        assertEquals(5345368156027554259L, rngTable.getPiecePerSquareRandom(Side.WHITE, Piece.PieceID.QUEEN, 3, 3));
+        assertEquals(-5922024454569227819L, rngTable.getPiecePerSquareRandom(Side.WHITE, Piece.PieceID.QUEEN, 3, 3));
     }
 
     @Test

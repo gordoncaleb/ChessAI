@@ -37,7 +37,7 @@ public class BoardTest {
 
     @Test
     public void testHashCodeUniquness() throws Exception {
-        testFile("/pgns/eco.pgn", this::assertHashCodesAreUnique);
+        testFile("/movebook/eco.pgn", this::assertHashCodesAreUnique);
     }
 
     @Test

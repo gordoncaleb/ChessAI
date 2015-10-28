@@ -58,7 +58,7 @@ public class PGNParserTest {
     public void tesNotationResolution() throws Exception {
         List<PGNParser.PGNGame> games = parser.parseFileLines(gameLines());
         Board board = parser.getPGNGameAsBoard(games.get(0));
-        assertEquals(7019580853244117591L, board.getHashCode());
+        assertEquals(19508493362867960L, board.getHashCode());
     }
 
     public BufferedReader gameLines() {

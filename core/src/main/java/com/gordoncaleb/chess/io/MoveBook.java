@@ -18,8 +18,8 @@ public class MoveBook {
     Map<Long, List<Long>> hashMoveBook;
     Map<String, List<Long>> verboseMoveBook;
 
-    public static final String MOVEBOOK_FILE = "/pgns/eco.pgn";
-    public static final String MOVEBOOK_FILE_COMPILED = "/doc/eco.bin";
+    public static final String MOVEBOOK_FILE = "/movebook/eco.pgn";
+    public static final String MOVEBOOK_FILE_COMPILED = "/movebook/eco.bin";
 
     public static void main(String[] args) {
         MoveBook mb = new MoveBook();
