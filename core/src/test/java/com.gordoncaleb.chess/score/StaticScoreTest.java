@@ -1,7 +1,7 @@
 package com.gordoncaleb.chess.score;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.backend.StaticScore;
 import com.gordoncaleb.chess.persistence.BoardDAO;
 import org.junit.Test;

@@ -1,6 +1,6 @@
-package com.gordoncaleb.chess.bitboard;
+package com.gordoncaleb.chess.board.bitboard;
 
-import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
 public class Slide {
 

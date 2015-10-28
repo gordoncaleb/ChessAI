@@ -1,6 +1,8 @@
 package com.gordoncaleb.chess.backend;
 
-import com.gordoncaleb.chess.bitboard.BitBoard;
+import com.gordoncaleb.chess.board.bitboard.BitBoard;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.pieces.Pawn;
 import com.gordoncaleb.chess.pieces.Piece;
 import com.gordoncaleb.chess.pieces.PositionBonus;

@@ -1,6 +1,5 @@
-package com.gordoncaleb.chess.bitboard;
+package com.gordoncaleb.chess.board.bitboard;
 
-import com.gordoncaleb.chess.pieces.Queen;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +8,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import static com.gordoncaleb.chess.bitboard.BitBoard.*;
-import static com.gordoncaleb.chess.bitboard.Slide.*;
+import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.board.bitboard.Slide.*;
 
 public class SlideTest {
     public static final Logger logger = LoggerFactory.getLogger(SlideTest.class);

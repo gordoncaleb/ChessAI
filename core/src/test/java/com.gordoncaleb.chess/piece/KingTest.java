@@ -1,14 +1,14 @@
 package com.gordoncaleb.chess.piece;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.persistence.BoardDAO;
 import com.gordoncaleb.chess.pieces.King;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;

@@ -9,12 +9,12 @@ import javax.swing.JFrame;
 import javax.swing.JTextArea;
 
 import com.gordoncaleb.chess.ai.AI;
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.BoardFactory;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.backend.Game;
 import com.gordoncaleb.chess.backend.GameResults;
 import com.gordoncaleb.chess.backend.Player;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.ethernet.EthernetPlayerClient;
 import com.gordoncaleb.chess.io.FileIO;
 import org.slf4j.Logger;

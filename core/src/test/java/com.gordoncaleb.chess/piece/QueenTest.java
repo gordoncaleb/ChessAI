@@ -1,9 +1,6 @@
 package com.gordoncaleb.chess.piece;
 
-import com.gordoncaleb.chess.bitboard.BitBoard;
-import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.pieces.King;
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.pieces.Queen;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -13,7 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
 public class QueenTest {
 

@@ -1,7 +1,5 @@
 package com.gordoncaleb.chess.board;
 
-import com.gordoncaleb.chess.backend.RNGTable;
-import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.pieces.Piece;
 import org.junit.Test;
 

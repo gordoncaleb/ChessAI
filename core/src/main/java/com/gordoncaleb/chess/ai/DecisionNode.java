@@ -3,7 +3,7 @@ package com.gordoncaleb.chess.ai;
 import java.util.Arrays;
 import java.util.Collections;
 
-import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.board.Move;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

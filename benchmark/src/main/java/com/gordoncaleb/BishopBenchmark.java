@@ -1,7 +1,7 @@
 package com.gordoncaleb;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.persistence.BoardDAO;
 import com.gordoncaleb.chess.pieces.Bishop;
 import com.gordoncaleb.chess.pieces.Piece;

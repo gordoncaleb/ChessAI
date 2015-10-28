@@ -15,12 +15,12 @@ import javax.swing.JOptionPane;
 
 import com.gordoncaleb.chess.ai.AI;
 import com.gordoncaleb.chess.ai.AISettings;
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.BoardFactory;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.backend.Game;
 import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.PlayerContainer;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.io.XMLParser;
 import com.gordoncaleb.chess.pieces.PositionBonus;

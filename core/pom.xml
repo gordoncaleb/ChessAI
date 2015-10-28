@@ -101,7 +101,7 @@
                                     <goal>java</goal>
                                 </goals>
                                 <configuration>
-                                    <mainClass>com.gordoncaleb.chess.backend.RNGTable</mainClass>
+                                    <mainClass>com.gordoncaleb.chess.board.RNGTable</mainClass>
                                 </configuration>
                             </execution>
                         </executions>

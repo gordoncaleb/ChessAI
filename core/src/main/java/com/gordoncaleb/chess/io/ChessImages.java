@@ -6,9 +6,6 @@ import java.awt.Toolkit;
 
 import javax.swing.ImageIcon;
 
-import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.pieces.Piece;
-
 public class ChessImages {
 
 	private static Image[][] chessPieceGraphics;

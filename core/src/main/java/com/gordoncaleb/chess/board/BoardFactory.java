@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.backend;
+package com.gordoncaleb.chess.board;
 
 import java.util.*;
 

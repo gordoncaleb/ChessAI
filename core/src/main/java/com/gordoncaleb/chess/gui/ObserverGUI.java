@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.gordoncaleb.chess.backend.*;
+import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.io.FileIO;
 
 public class ObserverGUI implements Player, BoardGUI, MouseListener {

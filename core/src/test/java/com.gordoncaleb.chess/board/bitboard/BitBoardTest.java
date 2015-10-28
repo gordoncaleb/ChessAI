@@ -1,8 +1,6 @@
-package com.gordoncaleb.chess.bitboard;
+package com.gordoncaleb.chess.board.bitboard;
 
-import com.gordoncaleb.chess.bitboard.BitBoard;
-import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.bitboard.Slide;
+import com.gordoncaleb.chess.board.Move;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.gordoncaleb.chess.bitboard.BitBoard.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 

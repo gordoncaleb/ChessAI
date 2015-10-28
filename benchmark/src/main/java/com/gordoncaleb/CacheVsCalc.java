@@ -1,19 +1,13 @@
 package com.gordoncaleb;
 
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.bitboard.BitBoard;
-import com.gordoncaleb.chess.persistence.BoardDAO;
-import com.gordoncaleb.chess.pieces.Piece;
+import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)

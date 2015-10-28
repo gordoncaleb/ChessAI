@@ -5,9 +5,7 @@ import java.awt.Color;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
-import com.gordoncaleb.chess.backend.Side;
 import com.gordoncaleb.chess.io.ChessImages;
-import com.gordoncaleb.chess.pieces.Piece;
 
 public class JPieceTakenLabel extends JLabel implements PieceGUI{
 	private int pieceID;

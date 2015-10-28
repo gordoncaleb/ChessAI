@@ -11,8 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
-import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.pieces.Piece;
 
 public class SquarePanel extends JPanel implements PieceGUI {

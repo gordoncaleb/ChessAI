@@ -1,7 +1,5 @@
 package com.gordoncaleb.chess.persistence;
 
-import com.gordoncaleb.chess.backend.Side;
-
 import java.util.Map;
 
 public class BoardJSON {

@@ -1,9 +1,7 @@
 package com.gordoncaleb;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.bitboard.BitBoard;
-import com.gordoncaleb.chess.bitboard.Slide;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.persistence.BoardDAO;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;

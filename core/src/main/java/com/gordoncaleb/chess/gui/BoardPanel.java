@@ -22,6 +22,9 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 import com.gordoncaleb.chess.backend.*;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.io.ChessImages;
 import com.gordoncaleb.chess.pieces.Piece;
 import org.slf4j.Logger;

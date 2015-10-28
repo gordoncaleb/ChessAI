@@ -1,6 +1,6 @@
-package com.gordoncaleb.chess.bitboard;
+package com.gordoncaleb.chess.board.bitboard;
 
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.pieces.Pawn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.gordoncaleb.chess.bitboard.Slide.northFill;
-import static com.gordoncaleb.chess.bitboard.Slide.southFill;
+import static com.gordoncaleb.chess.board.bitboard.Slide.northFill;
+import static com.gordoncaleb.chess.board.bitboard.Slide.southFill;
 
 public class BitBoard {
     public static Logger logger = LoggerFactory.getLogger(BitBoard.class);

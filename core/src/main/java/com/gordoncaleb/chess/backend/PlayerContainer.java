@@ -1,5 +1,7 @@
 package com.gordoncaleb.chess.backend;
 
+import com.gordoncaleb.chess.board.Board;
+
 public interface PlayerContainer {
 
     boolean makeMove(long move);

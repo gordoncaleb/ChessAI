@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess.pieces;
 
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Side;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

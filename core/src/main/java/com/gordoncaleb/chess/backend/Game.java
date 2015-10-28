@@ -4,6 +4,9 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 
 import com.gordoncaleb.chess.ai.DecisionNode;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.BoardFactory;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.io.XMLParser;
 import org.slf4j.Logger;

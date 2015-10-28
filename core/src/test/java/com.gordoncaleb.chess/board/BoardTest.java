@@ -1,7 +1,6 @@
 package com.gordoncaleb.chess.board;
 
-import com.gordoncaleb.chess.backend.*;
-import com.gordoncaleb.chess.bitboard.BitBoard;
+import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.io.PGNParser;
 import com.gordoncaleb.chess.persistence.BoardDAO;
 import com.gordoncaleb.chess.pieces.Piece;
@@ -14,7 +13,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;

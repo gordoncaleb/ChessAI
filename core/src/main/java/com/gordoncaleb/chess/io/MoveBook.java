@@ -6,7 +6,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.util.*;
 
-import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.board.Move;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

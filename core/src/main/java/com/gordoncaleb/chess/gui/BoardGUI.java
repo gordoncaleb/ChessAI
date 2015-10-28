@@ -1,7 +1,5 @@
 package com.gordoncaleb.chess.gui;
 
-import com.gordoncaleb.chess.backend.Side;
-
 public interface BoardGUI {
 	public void makeMove(long move);
 

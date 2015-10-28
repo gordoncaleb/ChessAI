@@ -1,16 +1,17 @@
-package com.gordoncaleb.chess.backend;
+package com.gordoncaleb.chess.board;
 
 import java.util.*;
 import java.util.ArrayList;
 
 import com.gordoncaleb.chess.ai.AI;
+import com.gordoncaleb.chess.backend.Game;
 import com.gordoncaleb.chess.io.XMLParser;
 import com.gordoncaleb.chess.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.gordoncaleb.chess.pieces.Piece.PieceID.*;
-import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
 public class Board {
     private static final Logger logger = LoggerFactory.getLogger(Board.class);
@@ -562,7 +563,7 @@ public class Board {
         return moveHistory;
     }
 
-    List<Piece>[] getPieces() {
+    public List<Piece>[] getPieces() {
         return this.pieces;
     }
 

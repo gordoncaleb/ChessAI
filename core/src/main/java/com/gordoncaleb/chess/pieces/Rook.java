@@ -2,10 +2,10 @@ package com.gordoncaleb.chess.pieces;
 
 import java.util.List;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Side;
 
-import static com.gordoncaleb.chess.bitboard.Slide.*;
+import static com.gordoncaleb.chess.board.bitboard.Slide.*;
 import static com.gordoncaleb.chess.pieces.Piece.buildValidMoves;
 import static com.gordoncaleb.chess.pieces.Piece.buildValidMovesWithPiecesTaken;
 

@@ -17,9 +17,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Move;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.pieces.Piece;
 
 public class XMLParser {

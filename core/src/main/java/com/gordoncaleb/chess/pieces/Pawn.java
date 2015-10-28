@@ -2,12 +2,11 @@ package com.gordoncaleb.chess.pieces;
 
 import java.util.List;
 
-import com.gordoncaleb.chess.bitboard.BitBoard;
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.Side;
-import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Side;
+import com.gordoncaleb.chess.board.Move;
 
-import static com.gordoncaleb.chess.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
 public class Pawn {
 

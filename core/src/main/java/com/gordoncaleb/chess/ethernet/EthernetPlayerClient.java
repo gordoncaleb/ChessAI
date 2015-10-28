@@ -5,6 +5,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import com.gordoncaleb.chess.backend.*;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.io.XMLParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

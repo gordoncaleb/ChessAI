@@ -1,5 +1,7 @@
 package com.gordoncaleb.chess.backend;
 
+import com.gordoncaleb.chess.board.Side;
+
 public class GameResults {
 
 	private int winner;

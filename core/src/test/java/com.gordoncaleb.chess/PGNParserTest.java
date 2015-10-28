@@ -1,6 +1,6 @@
 package com.gordoncaleb.chess;
 
-import com.gordoncaleb.chess.backend.Board;
+import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.io.PGNParser;
 import org.junit.Before;
 import org.junit.Test;

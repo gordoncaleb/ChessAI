@@ -1,6 +1,5 @@
 package com.gordoncaleb;
 
-import com.gordoncaleb.chess.bitboard.BitBoard;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;

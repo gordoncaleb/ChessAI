@@ -20,13 +20,13 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import com.gordoncaleb.chess.ai.AI;
-import com.gordoncaleb.chess.backend.Board;
-import com.gordoncaleb.chess.backend.BoardFactory;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.backend.Game;
-import com.gordoncaleb.chess.backend.Move;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.backend.Player;
 import com.gordoncaleb.chess.backend.PlayerContainer;
-import com.gordoncaleb.chess.backend.Side;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.io.FileIO;
 import com.gordoncaleb.chess.io.MoveBook;
 import com.gordoncaleb.chess.io.XMLParser;

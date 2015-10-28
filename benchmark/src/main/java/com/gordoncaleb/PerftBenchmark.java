@@ -1,8 +1,7 @@
 package com.gordoncaleb;
 
-import com.gordoncaleb.chess.backend.Board;
+import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.util.Perft;
-import com.gordoncaleb.util.MockList;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
