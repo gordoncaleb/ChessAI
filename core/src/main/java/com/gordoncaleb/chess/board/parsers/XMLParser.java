@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import com.gordoncaleb.chess.io.FileIO;
+import com.gordoncaleb.chess.util.FileIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.CharacterData;

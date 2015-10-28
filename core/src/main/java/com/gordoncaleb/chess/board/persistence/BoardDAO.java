@@ -3,7 +3,7 @@ package com.gordoncaleb.chess.board.persistence;
 import com.google.common.collect.ImmutableMap;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.io.FileIO;
+import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.util.JSON;
 

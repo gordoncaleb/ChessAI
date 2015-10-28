@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import com.gordoncaleb.chess.io.FileIO;
+import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

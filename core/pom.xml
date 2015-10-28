@@ -73,7 +73,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.gordoncaleb.chess.ethernet.EthernetPlayerServer</mainClass>
+                                    <mainClass>com.gordoncaleb.chess.ui.gui.ethernet.EthernetPlayerServer</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

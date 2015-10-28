@@ -3,8 +3,8 @@ package com.gordoncaleb.chess.board;
 import java.util.*;
 import java.util.ArrayList;
 
-import com.gordoncaleb.chess.ai.AI;
-import com.gordoncaleb.chess.backend.Game;
+import com.gordoncaleb.chess.engine.AI;
+import com.gordoncaleb.chess.ui.gui.game.Game;
 import com.gordoncaleb.chess.board.parsers.XMLParser;
 import com.gordoncaleb.chess.board.pieces.*;
 import org.slf4j.Logger;
