@@ -174,8 +174,8 @@ public class StaticScore {
         final int myPawnScore = pawnStructureScore(side, phase, b);
         final int yourPawnScore = pawnStructureScore(otherSide, phase, b);
 
-        final int openingMyScore = castleScore(side, b.getCastleHistory()) + openingPositionScore(side, b);
-        final int openingYourScore = castleScore(otherSide, b.getCastleHistory()) + openingPositionScore(otherSide, b);
+        final int openingMyScore = openingPositionScore(side, b);
+        final int openingYourScore = openingPositionScore(otherSide, b);
 
         final int endGameMyScore = endGamePositionScore(side, b);
         final int endGameYourScore = endGamePositionScore(otherSide, b);
@@ -212,9 +212,9 @@ public class StaticScore {
         score += ("int myPawnScore = " + pawnStructureScore(turn, phase, b)) + "\n";
         score += ("int yourPawnScore = " + pawnStructureScore(otherSide, phase, b)) + "\n";
 
-        score += ("int openingMyScore = " + materialScore(turn, b) + "(openingMaterialScore)+" + castleScore(turn, b.getCastleHistory()) + "(castleScore)+" + openingPositionScore(turn, b))
+        score += ("int openingMyScore = " + materialScore(turn, b) + "(openingMaterialScore)+" + "(castleScore)+" + openingPositionScore(turn, b))
                 + "(openPositionScore)" + "\n";
-        score += ("int openingYourScore = " + materialScore(otherSide, b) + "(openMaterialScore)+" + castleScore(otherSide, b.getCastleHistory()) + "(castleScore)+"
+        score += ("int openingYourScore = " + materialScore(otherSide, b) + "(openMaterialScore)+" + "(castleScore)+"
                 + openingPositionScore(otherSide, b) + "(openPositionScore)")
                 + "\n";
 
@@ -222,8 +222,8 @@ public class StaticScore {
         score += ("int endGameYourScore = " + materialScore(otherSide, b) + "(endGameMaterial)+" + endGamePositionScore(otherSide, b) + "(endGamePosition)")
                 + "\n";
 
-        int myopen = materialScore(turn, b) + castleScore(turn, b.getCastleHistory()) + openingPositionScore(turn, b);
-        int youropen = materialScore(otherSide, b) + castleScore(otherSide, b.getCastleHistory()) + openingPositionScore(otherSide, b);
+        int myopen = materialScore(turn, b) + openingPositionScore(turn, b);
+        int youropen = materialScore(otherSide, b) + openingPositionScore(otherSide, b);
 
         int myend = materialScore(turn, b) + endGamePositionScore(turn, b);
         int yourend = materialScore(otherSide, b) + endGamePositionScore(otherSide, b);

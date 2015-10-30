@@ -17,10 +17,6 @@ public class Board {
     private static final Logger logger = LoggerFactory.getLogger(Board.class);
     private final RNGTable rngTable = RNGTable.instance;
 
-    public static final int CASTLED_NEAR = 2;
-    public static final int CASTLED_FAR = 1;
-    public static final int HAS_NOT_CASTLED = 0;
-
     private final int[] materialRow = {0, 7};
 
     private Piece[][] board = new Piece[8][8];
@@ -28,7 +24,6 @@ public class Board {
     private ArrayList<Long> validMoves = new ArrayList<>(100);
     private LinkedList<Piece>[] pieces = new LinkedList[2];
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
-    private int[] castleHistory = new int[2];
 
     private Piece[] kings = new Piece[2];
     private int[][] rookStartCols = new int[2][2];
@@ -212,7 +207,6 @@ public class Board {
                 board[materialRow[turn]][6] = king;
                 board[materialRow[turn]][5] = rook;
 
-                castleHistory[turn] = CASTLED_NEAR;
             } else {
                 rook = board[materialRow[turn]][rookStartCols[turn][0]];
 
@@ -222,7 +216,6 @@ public class Board {
                 board[materialRow[turn]][2] = king;
                 board[materialRow[turn]][3] = rook;
 
-                castleHistory[turn] = CASTLED_FAR;
             }
 
         } else {
@@ -346,8 +339,6 @@ public class Board {
                 board[materialRow[turn]][rookStartCols[turn][1]] = rook;
 
             }
-
-            castleHistory[turn] = HAS_NOT_CASTLED;
 
         } else {
             undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, Move.hadMoved(lastMove));
@@ -899,10 +890,6 @@ public class Board {
         }
 
         return true;
-    }
-
-    public int[] getCastleHistory() {
-        return castleHistory;
     }
 
     private void loadPiecesTaken() {
