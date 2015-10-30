@@ -1,6 +1,10 @@
 package com.gordoncaleb.chess.board.serdes;
 
+import com.gordoncaleb.chess.board.Move;
+
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class BoardJSON {
 
@@ -40,6 +44,10 @@ public class BoardJSON {
     private String turn;
     private Map<String, CastleRights> castle;
     private Map<String, String> setup;
+    private int halfMoves;
+    private int fullMoves;
+    private Optional<Integer> enPassantFile;
+    private List<Move> moveHistory;
 
     public String getTurn() {
         return turn;
@@ -63,5 +71,37 @@ public class BoardJSON {
 
     public void setSetup(Map<String, String> setup) {
         this.setup = setup;
+    }
+
+    public int getHalfMoves() {
+        return halfMoves;
+    }
+
+    public void setHalfMoves(int halfMoves) {
+        this.halfMoves = halfMoves;
+    }
+
+    public int getFullMoves() {
+        return fullMoves;
+    }
+
+    public void setFullMoves(int fullMoves) {
+        this.fullMoves = fullMoves;
+    }
+
+    public Optional<Integer> getEnPassantFile() {
+        return enPassantFile;
+    }
+
+    public void setEnPassantFile(Optional<Integer> enPassantFile) {
+        this.enPassantFile = enPassantFile;
+    }
+
+    public List<Move> getMoveHistory() {
+        return moveHistory;
+    }
+
+    public void setMoveHistory(List<Move> moveHistory) {
+        this.moveHistory = moveHistory;
     }
 }

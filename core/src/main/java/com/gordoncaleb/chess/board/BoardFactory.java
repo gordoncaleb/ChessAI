@@ -1,8 +1,18 @@
 package com.gordoncaleb.chess.board;
 
+import java.io.File;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gordoncaleb.chess.board.pieces.Piece;
+import com.gordoncaleb.chess.board.serdes.BoardJSON;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
+import com.gordoncaleb.chess.board.serdes.PGNParser;
+
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class BoardFactory {
@@ -63,7 +73,7 @@ public class BoardFactory {
             }
         }
 
-        return new Board(pieces, Side.WHITE, new ArrayDeque<>(), null, null);
+        return new Board(pieces, Side.WHITE, new ArrayDeque<>());
     }
 
     private static int ithEmptyPosition(int i, int[] setup) {
@@ -108,6 +118,59 @@ public class BoardFactory {
         pieces.add(new Piece(Piece.PieceID.QUEEN, player, 0, 0, false));
 
         return pieces;
+    }
+
+    public static Board fromFEN(String fen) {
+        Pattern p = Pattern.compile("([a-zA-Z0-9\\/]+) ([wb]) ([KQkq]+|[-]) ([a-z][0-9]|[-])\\s?([0-9]?)\\s?([0-9]?)");
+        Matcher m = p.matcher(fen.trim());
+
+        if (!m.matches() || m.groupCount() < 3) {
+            throw new IllegalArgumentException("FEN is malformed " + fen);
+        }
+
+        String setupSection = m.group(1);
+        int turn = m.group(2).matches("w") ? Side.WHITE : Side.BLACK;
+
+        String castleSection = m.group(3);
+        BoardJSON.CastleRights whiteCastleRights = new BoardJSON.CastleRights(castleSection.contains("K"), castleSection.contains("Q"));
+        BoardJSON.CastleRights blackCastleRights = new BoardJSON.CastleRights(castleSection.contains("k"), castleSection.contains("q"));
+
+        Optional<Integer> enPassentFile = PGNParser.getFileNumberFromAlgNotation(m.group(4));
+
+        int halfMoves = Optional.ofNullable(m.group(5))
+                .map(s -> s.isEmpty() ? "0" : s)
+                .map(Integer::parseInt)
+                .orElse(0);
+
+        int fullMoves = Optional.ofNullable(m.group(6))
+                .map(s -> s.isEmpty() ? "0" : s)
+                .map(Integer::parseInt)
+                .orElse(0);
+
+        List<String> setup = Stream.of(setupSection.split("/"))
+                .map(BoardFactory::fenLine2JsonLine)
+                .collect(Collectors.toList());
+
+        return JSONParser.buildBoard(
+                turn,
+                setup.toArray(new String[setup.size()]),
+                whiteCastleRights,
+                blackCastleRights,
+                halfMoves,
+                fullMoves,
+                enPassentFile
+        );
+    }
+
+    private static String fenLine2JsonLine(String fenLine) {
+        return fenLine.chars().mapToObj(c -> Character.toString((char) c))
+                .map(s -> {
+                    if (s.matches("[0-9]")) {
+                        int count = Integer.parseInt(s);
+                        return new String(new char[count]).replace("\0", "_,");
+                    }
+                    return s + ",";
+                }).collect(Collectors.joining());
     }
 
 }

@@ -139,7 +139,7 @@ public class PGNParser {
         return s.startsWith(STARTGAMELINE);
     }
 
-    public boolean isGameStart(String currentLine, String prevLine) {
+    private boolean isGameStart(String currentLine, String prevLine) {
 
         if (isMetaLine(currentLine) && isGameLine(prevLine))
             return true;
@@ -294,6 +294,16 @@ public class PGNParser {
         return matchValidMove(board, fromRow, fromCol, toRow, toCol, note, pieceMovingID);
     }
 
+    public static Optional<Integer> getFileNumberFromAlgNotation(String notation) {
+        Pattern p = Pattern.compile("([a-g])([0-9])");
+        Matcher m = p.matcher(notation);
+        if (m.matches()) {
+            String fileLetter = m.group(1);
+            return Optional.of(fileLetter.toCharArray()[0] - 'a');
+        } else {
+            return Optional.empty();
+        }
+    }
 
     private long matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, Move.MoveNote note, int pieceMovingID) throws Exception {
 

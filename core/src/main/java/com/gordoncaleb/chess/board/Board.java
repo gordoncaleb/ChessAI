@@ -63,7 +63,7 @@ public class Board {
         placePiece(kings[Side.WHITE], 7, 0);
     }
 
-    public Board(List<Piece>[] pieces, int turn, Deque<Move> moveHistory, int[][] rookStartCols, int[] kingCols) {
+    public Board(List<Piece>[] pieces, int turn, Deque<Move> moveHistory) {
         this.pieces[Side.WHITE] = new LinkedList<>();
         this.pieces[Side.BLACK] = new LinkedList<>();
 
@@ -150,13 +150,7 @@ public class Board {
             loadPiecesTaken();
         }
 
-        if (kingCols == null || rookStartCols == null) {
-            initializeCastleSetup();
-        } else {
-            this.kingStartCols = kingCols;
-            this.rookStartCols = rookStartCols;
-        }
-
+        initializeCastleSetup();
     }
 
     public boolean makeMove(final long move) {
@@ -780,7 +774,7 @@ public class Board {
     }
 
     public Board copy() {
-        return new Board(pieces, turn, moveHistory, rookStartCols, kingStartCols);
+        return new Board(pieces, turn, moveHistory);
     }
 
     public String toString() {

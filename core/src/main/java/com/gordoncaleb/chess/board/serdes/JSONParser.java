@@ -1,5 +1,6 @@
 package com.gordoncaleb.chess.board.serdes;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
@@ -7,6 +8,7 @@ import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.util.JSON;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
+import static com.gordoncaleb.chess.board.serdes.BoardJSON.*;
 
 public class JSONParser {
 
@@ -36,27 +39,45 @@ public class JSONParser {
         return buildBoard(boardJSON);
     }
 
-    //public static toBoardJSON
-
     public static Board getFromSetup(int turn, String[] setup) {
-        return getFromSetup(turn, setup, BoardJSON.CASTLE_RIGHTS, BoardJSON.CASTLE_RIGHTS);
+        return buildBoard(turn, setup, CASTLE_RIGHTS, CASTLE_RIGHTS, 0, 0, Optional.empty());
     }
 
-    public static Board getFromSetup(int turn, String[] setup, BoardJSON.CastleRights white, BoardJSON.CastleRights black) {
+    public static Board buildBoard(int turn,
+                                   String[] setup,
+                                   CastleRights white,
+                                   CastleRights black,
+                                   int halfMoves,
+                                   int fullMoves,
+                                   Optional<Integer> enPassantFile) {
+
         BoardJSON boardJSON = new BoardJSON();
         boardJSON.setCastle(ImmutableMap.of(Side.toString(Side.WHITE), white,
                 Side.toString(Side.BLACK), black));
-
         boardJSON.setTurn(Side.toString(turn));
-
         Map<String, String> setupMap = new HashMap<>();
         Arrays.stream(setup).forEach(l -> setupMap.put(8 - setupMap.size() + "", l));
         boardJSON.setSetup(setupMap);
+        boardJSON.setHalfMoves(halfMoves);
+        boardJSON.setFullMoves(fullMoves);
+        boardJSON.setEnPassantFile(enPassantFile);
 
         return buildBoard(boardJSON);
     }
 
-    private static Board buildBoard(BoardJSON boardJSON) {
+    public static Board fromJSONFile(File jsonFile) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        BoardJSON boardJSON = objectMapper.readValue(jsonFile, BoardJSON.class);
+        return JSONParser.buildBoard(boardJSON);
+    }
+
+    public static Board fromJSON(String jsonString) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        BoardJSON boardJSON = objectMapper.readValue(jsonString, BoardJSON.class);
+        return JSONParser.buildBoard(boardJSON);
+    }
+
+    public static Board buildBoard(BoardJSON boardJSON) {
         Map<Integer, ArrayList<Piece>> pieces = ImmutableMap.of(Side.WHITE, new ArrayList<>(), Side.BLACK, new ArrayList<>());
 
         String stringBoard = boardJSON.getSetup().entrySet().stream()
@@ -81,9 +102,7 @@ public class JSONParser {
         Board board = new Board(new ArrayList[]{pieces.get(Side.BLACK),
                 pieces.get(Side.WHITE)},
                 Side.fromString(boardJSON.getTurn()),
-                new ArrayDeque<>(),
-                null,
-                null
+                new ArrayDeque<>()
         );
 
         boardJSON.getCastle()
@@ -100,52 +119,6 @@ public class JSONParser {
                     return new Piece(id, player, row, col, false);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Piece: " + stringPiece));
-    }
-
-    public static Board fromFEN(String fen) {
-        Pattern p = Pattern.compile("([a-zA-Z0-9\\/]+) ([wb]) ([KQkq]+|[-]) ([a-z][0-9]|[-])\\s?([0-9]?)\\s?([0-9]?)");
-        Matcher m = p.matcher(fen.trim());
-
-        if (!m.matches() || m.groupCount() < 3) {
-            throw new IllegalArgumentException("FEN is malformed " + fen);
-        }
-
-        String setupSection = m.group(1);
-        int turn = m.group(2).matches("w") ? Side.WHITE : Side.BLACK;
-
-        String castleSection = m.group(3);
-        BoardJSON.CastleRights whiteCastleRights = new BoardJSON.CastleRights(castleSection.contains("K"), castleSection.contains("Q"));
-        BoardJSON.CastleRights blackCastleRights = new BoardJSON.CastleRights(castleSection.contains("k"), castleSection.contains("q"));
-
-        String enPassentFile = Optional.ofNullable(m.group(4)).orElse("-");
-
-        int halfMoves = Optional.ofNullable(m.group(5))
-                .map(s -> s.isEmpty() ? "0" : s)
-                .map(Integer::parseInt)
-                .orElse(0);
-
-        int fullMoves = Optional.ofNullable(m.group(6))
-                .map(s -> s.isEmpty() ? "0" : s)
-                .map(Integer::parseInt)
-                .orElse(0);
-
-        List<String> setup = Stream.of(setupSection.split("/"))
-                .map(JSONParser::fen2Json)
-                .collect(Collectors.toList());
-
-        return getFromSetup(turn, setup.toArray(new String[setup.size()]), whiteCastleRights, blackCastleRights);
-    }
-
-    private static String fen2Json(String fenLine) {
-
-        return fenLine.chars().mapToObj(c -> Character.toString((char) c))
-                .map(s -> {
-                    if (s.matches("[0-9]")) {
-                        int count = Integer.parseInt(s);
-                        return new String(new char[count]).replace("\0", "_,");
-                    }
-                    return s + ",";
-                }).collect(Collectors.joining());
     }
 
 
