@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.engine.AI;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
@@ -29,7 +30,6 @@ import com.gordoncaleb.chess.ui.gui.game.PlayerContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.engine.MoveBook;
-import com.gordoncaleb.chess.board.serdes.XMLParser;
 import com.gordoncaleb.chess.engine.score.PositionBonus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,7 +236,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
         Optional<List<Move>> recommendations = moveBook.getRecommendations(boardPanel.getBoard().getHashCode());
 
         recommendations.ifPresent(moves -> moves.stream()
-                        .forEach(m -> listModel.addElement(m))
+                .forEach(m -> listModel.addElement(m))
         );
 
     }
@@ -272,12 +272,17 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
     @Override
     public void recommendationMade(Move move) {
+
         if (move != null) {
             boardPanel.highlightMove(move);
         }
 
         if (makeRecMove) {
-            game.makeMove(move);
+            try {
+                game.makeMove(move);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             makeRecMove = false;
         }
     }
@@ -309,16 +314,24 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     @Override
     public void makeMove(Move move) {
 
-        if (record) {
-            moveBook.addEntry(boardPanel.getBoard().toXML(false), boardPanel.getBoard().getHashCode(), move);
-        }
+        try {
+            if (record) {
+                moveBook.addEntry(boardPanel.getBoard().getHashCode(), move);
+            }
 
-        game.makeMove(move);
+            game.makeMove(move);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
     public void tempGameSave() {
-        FileIO.writeFile("tempSave.xml", boardPanel.getBoard().toXML(true), false);
+        try {
+            FileIO.writeFile("tempSave.json", boardPanel.getBoard().toJson(true), false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -358,135 +371,143 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
 
-        if (e.getSource() == recordMbBtn) {
-            record = !record;
-            if (record) {
-                recordMbBtn.setText("Stop");
-            } else {
-                recordMbBtn.setText("Record");
+        try {
+            if (e.getSource() == recordMbBtn) {
+                record = !record;
+                if (record) {
+                    recordMbBtn.setText("Stop");
+                } else {
+                    recordMbBtn.setText("Record");
+                }
             }
-        }
 
-        if (e.getSource() == undoBtn) {
-            if (boardPanel.canUndo()) {
-                game.undoMove();
+            if (e.getSource() == undoBtn) {
+                if (boardPanel.canUndo()) {
+                    game.undoMove();
+                }
             }
-        }
 
-        if (e.getSource() == redoBtn) {
-            if (boardPanel.canRedo()) {
-                // boardPanel.redoMove();
-                game.makeMove(boardPanel.getLastUndoneMove());
+            if (e.getSource() == redoBtn) {
+                if (boardPanel.canRedo()) {
+                    // boardPanel.redoMove();
+                    game.makeMove(boardPanel.getLastUndoneMove());
+                }
             }
-        }
 
-        if (e.getSource() == deleteMbEntryBtn) {
-            Move move = moveList.getSelectedValue();
-            moveBook.removeEntry(boardPanel.getBoard().toXML(false), boardPanel.getBoard().getHashCode(), move);
-            populateMoveList();
-        }
-
-        if (e.getSource() == saveMbBtn) {
-            moveBook.saveMoveBook();
-        }
-
-        if (e.getSource() == mbRecommendBtn) {
-            Move rec = moveBook.getRecommendation(boardPanel.getBoard().getHashCode());
-
-            if (rec != null) {
-                boardPanel.highlightMove(rec);
-            }
-        }
-
-        if (e.getSource() == aiRecommendBtn) {
-
-            makeRecMove = false;
-            game.requestRecommendation();
-
-        }
-
-        if (e.getSource() == aiMoveBtn) {
-
-            makeRecMove = true;
-            game.requestRecommendation();
-
-        }
-
-        if (e.getSource() == showAISettingsBtn) {
-            new AISettingsGUI("MoveBookBuilder AI Settings", ai);
-        }
-
-        if (e.getSource() == showDecisionTreeBtn) {
-            new DecisionTreeGUI(ai);
-        }
-
-        if (e.getSource() == moveList) {
-
-            if (moveList.getSelectedIndex() > -1) {
+            if (e.getSource() == deleteMbEntryBtn) {
                 Move move = moveList.getSelectedValue();
-                boardPanel.highlightMove(move);
-            }
-        }
-
-        if (e.getSource() == freelyMoveBtn) {
-
-            boardPanel.setFreelyMove(!boardPanel.isFreelyMove());
-
-            if (boardPanel.isFreelyMove()) {
-                freelyMoveBtn.setText("Moving Freely");
-            } else {
-                game.newGame(boardPanel.getBoard(), false);
-                freelyMoveBtn.setText("Free Move?");
+                moveBook.removeEntry(boardPanel.getBoard().getHashCode(), move);
                 populateMoveList();
             }
-        }
 
-        if (e.getSource() == loadGameBtn) {
+            if (e.getSource() == saveMbBtn) {
+                moveBook.saveMoveBook();
+            }
 
-            int returnVal = fc.showOpenDialog(frame);
+            if (e.getSource() == mbRecommendBtn) {
+                Move rec = moveBook.getRecommendation(boardPanel.getBoard().getHashCode());
 
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                if (rec != null) {
+                    boardPanel.highlightMove(rec);
+                }
+            }
 
-                Board board = XMLParser.XMLToBoard(FileIO.readResource(fc.getSelectedFile().getPath()));
+            if (e.getSource() == aiRecommendBtn) {
+
+                makeRecMove = false;
+                game.requestRecommendation();
+
+            }
+
+            if (e.getSource() == aiMoveBtn) {
+
+                makeRecMove = true;
+                game.requestRecommendation();
+
+            }
+
+            if (e.getSource() == showAISettingsBtn) {
+                new AISettingsGUI("MoveBookBuilder AI Settings", ai);
+            }
+
+            if (e.getSource() == showDecisionTreeBtn) {
+                new DecisionTreeGUI(ai);
+            }
+
+            if (e.getSource() == moveList) {
+
+                if (moveList.getSelectedIndex() > -1) {
+                    Move move = moveList.getSelectedValue();
+                    boardPanel.highlightMove(move);
+                }
+            }
+
+            if (e.getSource() == freelyMoveBtn) {
+
+                boardPanel.setFreelyMove(!boardPanel.isFreelyMove());
+
+                if (boardPanel.isFreelyMove()) {
+                    freelyMoveBtn.setText("Moving Freely");
+                } else {
+                    game.newGame(boardPanel.getBoard(), false);
+                    freelyMoveBtn.setText("Free Move?");
+                    populateMoveList();
+                }
+            }
+
+            if (e.getSource() == loadGameBtn) {
+
+                int returnVal = fc.showOpenDialog(frame);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+                    try {
+                        Board board = JSONParser.fromJSON(FileIO.readResource(fc.getSelectedFile().getPath()));
+                        game.newGame(board, false);
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
+                    }
+
+                }
+            }
+
+            if (e.getSource() == saveGameBtn) {
+
+                int returnVal = fc.showSaveDialog(frame);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+                    FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toJson(true), false);
+
+                }
+            }
+
+            if (e.getSource() == newGameBtn) {
+
+                Board board = BoardFactory.getStandardChessBoard();
 
                 game.newGame(board, false);
 
             }
-        }
 
-        if (e.getSource() == saveGameBtn) {
+            if (e.getSource() == new960GameBtn) {
 
-            int returnVal = fc.showSaveDialog(frame);
+                Board board = BoardFactory.getRandomChess960Board();
 
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-
-                FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toXML(true), false);
+                game.newGame(board, false);
 
             }
-        }
 
-        if (e.getSource() == newGameBtn) {
+            if (e.getSource() == flipBoardBtn) {
+                boardPanel.flipBoard();
+            }
 
-            Board board = BoardFactory.getStandardChessBoard();
+            if (e.getSource() == showAIPossibilitiesBtn) {
+                new PossibleBoardDisplay(ai, 4);
+            }
 
-            game.newGame(board, false);
-
-        }
-
-        if (e.getSource() == new960GameBtn) {
-
-            Board board = BoardFactory.getRandomChess960Board();
-
-            game.newGame(board, false);
-
-        }
-
-        if (e.getSource() == flipBoardBtn) {
-            boardPanel.flipBoard();
-        }
-
-        if (e.getSource() == showAIPossibilitiesBtn) {
-            new PossibleBoardDisplay(ai, 4);
+        } catch (Exception e2) {
+            e2.printStackTrace();
         }
 
     }

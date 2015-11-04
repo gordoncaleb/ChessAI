@@ -5,9 +5,9 @@ import com.gordoncaleb.chess.board.Move;
 
 public interface PlayerContainer {
 
-    boolean makeMove(Move move);
+    boolean makeMove(Move move) throws Exception;
 
-    GameResults newGame(Board board, boolean block);
+    GameResults newGame(Board board, boolean block) throws Exception;
 
     void endGame();
 

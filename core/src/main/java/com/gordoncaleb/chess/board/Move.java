@@ -1,7 +1,8 @@
 package com.gordoncaleb.chess.board;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gordoncaleb.chess.board.pieces.Piece;
-import com.gordoncaleb.chess.board.serdes.XMLParser;
+import com.gordoncaleb.chess.util.JSON;
 
 public class Move {
 
@@ -60,8 +61,8 @@ public class Move {
         return (moveA.equals(moveB));
     }
 
-    public String toXML() {
-        return XMLParser.moveToXML(this);
+    public String toJson() throws JsonProcessingException {
+        return JSON.toJSON(this);
     }
 
     public void setNote(MoveNote note) {

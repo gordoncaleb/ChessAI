@@ -26,7 +26,7 @@ public class TournamentGUI {
 	JFrame frame;
 	JTextArea statusTxt;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		Game game;
 		GameResults results;
@@ -109,7 +109,7 @@ public class TournamentGUI {
 				winnerScore = playerScore.get(playerNames.get(players.get(results.getWinner())));
 				loserScore = playerScore.get(playerNames.get(players.get(Side.otherSide(results.getWinner()))));
 
-				FileIO.writeFile((".\\tournament\\game" + (i * 2 + s) + "_" + results.getEndGameStatus() + ".xml"), ((AI) playerOne).getBoard().toXML(true), false);
+				FileIO.writeFile((".\\tournament\\game" + (i * 2 + s) + "_" + results.getEndGameStatus() + ".xml"), ((AI) playerOne).getBoard().toJson(true), false);
 
 				if (results.getEndGameStatus() == Game.GameStatus.CHECKMATE) {
 

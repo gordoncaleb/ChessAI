@@ -1,16 +1,17 @@
 package com.gordoncaleb.chess.ui.gui.game;
 
+import java.io.FileNotFoundException;
 import java.util.Hashtable;
 import java.util.ArrayList;
 
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.engine.DecisionNode;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.engine.score.StaticScore;
 import com.gordoncaleb.chess.util.FileIO;
-import com.gordoncaleb.chess.board.serdes.XMLParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +42,15 @@ public class Game implements PlayerContainer {
 
     public GameResults newGame(boolean block) {
 
-        String xmlBoard = FileIO.readResource("tempSave.xml");
+        String tempSave = "tempSave.json";
+        try {
+            String jsonBoard = FileIO.readResource(tempSave);
+            if (jsonBoard == null) throw new FileNotFoundException();
 
-        if (xmlBoard == null) {
+            return newGame(JSONParser.fromJSON(jsonBoard), block);
+        } catch (Exception e) {
+            logger.warn("Failed to load " + tempSave);
             return newGame(BoardFactory.getStandardChessBoard(), block);
-        } else {
-            return newGame(XMLParser.XMLToBoard(xmlBoard), block);
         }
 
     }
@@ -54,7 +58,7 @@ public class Game implements PlayerContainer {
     public GameResults newGame(Board board, boolean block) {
 
         if (board == null) {
-            board = XMLParser.XMLToBoard(FileIO.readResource("default.xml"));
+            board = BoardFactory.getStandardChessBoard();
         }
 
         turn = board.getTurn();

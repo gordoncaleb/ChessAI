@@ -10,6 +10,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.ui.gui.game.Game;
@@ -101,7 +102,11 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 	@Override
 	public void makeMove(Move move) {
-		game.makeMove(move);
+		try {
+			game.makeMove(move);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -151,7 +156,11 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		if (arg0.getSource() == resetButton) {
-			game.newGame(null, false);
+			try {
+				game.newGame(null, false);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		if (arg0.getSource() == pauseButton) {
@@ -178,7 +187,11 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 
-				FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toXML(true), false);
+				try {
+					FileIO.writeFile(fc.getSelectedFile().getPath(), boardPanel.getBoard().toJson(true), false);
+				} catch (JsonProcessingException e) {
+					e.printStackTrace();
+				}
 
 			}
 		}

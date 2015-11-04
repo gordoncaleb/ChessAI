@@ -138,7 +138,7 @@ public class BoardTest {
     }
 
     @Test
-    public void testEnPassantOutOfCheck() {
+    public void testEnPassantOutOfCheck() throws Exception{
         String[] setup = {
                 "_,_,_,_,_,_,_,_,",
                 "_,p,_,n,_,_,_,_,",
@@ -153,7 +153,7 @@ public class BoardTest {
         Board b1 = JSONParser.getFromSetup(Side.WHITE, setup);
         b1.getMoveHistory().add(new Move(1, 7, 3, 7, 0, Move.MoveNote.PAWN_LEAP));
 
-        logger.info(b1.toXML(true));
+        logger.info(b1.toJson(true));
 
         b1.makeNullMove();
         List<Move> moves = b1.generateValidMoves();

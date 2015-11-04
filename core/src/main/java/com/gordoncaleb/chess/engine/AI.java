@@ -81,35 +81,39 @@ public class AI extends Thread implements Player {
                     e.printStackTrace();
                 }
 
-                if (undoMove) {
-                    undoMoveOnSubThreads();
-                    undoMove = false;
-                }
-
-                if (makeMove && !paused) {
-
-                    aiDecision = getAIDecision();
-
-                    if (aiDecision != null && !undoMove) {
-                        game.makeMove(aiDecision.getMove());
+                try {
+                    if (undoMove) {
+                        undoMoveOnSubThreads();
+                        undoMove = false;
                     }
 
-                    if (AISettings.useHashTable) {
-                        cleanHashTable();
+                    if (makeMove && !paused) {
+
+                        aiDecision = getAIDecision();
+
+                        if (aiDecision != null && !undoMove) {
+                            game.makeMove(aiDecision.getMove());
+                        }
+
+                        if (AISettings.useHashTable) {
+                            cleanHashTable();
+                        }
+
+                        makeMove = false;
                     }
 
-                    makeMove = false;
-                }
+                    if (recommend) {
+                        aiDecision = getAIDecision();
 
-                if (recommend) {
-                    aiDecision = getAIDecision();
+                        if (aiDecision != null) {
+                            printRootDebug();
+                            game.recommendationMade(aiDecision.getMove());
+                        }
 
-                    if (aiDecision != null) {
-                        printRootDebug();
-                        game.recommendationMade(aiDecision.getMove());
+                        recommend = false;
                     }
-
-                    recommend = false;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
             }

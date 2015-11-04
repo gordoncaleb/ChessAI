@@ -3,9 +3,10 @@ package com.gordoncaleb.chess.board;
 import java.util.*;
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.engine.AI;
 import com.gordoncaleb.chess.ui.gui.game.Game;
-import com.gordoncaleb.chess.board.serdes.XMLParser;
 import com.gordoncaleb.chess.board.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -777,8 +778,8 @@ public class Board {
         return stringBoard;
     }
 
-    public String toXML(boolean includeHistory) {
-        return XMLParser.boardToXML(this, includeHistory);
+    public String toJson(boolean includeHistory) throws JsonProcessingException {
+        return JSONParser.toJSON(this);
     }
 
     public long generateHashCode() {

@@ -8,8 +8,8 @@ import java.util.*;
 
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
-import com.gordoncaleb.chess.board.serdes.XMLParser;
 import com.gordoncaleb.chess.util.FileIO;
+import com.gordoncaleb.chess.util.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,6 @@ public class MoveBook {
     private static final Logger logger = LoggerFactory.getLogger(MoveBook.class);
 
     Map<Long, List<Move>> hashMoveBook;
-    Map<String, List<Move>> verboseMoveBook;
 
     public static final String MOVEBOOK_FILE = "/movebook/eco.pgn";
     public static final String MOVEBOOK_FILE_COMPILED = "/movebook/eco.bin";
@@ -57,17 +56,8 @@ public class MoveBook {
         return Optional.ofNullable(hashMoveBook.get(hashCode));
     }
 
-    public void removeEntry(String xmlBoard, Long hashcode, Move move) {
-        List<Move> verboseEntries = verboseMoveBook.get(xmlBoard);
+    public void removeEntry(Long hashcode, Move move) {
         List<Move> entries = hashMoveBook.get(hashcode);
-
-        if (verboseEntries != null) {
-            verboseEntries.remove(move);
-
-            if (verboseEntries.size() == 0) {
-                verboseMoveBook.remove(xmlBoard);
-            }
-        }
 
         if (entries != null) {
             entries.remove(move);
@@ -93,16 +83,15 @@ public class MoveBook {
 
     public void saveMoveBook() {
 
-        String xmlMoveBook = this.toXML();
-        String xmlVerboseMoveBook = this.toVerboseXML();
-
-        FileIO.writeFile("moveBook.xml", xmlMoveBook, false);
-        FileIO.writeFile("verboseMoveBook.xml", xmlVerboseMoveBook, false);
-
+        try {
+            String jsonMoveBook = JSON.toJSON(hashMoveBook);
+            FileIO.writeFile("moveBook.json", jsonMoveBook, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void addEntry(String xmlBoard, Long hashcode, Move move) {
-        List<Move> verboseEntries = verboseMoveBook.get(xmlBoard);
+    public void addEntry(Long hashcode, Move move) {
         List<Move> entries = hashMoveBook.get(hashcode);
 
         if (entries != null) {
@@ -117,87 +106,6 @@ public class MoveBook {
             hashMoveBook.put(hashcode, entries);
         }
 
-        if (verboseEntries != null) {
-            verboseEntries.add(move);
-        } else {
-            verboseEntries = new ArrayList<>();
-            verboseEntries.add(move);
-            verboseMoveBook.put(xmlBoard, verboseEntries);
-        }
-
-    }
-
-    public String toXML() {
-        if (hashMoveBook == null) {
-            return "";
-        }
-
-        String xmlMoveBook = "<moveBook>\n";
-
-        int i = 0;
-        ArrayList<Long> keys = new ArrayList<Long>(hashMoveBook.keySet());
-        for (List<Move> moves : hashMoveBook.values()) {
-            xmlMoveBook += "<entry>\n";
-
-            xmlMoveBook += "<state>\n";
-
-            xmlMoveBook += "<hashcode>";
-
-            xmlMoveBook += Long.toHexString(keys.get(i));
-
-            xmlMoveBook += "</hashcode>\n";
-
-            xmlMoveBook += "</state>\n";
-
-            xmlMoveBook += "<response>\n";
-
-            for (Move m : moves) {
-                xmlMoveBook += m.toXML();
-            }
-
-            xmlMoveBook += "</response>\n";
-
-            xmlMoveBook += "</entry>\n";
-            i++;
-        }
-
-        xmlMoveBook += "</moveBook>";
-        return xmlMoveBook;
-    }
-
-    public String toVerboseXML() {
-
-        if (verboseMoveBook == null) {
-            return "";
-        }
-
-        String xmlMoveBook = "<moveBook>\n";
-
-        int i = 0;
-        List<String> keys = new ArrayList<>(verboseMoveBook.keySet());
-        for (List<Move> moves : verboseMoveBook.values()) {
-            xmlMoveBook += "<entry>\n";
-
-            xmlMoveBook += "<state>\n";
-
-            xmlMoveBook += keys.get(i);
-
-            xmlMoveBook += "</state>\n";
-
-            xmlMoveBook += "<response>\n";
-
-            for (Move m : moves) {
-                xmlMoveBook += m.toXML();
-            }
-
-            xmlMoveBook += "</response>\n";
-
-            xmlMoveBook += "</entry>\n";
-            i++;
-        }
-
-        xmlMoveBook += "</moveBook>";
-        return xmlMoveBook;
     }
 
     public void saveCompiledMoveBook(Map<Long, List<Move>> moveBook, String fileName) {

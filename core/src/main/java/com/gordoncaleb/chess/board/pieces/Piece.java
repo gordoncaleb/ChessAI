@@ -6,7 +6,6 @@ import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.serdes.XMLParser;
 
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
@@ -124,10 +123,6 @@ public class Piece {
         }
 
         return stringId;
-    }
-
-    public String toXML() {
-        return XMLParser.pieceToXML(this);
     }
 
     public boolean checkValidMove(long position, long[] nullMoveInfo) {
