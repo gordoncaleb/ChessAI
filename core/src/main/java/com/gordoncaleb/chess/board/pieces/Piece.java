@@ -6,6 +6,7 @@ import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.serdes.XMLParser;
 
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
@@ -45,22 +46,32 @@ public class Piece {
         return row;
     }
 
+    public void setRow(int row){
+        this.row = row;
+    }
+
     public int getCol() {
         return col;
     }
 
-    public long getBit() {
-        return BitBoard.getMask(row, col);
-    }
-
-    public void setPos(int row, int col) {
-        this.row = row;
+    public void setCol(int col){
         this.col = col;
     }
 
-    public void move(Move newMove) {
-        setPos(newMove.getToRow(), newMove.getToCol());
-        moved = true;
+    public long asBitMask() {
+        return BitBoard.getMask(row, col);
+    }
+
+    public void move(int row, int col){
+        this.row = row;
+        this.col = col;
+        this.moved = true;
+    }
+
+    public void unmove(int row, int col, boolean hadMoved){
+        this.row = row;
+        this.col = col;
+        this.moved = hadMoved;
     }
 
     public int getSide() {
@@ -75,7 +86,7 @@ public class Piece {
         this.moved = moved;
     }
 
-    public void setBlockingVector(long blockingVector) {
+    public void putBlockingVector(long blockingVector) {
         this.blockingVector = blockingVector;
     }
 
@@ -83,94 +94,24 @@ public class Piece {
         blockingVector = BitBoard.ALL_ONES;
     }
 
-    public long getBlockingVector() {
+    public long blockingVector() {
         return blockingVector;
     }
 
     public String toString() {
-        String id;
+        String stringId;
 
         if (this.getSide() == Side.WHITE) {
-            id = this.getStringID();
+            stringId = this.getStringID(this.id);
         } else {
-            id = this.getStringID().toLowerCase();
+            stringId = this.getStringID(this.id).toLowerCase();
         }
 
-        return id;
+        return stringId;
     }
 
     public String toXML() {
-        String xmlPiece = "";
-
-        xmlPiece += "<piece>\n";
-        xmlPiece += "<id>" + toString() + "</id>\n";
-        xmlPiece += "<has_moved>" + hasMoved() + "</has_moved>\n";
-        xmlPiece += "<position>" + getRow() + "," + getCol() + "</position>\n";
-        xmlPiece += "</piece>\n";
-
-        return xmlPiece;
-    }
-
-    public static Piece fromString(String stringPiece, int row, int col) {
-        int player;
-
-        boolean hasMoved = false;
-
-        try {
-            if (Integer.parseInt(stringPiece.substring(1, 2)) % 2 != 0) {
-                hasMoved = true;
-            }
-        } catch (Exception e) {
-            //Ignoring with reason
-        }
-
-        if (stringPiece.charAt(0) < 'a') {
-            player = Side.BLACK;
-        } else {
-            player = Side.WHITE;
-        }
-
-        int id;
-        char type = stringPiece.toUpperCase().charAt(0);
-
-        id = charIDtoPieceID(type);
-
-        if (id != PieceID.NONE) {
-            return new Piece(id, player, row, col, hasMoved);
-        } else {
-            return null;
-        }
-
-    }
-
-    public static int charIDtoPieceID(char type) {
-
-        int id;
-
-        switch (type) {
-            case 'R':
-                id = PieceID.ROOK;
-                break;
-            case 'N':
-                id = PieceID.KNIGHT;
-                break;
-            case 'B':
-                id = PieceID.BISHOP;
-                break;
-            case 'Q':
-                id = PieceID.QUEEN;
-                break;
-            case 'K':
-                id = PieceID.KING;
-                break;
-            case 'P':
-                id = PieceID.PAWN;
-                break;
-            default:
-                id = PieceID.NONE;
-        }
-
-        return id;
+        return XMLParser.pieceToXML(this);
     }
 
     public boolean isValidMove(long position, long[] nullMoveInfo) {
@@ -185,20 +126,20 @@ public class Piece {
         }
     }
 
-    public String getStringID() {
+    public static String getStringID(int id) {
         switch (id) {
             case ROOK:
-                return Rook.getStringID();
+                return "R";
             case KNIGHT:
-                return Knight.getStringID();
+                return "N";
             case BISHOP:
-                return Bishop.getStringID();
+                return "B";
             case QUEEN:
-                return Queen.getStringID();
+                return "Q";
             case KING:
-                return King.getStringID();
+                return "K";
             case PAWN:
-                return Pawn.getStringID();
+                return "P";
             default:
                 return "";
         }

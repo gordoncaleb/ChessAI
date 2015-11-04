@@ -91,7 +91,7 @@ public class KingTest {
 
     private void testBlockingVector(String[] setup, int r, int c, String[] solution) {
         Board board = testSetupKingCheckInfo(setup, new long[]{0, ALL_ONES, 0});
-        assertThat(printBitBoard(board.getPiece(r, c).getBlockingVector()), is(equalTo(printBitBoard(parseBitBoard(solution)))));
+        assertThat(printBitBoard(board.getPiece(r, c).blockingVector()), is(equalTo(printBitBoard(parseBitBoard(solution)))));
     }
 
     private Board testSetupKingCheckInfo(String[] setup, long[] nullMoveInfo) {

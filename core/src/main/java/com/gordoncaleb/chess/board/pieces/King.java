@@ -14,10 +14,6 @@ import static com.gordoncaleb.chess.board.pieces.Piece.*;
 
 public class King {
 
-    public static String getStringID() {
-        return "K";
-    }
-
     public static List<Move> generateValidMoves(final Piece p,
                                                 final Board board,
                                                 final long[] nullMoveInfo,
@@ -26,7 +22,7 @@ public class King {
 
         final long foes = posBitBoard[Side.otherSide(p.getSide())];
         final long friendsOrFoes = posBitBoard[0] | posBitBoard[1];
-        final long footPrint = getKingAttacks(p.getBit()) & ~posBitBoard[p.getSide()];
+        final long footPrint = getKingAttacks(p.asBitMask()) & ~posBitBoard[p.getSide()];
 
         final long validFootPrint = footPrint & ~(nullMoveInfo[0] | nullMoveInfo[2]);
         final long validFootPrintWithPiecesTaken = validFootPrint & foes;
@@ -185,7 +181,7 @@ public class King {
         int bitNum = Long.numberOfTrailingZeros(mask);
         int r = bitNum / 8;
         int c = bitNum % 8;
-        b.getPiece(r, c).setBlockingVector(blockingVector);
+        b.getPiece(r, c).putBlockingVector(blockingVector);
     }
 
     public static boolean isValidMove(int toRow, int toCol, long[] nullMoveInfo) {
@@ -204,7 +200,7 @@ public class King {
         int rookCol = board.getRookStartingCol(player, 0);
         long rookToCastleMask = BitBoard.getCastleMask(rookCol, 3, player);
 
-        allPosBitBoard ^= BitBoard.getMask(king.getRow(), rookCol) | king.getBit();
+        allPosBitBoard ^= BitBoard.getMask(king.getRow(), rookCol) | king.asBitMask();
 
         if ((kingToCastleMask & nullMoveInfo[0]) == 0) {
             if (((kingToCastleMask | rookToCastleMask) & allPosBitBoard) == 0) {
@@ -227,7 +223,7 @@ public class King {
         int rookCol = board.getRookStartingCol(player, 1);
         long rookToCastleMask = BitBoard.getCastleMask(rookCol, 5, player);
 
-        allPosBitBoard ^= BitBoard.getMask(king.getRow(), rookCol) | king.getBit();
+        allPosBitBoard ^= BitBoard.getMask(king.getRow(), rookCol) | king.asBitMask();
 
         if ((kingToCastleMask & nullMoveInfo[0]) == 0) {
             if (((kingToCastleMask | rookToCastleMask) & allPosBitBoard) == 0) {

@@ -433,7 +433,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
             refreshBoard();
 
             if (move.hasPieceTaken()) {
-                takePiece(move.getPieceTakenID(), adjudicator.getTurn());
+                takePiece(move.getPieceTaken().getPieceID(), adjudicator.getTurn());
             }
 
             updateLastMovedSquare();

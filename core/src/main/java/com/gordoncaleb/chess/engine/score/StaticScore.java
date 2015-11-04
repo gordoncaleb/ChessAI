@@ -35,9 +35,9 @@ public class StaticScore {
             case KING:
                 return PositionBonus.getKingOpeningPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
             case QUEEN:
-                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE : 0;
+                return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE : 0;
             case ROOK:
-                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE : 0;
+                return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE : 0;
             default:
                 logger.debug("Error: invalid piece value request!");
                 return 0;
@@ -57,9 +57,9 @@ public class StaticScore {
             case KING:
                 return PositionBonus.getKingEndGamePositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
             case QUEEN:
-                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE + 100 : 0;
+                return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE + 100 : 0;
             case ROOK:
-                return ((piece.getBit() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE + 50 : 0;
+                return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE + 50 : 0;
             default:
                 logger.debug("Error: invalid piece value request!");
                 return 0;

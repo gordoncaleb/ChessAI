@@ -12,10 +12,6 @@ import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMovesWithPieces
 
 public class Queen {
 
-    public static String getStringID() {
-        return "Q";
-    }
-
     public static List<Move> generateValidMoves(final Piece p,
                                                 final Board board,
                                                 final long[] nullMoveInfo,
@@ -25,9 +21,9 @@ public class Queen {
         final long friends = posBitBoard[p.getSide()];
         final long foes = posBitBoard[Side.otherSide(p.getSide())];
         final long friendOrFoe = (friends | foes);
-        final long footPrint = slideQueen(p.getBit(), friendOrFoe) & ~friends;
+        final long footPrint = slideQueen(p.asBitMask(), friendOrFoe) & ~friends;
 
-        final long validFootPrint = footPrint & nullMoveInfo[1] & p.getBlockingVector();
+        final long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector();
         final long validFootPrintWithPiecesTaken = validFootPrint & foes;
         final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
 

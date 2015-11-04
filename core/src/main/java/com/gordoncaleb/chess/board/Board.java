@@ -87,7 +87,7 @@ public class Board {
 
                 board[temp.getRow()][temp.getCol()] = temp;
 
-                posBitBoard[temp.getPieceID()][i] |= temp.getBit();
+                posBitBoard[temp.getPieceID()][i] |= temp.asBitMask();
 
                 if (temp.getPieceID() == PAWN) {
 
@@ -127,15 +127,11 @@ public class Board {
             }
 
             for (Move m : moveHistory) {
-                this.moveHistory.push(new Move(m.getMoveLong()));
-                if (m.hasPieceTaken()) {
+                Move moveCopy = m.copy();
+                this.moveHistory.push(moveCopy);
+                if (moveCopy.hasPieceTaken()) {
                     piecesTaken[Side.otherSide(moveSide)]
-                            .push(new Piece(m.getPieceTakenID(),
-                                    Side.otherSide(moveSide),
-                                    m.getPieceTakenRow(),
-                                    m.getPieceTakenCol(),
-                                    m.getPieceTakenHasMoved())
-                            );
+                            .push(moveCopy.getPieceTaken());
                 }
 
                 moveSide = Side.otherSide(moveSide);
@@ -176,14 +172,14 @@ public class Board {
         // remove taken piece first
         if (move.hasPieceTaken()) {
 
-            final Piece pieceTaken = board[move.getPieceTakenRow()][move.getPieceTakenCol()];
+            final Piece pieceTaken = move.getPieceTaken();
 
             // remove pieceTaken from vectors
             pieces[nextSide].remove(pieceTaken);
             piecesTaken[nextSide].push(pieceTaken);
 
-            posBitBoard[pieceTaken.getPieceID()][pieceTaken.getSide()] ^= pieceTaken.getBit();
-            allPosBitBoard[pieceTaken.getSide()] ^= pieceTaken.getBit();
+            posBitBoard[pieceTaken.getPieceID()][pieceTaken.getSide()] ^= pieceTaken.asBitMask();
+            allPosBitBoard[pieceTaken.getSide()] ^= pieceTaken.asBitMask();
 
             // remove ref to piecetaken on board
             board[pieceTaken.getRow()][pieceTaken.getCol()] = null;
@@ -275,17 +271,16 @@ public class Board {
         board[toRow][toCol] = pieceMoving;
 
         // tell piece its new position
-        pieceMoving.setPos(toRow, toCol);
-        pieceMoving.setMoved(true);
+        pieceMoving.move(toRow,toCol);
 
         if (note == Move.MoveNote.NEW_QUEEN) {
             pieceMoving.setPieceID(QUEEN);
-            posBitBoard[PAWN][pieceMoving.getSide()] ^= pieceMoving.getBit();
-            posBitBoard[QUEEN][pieceMoving.getSide()] ^= pieceMoving.getBit();
+            posBitBoard[PAWN][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
+            posBitBoard[QUEEN][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
         } else if (note == Move.MoveNote.NEW_KNIGHT) {
             pieceMoving.setPieceID(KNIGHT);
-            posBitBoard[PAWN][pieceMoving.getSide()] ^= pieceMoving.getBit();
-            posBitBoard[KNIGHT][pieceMoving.getSide()] ^= pieceMoving.getBit();
+            posBitBoard[PAWN][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
+            posBitBoard[KNIGHT][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
         }
 
         // add hash of piece at new location
@@ -352,8 +347,8 @@ public class Board {
             pieces[prevSide].add(pieceTaken);
 
             // add piece taken to position bit board
-            posBitBoard[pieceTaken.getPieceID()][pieceTaken.getSide()] |= pieceTaken.getBit();
-            allPosBitBoard[pieceTaken.getSide()] |= pieceTaken.getBit();
+            posBitBoard[pieceTaken.getPieceID()][pieceTaken.getSide()] |= pieceTaken.asBitMask();
+            allPosBitBoard[pieceTaken.getSide()] |= pieceTaken.asBitMask();
 
             board[pieceTaken.getRow()][pieceTaken.getCol()] = pieceTaken;
 
@@ -390,19 +385,16 @@ public class Board {
         board[fromRow][fromCol] = pieceMoving;
 
         // tell piece where it was
-        pieceMoving.setPos(fromRow, fromCol);
-
-        // show whether piece had moved before this move was made
-        pieceMoving.setMoved(hadMoved);
+        pieceMoving.unmove(fromRow, fromCol, hadMoved);
 
         if (note == Move.MoveNote.NEW_QUEEN) {
             pieceMoving.setPieceID(PAWN);
-            posBitBoard[PAWN][pieceMoving.getSide()] |= pieceMoving.getBit();
-            posBitBoard[QUEEN][pieceMoving.getSide()] ^= pieceMoving.getBit();
+            posBitBoard[PAWN][pieceMoving.getSide()] |= pieceMoving.asBitMask();
+            posBitBoard[QUEEN][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
         } else if (note == Move.MoveNote.NEW_KNIGHT) {
             pieceMoving.setPieceID(PAWN);
-            posBitBoard[PAWN][pieceMoving.getSide()] |= pieceMoving.getBit();
-            posBitBoard[KNIGHT][pieceMoving.getSide()] ^= pieceMoving.getBit();
+            posBitBoard[PAWN][pieceMoving.getSide()] |= pieceMoving.asBitMask();
+            posBitBoard[KNIGHT][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
         }
 
     }
@@ -506,7 +498,7 @@ public class Board {
                 friendOrFoe,
                 nullMoveInfo);
 
-        if ((kings[turn].getBit() & nullMoveInfo[0]) != 0) {
+        if ((kings[turn].asBitMask() & nullMoveInfo[0]) != 0) {
             setBoardStatus(Game.GameStatus.CHECK);
         }
 
@@ -626,8 +618,8 @@ public class Board {
 
         if (piece.getRow() >= 0) {
             // remove where piece was if it was on board
-            posBitBoard[piece.getPieceID()][piece.getSide()] ^= piece.getBit();
-            allPosBitBoard[piece.getSide()] ^= piece.getBit();
+            posBitBoard[piece.getPieceID()][piece.getSide()] ^= piece.asBitMask();
+            allPosBitBoard[piece.getSide()] ^= piece.asBitMask();
             board[piece.getRow()][piece.getCol()] = null;
 
         } else {
@@ -642,19 +634,20 @@ public class Board {
                 Piece pieceTaken = board[toRow][toCol];
 
                 // remove bit position of piece taken
-                posBitBoard[pieceTaken.getPieceID()][pieceTaken.getSide()] ^= pieceTaken.getBit();
-                allPosBitBoard[pieceTaken.getSide()] ^= pieceTaken.getBit();
+                posBitBoard[pieceTaken.getPieceID()][pieceTaken.getSide()] ^= pieceTaken.asBitMask();
+                allPosBitBoard[pieceTaken.getSide()] ^= pieceTaken.asBitMask();
 
                 // remove ref to piece taken
                 pieces[pieceTaken.getSide()].remove(pieceTaken);
             }
 
             // tell piece where it is now
-            piece.setPos(toRow, toCol);
+            piece.setRow(toRow);
+            piece.setCol(toCol);
 
             // reflect new piece in position bitboard
-            posBitBoard[piece.getPieceID()][piece.getSide()] |= piece.getBit();
-            allPosBitBoard[piece.getSide()] |= piece.getBit();
+            posBitBoard[piece.getPieceID()][piece.getSide()] |= piece.asBitMask();
+            allPosBitBoard[piece.getSide()] |= piece.asBitMask();
 
             // update board ref to show piece there
             board[toRow][toCol] = piece;

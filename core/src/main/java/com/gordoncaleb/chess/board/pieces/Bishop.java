@@ -11,10 +11,6 @@ import static com.gordoncaleb.chess.board.pieces.Piece.*;
 
 public class Bishop {
 
-    public static String getStringID() {
-        return "B";
-    }
-
     public static List<Move> generateValidMoves(final Piece p,
                                                 final Board board,
                                                 final long[] nullMoveInfo,
@@ -24,9 +20,9 @@ public class Bishop {
         final long friends = posBitBoard[p.getSide()];
         final long foes = posBitBoard[Side.otherSide(p.getSide())];
         final long friendOrFoe = (friends | foes);
-        final long footPrint = slideBishop(p.getBit(), friendOrFoe) & ~friends;
+        final long footPrint = slideBishop(p.asBitMask(), friendOrFoe) & ~friends;
 
-        final long validFootPrint = footPrint & nullMoveInfo[1] & p.getBlockingVector();
+        final long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector();
         final long validFootPrintWithPiecesTaken = validFootPrint & foes;
         final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
 

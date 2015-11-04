@@ -92,11 +92,10 @@ public class JSONParser {
         boardDTO.setHalfMoves(0);
         boardDTO.setFullMoves(0);
 
-        List<Long> moves = board.getMoveHistory().stream()
-                .map(m -> m.getMoveLong())
+        List<Move> moves = board.getMoveHistory().stream()
                 .collect(Collectors.toList());
-
         Collections.reverse(moves);
+
         boardDTO.setMoveHistory(new ArrayList<>(moves));
 
         Move lastMoveMade = board.getLastMoveMade();
@@ -135,10 +134,7 @@ public class JSONParser {
             }
         }
 
-        Optional<List<Move>> moveHistory = Optional.ofNullable(boardDTO.getMoveHistory())
-                .map(moves -> moves.stream()
-                        .map(m -> new Move(m))
-                        .collect(Collectors.toList()));
+        Optional<List<Move>> moveHistory = Optional.ofNullable(boardDTO.getMoveHistory());
 
         Board board = new Board(new ArrayList[]{pieces.get(Side.BLACK),
                 pieces.get(Side.WHITE)},

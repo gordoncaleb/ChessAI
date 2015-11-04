@@ -12,19 +12,15 @@ import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMovesWithPieces
 
 public class Knight {
 
-    public static String getStringID() {
-        return "N";
-    }
-
     public static List<Move> generateValidMoves(final Piece p,
                                                 final Board board,
                                                 final long[] nullMoveInfo,
                                                 final long[] posBitBoard,
                                                 final List<Move> validMoves) {
         final long foes = posBitBoard[Side.otherSide(p.getSide())];
-        final long footPrint = getKnightAttacks(p.getBit()) & ~posBitBoard[p.getSide()];
+        final long footPrint = getKnightAttacks(p.asBitMask()) & ~posBitBoard[p.getSide()];
 
-        final long validFootPrint = footPrint & nullMoveInfo[1] & p.getBlockingVector();
+        final long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector();
         final long validFootPrintWithPiecesTaken = validFootPrint & foes;
         final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
 

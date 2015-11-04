@@ -90,7 +90,7 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 			game.showProgress(Integer.parseInt(payload));
 			break;
 		case "<recommendation>":
-			game.recommendationMade(new Move(Long.parseLong(payload)));
+			game.recommendationMade(Move.fromLong(Long.parseLong(payload)));
 			break;
 		case "<recommend>":
 			game.requestRecommendation();
@@ -216,7 +216,7 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 
 	@Override
 	public void recommendationMade(Move move) {
-		sendMessage("<recommendation>" + move.getMoveLong());
+		sendMessage("<recommendation>" + move.toLong());
 	}
 
 }

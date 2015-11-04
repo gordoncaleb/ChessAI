@@ -62,7 +62,7 @@ public class MoveBook {
         List<Move> entries = hashMoveBook.get(hashcode);
 
         if (verboseEntries != null) {
-            verboseEntries.remove(move.getMoveLong());
+            verboseEntries.remove(move);
 
             if (verboseEntries.size() == 0) {
                 verboseMoveBook.remove(xmlBoard);
@@ -70,7 +70,7 @@ public class MoveBook {
         }
 
         if (entries != null) {
-            entries.remove(move.getMoveLong());
+            entries.remove(move);
 
             if (entries.size() == 0) {
                 hashMoveBook.remove(hashcode);
@@ -238,7 +238,7 @@ public class MoveBook {
                 moves = new ArrayList<>();
 
                 while ((move = din.readShort()) != -1) {
-                    moves.add(new Move((long) move));
+                    moves.add(Move.fromLong((long) move));
                 }
 
                 moveBook.put(hashCode, moves);

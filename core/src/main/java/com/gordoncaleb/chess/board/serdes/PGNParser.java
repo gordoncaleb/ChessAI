@@ -17,6 +17,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.KING;
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.PAWN;
 import static com.gordoncaleb.chess.util.JavaLacks.*;
 import static java.util.stream.Collectors.*;
 
@@ -238,7 +241,7 @@ public class PGNParser {
                 if (notation.length() > 2) {
 
                     if (notation.length() == 3) {
-                        pieceMovingID = Piece.charIDtoPieceID(notation.charAt(0));
+                        pieceMovingID = charIDtoPieceID(notation.charAt(0));
                         toRow = 7 - (notation.charAt(2) - 49);
                         toCol = notation.charAt(1) - 97;
                     } else {
@@ -248,7 +251,7 @@ public class PGNParser {
                             toRow = 7 - (leftRight[1].charAt(1) - 49);
                             toCol = leftRight[1].charAt(0) - 97;
 
-                            pieceMovingID = Piece.charIDtoPieceID(leftRight[0].charAt(0));
+                            pieceMovingID = charIDtoPieceID(leftRight[0].charAt(0));
 
                             if (pieceMovingID == Piece.PieceID.NONE) {
                                 pieceMovingID = Piece.PieceID.PAWN;
@@ -266,7 +269,7 @@ public class PGNParser {
                             toRow = 7 - (notation.charAt(notation.length() - 1) - 49);
                             toCol = notation.charAt(notation.length() - 2) - 97;
 
-                            pieceMovingID = Piece.charIDtoPieceID(notation.charAt(0));
+                            pieceMovingID = charIDtoPieceID(notation.charAt(0));
 
                             if (notation.charAt(1) >= 97) {
                                 fromCol = notation.charAt(1) - 97;
@@ -292,6 +295,17 @@ public class PGNParser {
         }
 
         return matchValidMove(board, fromRow, fromCol, toRow, toCol, note, pieceMovingID);
+    }
+
+    private static int charIDtoPieceID(char id){
+        Map<Character,Integer> map = new HashMap<>();
+        map.put('R',ROOK);
+        map.put('N', KNIGHT);
+        map.put('B', BISHOP);
+        map.put('Q', QUEEN);
+        map.put('K', KING);
+        map.put('P', PAWN);
+        return Optional.ofNullable(map.get(id)).orElse(NONE);
     }
 
     public static Optional<Integer> getFileNumberFromAlgNotation(String notation) {

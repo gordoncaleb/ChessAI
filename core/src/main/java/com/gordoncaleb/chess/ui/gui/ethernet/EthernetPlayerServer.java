@@ -145,7 +145,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 			player.requestRecommendation();
 			break;
 		case "<recommendation>":
-			player.recommendationMade(new Move(Long.parseLong(payload)));
+			player.recommendationMade(Move.fromLong(Long.parseLong(payload)));
 			break;
 		default:
 			logger.debug("Server unrecognized command received: \n" + message);
@@ -276,7 +276,7 @@ public class EthernetPlayerServer implements EthernetMsgRxer, PlayerContainer, M
 
 	@Override
 	public void recommendationMade(Move move) {
-		sendMessage("<recommendation>" + move.getMoveLong());
+		sendMessage("<recommendation>" + move.toLong());
 	}
 
 }

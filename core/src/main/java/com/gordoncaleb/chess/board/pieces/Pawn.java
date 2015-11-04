@@ -10,14 +10,6 @@ import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
 public class Pawn {
 
-    public static String getName() {
-        return "Pawn";
-    }
-
-    public static String getStringID() {
-        return "P";
-    }
-
     public static List<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Move> validMoves) {
         int currentRow = p.getRow();
         int currentCol = p.getCol();

@@ -680,7 +680,7 @@ public class AI extends Thread implements Player {
     }
 
     public void getMovePV(DecisionNode root, ArrayList<Move> moves) {
-        moves.add(root.getMove().getCopy());
+        moves.add(root.getMove().copy());
 
         if (root.hasChildren()) {
             getMovePV(root.getHeadChild(), moves);

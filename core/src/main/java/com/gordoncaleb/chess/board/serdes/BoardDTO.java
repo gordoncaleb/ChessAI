@@ -1,5 +1,7 @@
 package com.gordoncaleb.chess.board.serdes;
 
+import com.gordoncaleb.chess.board.Move;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +47,7 @@ public class BoardDTO {
     private int halfMoves;
     private int fullMoves;
     private Optional<Integer> enPassantFile;
-    private List<Long> moveHistory;
+    private List<Move> moveHistory;
 
     public String getTurn() {
         return turn;
@@ -95,11 +97,11 @@ public class BoardDTO {
         this.enPassantFile = enPassantFile;
     }
 
-    public List<Long> getMoveHistory() {
+    public List<Move> getMoveHistory() {
         return moveHistory;
     }
 
-    public void setMoveHistory(List<Long> moveHistory) {
+    public void setMoveHistory(List<Move> moveHistory) {
         this.moveHistory = moveHistory;
     }
 }
