@@ -18,13 +18,13 @@ public class Pawn {
         return "P";
     }
 
-    public static List<Long> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Long> validMoves) {
+    public static List<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Move> validMoves) {
         int currentRow = p.getRow();
         int currentCol = p.getCol();
         int player = p.getSide();
         int dir;
         int fifthRank;
-        Long moveLong;
+        Move move;
 
         int[] lr = {1, -1};
 
@@ -40,20 +40,20 @@ public class Pawn {
 
             if (p.isValidMove(getMask(currentRow + dir, currentCol), nullMoveInfo)) {
 
-                moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol, 0, Move.MoveNote.NONE);
+                move = new Move(currentRow, currentCol, currentRow + dir, currentCol, 0, Move.MoveNote.NONE);
 
                 if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-                    moveLong = Move.setNote(moveLong, Move.MoveNote.NEW_QUEEN);
+                    move.setNote(Move.MoveNote.NEW_QUEEN);
                 }
 
-                validMoves.add(moveLong);
+                validMoves.add(move);
             }
 
             if (!p.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
 
                 if (p.isValidMove(getMask(currentRow + 2 * dir, currentCol), nullMoveInfo)) {
 
-                    validMoves.add(Move.moveLong(currentRow, currentCol, currentRow + 2 * dir, currentCol, 0, Move.MoveNote.PAWN_LEAP));
+                    validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol, 0, Move.MoveNote.PAWN_LEAP));
 
                 }
             }
@@ -66,31 +66,31 @@ public class Pawn {
 
                 if (p.isValidMove(getMask(currentRow + dir, currentCol + i), nullMoveInfo)) {
 
-                    moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + i);
+                    move = new Move(currentRow, currentCol, currentRow + dir, currentCol + i);
 
                     if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-                        moveLong = Move.setNote(moveLong, Move.MoveNote.NEW_QUEEN);
+                        move.setNote(Move.MoveNote.NEW_QUEEN);
                     }
 
-                    moveLong = Move.setPieceTaken(moveLong, board.getPiece(currentRow + dir, currentCol + i));
-                    validMoves.add(moveLong);
+                    move.setPieceTaken(board.getPiece(currentRow + dir, currentCol + i));
+                    validMoves.add(move);
                 }
 
             }
         }
 
         // Check left and right en passant rule
-        if (currentRow == fifthRank && board.getLastMoveMade() != 0) {
+        if (currentRow == fifthRank && board.getLastMoveMade() != null) {
             for (int i : lr) {
                 if (board.checkPiece(fifthRank, currentCol + i, player) == Piece.PositionStatus.ENEMY) {
 
-                    if ((Move.getToCol(board.getLastMoveMade()) == (currentCol + i)) && Move.getNote(board.getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
+                    if ((board.getLastMoveMade().getToCol() == (currentCol + i)) && board.getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
 
                         long position = getMask(currentRow + dir, currentCol + i);
                         if (p.isValidMove(nullMoveInfo, position, position | getMask(fifthRank, currentCol + i))) {
 
-                            moveLong = Move.moveLong(currentRow, currentCol, currentRow + dir, currentCol + i, 0, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + i));
-                            validMoves.add(moveLong);
+                            move = new Move(currentRow, currentCol, currentRow + dir, currentCol + i, 0, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + i));
+                            validMoves.add(move);
                         }
 
                     }

@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.ui.gui.game.Game;
 import com.gordoncaleb.chess.ui.gui.game.Player;
 import com.gordoncaleb.chess.ui.gui.game.PlayerContainer;
@@ -99,17 +100,17 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public void makeMove(long move) {
+	public void makeMove(Move move) {
 		game.makeMove(move);
 	}
 
 	@Override
-	public boolean moveMade(long opponentsMove) {
+	public boolean moveMade(Move opponentsMove) {
 		return boardPanel.moveMade(opponentsMove);
 	}
 
 	@Override
-	public long undoMove() {
+	public Move undoMove() {
 		return boardPanel.undoMove();
 	}
 
@@ -265,7 +266,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public void recommendationMade(long move) {
+	public void recommendationMade(Move move) {
 	}
 
 }

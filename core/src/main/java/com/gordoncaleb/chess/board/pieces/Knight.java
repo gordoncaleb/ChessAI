@@ -2,6 +2,7 @@ package com.gordoncaleb.chess.board.pieces;
 
 import java.util.List;
 
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.Board;
 
@@ -15,11 +16,11 @@ public class Knight {
         return "N";
     }
 
-    public static List<Long> generateValidMoves(final Piece p,
+    public static List<Move> generateValidMoves(final Piece p,
                                                 final Board board,
                                                 final long[] nullMoveInfo,
                                                 final long[] posBitBoard,
-                                                final List<Long> validMoves) {
+                                                final List<Move> validMoves) {
         final long foes = posBitBoard[Side.otherSide(p.getSide())];
         final long footPrint = getKnightAttacks(p.getBit()) & ~posBitBoard[p.getSide()];
 

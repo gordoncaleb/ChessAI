@@ -22,7 +22,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 	private int col;
 	private int id;
 	private int player;
-	private ArrayList<Long> validMoves;
+	private ArrayList<Move> validMoves;
 
 	// Debug components
 	private JLabel debugLocationLabel;
@@ -60,7 +60,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 		
 		this.boardPanel = boardPanel;
 
-		validMoves = new ArrayList<Long>();
+		validMoves = new ArrayList<Move>();
 		this.row = row;
 		this.col = col;
 
@@ -207,7 +207,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 		}
 	}
 
-	public void addValidMove(long move) {
+	public void addValidMove(Move move) {
 		validMoves.add(move);
 	}
 
@@ -215,19 +215,19 @@ public class SquarePanel extends JPanel implements PieceGUI {
 		validMoves.clear();
 	}
 
-	public ArrayList<Long> getValidMoves() {
+	public ArrayList<Move> getValidMoves() {
 		return validMoves;
 	}
 
-	public long checkIfValidMove(long newMove) {
-		long validMove;
+	public Move checkIfValidMove(Move newMove) {
+		Move validMove;
 		for (int m = 0; m < validMoves.size(); m++) {
 			validMove = validMoves.get(m);
 			if (Move.equals(validMove, newMove))
 				return validMove;
 		}
 
-		return 0;
+		return null;
 	}
 
 	public void clearChessPiece() {

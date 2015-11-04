@@ -21,7 +21,7 @@ public class Board {
 
     private Piece[][] board = new Piece[8][8];
     private Game.GameStatus boardStatus = Game.GameStatus.IN_PLAY;
-    private ArrayList<Long> validMoves = new ArrayList<>(100);
+    private ArrayList<Move> validMoves = new ArrayList<>(100);
     private LinkedList<Piece>[] pieces = new LinkedList[2];
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
 
@@ -148,16 +148,16 @@ public class Board {
         initializeCastleSetup();
     }
 
-    public boolean makeMove(final long move) {
+    public boolean makeMove(final Move move) {
 
-        final int fromRow = Move.getFromRow(move);
-        final int fromCol = Move.getFromCol(move);
-        final int toRow = Move.getToRow(move);
-        final int toCol = Move.getToCol(move);
-        final Move.MoveNote note = Move.getNote(move);
+        final int fromRow = move.getFromRow();
+        final int fromCol = move.getFromCol();
+        final int toRow = move.getToRow();
+        final int toCol = move.getToCol();
+        final Move.MoveNote note = move.getNote();
 
         if (board[fromRow][fromCol].getSide() != turn) {
-            logger.debug("Invalid move " + new Move(move).toString());
+            logger.debug("Invalid move " + move.toString());
             return false;
         }
 
@@ -174,9 +174,9 @@ public class Board {
                 this.kingHasMoved(Side.WHITE));
 
         // remove taken piece first
-        if (Move.hasPieceTaken(move)) {
+        if (move.hasPieceTaken()) {
 
-            final Piece pieceTaken = board[Move.getPieceTakenRow(move)][Move.getPieceTakenCol(move)];
+            final Piece pieceTaken = board[move.getPieceTakenRow()][move.getPieceTakenCol()];
 
             // remove pieceTaken from vectors
             pieces[nextSide].remove(pieceTaken);
@@ -225,15 +225,15 @@ public class Board {
         }
 
         // if last move made is pawn leap, remove en passant file num
-        if (getLastMoveMade() != 0) {
-            if (Move.getNote(getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
-                hashCode ^= rngTable.getEnPassantFile(Move.getToCol(getLastMoveMade()));
+        if (getLastMoveMade() != null) {
+            if (getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
+                hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());
             }
         }
 
         // if new move is pawn leap, add en passant file num
         if (note == Move.MoveNote.PAWN_LEAP) {
-            hashCode ^= rngTable.getEnPassantFile(Move.getToCol(move));
+            hashCode ^= rngTable.getEnPassantFile(move.getToCol());
         }
 
         // add new castle options
@@ -250,7 +250,7 @@ public class Board {
         hashCodeFreq = incrementHashCodeFrequency(hashCode);
 
         // show that this move is now the last move made
-        moveHistory.push(new Move(move));
+        moveHistory.push(move);
 
         // move was made, next player's turn
         turn = nextSide;
@@ -292,22 +292,22 @@ public class Board {
         hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), toRow, toCol);
     }
 
-    public long undoMove() {
+    public Move undoMove() {
 
         // if no there is no last move then undoMove is impossible
         if (moveHistory.isEmpty()) {
             // logger.debug("Can not undo move");
-            return 0;
+            return null;
         }
 
         // retrieve last move made
-        final long lastMove = getLastMoveMade();
+        final Move lastMove = getLastMoveMade();
 
-        final int fromRow = Move.getFromRow(lastMove);
-        final int fromCol = Move.getFromCol(lastMove);
-        final int toRow = Move.getToRow(lastMove);
-        final int toCol = Move.getToCol(lastMove);
-        final Move.MoveNote note = Move.getNote(lastMove);
+        final int fromRow = lastMove.getFromRow();
+        final int fromCol = lastMove.getFromCol();
+        final int toRow = lastMove.getToRow();
+        final int toCol = lastMove.getToCol();
+        final Move.MoveNote note = lastMove.getNote();
 
         // last move made was made by previous player, which is also the next
         // player
@@ -341,10 +341,10 @@ public class Board {
             }
 
         } else {
-            undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, Move.hadMoved(lastMove));
+            undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, lastMove.hadMoved());
         }
 
-        if (Move.hasPieceTaken(lastMove)) {
+        if (lastMove.hasPieceTaken()) {
 
             // add taken piece back to vectors and board
             final Piece pieceTaken = piecesTaken[prevSide].pop();
@@ -411,25 +411,25 @@ public class Board {
         return (moveHistory.size() != 0);
     }
 
-    public List<Long> generateValidMoves() {
-        return generateValidMoves(0, AI.noKillerMoves, this.validMoves);
+    public List<Move> generateValidMoves() {
+        return generateValidMoves(null, AI.noKillerMoves, this.validMoves);
     }
 
-    public List<Long> generateValidMoves(List<Long> validMoves) {
-        return generateValidMoves(0, AI.noKillerMoves, validMoves);
+    public List<Move> generateValidMoves(List<Move> validMoves) {
+        return generateValidMoves(null, AI.noKillerMoves, validMoves);
     }
 
-    public List<Long> generateValidMoves(long hashMove, long[] killerMoves) {
+    public List<Move> generateValidMoves(Move hashMove, Move[] killerMoves) {
         return generateValidMoves(hashMove, killerMoves, this.validMoves);
     }
 
-    public List<Long> generateValidMoves(long hashMove, long[] killerMoves, List<Long> validMoves) {
+    public List<Move> generateValidMoves(Move hashMove, Move[] killerMoves, List<Move> validMoves) {
 
         validMoves.clear();
 
         int prevMovesSize = 0;
 
-        Long move;
+        Move move;
         for (Piece p : pieces[turn]) {
 
             p.generateValidMoves(this, nullMoveInfo, allPosBitBoard, validMoves);
@@ -437,27 +437,25 @@ public class Board {
             for (int m = prevMovesSize; m < validMoves.size(); m++) {
                 move = validMoves.get(m);
 
-                move = Move.setHadMoved(move, p.hasMoved());
+                move.setHadMoved(p.hasMoved());
 
                 if (move == hashMove) {
-                    move = Move.setValue(move, 10000);
+                    move.setValue(10000);
                     validMoves.set(m, move);
                     continue;
                 }
 
                 for (int k = 0; k < killerMoves.length; k++) {
                     if (move == killerMoves[k]) {
-                        move = Move.setValue(move, 9999 - k);
+                        move.setValue(9999 - k);
                         break;
                     }
                 }
 
                 validMoves.set(m, move);
-
             }
 
             prevMovesSize = validMoves.size();
-
         }
 
         return validMoves;
@@ -536,11 +534,11 @@ public class Board {
 
     }
 
-    public long getLastMoveMade() {
+    public Move getLastMoveMade() {
         if (!moveHistory.isEmpty()) {
-            return moveHistory.peek().getMoveLong();
+            return moveHistory.peek();
         } else {
-            return 0;
+            return null;
         }
     }
 
@@ -770,38 +768,11 @@ public class Board {
 
     public String toString() {
         String stringBoard = "";
-        int pieceDetails = 0;
-        Piece p;
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 if (board[row][col] != null) {
-
-                    p = board[row][col];
-
-                    if (p.hasMoved() && (p.getPieceID() == PAWN || p.getPieceID() == KING || p.getPieceID() == ROOK)) {
-                        pieceDetails |= 1;
-                    }
-
-                    if (p.getPieceID() == ROOK && kingHasMoved(p.getSide())) {
-                        pieceDetails |= 1;
-                    }
-
-                    if (p.getPieceID() == KING && nearRookHasMoved(p.getSide()) && farRookHasMoved(p.getSide())) {
-                        pieceDetails |= 1;
-                    }
-
-                    long lastMove = getLastMoveMade();
-
-                    if (getLastMoveMade() != 0) {
-                        if (Move.getToRow(lastMove) == row && Move.getToCol(lastMove) == col && Move.getNote(lastMove) == Move.MoveNote.PAWN_LEAP) {
-                            pieceDetails |= 2;
-                        }
-                    }
-
                     stringBoard += board[row][col].toString() + ",";
-                    pieceDetails = 0;
-
                 } else {
                     stringBoard += "_,";
                 }
@@ -837,9 +808,9 @@ public class Board {
         hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
                 this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
-        if (getLastMoveMade() != 0) {
-            if (Move.getNote(getLastMoveMade()) == Move.MoveNote.PAWN_LEAP) {
-                hashCode ^= rngTable.getEnPassantFile(Move.getToCol(getLastMoveMade()));
+        if (getLastMoveMade() != null) {
+            if (getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
+                hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());
             }
         }
 

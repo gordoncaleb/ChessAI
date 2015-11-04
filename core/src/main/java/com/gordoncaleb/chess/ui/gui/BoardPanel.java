@@ -69,7 +69,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
     private boolean freelyMove;
 
     private int highLightCount;
-    private long highLightMove;
+    private Move highLightMove;
     private Timer highLightTimer;
 
     private Timer turnTimer;
@@ -322,7 +322,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
         setFlipBoard(!flipBoard);
     }
 
-    public void highlightMove(long move) {
+    public void highlightMove(Move move) {
         highLightCount = 5;
         highLightMove = move;
         highLightTimer.start();
@@ -427,13 +427,13 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
     }
 
-    public boolean moveMade(long move) {
+    public boolean moveMade(Move move) {
 
         if (adjudicator.move(move)) {
             refreshBoard();
 
-            if (Move.hasPieceTaken(move)) {
-                takePiece(Move.getPieceTakenID(move), adjudicator.getTurn());
+            if (move.hasPieceTaken()) {
+                takePiece(move.getPieceTakenID(), adjudicator.getTurn());
             }
 
             updateLastMovedSquare();
@@ -469,8 +469,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
         }
     }
 
-    public long undoMove() {
-        long undoneMove = 0;
+    public Move undoMove() {
+        Move undoneMove = null;
 
         if (adjudicator.canUndo()) {
 
@@ -485,7 +485,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
             attachValidMoves();
 
             // update side line view of pieces that have been taken
-            if (Move.hasPieceTaken(undoneMove)) {
+            if (undoneMove.hasPieceTaken()) {
                 refreshPiecesTaken();
             }
 
@@ -504,8 +504,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
         return adjudicator.canUndo();
     }
 
-    public long redoMove() {
-        long redoneMove = 0;
+    public Move redoMove() {
+        Move redoneMove = null;
 
         if (adjudicator.hasUndoneMoves()) {
             redoneMove = adjudicator.getLastUndoneMove();
@@ -515,7 +515,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
         return redoneMove;
     }
 
-    public long getLastUndoneMove() {
+    public Move getLastUndoneMove() {
         return adjudicator.getLastUndoneMove();
     }
 
@@ -567,12 +567,12 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
         clearValidMoves();
 
-        List<Long> validMoves = adjudicator.getValidMoves();
+        List<Move> validMoves = adjudicator.getValidMoves();
 
-        long move;
+        Move move;
         for (int m = 0; m < validMoves.size(); m++) {
             move = validMoves.get(m);
-            getChessSquare(Move.getFromRow(move), Move.getFromCol(move)).addValidMove(move);
+            getChessSquare(move.getFromRow(), move.getFromCol()).addValidMove(move);
         }
 
         if (selectedComponent instanceof SquarePanel) {
@@ -589,16 +589,16 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
     }
 
     private void colorValidMoveSquares(SquarePanel square, boolean valid) {
-        ArrayList<Long> validMoves = square.getValidMoves();
-        long move;
+        ArrayList<Move> validMoves = square.getValidMoves();
+        Move move;
 
         for (int i = 0; i < validMoves.size(); i++) {
             move = validMoves.get(i);
 
-            if (Move.getNote(move) == Move.MoveNote.CASTLE_FAR || Move.getNote(move) == Move.MoveNote.CASTLE_NEAR) {
-                getChessSquare(Move.getToRow(move), Move.getToCol(move)).showAsValidMove(valid, Color.BLUE);
+            if (move.getNote() == Move.MoveNote.CASTLE_FAR || move.getNote() == Move.MoveNote.CASTLE_NEAR) {
+                getChessSquare(move.getToRow(), move.getToCol()).showAsValidMove(valid, Color.BLUE);
             } else {
-                getChessSquare(Move.getToRow(move), Move.getToCol(move)).showAsValidMove(valid);
+                getChessSquare(move.getToRow(), move.getToCol()).showAsValidMove(valid);
             }
 
             if (debug) {
@@ -674,9 +674,9 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
             lastMovedSquare = null;
         }
 
-        long lastMove = adjudicator.getLastMoveMade();
-        if (lastMove != 0) {
-            lastMovedSquare = getChessSquare(Move.getToRow(lastMove), Move.getToCol(lastMove));
+        Move lastMove = adjudicator.getLastMoveMade();
+        if (lastMove != null) {
+            lastMovedSquare = getChessSquare(lastMove.getToRow(), lastMove.getToCol());
             lastMovedSquare.showAsLastMoved(true);
         }
 
@@ -709,7 +709,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
         return adjudicator.getBoard();
     }
 
-    private long getOrientedMove(int fromRow, int fromCol, int toRow, int toCol) {
+    private Move getOrientedMove(int fromRow, int fromCol, int toRow, int toCol) {
         int orienFromRow;
         int orienFromCol;
         int orienToRow;
@@ -727,7 +727,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
             orienToCol = toCol;
         }
 
-        return Move.moveLong(orienFromRow, orienFromCol, orienToRow, orienToCol);
+        return new Move(orienFromRow, orienFromCol, orienToRow, orienToCol);
 
     }
 
@@ -794,10 +794,10 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
                     SquarePanel selectedSquare = (SquarePanel) selectedComponent;
 
                     if (!freelyMove) {
-                        long m = getOrientedMove(selectedSquare.getRow(), selectedSquare.getCol(), clickedSquare.getRow(), clickedSquare.getCol());
+                        Move m = getOrientedMove(selectedSquare.getRow(), selectedSquare.getCol(), clickedSquare.getRow(), clickedSquare.getCol());
 
-                        long validMove = selectedSquare.checkIfValidMove(m);
-                        if (validMove != 0) {
+                        Move validMove = selectedSquare.checkIfValidMove(m);
+                        if (validMove != null) {
                             selectedSquare.showAsSelected(false);
                             colorValidMoveSquares(selectedSquare, false);
 
@@ -885,8 +885,8 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
 
         if (e.getSource() == highLightTimer) {
 
-            SquarePanel from = getChessSquare(Move.getFromRow(highLightMove), Move.getFromCol(highLightMove));
-            SquarePanel to = getChessSquare(Move.getToRow(highLightMove), Move.getToCol(highLightMove));
+            SquarePanel from = getChessSquare(highLightMove.getFromRow(), highLightMove.getFromCol());
+            SquarePanel to = getChessSquare(highLightMove.getToRow(), highLightMove.getToCol());
 
             if (highLightCount > 0) {
                 if (highLightCount % 2 == 0) {

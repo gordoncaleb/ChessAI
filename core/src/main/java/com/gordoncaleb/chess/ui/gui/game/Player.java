@@ -1,10 +1,11 @@
 package com.gordoncaleb.chess.ui.gui.game;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 
 public interface Player {
 
-    long undoMove();
+    Move undoMove();
 
     void newGame(Board board);
 
@@ -18,12 +19,12 @@ public interface Player {
 
     void requestRecommendation();
 
-    void recommendationMade(long move);
+    void recommendationMade(Move move);
 
     void makeMove();
 
     // blocks until move on players board is made
-    boolean moveMade(long move);
+    boolean moveMade(Move move);
 
     void pause();
 

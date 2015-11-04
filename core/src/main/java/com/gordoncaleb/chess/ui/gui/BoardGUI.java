@@ -1,15 +1,17 @@
 package com.gordoncaleb.chess.ui.gui;
 
+import com.gordoncaleb.chess.board.Move;
+
 public interface BoardGUI {
-	public void makeMove(long move);
+    void makeMove(Move move);
 
-	public void gameOverLose();
+    void gameOverLose();
 
-	public void gameOverWin();
+    void gameOverWin();
 
-	public void gameOverDraw();
+    void gameOverDraw();
 
-	public String getPlayerName(int side);
+    String getPlayerName(int side);
 
-	public long getPlayerTime(int side);
+    long getPlayerTime(int side);
 }

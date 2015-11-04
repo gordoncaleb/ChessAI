@@ -51,7 +51,7 @@ public class PGNParser {
     private static final String METALINE = "[";
     private static final String STARTGAMELINE = "1.";
 
-    public Map<Long, List<Long>> moveBookFromPGNFile(String fileName) throws Exception {
+    public Map<Long, List<Move>> moveBookFromPGNFile(String fileName) throws Exception {
 
         List<PGNGame> games = loadFile(fileName);
 
@@ -160,13 +160,13 @@ public class PGNParser {
         }
     }
 
-    public Map<Long, Long> getPGNGameAsMoveBook(PGNGame game) throws Exception {
+    public Map<Long, Move> getPGNGameAsMoveBook(PGNGame game) throws Exception {
 
-        Map<Long, Long> moveBook = new HashMap<>();
+        Map<Long, Move> moveBook = new HashMap<>();
         Board board = getPGNGameAsBoard(game);
 
         while (board.canUndo()) {
-            long move = board.undoMove();
+            Move move = board.undoMove();
             moveBook.put(board.getHashCode(), move);
         }
 
@@ -188,7 +188,7 @@ public class PGNParser {
 
         for (String notation : tokens) {
             try {
-                long move = resolveAlgebraicNotation(notation, board);
+                Move move = resolveAlgebraicNotation(notation, board);
                 board.makeMove(move);
             } catch (Exception e) {
                 throw new Exception("Error resolving notation " + notation + " board: \n" + board.toXML(true), e);
@@ -198,7 +198,7 @@ public class PGNParser {
         return board;
     }
 
-    public long resolveAlgebraicNotation(String notation, Board board) throws Exception {
+    public Move resolveAlgebraicNotation(String notation, Board board) throws Exception {
 
         notation = notation.replaceAll("\\+|#", "");
 
@@ -305,21 +305,21 @@ public class PGNParser {
         }
     }
 
-    private long matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, Move.MoveNote note, int pieceMovingID) throws Exception {
+    private Move matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, Move.MoveNote note, int pieceMovingID) throws Exception {
 
         board.makeNullMove();
-        List<Long> moves = board.generateValidMoves();
+        List<Move> moves = board.generateValidMoves();
 
-        ArrayList<Long> matchMoves = new ArrayList<>();
+        ArrayList<Move> matchMoves = new ArrayList<>();
         boolean match;
-        for (Long move : moves) {
+        for (Move move : moves) {
 
             match = true;
 
             if (note != null) {
-                if (Move.getNote(move) != note) {
-                    if (Move.getNote(move) == Move.MoveNote.NEW_QUEEN && note == Move.MoveNote.NEW_KNIGHT) {
-                        move = Move.setNote(move, note);
+                if (move.getNote() != note) {
+                    if (move.getNote() == Move.MoveNote.NEW_QUEEN && note == Move.MoveNote.NEW_KNIGHT) {
+                        move.setNote(note);
                     } else {
                         match = false;
                     }
@@ -327,31 +327,31 @@ public class PGNParser {
             }
 
             if (fromRow >= 0) {
-                if (Move.getFromRow(move) != fromRow) {
+                if (move.getFromRow() != fromRow) {
                     match = false;
                 }
             }
 
             if (fromCol >= 0) {
-                if (Move.getFromCol(move) != fromCol) {
+                if (move.getFromCol() != fromCol) {
                     match = false;
                 }
             }
 
             if (toCol >= 0) {
-                if (Move.getToCol(move) != toCol) {
+                if (move.getToCol() != toCol) {
                     match = false;
                 }
             }
 
             if (toRow >= 0) {
-                if (Move.getToRow(move) != toRow) {
+                if (move.getToRow() != toRow) {
                     match = false;
                 }
             }
 
             if (pieceMovingID != Piece.PieceID.NONE) {
-                if (board.getPiece(Move.getFromRow(move), Move.getFromCol(move)).getPieceID() != pieceMovingID) {
+                if (board.getPiece(move.getFromRow(), move.getFromCol()).getPieceID() != pieceMovingID) {
                     match = false;
                 }
             }

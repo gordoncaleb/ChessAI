@@ -29,7 +29,7 @@ public class AIProcessor extends Thread {
 
     private boolean stopSearch;
 
-    private long[][] killerMoves = new long[100][AISettings.maxKillerMoves];
+    private Move[][] killerMoves = new Move[100][AISettings.maxKillerMoves];
     private int[] killerMoveSize = new int[100];
 
     private StaticScore scorer = new StaticScore();
@@ -99,7 +99,7 @@ public class AIProcessor extends Thread {
 
     public synchronized void setRootNode(DecisionNode rootNode) {
 
-        if (rootNode.getMove() != 0) {
+        if (rootNode.getMove() != null) {
             board.makeMove(rootNode.getMove());
         }
 
@@ -108,7 +108,7 @@ public class AIProcessor extends Thread {
         // if game isnt over make sure tree root shows what next valid moves are
         if (!this.rootNode.hasChildren()) {
             board.makeNullMove();
-            attachValidMoves(rootNode, 0, -1);
+            attachValidMoves(rootNode, null, -1);
 
         }
 
@@ -174,12 +174,12 @@ public class AIProcessor extends Thread {
         for (int i = 0; i < killerMoves.length; i++) {
             killerMoveSize[i] = 0;
             for (int m = 0; m < AISettings.maxKillerMoves; m++) {
-                killerMoves[i][m] = 0;
+                killerMoves[i][m] = null;
             }
         }
     }
 
-    public void addKillerMove(int level, long move) {
+    public void addKillerMove(int level, Move move) {
 
         if (level >= 0) {
             if (killerMoveSize[level] < AISettings.maxKillerMoves) {
@@ -196,9 +196,9 @@ public class AIProcessor extends Thread {
         }
     }
 
-    public void attachValidMoves(DecisionNode branch, long hashMove, int level) {
+    public void attachValidMoves(DecisionNode branch, Move hashMove, int level) {
 
-        List<Long> moves;
+        List<Move> moves;
 
         if (level >= 0) {
             moves = board.generateValidMoves(hashMove, killerMoves[level]);
@@ -211,7 +211,7 @@ public class AIProcessor extends Thread {
         DecisionNode[] children = new DecisionNode[moves.size()];
 
         for (int m = 0; m < moves.size(); m++) {
-            children[m] = (new DecisionNode(moves.get(m), Move.getValue(moves.get(m))));
+            children[m] = (new DecisionNode(moves.get(m),moves.get(m).getValue()));
         }
 
         branch.setChildren(children);
@@ -219,7 +219,7 @@ public class AIProcessor extends Thread {
 
     }
 
-    public boolean isKillerMove(long move, int level) {
+    public boolean isKillerMove(Move move, int level) {
 
         for (int k = 0; k < killerMoveSize[level]; k++) {
             if (move == killerMoves[level][k]) {
@@ -230,12 +230,12 @@ public class AIProcessor extends Thread {
         return false;
     }
 
-    public void resortChildrenWithKillerMoves(DecisionNode branch, int level, long hashMove) {
+    public void resortChildrenWithKillerMoves(DecisionNode branch, int level, Move hashMove) {
 
         if (level >= 0) {
 
             boolean resort = false;
-            long move;
+            Move move;
             for (int i = 0; i < branch.getChildrenSize(); i++) {
                 move = branch.getChild(i).getMove();
 
@@ -293,7 +293,7 @@ public class AIProcessor extends Thread {
         }
 
         BoardHashEntry hashOut;
-        long hashMove = 0;
+        Move hashMove = null;
         int hashIndex = (int) (board.getHashCode() & AISettings.hashIndexMask);
         hashOut = hashTable[hashIndex];
 
@@ -520,7 +520,7 @@ public class AIProcessor extends Thread {
      *               'growDecisionTreeLite()'
      * @return The value of the best move for 'player' on the 'board'
      */
-    private int growDecisionTreeLite(int alpha, int beta, int level, long moveMade, int bonusLevel) {
+    private int growDecisionTreeLite(int alpha, int beta, int level, Move moveMade, int bonusLevel) {
         int suggestedPathValue;
         int bestPathValue = Integer.MIN_VALUE;
 
@@ -528,11 +528,11 @@ public class AIProcessor extends Thread {
 
         int a = alpha;
         int b = beta;
-        long bestMove = 0;
+        Move bestMove = null;
 
         int hashIndex = (int) (board.getHashCode() & AISettings.hashIndexMask);
         BoardHashEntry hashOut;
-        long hashMove = 0;
+        Move hashMove = null;
         hashOut = hashTable[hashIndex];
 
         if (AISettings.useHashTable) {
@@ -585,7 +585,7 @@ public class AIProcessor extends Thread {
                 bonusLevel = Math.min(bonusLevel, level - 2);
             }
 
-            if ((Move.hasPieceTaken(moveMade)) && (level > -AISettings.maxPieceTakenFrontierLevel)) {
+            if ((moveMade.hasPieceTaken()) && (level > -AISettings.maxPieceTakenFrontierLevel)) {
                 bonusLevel = Math.min(bonusLevel, level - 1);
             }
         }
@@ -595,7 +595,7 @@ public class AIProcessor extends Thread {
             if (board.insufficientMaterial() || board.drawByThreeRule()) {
                 board.setBoardStatus(Game.GameStatus.DRAW);
             } else {
-                ArrayList<Long> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves));
+                ArrayList<Move> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves));
 
                 if (moves.size() == 0) {
                     if (board.isInCheck()) {
@@ -608,7 +608,7 @@ public class AIProcessor extends Thread {
                     Collections.sort(moves, Collections.reverseOrder());
 
                     Game.GameStatus tempBoardState;
-                    for (Long move : moves) {
+                    for (Move move : moves) {
 
                         tempBoardState = board.getBoardStatus();
 

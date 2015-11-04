@@ -38,21 +38,21 @@ public class BitBoardTest {
         verifyBitBoardToMoves(bbString, solution);
     }
 
-    private void bitBoardToMoves(int fromRow, int fromCol, long bb, List<Long> moves) {
+    private void bitBoardToMoves(int fromRow, int fromCol, long bb, List<Move> moves) {
         BitBoard.bitNumbers(bb).stream()
-                .map(n -> Move.moveLong(fromRow, fromCol, n / 8, n % 8))
+                .map(n -> new Move(fromRow, fromCol, n / 8, n % 8))
                 .forEach(m -> moves.add(m));
     }
 
     private void verifyBitBoardToMoves(String[] bbString, List<Integer> solution) {
-        List<Long> moves = new ArrayList<>();
+        List<Move> moves = new ArrayList<>();
         long bb = BitBoard.parseBitBoard(bbString);
         bitBoardToMoves(0, 3, bb, moves);
 
         assertThat(moves.size(), is(equalTo(solution.size() / 2)));
 
         List<Integer> tos = moves.stream()
-                .map(m -> new Integer[]{Move.getToRow(m), Move.getToCol(m)})
+                .map(m -> new Integer[]{m.getToRow(), m.getToCol()})
                 .flatMap(Stream::of)
                 .collect(Collectors.toList());
 

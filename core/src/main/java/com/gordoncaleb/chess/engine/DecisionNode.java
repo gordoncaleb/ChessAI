@@ -12,17 +12,17 @@ public class DecisionNode implements Comparable<DecisionNode> {
 
     private Object[] children;
 
-    private long move;
+    private Move move;
 
     private int chosenPathValue;
 
 
 
-    public DecisionNode(long move) {
+    public DecisionNode(Move move) {
         this(move, 0);
     }
 
-    public DecisionNode(long move, int chosenPathValue) {
+    public DecisionNode(Move move, int chosenPathValue) {
 
         // Linked List data struct pointers
         // this.headChild = null;
@@ -109,17 +109,17 @@ public class DecisionNode implements Comparable<DecisionNode> {
         return (children != null);
     }
 
-    public long getMove() {
+    public Move getMove() {
         return move;
     }
 
-    public void setMove(long nodeMove) {
+    public void setMove(Move nodeMove) {
         this.move = nodeMove;
     }
 
     public int getMoveValue() {
-        if (move != 0)
-            return Move.getValue(move);
+        if (move != null)
+            return move.getValue();
         else
             return 0;
     }
@@ -141,10 +141,10 @@ public class DecisionNode implements Comparable<DecisionNode> {
     // }
 
     public boolean hasPieceTaken() {
-        if (move == 0) {
+        if (move == null) {
             return false;
         } else {
-            if (Move.hasPieceTaken(move)) {
+            if (move.hasPieceTaken()) {
                 return true;
             } else {
                 return false;
@@ -153,10 +153,10 @@ public class DecisionNode implements Comparable<DecisionNode> {
     }
 
     public boolean isQueenPromotion() {
-        if (move == 0) {
+        if (move == null) {
             return false;
         } else {
-            if (Move.getNote(move) == Move.MoveNote.NEW_QUEEN) {
+            if (move.getNote() == Move.MoveNote.NEW_QUEEN) {
                 return true;
             } else {
                 return false;
@@ -183,8 +183,8 @@ public class DecisionNode implements Comparable<DecisionNode> {
     public String toString() {
         String me = "Chosen Path Value = " + " " + this.getChosenPathValue();
 
-        if (move != 0) {
-            me += " " + Move.toString(move);
+        if (move != null) {
+            me += " " + move.toString();
         }
 
         if (isGameOver()) {

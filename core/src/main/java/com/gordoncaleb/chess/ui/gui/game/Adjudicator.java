@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 public class Adjudicator {
     private static final Logger logger = LoggerFactory.getLogger(Adjudicator.class);
 
-    private List<Long> validMoves;
-    private Stack<Long> undoneMoves;
+    private List<Move> validMoves;
+    private Stack<Move> undoneMoves;
     private Board board;
 
     public Adjudicator(Board board) {
@@ -27,7 +27,7 @@ public class Adjudicator {
         this.board = board;
     }
 
-    public boolean move(long move) {
+    public boolean move(Move move) {
 
         if (undoneMoves.size() > 0) {
             if (Move.equals(undoneMoves.peek(), move)) {
@@ -37,9 +37,9 @@ public class Adjudicator {
             }
         }
 
-        long matchingMove = getMatchingMove(move);
+        Move matchingMove = getMatchingMove(move);
 
-        if (matchingMove != 0) {
+        if (matchingMove != null) {
             if (board.makeMove(matchingMove)) {
                 return true;
             } else {
@@ -51,8 +51,8 @@ public class Adjudicator {
 
     }
 
-    public long undo() {
-        long lastMove = 0;
+    public Move undo() {
+        Move lastMove = null;
 
         if (canUndo()) {
             lastMove = board.undoMove();
@@ -67,13 +67,13 @@ public class Adjudicator {
         return board.canUndo();
     }
 
-    public long getLastUndoneMove() {
+    public Move getLastUndoneMove() {
 
         if (hasUndoneMoves()) {
             return undoneMoves.peek();
             // board.makeMove(lastMoveUndone);
         } else {
-            return 0;
+            return null;
         }
 
     }
@@ -82,7 +82,7 @@ public class Adjudicator {
         return (undoneMoves.size() > 0);
     }
 
-    public List<Long> getValidMoves() {
+    public List<Move> getValidMoves() {
         board.makeNullMove();
         validMoves = board.generateValidMoves();
 
@@ -110,20 +110,20 @@ public class Adjudicator {
         return board.getPiece(row, col);
     }
 
-    public Long getLastMoveMade() {
+    public Move getLastMoveMade() {
         return board.getLastMoveMade();
     }
 
-    private long getMatchingMove(long move) {
+    private Move getMatchingMove(Move move) {
 
-        Optional<Long> matchingMove = validMoves.stream()
+        Optional<Move> matchingMove = validMoves.stream()
                 .filter(m -> Move.equals(m, move)).findFirst();
 
         if (!matchingMove.isPresent()) {
-            logger.debug("ERROR: Adjudicator says " + (new Move(move)) + " move is invalid");
+            logger.debug("ERROR: Adjudicator says " + move.toString() + " move is invalid");
         }
 
-        return matchingMove.orElse(0L);
+        return matchingMove.orElse(null);
     }
 
     public Deque<Piece> getPiecesTaken(int player) {

@@ -69,7 +69,7 @@ public class BoardTest {
 
         long origHash = b.getHashCode();
 
-        Stack<Long> moveStack = new Stack<>();
+        Stack<Move> moveStack = new Stack<>();
         while (b.canUndo()) {
             assertEquals(b.getHashCode(), b.generateHashCode());
             moveStack.push(b.undoMove());
@@ -108,7 +108,7 @@ public class BoardTest {
 
         Board b = JSONParser.getFromSetup(Side.WHITE, setup);
         long hashCode = b.generateHashCode();
-        b.makeMove(new Move(1, 6, 0, 6, 0, Move.MoveNote.NEW_KNIGHT).getMoveLong());
+        b.makeMove(new Move(1, 6, 0, 6, 0, Move.MoveNote.NEW_KNIGHT));
         assertEquals(Piece.PieceID.KNIGHT, b.getPieceID(0, 6));
         b.undoMove();
         assertEquals(Piece.PieceID.PAWN, b.getPieceID(1, 6));
@@ -130,7 +130,7 @@ public class BoardTest {
 
         Board b = JSONParser.getFromSetup(Side.WHITE, setup);
         long hashCode = b.generateHashCode();
-        b.makeMove(new Move(1, 6, 0, 6, 0, Move.MoveNote.NEW_QUEEN).getMoveLong());
+        b.makeMove(new Move(1, 6, 0, 6, 0, Move.MoveNote.NEW_QUEEN));
         assertEquals(Piece.PieceID.QUEEN, b.getPieceID(0, 6));
         b.undoMove();
         assertEquals(Piece.PieceID.PAWN, b.getPieceID(1, 6));
@@ -156,7 +156,7 @@ public class BoardTest {
         logger.info(b1.toXML(true));
 
         b1.makeNullMove();
-        List<Move> moves = Move.fromLongs(b1.generateValidMoves());
+        List<Move> moves = b1.generateValidMoves();
         assertEquals(4, moves.size());
 
     }
@@ -560,7 +560,6 @@ public class BoardTest {
 
     private void makeMoves(Board b, Move[] moves) {
         Stream.of(moves)
-                .map(Move::getMoveLong)
                 .forEach(b::makeMove);
     }
 
@@ -585,7 +584,7 @@ public class BoardTest {
     public List<Move> getValidMoves(int side, String[] setup) {
         Board b1 = JSONParser.getFromSetup(side, setup);
         b1.makeNullMove();
-        return Move.fromLongs(b1.generateValidMoves());
+        return b1.generateValidMoves();
     }
 
     public long[] getNullMoveInfo(int side, String[] setup) {

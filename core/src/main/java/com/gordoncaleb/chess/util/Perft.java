@@ -44,21 +44,21 @@ public class Perft {
         return metrics;
     }
 
-    private void perftBoardRecursiveFunctional(Board b, int depth, int stopDepth, int[][] metrics, List<List<Long>> moveContainers) {
+    private void perftBoardRecursiveFunctional(Board b, int depth, int stopDepth, int[][] metrics, List<List<Move>> moveContainers) {
         b.makeNullMove();
-        List<Long> moves = moveContainers.get(depth);
+        List<Move> moves = moveContainers.get(depth);
         b.generateValidMoves(moves);
 
-        long pawnQueenings = moves.stream().filter(m -> Move.getNote(m) == Move.MoveNote.NEW_QUEEN).count();
+        long pawnQueenings = moves.stream().filter(m -> m.getNote() == Move.MoveNote.NEW_QUEEN).count();
 
         metrics[depth][0] += moves.size() + pawnQueenings * 3;
-        metrics[depth][1] += moves.stream().filter(m -> Move.hasPieceTaken(m)).count();
-        metrics[depth][2] += moves.stream().filter(m -> Move.getNote(m) == Move.MoveNote.ENPASSANT).count();
+        metrics[depth][1] += moves.stream().filter(m -> m.hasPieceTaken()).count();
+        metrics[depth][2] += moves.stream().filter(m -> m.getNote() == Move.MoveNote.ENPASSANT).count();
 
-        metrics[depth][3] += moves.stream().filter(m -> Move.getNote(m) == Move.MoveNote.CASTLE_FAR ||
-                Move.getNote(m) == Move.MoveNote.CASTLE_NEAR).count();
+        metrics[depth][3] += moves.stream().filter(m -> m.getNote() == Move.MoveNote.CASTLE_FAR ||
+                m.getNote() == Move.MoveNote.CASTLE_NEAR).count();
 
-        metrics[depth][4] += moves.stream().filter(m -> Move.getNote(m) == Move.MoveNote.NEW_QUEEN).count() * 4;
+        metrics[depth][4] += moves.stream().filter(m -> m.getNote() == Move.MoveNote.NEW_QUEEN).count() * 4;
 
         if (depth < stopDepth) {
             moves.forEach(m -> {
@@ -69,9 +69,9 @@ public class Perft {
         }
     }
 
-    public void perftBoardRecursiveTimed(Board b, int depth, int stopDepth, List<List<Long>> moveContainers) {
+    public void perftBoardRecursiveTimed(Board b, int depth, int stopDepth, List<List<Move>> moveContainers) {
         b.makeNullMove();
-        List<Long> moves = moveContainers.get(depth);
+        List<Move> moves = moveContainers.get(depth);
         b.generateValidMoves(moves);
 
         if (depth < stopDepth) {
@@ -83,8 +83,8 @@ public class Perft {
         }
     }
 
-    private List<List<Long>> getMoveContainers(int size) {
-        List<List<Long>> containers = new ArrayList<>();
+    private List<List<Move>> getMoveContainers(int size) {
+        List<List<Move>> containers = new ArrayList<>();
         for (int i = 0; i < size; i++) {
             containers.add(new ArrayList<>());
         }

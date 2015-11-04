@@ -18,8 +18,8 @@ import static java.util.stream.Collectors.groupingBy;
 public class MoveBook {
     private static final Logger logger = LoggerFactory.getLogger(MoveBook.class);
 
-    Map<Long, List<Long>> hashMoveBook;
-    Map<String, List<Long>> verboseMoveBook;
+    Map<Long, List<Move>> hashMoveBook;
+    Map<String, List<Move>> verboseMoveBook;
 
     public static final String MOVEBOOK_FILE = "/movebook/eco.pgn";
     public static final String MOVEBOOK_FILE_COMPILED = "/movebook/eco.bin";
@@ -29,7 +29,7 @@ public class MoveBook {
         PGNParser parser = new PGNParser();
 
         try {
-            Map<Long, List<Long>> ecoMb = parser.moveBookFromPGNFile(MOVEBOOK_FILE);
+            Map<Long, List<Move>> ecoMb = parser.moveBookFromPGNFile(MOVEBOOK_FILE);
             mb.saveCompiledMoveBook(ecoMb, "./eco.bin");
         } catch (Exception e) {
             e.printStackTrace();
@@ -37,10 +37,10 @@ public class MoveBook {
 
     }
 
-    public long getRecommendation(Long hashCode) {
-        long move = 0;
+    public Move getRecommendation(Long hashCode) {
+        Move move = null;
 
-        List<Long> moves = hashMoveBook.get(hashCode);
+        List<Move> moves = hashMoveBook.get(hashCode);
 
         if (moves != null && moves.size() > 0) {
             double maxIndex = (double) (moves.size() - 1);
@@ -53,13 +53,13 @@ public class MoveBook {
         return move;
     }
 
-    public Optional<List<Long>> getRecommendations(Long hashCode) {
+    public Optional<List<Move>> getRecommendations(Long hashCode) {
         return Optional.ofNullable(hashMoveBook.get(hashCode));
     }
 
     public void removeEntry(String xmlBoard, Long hashcode, Move move) {
-        List<Long> verboseEntries = verboseMoveBook.get(xmlBoard);
-        List<Long> entries = hashMoveBook.get(hashcode);
+        List<Move> verboseEntries = verboseMoveBook.get(xmlBoard);
+        List<Move> entries = hashMoveBook.get(hashcode);
 
         if (verboseEntries != null) {
             verboseEntries.remove(move.getMoveLong());
@@ -78,11 +78,11 @@ public class MoveBook {
         }
     }
 
-    public Map<Long, List<Long>> loadMoveBook() {
+    public Map<Long, List<Move>> loadMoveBook() {
         return loadMoveBook(MOVEBOOK_FILE_COMPILED);
     }
 
-    public Map<Long, List<Long>> loadMoveBook(String fileName) {
+    public Map<Long, List<Move>> loadMoveBook(String fileName) {
         try (DataInputStream din = new DataInputStream(MoveBook.class.getResourceAsStream(fileName))) {
             hashMoveBook = loadCompiledMoveBook(din);
         } catch (IOException e) {
@@ -101,9 +101,9 @@ public class MoveBook {
 
     }
 
-    public void addEntry(String xmlBoard, Long hashcode, long move) {
-        List<Long> verboseEntries = verboseMoveBook.get(xmlBoard);
-        List<Long> entries = hashMoveBook.get(hashcode);
+    public void addEntry(String xmlBoard, Long hashcode, Move move) {
+        List<Move> verboseEntries = verboseMoveBook.get(xmlBoard);
+        List<Move> entries = hashMoveBook.get(hashcode);
 
         if (entries != null) {
             if (!entries.contains(move)) {
@@ -120,7 +120,7 @@ public class MoveBook {
         if (verboseEntries != null) {
             verboseEntries.add(move);
         } else {
-            verboseEntries = new ArrayList<Long>();
+            verboseEntries = new ArrayList<>();
             verboseEntries.add(move);
             verboseMoveBook.put(xmlBoard, verboseEntries);
         }
@@ -136,7 +136,7 @@ public class MoveBook {
 
         int i = 0;
         ArrayList<Long> keys = new ArrayList<Long>(hashMoveBook.keySet());
-        for (List<Long> moves : hashMoveBook.values()) {
+        for (List<Move> moves : hashMoveBook.values()) {
             xmlMoveBook += "<entry>\n";
 
             xmlMoveBook += "<state>\n";
@@ -151,8 +151,8 @@ public class MoveBook {
 
             xmlMoveBook += "<response>\n";
 
-            for (Long m : moves) {
-                xmlMoveBook += Move.toXML(m);
+            for (Move m : moves) {
+                xmlMoveBook += m.toXML();
             }
 
             xmlMoveBook += "</response>\n";
@@ -175,7 +175,7 @@ public class MoveBook {
 
         int i = 0;
         List<String> keys = new ArrayList<>(verboseMoveBook.keySet());
-        for (List<Long> moves : verboseMoveBook.values()) {
+        for (List<Move> moves : verboseMoveBook.values()) {
             xmlMoveBook += "<entry>\n";
 
             xmlMoveBook += "<state>\n";
@@ -186,8 +186,8 @@ public class MoveBook {
 
             xmlMoveBook += "<response>\n";
 
-            for (Long m : moves) {
-                xmlMoveBook += Move.toXML(m);
+            for (Move m : moves) {
+                xmlMoveBook += m.toXML();
             }
 
             xmlMoveBook += "</response>\n";
@@ -200,14 +200,14 @@ public class MoveBook {
         return xmlMoveBook;
     }
 
-    public void saveCompiledMoveBook(Map<Long, List<Long>> moveBook, String fileName) {
+    public void saveCompiledMoveBook(Map<Long, List<Move>> moveBook, String fileName) {
 
         try (DataOutputStream dout = FileIO.getDataOutputStream(fileName)) {
 
-            for (Map.Entry<Long, List<Long>> entry : moveBook.entrySet()) {
+            for (Map.Entry<Long, List<Move>> entry : moveBook.entrySet()) {
                 dout.writeLong(entry.getKey());
-                for (Long m : entry.getValue()) {
-                    dout.writeShort((int) (Move.fromToMask & m));
+                for (Move m : entry.getValue()) {
+                    dout.writeShort(m.fromToAsInt());
                 }
                 dout.writeShort(-1);
             }
@@ -219,17 +219,17 @@ public class MoveBook {
         }
     }
 
-    private Map<Long, List<Long>> loadCompiledMoveBook(DataInputStream din) {
+    private Map<Long, List<Move>> loadCompiledMoveBook(DataInputStream din) {
 
         long time1 = System.currentTimeMillis();
 
         logger.debug("Loading compiled book");
 
-        Map<Long, List<Long>> moveBook = new HashMap<>();
+        Map<Long, List<Move>> moveBook = new HashMap<>();
 
         Long hashCode;
         short move;
-        ArrayList<Long> moves;
+        ArrayList<Move> moves;
 
         boolean eof = false;
         while (!eof) {
@@ -238,7 +238,7 @@ public class MoveBook {
                 moves = new ArrayList<>();
 
                 while ((move = din.readShort()) != -1) {
-                    moves.add((long) move);
+                    moves.add(new Move((long) move));
                 }
 
                 moveBook.put(hashCode, moves);

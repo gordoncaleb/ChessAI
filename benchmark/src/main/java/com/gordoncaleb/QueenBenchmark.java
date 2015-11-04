@@ -1,6 +1,7 @@
 package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Piece;
@@ -25,7 +26,7 @@ public class QueenBenchmark {
     public long[][] posBitBoard = new long[2][];
     public Piece[] queen = new Piece[2];
 
-    public List<Long> validMoves;
+    public List<Move> validMoves;
 
     @Param({"0", "1"})
     private int s;
@@ -71,7 +72,7 @@ public class QueenBenchmark {
     @Benchmark
     @Warmup(iterations = 5, batchSize = 100000)
     @Measurement(iterations = 5, batchSize = 100000)
-    public List<Long> testQueenMoveGen() {
+    public List<Move> testQueenMoveGen() {
         return Queen.generateValidMoves(queen[s], board[s], nullMoveInfo[s], posBitBoard[s], validMoves);
     }
 

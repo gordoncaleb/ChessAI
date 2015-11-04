@@ -2,6 +2,7 @@ package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.util.Perft;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class SerdesTest {
 
         for (int i = 0; i < 5; i++) {
             board.makeNullMove();
-            List<Long> moves = board.generateValidMoves();
+            List<Move> moves = board.generateValidMoves();
             moves.stream()
                     .findFirst()
                     .ifPresent(move -> board.makeMove(move));

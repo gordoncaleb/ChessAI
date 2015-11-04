@@ -99,9 +99,9 @@ public class JSONParser {
         Collections.reverse(moves);
         boardDTO.setMoveHistory(new ArrayList<>(moves));
 
-        long lastMoveMade = board.getLastMoveMade();
-        if (Move.getNote(lastMoveMade) == Move.MoveNote.ENPASSANT) {
-            boardDTO.setEnPassantFile(Optional.of(Move.getFromCol(lastMoveMade)));
+        Move lastMoveMade = board.getLastMoveMade();
+        if (lastMoveMade != null && lastMoveMade.getNote() == Move.MoveNote.ENPASSANT) {
+            boardDTO.setEnPassantFile(Optional.of(lastMoveMade.getFromCol()));
         } else {
             boardDTO.setEnPassantFile(Optional.empty());
         }

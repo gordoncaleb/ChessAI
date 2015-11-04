@@ -1,6 +1,7 @@
 package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.util.Perft;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
@@ -23,7 +24,7 @@ public class PerftBenchmark {
 
     private final Board[] perftBoards = new Board[2];
     private final Perft perft = new Perft();
-    private final List<List<Long>> moveContainers = new ArrayList<>();
+    private final List<List<Move>> moveContainers = new ArrayList<>();
 
     @Setup
     public void init() {

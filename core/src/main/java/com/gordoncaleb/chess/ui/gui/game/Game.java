@@ -3,6 +3,7 @@ package com.gordoncaleb.chess.ui.gui.game;
 import java.util.Hashtable;
 import java.util.ArrayList;
 
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.engine.DecisionNode;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
@@ -125,7 +126,7 @@ public class Game implements PlayerContainer {
         }
     }
 
-    public void recommendationMade(long move) {
+    public void recommendationMade(Move move) {
         if (players.get(Side.BOTH) == null) {
             players.get(Side.WHITE).recommendationMade(move);
             players.get(Side.BLACK).recommendationMade(move);
@@ -180,7 +181,7 @@ public class Game implements PlayerContainer {
         }
     }
 
-    public synchronized boolean makeMove(long move) {
+    public synchronized boolean makeMove(Move move) {
 
         if (clock.hit()) {
             logger.debug("Game Over " + Side.otherSide(turn) + " wins by time!");

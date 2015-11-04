@@ -233,17 +233,17 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     private void populateMoveList() {
         listModel.removeAllElements();
 
-        Optional<List<Long>> recommendations = moveBook.getRecommendations(boardPanel.getBoard().getHashCode());
+        Optional<List<Move>> recommendations = moveBook.getRecommendations(boardPanel.getBoard().getHashCode());
 
         recommendations.ifPresent(moves -> moves.stream()
-                        .forEach(m -> listModel.addElement(new Move(m)))
+                        .forEach(m -> listModel.addElement(m))
         );
 
     }
 
     @Override
-    public long undoMove() {
-        long undone = boardPanel.undoMove();
+    public Move undoMove() {
+        Move undone = boardPanel.undoMove();
         populateMoveList();
 
         undoBtn.setEnabled(boardPanel.canUndo());
@@ -271,8 +271,8 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     }
 
     @Override
-    public void recommendationMade(long move) {
-        if (move != 0) {
+    public void recommendationMade(Move move) {
+        if (move != null) {
             boardPanel.highlightMove(move);
         }
 
@@ -283,7 +283,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     }
 
     @Override
-    public boolean moveMade(long move) {
+    public boolean moveMade(Move move) {
         boardPanel.moveMade(move);
 
         logger.debug("hash = " + boardPanel.getBoard().getHashCode());
@@ -307,7 +307,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
     }
 
     @Override
-    public void makeMove(long move) {
+    public void makeMove(Move move) {
 
         if (record) {
             moveBook.addEntry(boardPanel.getBoard().toXML(false), boardPanel.getBoard().getHashCode(), move);
@@ -391,9 +391,9 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
         }
 
         if (e.getSource() == mbRecommendBtn) {
-            long rec = moveBook.getRecommendation(boardPanel.getBoard().getHashCode());
+            Move rec = moveBook.getRecommendation(boardPanel.getBoard().getHashCode());
 
-            if (rec != 0) {
+            if (rec != null) {
                 boardPanel.highlightMove(rec);
             }
         }
@@ -423,7 +423,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
         if (e.getSource() == moveList) {
 
             if (moveList.getSelectedIndex() > -1) {
-                long move = moveList.getSelectedValue().getMoveLong();
+                Move move = moveList.getSelectedValue();
                 boardPanel.highlightMove(move);
             }
         }

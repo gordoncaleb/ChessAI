@@ -1,10 +1,11 @@
 package com.gordoncaleb.chess.ui.gui.game;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 
 public interface PlayerContainer {
 
-    boolean makeMove(long move);
+    boolean makeMove(Move move);
 
     GameResults newGame(Board board, boolean block);
 
@@ -16,7 +17,7 @@ public interface PlayerContainer {
 
     void requestRecommendation();
 
-    void recommendationMade(long move);
+    void recommendationMade(Move move);
 
     void pause();
 

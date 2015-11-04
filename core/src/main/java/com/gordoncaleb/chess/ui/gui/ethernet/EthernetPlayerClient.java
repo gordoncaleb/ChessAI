@@ -90,7 +90,7 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 			game.showProgress(Integer.parseInt(payload));
 			break;
 		case "<recommendation>":
-			game.recommendationMade(Long.parseLong(payload));
+			game.recommendationMade(new Move(Long.parseLong(payload)));
 			break;
 		case "<recommend>":
 			game.requestRecommendation();
@@ -107,9 +107,9 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 	}
 
 	@Override
-	public long undoMove() {
+	public Move undoMove() {
 		sendMessage("<undoMove>");
-		return 0;
+		return null;
 	}
 
 	@Override
@@ -130,8 +130,8 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 	}
 
 	@Override
-	public boolean moveMade(long move) {
-		sendMessage(Move.toXML(move));
+	public boolean moveMade(Move move) {
+		sendMessage(move.toXML());
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -215,8 +215,8 @@ public class EthernetPlayerClient implements Player, EthernetMsgRxer {
 	}
 
 	@Override
-	public void recommendationMade(long move) {
-		sendMessage("<recommendation>" + move);
+	public void recommendationMade(Move move) {
+		sendMessage("<recommendation>" + move.getMoveLong());
 	}
 
 }

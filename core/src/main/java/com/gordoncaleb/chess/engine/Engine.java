@@ -17,7 +17,7 @@ public class Engine {
     private final MoveBook moveBook;
     private final StaticScore scorer;
 
-    private long[][] killerMoves = new long[100][AISettings.maxKillerMoves];
+    private Move[][] killerMoves = new Move[100][AISettings.maxKillerMoves];
     private int[] killerMoveSize = new int[100];
     private BoardHashEntry[] hashTable = new BoardHashEntry[AISettings.hashTableSize];
 
@@ -31,27 +31,27 @@ public class Engine {
 
     public Long process(final Board board, final int depth) {
 
-        Optional<Long> moveBookRec = moveBook.getRecommendations(board.getHashCode())
+        Optional<Move> moveBookRec = moveBook.getRecommendations(board.getHashCode())
                 .map(moveList -> moveList.get(0));
 
         clearKillerMoves();
 
-        growDecisionTreeLite(board, START_ALPHA, START_BETA, depth, depth, 0, 0);
+        growDecisionTreeLite(board, START_ALPHA, START_BETA, depth, depth, null, 0);
 
         return 1L;
     }
 
-    private int growDecisionTreeLite(Board board, int alpha, int beta, int level, int maxDepth, long moveMade, int bonusLevel) {
+    private int growDecisionTreeLite(Board board, int alpha, int beta, int level, int maxDepth, Move moveMade, int bonusLevel) {
         int suggestedPathValue;
         int bestPathValue = Integer.MIN_VALUE;
 
         int a = alpha;
         int b = beta;
-        long bestMove = 0;
+        Move bestMove = null;
 
         int hashIndex = (int) (board.getHashCode() & AISettings.hashIndexMask);
         BoardHashEntry hashOut;
-        long hashMove = 0;
+        Move hashMove = null;
         hashOut = hashTable[hashIndex];
 
 
@@ -88,7 +88,7 @@ public class Engine {
             bonusLevel = Math.min(bonusLevel, level - 2);
         }
 
-        if ((Move.hasPieceTaken(moveMade)) && (level > -AISettings.maxPieceTakenFrontierLevel)) {
+        if ((moveMade.hasPieceTaken()) && (level > -AISettings.maxPieceTakenFrontierLevel)) {
             bonusLevel = Math.min(bonusLevel, level - 1);
         }
 
@@ -97,7 +97,7 @@ public class Engine {
             if (board.insufficientMaterial() || board.drawByThreeRule()) {
                 board.setBoardStatus(Game.GameStatus.DRAW);
             } else {
-                List<Long> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves));
+                List<Move> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves));
 
                 if (moves.size() == 0) {
                     if (board.isInCheck()) {
@@ -110,7 +110,7 @@ public class Engine {
                     Collections.sort(moves, Collections.reverseOrder());
 
                     Game.GameStatus tempBoardState;
-                    for (Long move : moves) {
+                    for (Move move : moves) {
 
                         tempBoardState = board.getBoardStatus();
 
@@ -190,12 +190,12 @@ public class Engine {
         for (int i = 0; i < killerMoves.length; i++) {
             killerMoveSize[i] = 0;
             for (int m = 0; m < AISettings.maxKillerMoves; m++) {
-                killerMoves[i][m] = 0;
+                killerMoves[i][m] = null;
             }
         }
     }
 
-    public void addKillerMove(int level, long move) {
+    public void addKillerMove(int level, Move move) {
 
         if (level >= 0) {
             if (killerMoveSize[level] < AISettings.maxKillerMoves) {

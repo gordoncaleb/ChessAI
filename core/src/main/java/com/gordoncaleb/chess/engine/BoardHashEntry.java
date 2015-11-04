@@ -1,19 +1,21 @@
 package com.gordoncaleb.chess.engine;
 
+import com.gordoncaleb.chess.board.Move;
+
 public class BoardHashEntry {
 	
 	private int score;
 	private int level;
 	private int moveNum;
 	private long hashCode;
-	private long bestMove;
+	private Move bestMove;
 	private ValueBounds bounds;
 
 	public enum ValueBounds {
 		PV, CUT, ALL, NA
 	}
 
-	public BoardHashEntry(long hashCode, int level, int score, int moveNum, ValueBounds bounds, long bestMove){//,String stringBoard) {
+	public BoardHashEntry(long hashCode, int level, int score, int moveNum, ValueBounds bounds, Move bestMove){//,String stringBoard) {
 		this.score = score;
 		this.level = level;
 		this.moveNum = moveNum;
@@ -23,7 +25,7 @@ public class BoardHashEntry {
 		//this.stringBoard = stringBoard;
 	}
 
-	public void setAll(long hashCode, int level, int score, int moveNum, ValueBounds bounds, long bestMove){//, String stringBoard) {
+	public void setAll(long hashCode, int level, int score, int moveNum, ValueBounds bounds, Move bestMove){//, String stringBoard) {
 		this.score = score;
 		this.level = level;
 		this.moveNum = moveNum;
@@ -65,11 +67,11 @@ public class BoardHashEntry {
 		this.hashCode = hashCode;
 	}
 
-	public long getBestMove() {
+	public Move getBestMove() {
 		return bestMove;
 	}
 
-	public void setBestMove(long bestMove) {
+	public void setBestMove(Move bestMove) {
 		this.bestMove = bestMove;
 	}
 

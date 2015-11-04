@@ -80,13 +80,13 @@ public class PossibleBoardDisplay implements MouseListener {
         }
 
         Board tempBoard;
-        ArrayList<Move> pvMoves = new ArrayList<Move>();
+        ArrayList<Move> pvMoves = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             tempBoard = ai.getBoard().copy();
             pvMoves.clear();
             ai.getMovePV(ai.getRootNode().getChild(i), pvMoves);
             for (int m = 0; m < pvMoves.size(); m++) {
-                tempBoard.makeMove(pvMoves.get(m).getMoveLong());
+                tempBoard.makeMove(pvMoves.get(m));
             }
             boardPanels.get(i).newGame(tempBoard);
             boardLabels.get(i).setText("Score = " + scorer.staticScore(tempBoard) + " Depth =" + pvMoves.size());

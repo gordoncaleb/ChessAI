@@ -46,25 +46,7 @@ public class Move {
         moveLong = moveLong(fromRow, fromCol, toRow, toCol, value, note, pieceTaken, hadMoved);
     }
 
-    // -------------------------------------------------------
-
-    public static long moveLong(int fromRow, int fromCol, int toRow, int toCol) {
-        return moveLong(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, null, false);
-    }
-
-    public static long moveLong(int fromRow, int fromCol, int toRow, int toCol, int value) {
-        return moveLong(fromRow, fromCol, toRow, toCol, value, MoveNote.NONE, null, false);
-    }
-
-    public static long moveLong(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note) {
-        return moveLong(fromRow, fromCol, toRow, toCol, value, note, null, false);
-    }
-
-    public static long moveLong(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken) {
-        return moveLong(fromRow, fromCol, toRow, toCol, value, note, pieceTaken, false);
-    }
-
-    public static long moveLong(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {
+    private long moveLong(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {
         long moveLong;
 
         moveLong = (note.ordinal() << 12) | (fromRow << 9) | (fromCol << 6) | (toRow << 3) | toCol;
@@ -90,67 +72,63 @@ public class Move {
         this.moveLong = moveInt;
     }
 
-    public static List<Move> fromLongs(List<Long> moveLongs) {
-        return moveLongs.stream().map(Move::new).collect(Collectors.toList());
-    }
-
+    @Override
     public boolean equals(Object moveObject) {
-        return (moveObject instanceof Move && Move.equals(((Move) moveObject).getMoveLong(), moveLong));
+        return (moveObject instanceof Move && Move.equals(((Move) moveObject), this));
     }
 
-    public static boolean equals(long moveLongA, long moveLongB) {
-        return ((moveLongA & fromToMask) == (moveLongB & fromToMask));
+    @Override
+    public int hashCode() {
+        return (int) (moveLong ^ (moveLong >>> 32));
     }
 
+    public static boolean equals(Move moveA, Move moveB) {
+        return ((moveA.moveLong & fromToMask) == (moveB.moveLong & fromToMask));
+    }
+
+    @Override
     public String toString() {
-        return toString(moveLong);
-    }
-
-    public static String toString(long moveLong) {
         String moveString;
-        if (hasPieceTaken(moveLong)) {
-            Piece pieceTaken = new Piece(getPieceTakenID(moveLong),
+        if (hasPieceTaken()) {
+            Piece pieceTaken = new Piece(getPieceTakenID(),
                     Side.NONE,
-                    getPieceTakenRow(moveLong),
-                    getPieceTakenCol(moveLong),
-                    getPieceTakenHasMoved(moveLong)
+                    getPieceTakenRow(),
+                    getPieceTakenCol(),
+                    getPieceTakenHasMoved()
             );
-            moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong)
-                    + " Move Note: " + getNote(moveLong).toString() + " Value:" + getValue(moveLong) + " PieceTaken: " + pieceTaken.toString();
+            moveString = "Moving from " + getFromRow() + "," + getFromCol() + " to " + getToRow() + "," + getToCol()
+                    + " Move Note: " + getNote().toString() + " Value:" + getValue() + " PieceTaken: " + pieceTaken.toString() + " MoveLong:" + moveLong;
         } else {
-            moveString = "Moving from " + getFromRow(moveLong) + "," + getFromCol(moveLong) + " to " + getToRow(moveLong) + "," + getToCol(moveLong)
-                    + " Move Note: " + getNote(moveLong).toString() + " Value:" + getValue(moveLong);
+            moveString = "Moving from " + getFromRow() + "," + getFromCol() + " to " + getToRow() + "," + getToCol()
+                    + " Move Note: " + getNote().toString() + " Value:" + getValue() + " MoveLong:" + moveLong;
         }
         return moveString;
     }
 
-    public String toXML() {
-        return toXML(moveLong);
-    }
 
-    public static String toXML(long moveLong) {
+    public String toXML() {
         String xmlMove = "";
 
         xmlMove += "<move>\n";
 
-        xmlMove += "<from>" + getFromRow(moveLong) + "," + getFromCol(moveLong) + "</from>\n";
-        xmlMove += "<to>" + getToRow(moveLong) + "," + getToCol(moveLong) + "</to>\n";
+        xmlMove += "<from>" + getFromRow() + "," + getFromCol() + "</from>\n";
+        xmlMove += "<to>" + getToRow() + "," + getToCol() + "</to>\n";
 
-        if (hadMoved(moveLong)) {
-            xmlMove += "<had_moved>" + hadMoved(moveLong) + "</had_moved>\n";
+        if (hadMoved()) {
+            xmlMove += "<had_moved>" + hadMoved() + "</had_moved>\n";
         }
 
-        MoveNote note = getNote(moveLong);
+        MoveNote note = getNote();
         if (note != MoveNote.NONE) {
             xmlMove += "<note>" + note.toString() + "</note>\n";
         }
 
-        if (hasPieceTaken(moveLong)) {
-            xmlMove += new Piece(getPieceTakenID(moveLong),
+        if (hasPieceTaken()) {
+            xmlMove += new Piece(getPieceTakenID(),
                     Side.NONE,
-                    getPieceTakenRow(moveLong),
-                    getPieceTakenCol(moveLong),
-                    getPieceTakenHasMoved(moveLong)
+                    getPieceTakenRow(),
+                    getPieceTakenCol(),
+                    getPieceTakenHasMoved()
             ).toXML();
         }
 
@@ -159,25 +137,12 @@ public class Move {
         return xmlMove;
     }
 
-    public long setNote(MoveNote note) {
+    public void setNote(MoveNote note) {
         moveLong &= notNoteMask;
         moveLong |= (note.ordinal() << 12);
-
-        return moveLong;
-    }
-
-    public static long setNote(long moveLong, MoveNote note) {
-        moveLong &= notNoteMask;
-        moveLong |= (note.ordinal() << 12);
-
-        return moveLong;
     }
 
     public MoveNote getNote() {
-        return MoveNote.values()[(int) ((moveLong >> 12) & 0x7)];
-    }
-
-    public static MoveNote getNote(long moveLong) {
         return MoveNote.values()[(int) ((moveLong >> 12) & 0x7)];
     }
 
@@ -185,15 +150,7 @@ public class Move {
         return (int) ((moveLong >> 9) & 0x7);
     }
 
-    public static int getFromRow(long moveLong) {
-        return (int) ((moveLong >> 9) & 0x7);
-    }
-
     public int getFromCol() {
-        return (int) ((moveLong >> 6) & 0x7);
-    }
-
-    public static int getFromCol(long moveLong) {
         return (int) ((moveLong >> 6) & 0x7);
     }
 
@@ -201,15 +158,7 @@ public class Move {
         return (int) ((moveLong >> 3) & 0x7);
     }
 
-    public static int getToRow(long moveLong) {
-        return (int) ((moveLong >> 3) & 0x7);
-    }
-
     public int getToCol() {
-        return (int) (moveLong & 0x7);
-    }
-
-    public static int getToCol(long moveLong) {
         return (int) (moveLong & 0x7);
     }
 
@@ -217,26 +166,12 @@ public class Move {
         return (int) (moveLong >> 32);
     }
 
-    public static int getValue(long moveLong) {
-        return (int) (moveLong >> 32);
-    }
-
-    public long setValue(int value) {
+    public void setValue(int value) {
         moveLong = moveLong & 0xFFFFFFFFL;
         moveLong |= ((long) value) << 32;
-
-        return moveLong;
     }
 
-    public static long setValue(long moveLong, int value) {
-        moveLong = moveLong & 0xFFFFFFFFL;
-
-        moveLong |= ((long) value) << 32;
-
-        return moveLong;
-    }
-
-    public long setPieceTaken(Piece pieceTaken) {
+    public void setPieceTaken(Piece pieceTaken) {
         moveLong &= notPieceTaken;
         if (pieceTaken != null) {
             moveLong |= (pieceTaken.getPieceID() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
@@ -246,55 +181,22 @@ public class Move {
             }
         }
 
-        return moveLong;
-    }
-
-    public static long setPieceTaken(long moveLong, Piece pieceTaken) {
-        moveLong &= notPieceTaken;
-        if (pieceTaken != null) {
-            moveLong |= (pieceTaken.getPieceID() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
-
-            if (pieceTaken.hasMoved()) {
-                moveLong |= pieceTakenHasMoved;
-            }
-        }
-
-        return moveLong;
     }
 
     public boolean hadMoved() {
         return ((moveLong & hadMovedMask) != 0);
     }
 
-    public static boolean hadMoved(long moveLong) {
-        return ((moveLong & hadMovedMask) != 0);
-    }
-
-    public long setHadMoved(boolean hadMoved) {
+    public void setHadMoved(boolean hadMoved) {
         if (hadMoved) {
             moveLong |= hadMovedMask;
         } else {
             moveLong &= ~hadMovedMask;
         }
 
-        return moveLong;
-    }
-
-    public static long setHadMoved(long moveLong, boolean hadMoved) {
-        if (hadMoved) {
-            moveLong |= hadMovedMask;
-        } else {
-            moveLong &= ~hadMovedMask;
-        }
-
-        return moveLong;
     }
 
     public boolean hasPieceTaken() {
-        return ((moveLong & hasPieceTakenMask) != 0);
-    }
-
-    public static boolean hasPieceTaken(long moveLong) {
         return ((moveLong & hasPieceTakenMask) != 0);
     }
 
@@ -302,15 +204,7 @@ public class Move {
         return ((moveLong & pieceTakenHasMoved) != 0);
     }
 
-    public static boolean getPieceTakenHasMoved(long moveLong) {
-        return ((moveLong & pieceTakenHasMoved) != 0);
-    }
-
     public int getPieceTakenRow() {
-        return (int) ((moveLong >> 20) & 0x7);
-    }
-
-    public static int getPieceTakenRow(long moveLong) {
         return (int) ((moveLong >> 20) & 0x7);
     }
 
@@ -318,15 +212,7 @@ public class Move {
         return (int) ((moveLong >> 17) & 0x7);
     }
 
-    public static int getPieceTakenCol(long moveLong) {
-        return (int) ((moveLong >> 17) & 0x7);
-    }
-
     public int getPieceTakenID() {
-        return (int) ((moveLong >> 23) & 0x7);
-    }
-
-    public static int getPieceTakenID(long moveLong) {
         return (int) ((moveLong >> 23) & 0x7);
     }
 
@@ -336,6 +222,10 @@ public class Move {
 
     public long getMoveLong() {
         return moveLong;
+    }
+
+    public int fromToAsInt() {
+        return (int) (fromToMask & moveLong);
     }
 
     public enum MoveNote {

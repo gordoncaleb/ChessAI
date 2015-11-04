@@ -3,6 +3,7 @@ package com.gordoncaleb.chess.board.pieces;
 import java.util.List;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.Side;
 
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;
@@ -15,11 +16,11 @@ public class Rook {
         return "R";
     }
 
-    public static List<Long> generateValidMoves(final Piece p,
+    public static List<Move> generateValidMoves(final Piece p,
                                                 final Board board,
                                                 final long[] nullMoveInfo,
                                                 final long[] posBitBoard,
-                                                final List<Long> validMoves) {
+                                                final List<Move> validMoves) {
 
         final long friends = posBitBoard[p.getSide()];
         final long foes = posBitBoard[Side.otherSide(p.getSide())];

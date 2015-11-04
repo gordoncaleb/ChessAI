@@ -77,8 +77,8 @@ public class XMLParser {
 		NodeList nodes = boardElement.getElementsByTagName("move");
 		Stack<Move> moveHistory = new Stack<>();
 		for (int n = 0; n < nodes.getLength(); n++) {
-			Long m = buildMove((Element) nodes.item(n));
-			moveHistory.push(new Move(m));
+			Move m = buildMove((Element) nodes.item(n));
+			moveHistory.push(m);
 		}
 
 		if (pieces[Side.BLACK].size() == 0 || pieces[Side.WHITE].size() == 0) {
@@ -89,7 +89,7 @@ public class XMLParser {
 		Board newBoard = new Board(pieces, player, new ArrayDeque<>());
 
 		for (int i = 0; i < moveHistory.size(); i++) {
-			newBoard.makeMove(moveHistory.elementAt(i).getMoveLong());
+			newBoard.makeMove(moveHistory.elementAt(i));
 		}
 
 		return newBoard;
@@ -114,13 +114,13 @@ public class XMLParser {
 		return Piece.fromString(id, row, col);
 	}
 
-	public static long XMLToMove(String xmlMove) {
+	public static Move XMLToMove(String xmlMove) {
 		Document doc = XMLParser.getDocument(xmlMove);
 
 		return buildMove((Element) doc.getElementsByTagName("move").item(0));
 	}
 
-	private static long buildMove(Element moveElement) {
+	private static Move buildMove(Element moveElement) {
 
 		NodeList nodes;
 
@@ -161,7 +161,7 @@ public class XMLParser {
 			pieceTaken = buildPiece((Element) nodes.item(0));
 		}
 
-		return Move.moveLong(fromRow, fromCol, toRow, toCol, 0, moveNote, pieceTaken, hadMoved);
+		return new Move(fromRow, fromCol, toRow, toCol, 0, moveNote, pieceTaken, hadMoved);
 	}
 
 	private static Document getDocument(String xml) {
@@ -198,21 +198,21 @@ public class XMLParser {
 		if (includeHistory) {
 
 			Stack<Move> movesToRedo = new Stack<>();
-			long m;
-			while ((m = b.undoMove()) != 0) {
-				movesToRedo.push(new Move(m));
+			Move m;
+			while ((m = b.undoMove()) != null) {
+				movesToRedo.push(m);
 			}
 
 			xmlBoard += "<setup>\n" + b.toString() + "</setup>\n";
 			xmlBoard += "<turn>" + Side.toString(b.getTurn()) + "</turn>\n";
 
 			while (!movesToRedo.isEmpty()) {
-				b.makeMove(movesToRedo.pop().getMoveLong());
+				b.makeMove(movesToRedo.pop());
 				xmlBoard += "<setup>\n" + b.toString() + "</setup>\n";
 			}
 
 			for (Move move: b.getMoveHistory()) {
-				xmlBoard += Move.toXML(move.getMoveLong());
+				xmlBoard += move.toXML();
 			}
 
 		} else {

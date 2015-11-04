@@ -13,6 +13,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.engine.AI;
 import com.gordoncaleb.chess.engine.AISettings;
 import com.gordoncaleb.chess.board.Board;
@@ -209,12 +210,12 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public void makeMove(long move) {
+	public void makeMove(Move move) {
 		game.makeMove(move);
 	}
 
 	@Override
-	public synchronized boolean moveMade(long move) {
+	public synchronized boolean moveMade(Move move) {
 
 		boolean suc = boardPanel.moveMade(move);
 		undoUserMoveMenu.setEnabled(boardPanel.canUndo() && (boardPanel.getBoard().getMoveHistory().size() > 1));
@@ -227,17 +228,17 @@ public class PlayerGUI implements Player, BoardGUI, MouseListener {
 	}
 
 	@Override
-	public long undoMove() {
+	public Move undoMove() {
 
-		long suc = boardPanel.undoMove();
+		Move suc = boardPanel.undoMove();
 		undoUserMoveMenu.setEnabled(boardPanel.canUndo() && (boardPanel.getBoard().getMoveHistory().size() > 1));
 
 		return suc;
 	}
 
 	@Override
-	public void recommendationMade(long move) {
-		if (move != 0) {
+	public void recommendationMade(Move move) {
+		if (move != null) {
 			boardPanel.highlightMove(move);
 		}
 	}
