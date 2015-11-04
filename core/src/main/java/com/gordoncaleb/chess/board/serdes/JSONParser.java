@@ -1,23 +1,21 @@
 package com.gordoncaleb.chess.board.serdes;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.util.JSON;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
-import static com.gordoncaleb.chess.board.serdes.BoardJSON.*;
+import static com.gordoncaleb.chess.board.serdes.BoardDTO.*;
 
 public class JSONParser {
 
@@ -35,8 +33,8 @@ public class JSONParser {
             .build();
 
     public static Board getByFileName(String fileName) throws IOException {
-        BoardJSON boardJSON = JSON.fromJSON(FileIO.readResource(fileName), BoardJSON.class);
-        return buildBoard(boardJSON);
+        BoardDTO boardDTO = JSON.fromJSON(FileIO.readResource(fileName), BoardDTO.class);
+        return buildBoard(boardDTO);
     }
 
     public static Board getFromSetup(int turn, String[] setup) {
@@ -51,36 +49,74 @@ public class JSONParser {
                                    int fullMoves,
                                    Optional<Integer> enPassantFile) {
 
-        BoardJSON boardJSON = new BoardJSON();
-        boardJSON.setCastle(ImmutableMap.of(Side.toString(Side.WHITE), white,
+        BoardDTO boardDTO = new BoardDTO();
+        boardDTO.setCastle(ImmutableMap.of(Side.toString(Side.WHITE), white,
                 Side.toString(Side.BLACK), black));
-        boardJSON.setTurn(Side.toString(turn));
+        boardDTO.setTurn(Side.toString(turn));
         Map<String, String> setupMap = new HashMap<>();
         Arrays.stream(setup).forEach(l -> setupMap.put(8 - setupMap.size() + "", l));
-        boardJSON.setSetup(setupMap);
-        boardJSON.setHalfMoves(halfMoves);
-        boardJSON.setFullMoves(fullMoves);
-        boardJSON.setEnPassantFile(enPassantFile);
+        boardDTO.setSetup(setupMap);
+        boardDTO.setHalfMoves(halfMoves);
+        boardDTO.setFullMoves(fullMoves);
+        boardDTO.setEnPassantFile(enPassantFile);
 
-        return buildBoard(boardJSON);
-    }
-
-    public static Board fromJSONFile(File jsonFile) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        BoardJSON boardJSON = objectMapper.readValue(jsonFile, BoardJSON.class);
-        return JSONParser.buildBoard(boardJSON);
+        return buildBoard(boardDTO);
     }
 
     public static Board fromJSON(String jsonString) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        BoardJSON boardJSON = objectMapper.readValue(jsonString, BoardJSON.class);
-        return JSONParser.buildBoard(boardJSON);
+        BoardDTO boardDTO = JSON.fromJSON(jsonString, BoardDTO.class);
+        return JSONParser.buildBoard(boardDTO);
     }
 
-    public static Board buildBoard(BoardJSON boardJSON) {
+    public static BoardDTO boardToBoardDto(Board board) {
+        BoardDTO boardDTO = new BoardDTO();
+
+        CastleRights white = new CastleRights(
+                !board.nearRookHasMoved(Side.WHITE) && !board.kingHasMoved(Side.WHITE),
+                !board.farRookHasMoved(Side.WHITE) && !board.kingHasMoved(Side.WHITE));
+
+        CastleRights black = new CastleRights(
+                !board.nearRookHasMoved(Side.BLACK) && !board.kingHasMoved(Side.BLACK),
+                !board.farRookHasMoved(Side.BLACK) && !board.kingHasMoved(Side.BLACK));
+
+        boardDTO.setCastle(ImmutableMap.of(Side.toString(Side.WHITE), white,
+                Side.toString(Side.BLACK), black));
+
+        boardDTO.setTurn(Side.toString(board.getTurn()));
+
+        String[] setup = board.toString().split("\n");
+        Map<String, String> setupMap = new HashMap<>();
+        Arrays.stream(setup).forEach(l -> setupMap.put(8 - setupMap.size() + "", l));
+        boardDTO.setSetup(setupMap);
+
+        boardDTO.setHalfMoves(0);
+        boardDTO.setFullMoves(0);
+
+        List<Long> moves = board.getMoveHistory().stream()
+                .map(m -> m.getMoveLong())
+                .collect(Collectors.toList());
+
+        Collections.reverse(moves);
+        boardDTO.setMoveHistory(new ArrayList<>(moves));
+
+        long lastMoveMade = board.getLastMoveMade();
+        if (Move.getNote(lastMoveMade) == Move.MoveNote.ENPASSANT) {
+            boardDTO.setEnPassantFile(Optional.of(Move.getFromCol(lastMoveMade)));
+        } else {
+            boardDTO.setEnPassantFile(Optional.empty());
+        }
+
+        return boardDTO;
+    }
+
+    public static String toJSON(Board board) throws JsonProcessingException {
+        return JSON.toJSON(boardToBoardDto(board));
+    }
+
+    public static Board buildBoard(BoardDTO boardDTO) {
         Map<Integer, ArrayList<Piece>> pieces = ImmutableMap.of(Side.WHITE, new ArrayList<>(), Side.BLACK, new ArrayList<>());
 
-        String stringBoard = boardJSON.getSetup().entrySet().stream()
+        String stringBoard = boardDTO.getSetup().entrySet().stream()
                 .sorted((b, a) -> a.getKey().compareTo(b.getKey()))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.joining());
@@ -99,13 +135,19 @@ public class JSONParser {
             }
         }
 
+        Optional<List<Move>> moveHistory = Optional.ofNullable(boardDTO.getMoveHistory())
+                .map(moves -> moves.stream()
+                        .map(m -> new Move(m))
+                        .collect(Collectors.toList()));
+
         Board board = new Board(new ArrayList[]{pieces.get(Side.BLACK),
                 pieces.get(Side.WHITE)},
-                Side.fromString(boardJSON.getTurn()),
-                new ArrayDeque<>()
+                Side.fromString(boardDTO.getTurn()),
+                moveHistory.map(ArrayDeque::new)
+                        .orElse(new ArrayDeque<>())
         );
 
-        boardJSON.getCastle()
+        boardDTO.getCastle()
                 .forEach((side, rights) ->
                         board.applyCastleRights(Side.fromString(side), rights.isNear(), rights.isFar()));
 

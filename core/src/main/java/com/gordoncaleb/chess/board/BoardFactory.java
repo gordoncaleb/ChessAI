@@ -1,15 +1,13 @@
 package com.gordoncaleb.chess.board;
 
-import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gordoncaleb.chess.board.pieces.Piece;
-import com.gordoncaleb.chess.board.serdes.BoardJSON;
+import com.gordoncaleb.chess.board.serdes.BoardDTO;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
 
@@ -132,8 +130,8 @@ public class BoardFactory {
         int turn = m.group(2).matches("w") ? Side.WHITE : Side.BLACK;
 
         String castleSection = m.group(3);
-        BoardJSON.CastleRights whiteCastleRights = new BoardJSON.CastleRights(castleSection.contains("K"), castleSection.contains("Q"));
-        BoardJSON.CastleRights blackCastleRights = new BoardJSON.CastleRights(castleSection.contains("k"), castleSection.contains("q"));
+        BoardDTO.CastleRights whiteCastleRights = new BoardDTO.CastleRights(castleSection.contains("K"), castleSection.contains("Q"));
+        BoardDTO.CastleRights blackCastleRights = new BoardDTO.CastleRights(castleSection.contains("k"), castleSection.contains("q"));
 
         Optional<Integer> enPassentFile = PGNParser.getFileNumberFromAlgNotation(m.group(4));
 
