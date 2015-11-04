@@ -37,7 +37,7 @@ public class SerdesTest {
     public void testJSONRoundTripWithMoveHistory() throws Exception {
         Board board = BoardFactory.getStandardChessBoard();
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
             board.makeNullMove();
             List<Move> moves = board.generateValidMoves();
             moves.stream()
@@ -46,9 +46,10 @@ public class SerdesTest {
         }
 
         String json = JSONParser.toJSON(board);
-        Board boardFromJson = JSONParser.fromJSON(json);
 
         logger.info(json);
+
+        Board boardFromJson = JSONParser.fromJSON(json);
 
         assertThat(boardFromJson.getMoveHistory().toArray(), is(arrayContaining(board.getMoveHistory().toArray())));
     }

@@ -13,10 +13,10 @@ import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 public class Piece {
     private int row;
     private int col;
-    private int player;
-    private boolean moved;
+    private int side;
+    private boolean hasMoved;
     private long blockingVector;
-    private int id;
+    private int pieceId;
 
     public static class PieceID {
         public static final int NONE = -1;
@@ -33,10 +33,14 @@ public class Piece {
         NO_PIECE, ENEMY, FRIEND, OFF_BOARD
     }
 
-    public Piece(int id, int player, int row, int col, boolean moved) {
-        this.id = id;
-        this.moved = moved;
-        this.player = player;
+    public Piece(){
+
+    }
+
+    public Piece(int pieceId, int side, int row, int col, boolean hasMoved) {
+        this.pieceId = pieceId;
+        this.hasMoved = hasMoved;
+        this.side = side;
         this.row = row;
         this.col = col;
         this.blockingVector = BitBoard.ALL_ONES;
@@ -58,6 +62,30 @@ public class Piece {
         this.col = col;
     }
 
+    public int getSide() {
+        return side;
+    }
+
+    public void setSide(int side){
+        this.side = side;
+    }
+
+    public boolean getHasMoved() {
+        return hasMoved;
+    }
+
+    public void setHasMoved(boolean moved) {
+        this.hasMoved = moved;
+    }
+
+    public int getPieceID() {
+        return pieceId;
+    }
+
+    public void setPieceID(int pieceId) {
+        this.pieceId = pieceId;
+    }
+
     public long asBitMask() {
         return BitBoard.getMask(row, col);
     }
@@ -65,25 +93,13 @@ public class Piece {
     public void move(int row, int col){
         this.row = row;
         this.col = col;
-        this.moved = true;
+        this.hasMoved = true;
     }
 
     public void unmove(int row, int col, boolean hadMoved){
         this.row = row;
         this.col = col;
-        this.moved = hadMoved;
-    }
-
-    public int getSide() {
-        return player;
-    }
-
-    public boolean hasMoved() {
-        return moved;
-    }
-
-    public void setMoved(boolean moved) {
-        this.moved = moved;
+        this.hasMoved = hadMoved;
     }
 
     public void putBlockingVector(long blockingVector) {
@@ -102,9 +118,9 @@ public class Piece {
         String stringId;
 
         if (this.getSide() == Side.WHITE) {
-            stringId = this.getStringID(this.id);
+            stringId = this.stringID(this.pieceId);
         } else {
-            stringId = this.getStringID(this.id).toLowerCase();
+            stringId = this.stringID(this.pieceId).toLowerCase();
         }
 
         return stringId;
@@ -114,11 +130,11 @@ public class Piece {
         return XMLParser.pieceToXML(this);
     }
 
-    public boolean isValidMove(long position, long[] nullMoveInfo) {
-        return isValidMove(nullMoveInfo, position, position);
+    public boolean checkValidMove(long position, long[] nullMoveInfo) {
+        return checkValidMove(nullMoveInfo, position, position);
     }
 
-    public boolean isValidMove(long[] nullMoveInfo, long position, long attacks) {
+    public boolean checkValidMove(long[] nullMoveInfo, long position, long attacks) {
         if ((attacks & nullMoveInfo[1]) != 0 && (position & blockingVector) != 0) {
             return true;
         } else {
@@ -126,7 +142,7 @@ public class Piece {
         }
     }
 
-    public static String getStringID(int id) {
+    public static String stringID(int id) {
         switch (id) {
             case ROOK:
                 return "R";
@@ -145,17 +161,9 @@ public class Piece {
         }
     }
 
-    public int getPieceID() {
-        return id;
-    }
-
-    public void setPieceID(int id) {
-        this.id = id;
-    }
-
     public void generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard, List<Move> validMoves) {
 
-        switch (id) {
+        switch (pieceId) {
             case ROOK:
                 Rook.generateValidMoves(this, board, nullMoveInfo, posBitBoard, validMoves);
                 break;
@@ -222,8 +230,8 @@ public class Piece {
         return validMoves;
     }
 
-    public Piece getCopy() {
-        return new Piece(id, player, row, col, moved);
+    public Piece copy() {
+        return new Piece(pieceId, side, row, col, hasMoved);
     }
 
 }

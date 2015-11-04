@@ -81,7 +81,7 @@ public class Board {
         for (int i = 0; i < pieces.length; i++) {
 
             for (int p = 0; p < pieces[i].size(); p++) {
-                temp = pieces[i].get(p).getCopy();
+                temp = pieces[i].get(p).copy();
 
                 this.pieces[i].add(temp);
 
@@ -92,7 +92,7 @@ public class Board {
                 if (temp.getPieceID() == PAWN) {
 
                     if (temp.getRow() != pawnRow[i]) {
-                        temp.setMoved(true);
+                        temp.setHasMoved(true);
                     }
                 }
 
@@ -101,7 +101,7 @@ public class Board {
                     kings[i] = temp;
 
                     if (temp.getRow() != materialRow[i]) {
-                        temp.setMoved(true);
+                        temp.setHasMoved(true);
                     }
                 }
             }
@@ -429,7 +429,7 @@ public class Board {
             for (int m = prevMovesSize; m < validMoves.size(); m++) {
                 move = validMoves.get(m);
 
-                move.setHadMoved(p.hasMoved());
+                move.setHadMoved(p.getHasMoved());
 
                 if (move == hashMove) {
                     move.setValue(10000);
@@ -614,7 +614,7 @@ public class Board {
             }
         }
 
-        piece.setMoved(false);
+        piece.setHasMoved(false);
 
         if (piece.getRow() >= 0) {
             // remove where piece was if it was on board
@@ -719,7 +719,7 @@ public class Board {
 
     public boolean farRookHasMoved(int player) {
         Piece p = farRook(player);
-        return p == null || p.hasMoved();
+        return p == null || p.getHasMoved();
     }
 
     private Piece nearRook(int player) {
@@ -732,7 +732,7 @@ public class Board {
 
     public boolean nearRookHasMoved(int player) {
         Piece p = nearRook(player);
-        return p == null || p.hasMoved();
+        return p == null || p.getHasMoved();
     }
 
     public void applyCastleRights(int player, boolean nearRights, boolean farRights) {
@@ -740,10 +740,10 @@ public class Board {
         Piece farRook = farRook(player);
 
         if (nearRook != null) {
-            nearRook.setMoved(!nearRights);
+            nearRook.setHasMoved(!nearRights);
         }
         if (farRook != null) {
-            farRook.setMoved(!farRights);
+            farRook.setHasMoved(!farRights);
         }
     }
 
@@ -752,7 +752,7 @@ public class Board {
     }
 
     public boolean kingHasMoved(int player) {
-        return kings[player].hasMoved();
+        return kings[player].getHasMoved();
     }
 
     public Board copy() {

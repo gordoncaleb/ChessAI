@@ -3,9 +3,6 @@ package com.gordoncaleb.chess.board;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.board.serdes.XMLParser;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class Move {
 
     public enum MoveNote {
@@ -28,6 +25,10 @@ public class Move {
     private int fromRow, fromCol, toRow, toCol;
     private Piece pieceTaken;
     private boolean hadMoved;
+
+    public Move(){
+
+    }
 
     public Move(int fromRow, int fromCol, int toRow, int toCol) {
         this(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, null, false);
@@ -144,7 +145,7 @@ public class Move {
         if (pieceTaken != null) {
             moveLong |= (pieceTaken.getPieceID() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
 
-            if (pieceTaken.hasMoved()) {
+            if (pieceTaken.getHasMoved()) {
                 moveLong |= pieceTakenHasMovedMask;
             }
         }

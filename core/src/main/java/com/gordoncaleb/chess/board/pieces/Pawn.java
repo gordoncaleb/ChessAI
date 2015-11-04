@@ -30,7 +30,7 @@ public class Pawn {
 
         if (board.checkPiece(currentRow + dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
 
-            if (p.isValidMove(getMask(currentRow + dir, currentCol), nullMoveInfo)) {
+            if (p.checkValidMove(getMask(currentRow + dir, currentCol), nullMoveInfo)) {
 
                 move = new Move(currentRow, currentCol, currentRow + dir, currentCol, 0, Move.MoveNote.NONE);
 
@@ -41,9 +41,9 @@ public class Pawn {
                 validMoves.add(move);
             }
 
-            if (!p.hasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
+            if (!p.getHasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
 
-                if (p.isValidMove(getMask(currentRow + 2 * dir, currentCol), nullMoveInfo)) {
+                if (p.checkValidMove(getMask(currentRow + 2 * dir, currentCol), nullMoveInfo)) {
 
                     validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol, 0, Move.MoveNote.PAWN_LEAP));
 
@@ -56,7 +56,7 @@ public class Pawn {
         for (int i : lr) {
             if (board.checkPiece(currentRow + dir, currentCol + i, player) == Piece.PositionStatus.ENEMY) {
 
-                if (p.isValidMove(getMask(currentRow + dir, currentCol + i), nullMoveInfo)) {
+                if (p.checkValidMove(getMask(currentRow + dir, currentCol + i), nullMoveInfo)) {
 
                     move = new Move(currentRow, currentCol, currentRow + dir, currentCol + i);
 
@@ -79,7 +79,7 @@ public class Pawn {
                     if ((board.getLastMoveMade().getToCol() == (currentCol + i)) && board.getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
 
                         long position = getMask(currentRow + dir, currentCol + i);
-                        if (p.isValidMove(nullMoveInfo, position, position | getMask(fifthRank, currentCol + i))) {
+                        if (p.checkValidMove(nullMoveInfo, position, position | getMask(fifthRank, currentCol + i))) {
 
                             move = new Move(currentRow, currentCol, currentRow + dir, currentCol + i, 0, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + i));
                             validMoves.add(move);

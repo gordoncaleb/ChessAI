@@ -256,7 +256,7 @@ public class XMLParser {
 
         xmlPiece += "<piece>\n";
         xmlPiece += "<id>" + p.toString() + "</id>\n";
-        xmlPiece += "<has_moved>" + p.hasMoved() + "</has_moved>\n";
+        xmlPiece += "<has_moved>" + p.getHasMoved() + "</has_moved>\n";
         xmlPiece += "<position>" + p.getRow() + "," + p.getCol() + "</position>\n";
         xmlPiece += "</piece>\n";
 
