@@ -85,6 +85,31 @@ public class Piece {
         this.pieceId = pieceId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Piece piece = (Piece) o;
+
+        if (row != piece.row) return false;
+        if (col != piece.col) return false;
+        if (side != piece.side) return false;
+        if (hasMoved != piece.hasMoved) return false;
+        return pieceId == piece.pieceId;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = row;
+        result = 31 * result + col;
+        result = 31 * result + side;
+        result = 31 * result + (hasMoved ? 1 : 0);
+        result = 31 * result + pieceId;
+        return result;
+    }
+
     public long asBitMask() {
         return BitBoard.getMask(row, col);
     }

@@ -26,9 +26,12 @@ public class MoveBookTest {
 
         for (Long key : moveBook.keySet()) {
             List<Move> movesFromTo = moveBook.get(key).stream()
+                    .map(Move::justFromTo)
                     .collect(Collectors.toList());
 
-            List<Move> loadedMoveBookMoves = loadedMoveBook.get(key);
+            List<Move> loadedMoveBookMoves = loadedMoveBook.get(key).stream()
+                    .map(Move::justFromTo)
+                    .collect(Collectors.toList());
 
             assertThat(movesFromTo, containsInAnyOrder(loadedMoveBookMoves.toArray()));
         }

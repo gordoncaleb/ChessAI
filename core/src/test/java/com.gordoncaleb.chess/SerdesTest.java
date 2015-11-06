@@ -2,15 +2,12 @@ package com.gordoncaleb.chess;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
-import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.BoardTestFixture;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.util.Perft;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
@@ -33,19 +30,12 @@ public class SerdesTest {
     }
 
     @Test
-    @Ignore
     public void testJSONRoundTripWithMoveHistory() throws Exception {
         Board board = BoardFactory.getStandardChessBoard();
 
-        for (int i = 0; i < 20; i++) {
-            board.makeNullMove();
-            List<Move> moves = board.generateValidMoves();
-            moves.stream()
-                    .findFirst()
-                    .ifPresent(move -> board.makeMove(move));
-        }
+        BoardTestFixture.makeRandomMoves(board, 20);
 
-        String json = JSONParser.toJSON(board);
+        String json = JSONParser.toJSON(board, true);
 
         logger.info(json);
 

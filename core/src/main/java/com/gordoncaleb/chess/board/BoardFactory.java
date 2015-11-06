@@ -71,7 +71,7 @@ public class BoardFactory {
             }
         }
 
-        return new Board(pieces, Side.WHITE, new ArrayDeque<>());
+        return new Board(pieces, Side.WHITE);
     }
 
     private static int ithEmptyPosition(int i, int[] setup) {

@@ -68,6 +68,28 @@ public class JSONParser {
         return JSONParser.buildBoard(boardDTO);
     }
 
+    public static BoardDTO boardToBoardDtoWithHistory(Board board) {
+        BoardDTO boardDTO = new BoardDTO();
+
+        List<Move> moveHistory = new ArrayList<>(board.getMoveHistory());
+        Collections.reverse(moveHistory);
+        boardDTO.setMoveHistory(moveHistory);
+
+        //find initial position
+        while (board.canUndo()) {
+            board.undoMove();
+        }
+
+        boardDTO.setTurn(Side.toString(board.getTurn()));
+
+        String[] setup = board.toString().split("\n");
+        Map<String, String> setupMap = new HashMap<>();
+        Arrays.stream(setup).forEach(l -> setupMap.put(8 - setupMap.size() + "", l));
+        boardDTO.setSetup(setupMap);
+
+        return boardDTO;
+    }
+
     public static BoardDTO boardToBoardDto(Board board) {
         BoardDTO boardDTO = new BoardDTO();
 
@@ -92,12 +114,6 @@ public class JSONParser {
         boardDTO.setHalfMoves(0);
         boardDTO.setFullMoves(0);
 
-        List<Move> moves = board.getMoveHistory().stream()
-                .collect(Collectors.toList());
-        Collections.reverse(moves);
-
-        boardDTO.setMoveHistory(new ArrayList<>(moves));
-
         Move lastMoveMade = board.getLastMoveMade();
         if (lastMoveMade != null && lastMoveMade.getNote() == Move.MoveNote.ENPASSANT) {
             boardDTO.setEnPassantFile(Optional.of(lastMoveMade.getFromCol()));
@@ -109,7 +125,12 @@ public class JSONParser {
     }
 
     public static String toJSON(Board board) throws JsonProcessingException {
-        return JSON.toJSON(boardToBoardDto(board));
+        return toJSON(board, false);
+    }
+
+    public static String toJSON(Board board, boolean withHistory) throws JsonProcessingException {
+        BoardDTO boardDTO = withHistory ? boardToBoardDtoWithHistory(board.copy()) : boardToBoardDto(board.copy());
+        return JSON.toJSON(boardDTO);
     }
 
     public static Board buildBoard(BoardDTO boardDTO) {
@@ -134,18 +155,21 @@ public class JSONParser {
             }
         }
 
-        Optional<List<Move>> moveHistory = Optional.ofNullable(boardDTO.getMoveHistory());
-
         Board board = new Board(new ArrayList[]{pieces.get(Side.BLACK),
                 pieces.get(Side.WHITE)},
-                Side.fromString(boardDTO.getTurn()),
-                moveHistory.map(ArrayDeque::new)
-                        .orElse(new ArrayDeque<>())
+                Side.fromString(boardDTO.getTurn())
         );
 
-        boardDTO.getCastle()
-                .forEach((side, rights) ->
-                        board.applyCastleRights(Side.fromString(side), rights.isNear(), rights.isFar()));
+        Optional<List<Move>> moveHistory = Optional.ofNullable(boardDTO.getMoveHistory());
+        moveHistory.ifPresent(moves -> moves.stream()
+                .forEach(board::makeMove)
+        );
+
+        if (boardDTO.getCastle() != null) {
+            boardDTO.getCastle()
+                    .forEach((side, rights) ->
+                            board.applyCastleRights(Side.fromString(side), rights.isNear(), rights.isFar()));
+        }
 
         return board;
     }

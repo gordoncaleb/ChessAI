@@ -27,7 +27,7 @@ public class Move {
     private Piece pieceTaken;
     private boolean hadMoved;
 
-    public Move(){
+    public Move() {
 
     }
 
@@ -112,7 +112,7 @@ public class Move {
     public void setValue(int value) {
     }
 
-    public boolean hadMoved() {
+    public boolean getHadMoved() {
         return this.hadMoved;
     }
 
@@ -133,7 +133,7 @@ public class Move {
     }
 
     public Move copy() {
-        return fromLong(toLong());
+        return new Move(fromRow, fromCol, toRow, toCol, 0, note, pieceTaken == null ? null : pieceTaken.copy(), hadMoved);
     }
 
     public long toLong() {
@@ -149,6 +149,8 @@ public class Move {
             if (pieceTaken.getHasMoved()) {
                 moveLong |= pieceTakenHasMovedMask;
             }
+        } else {
+            moveLong |= Piece.PieceID.NONE << 23;
         }
 
         return moveLong;
@@ -168,15 +170,21 @@ public class Move {
         int pieceTakenCol = (int) ((moveLong >> 17) & 0x7);
         boolean pieceTakenHasMoved = ((moveLong & pieceTakenHasMovedMask) != 0);
 
-        Piece pieceTaken = new Piece(pieceTakenId, -1, pieceTakenRow, pieceTakenCol, pieceTakenHasMoved);
+        Piece pieceTaken = null;
+        if ((hasPieceTakenMask & moveLong) > 0) {
+            pieceTaken = new Piece(pieceTakenId, -1, pieceTakenRow, pieceTakenCol, pieceTakenHasMoved);
+        }
 
         return new Move(fromRow, fromCol, toRow, toCol, value, note, pieceTaken, hadMoved);
+    }
+
+    public Move justFromTo() {
+        return new Move(fromRow, fromCol, toRow, toCol);
     }
 
     public int fromToAsInt() {
         return (int) (fromToMask & toLong());
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -188,31 +196,35 @@ public class Move {
         if (fromRow != move.fromRow) return false;
         if (fromCol != move.fromCol) return false;
         if (toRow != move.toRow) return false;
-        return toCol == move.toCol;
+        if (toCol != move.toCol) return false;
+        if (hadMoved != move.hadMoved) return false;
+        if (note != move.note) return false;
+        return !(pieceTaken != null ? !pieceTaken.equals(move.pieceTaken) : move.pieceTaken != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = fromRow;
+        int result = note != null ? note.hashCode() : 0;
+        result = 31 * result + fromRow;
         result = 31 * result + fromCol;
         result = 31 * result + toRow;
         result = 31 * result + toCol;
+        result = 31 * result + (pieceTaken != null ? pieceTaken.hashCode() : 0);
+        result = 31 * result + (hadMoved ? 1 : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        String moveString;
-        if (hasPieceTaken()) {
-            moveString = "Moving from " + getFromRow() + "," + getFromCol() + " to " + getToRow() + "," + getToCol()
-                    + " Move Note: " + getNote().toString() + " Value:" + getValue() + " PieceTaken: " + pieceTaken.toString();
-        } else {
-            moveString = "Moving from " + getFromRow() + "," + getFromCol() + " to " + getToRow() + "," + getToCol()
-                    + " Move Note: " + getNote().toString() + " Value:" + getValue();
-        }
-        return moveString;
+        return "Move{" +
+                "note=" + note +
+                ", fromRow=" + fromRow +
+                ", fromCol=" + fromCol +
+                ", toRow=" + toRow +
+                ", toCol=" + toCol +
+                ", pieceTaken=" + pieceTaken +
+                ", hadMoved=" + hadMoved +
+                '}';
     }
-
-
 }

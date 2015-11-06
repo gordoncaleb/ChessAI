@@ -4,6 +4,7 @@ import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Piece;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,11 +12,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -138,7 +140,7 @@ public class BoardTest {
     }
 
     @Test
-    public void testEnPassantOutOfCheck() throws Exception{
+    public void testEnPassantOutOfCheck() throws Exception {
         String[] setup = {
                 "_,_,_,_,_,_,_,_,",
                 "_,p,_,n,_,_,_,_,",
@@ -558,6 +560,19 @@ public class BoardTest {
         assertThat(board.getHashCodeFreq(), is(equalTo(3)));
     }
 
+    @Test
+    public void testCopy() {
+        Board board = BoardFactory.getStandardChessBoard();
+        BoardTestFixture.makeRandomMoves(board, 20);
+        Board copyBoard = board.copy();
+
+        assertThat(board.getHashCode(), is(equalTo(copyBoard.getHashCode())));
+        assertThat(board.getMoveHistory().toArray(), is(arrayContaining(copyBoard.getMoveHistory().toArray())));
+
+        assertThat(board.getPiecesTakenFor(Side.WHITE).toArray(), is(arrayContaining(copyBoard.getPiecesTakenFor(Side.WHITE).toArray())));
+        assertThat(board.getPiecesTakenFor(Side.BLACK).toArray(), is(arrayContaining(copyBoard.getPiecesTakenFor(Side.BLACK).toArray())));
+    }
+
     private void makeMoves(Board b, Move[] moves) {
         Stream.of(moves)
                 .forEach(b::makeMove);
@@ -569,16 +584,17 @@ public class BoardTest {
     }
 
     public void testContainsExactlyMoves(int side, String[] setup, List<Move> expectedMoves) {
-        List<Move> moves = getValidMoves(side, setup);
-        assertThat(moves.size(), is(equalTo(expectedMoves.size())));
-        for (Move m : expectedMoves) {
-            assertTrue(moves.contains(m));
-        }
+        List<Move> moves = getValidMoves(side, setup).stream()
+                .map(Move::justFromTo)
+                .collect(Collectors.toList());
+        assertThat(moves, containsInAnyOrder(expectedMoves.toArray()));
     }
 
     public void testContainsMove(int side, String[] setup, Move expectedMove) {
-        List<Move> moves = getValidMoves(side, setup);
-        assertTrue(moves.contains(expectedMove));
+        List<Move> moves = getValidMoves(side, setup).stream()
+                .map(Move::justFromTo)
+                .collect(Collectors.toList());
+        assertThat(moves, hasItem(expectedMove));
     }
 
     public List<Move> getValidMoves(int side, String[] setup) {

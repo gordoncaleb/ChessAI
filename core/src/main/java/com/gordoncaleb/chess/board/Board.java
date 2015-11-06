@@ -2,6 +2,8 @@ package com.gordoncaleb.chess.board;
 
 import java.util.*;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
@@ -11,6 +13,7 @@ import com.gordoncaleb.chess.board.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.gordoncaleb.chess.board.Side.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
@@ -18,13 +21,22 @@ public class Board {
     private static final Logger logger = LoggerFactory.getLogger(Board.class);
     private final RNGTable rngTable = RNGTable.instance;
 
-    private final int[] materialRow = {0, 7};
+    private static final int BLACK_CASTLE_FAR = 0x8;
+    private static final int BLACK_CASTLE_NEAR = 0x4;
+    private static final int WHITE_CASTLE_FAR = 0x2;
+    private static final int WHITE_CASTLE_NEAR = 0x1;
+
+    private final int[] materialRow = new int[2];
+    private final int[] pawnRow = new int[2];
 
     private Piece[][] board = new Piece[8][8];
     private Game.GameStatus boardStatus = Game.GameStatus.IN_PLAY;
     private ArrayList<Move> validMoves = new ArrayList<>(100);
     private LinkedList<Piece>[] pieces = new LinkedList[2];
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
+
+    private int castleRights;
+    private Deque<Integer> castleRightsHistory = new ArrayDeque<>();
 
     private Piece[] kings = new Piece[2];
     private int[][] rookStartCols = new int[2][2];
@@ -37,112 +49,111 @@ public class Board {
     private Deque<Long> hashCodeHistory = new ArrayDeque<>();
     private Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
-    private long[] nullMoveInfo = {0, ALL_ONES, 0};
+    private long[] nullMoveInfo = {0L, ALL_ONES, 0L};
 
     private long[][] posBitBoard = new long[PIECES_COUNT][2];
     private long[] allPosBitBoard = new long[2];
 
-    public Board() {
-        this.pieces[Side.WHITE] = new LinkedList<>();
-        this.pieces[Side.BLACK] = new LinkedList<>();
-
-        this.piecesTaken[Side.WHITE] = new ArrayDeque<>();
-        this.piecesTaken[Side.BLACK] = new ArrayDeque<>();
-
-        this.turn = Side.WHITE;
-        this.nullMoveInfo = new long[3];
-
-        kings[Side.BLACK] = new Piece(KING, Side.BLACK, -1, -1, false);
-        kings[Side.WHITE] = new Piece(KING, Side.WHITE, -1, -1, false);
-
-        placePiece(kings[Side.BLACK], 0, 0);
-        placePiece(kings[Side.WHITE], 7, 0);
+    private Board() {
+        this.pieces[WHITE] = new LinkedList<>();
+        this.pieces[BLACK] = new LinkedList<>();
+        this.piecesTaken[WHITE] = new ArrayDeque<>();
+        this.piecesTaken[BLACK] = new ArrayDeque<>();
+        pawnRow[BLACK] = 1;
+        pawnRow[WHITE] = 6;
+        materialRow[BLACK] = 0;
+        materialRow[WHITE] = 7;
     }
 
-    public Board(List<Piece>[] pieces, int turn, Deque<Move> moveHistory) {
-        this.pieces[Side.WHITE] = new LinkedList<>();
-        this.pieces[Side.BLACK] = new LinkedList<>();
-
-        this.piecesTaken[Side.WHITE] = new ArrayDeque<>();
-        this.piecesTaken[Side.BLACK] = new ArrayDeque<>();
+    //Inputs are copied safely
+    public Board(List<Piece>[] pieces, int turn) {
+        this();
 
         this.turn = turn;
-        this.nullMoveInfo = new long[3];
 
-        long[][] posBitBoard = new long[PIECES_COUNT][2];
-        // long[] pawnPosBitboard = { 0, 0 };
-        // long[] kingPosBitboard = { 0, 0 };
+        this.pieces[BLACK] = pieces[BLACK].stream()
+                .map(Piece::copy)
+                .collect(Collectors.toCollection(LinkedList::new));
 
-        int[] pawnRow = new int[2];
-        pawnRow[Side.BLACK] = 1;
-        pawnRow[Side.WHITE] = 6;
+        this.pieces[WHITE] = pieces[WHITE].stream()
+                .map(Piece::copy)
+                .collect(Collectors.toCollection(LinkedList::new));
 
-        Piece temp;
+        inferMovements(this.pieces);
 
-        for (int i = 0; i < pieces.length; i++) {
+        kings = findKings(this.pieces);
 
-            for (int p = 0; p < pieces[i].size(); p++) {
-                temp = pieces[i].get(p).copy();
+        board = buildPieceBoard(this.pieces);
+        posBitBoard = buildPieceBitBoards(this.pieces);
+        allPosBitBoard = buildSideBitBoards(posBitBoard);
 
-                this.pieces[i].add(temp);
+        initializeHashCode();
+        initializeCastleSetup();
+    }
 
-                board[temp.getRow()][temp.getCol()] = temp;
-
-                posBitBoard[temp.getPieceID()][i] |= temp.asBitMask();
-
-                if (temp.getPieceID() == PAWN) {
-
-                    if (temp.getRow() != pawnRow[i]) {
-                        temp.setHasMoved(true);
-                    }
-                }
-
-                if (temp.getPieceID() == KING) {
-
-                    kings[i] = temp;
-
-                    if (temp.getRow() != materialRow[i]) {
-                        temp.setHasMoved(true);
-                    }
-                }
-            }
-
-        }
-
-        this.posBitBoard = posBitBoard;
-
-        for (int i = 0; i < PIECES_COUNT; i++) {
-            this.allPosBitBoard[0] |= posBitBoard[i][0];
-            this.allPosBitBoard[1] |= posBitBoard[i][1];
-        }
-
+    private void initializeHashCode() {
         hashCode = generateHashCode();
         hashCodeFreq = incrementHashCodeFrequency(hashCode);
+    }
 
-        if (moveHistory.size() > 0) {
-            int moveSide;
-            if (moveHistory.size() % 2 == 0) {
-                moveSide = turn;
-            } else {
-                moveSide = Side.otherSide(turn);
-            }
+    private Piece[][] buildPieceBoard(List<Piece>[] pieces) {
+        Piece[][] board = new Piece[8][8];
 
-            for (Move m : moveHistory) {
-                Move moveCopy = m.copy();
-                this.moveHistory.push(moveCopy);
-                if (moveCopy.hasPieceTaken()) {
-                    piecesTaken[Side.otherSide(moveSide)]
-                            .push(moveCopy.getPieceTaken());
-                }
+        Stream.of(pieces)
+                .flatMap(ps -> ps.stream())
+                .forEach(p ->
+                        board[p.getRow()][p.getCol()] = p
+                );
 
-                moveSide = Side.otherSide(moveSide);
-            }
+        return board;
+    }
 
-        } else {
-            loadPiecesTaken();
-        }
+    private long[][] buildPieceBitBoards(List<Piece>[] pieces) {
+        long[][] posBitBoard = new long[PIECES_COUNT][2];
+        Stream.of(pieces)
+                .flatMap(List::stream)
+                .forEach(p -> {
+                    posBitBoard[p.getPieceID()][p.getSide()] |= p.asBitMask();
+                });
 
-        initializeCastleSetup();
+        return posBitBoard;
+    }
+
+    private long[] buildSideBitBoards(long[][] pieceBitBoards) {
+        long[] allPosBitBoard = new long[2];
+
+        Stream.of(pieceBitBoards).forEach(bb -> {
+            allPosBitBoard[0] |= bb[0];
+            allPosBitBoard[1] |= bb[1];
+        });
+
+        return allPosBitBoard;
+    }
+
+    private Piece[] findKings(List<Piece>[] pieces) {
+        Piece[] kings = new Piece[2];
+        Stream.of(pieces).forEach(sidePieces -> {
+            sidePieces.stream()
+                    .filter(p -> p.getPieceID() == KING)
+                    .findFirst()
+                    .ifPresent(p -> kings[p.getSide()] = p);
+
+        });
+        return kings;
+    }
+
+    private void inferMovements(List<Piece>[] pieces) {
+        Stream.of(pieces).forEach(sidePieces -> {
+            sidePieces.stream()
+                    .filter(p -> p.getPieceID() == PAWN)
+                    .filter(p -> p.getRow() != pawnRow[p.getSide()])
+                    .forEach(p -> p.setHasMoved(true));
+
+            sidePieces.stream()
+                    .filter(p -> p.getPieceID() == KING)
+                    .filter(p -> p.getRow() != materialRow[p.getSide()])
+                    .forEach(p -> p.setHasMoved(true));
+        });
     }
 
     public boolean makeMove(final Move move) {
@@ -153,7 +164,7 @@ public class Board {
         final int toCol = move.getToCol();
         final Move.MoveNote note = move.getNote();
 
-        if (board[fromRow][fromCol].getSide() != turn) {
+        if (board[fromRow][fromCol] == null || board[fromRow][fromCol].getSide() != turn) {
             logger.debug("Invalid move " + move.toString());
             return false;
         }
@@ -173,20 +184,26 @@ public class Board {
         // remove taken piece first
         if (move.hasPieceTaken()) {
 
-            final Piece pieceTaken = move.getPieceTaken();
+            final int pieceTakenRow = move.getPieceTaken().getRow();
+            final int pieceTakenCol = move.getPieceTaken().getCol();
+            final int pieceTakenId = move.getPieceTaken().getPieceID();
+            final long pieceTakenMask = getMask(pieceTakenRow, pieceTakenCol);
+
+            // get ref of pieceTaken
+            final Piece pieceTaken = board[pieceTakenRow][pieceTakenCol];
+
+            // remove ref to piecetaken on board
+            board[pieceTakenRow][pieceTakenCol] = null;
 
             // remove pieceTaken from vectors
             pieces[nextSide].remove(pieceTaken);
-            piecesTaken[nextSide].push(pieceTaken);
+            piecesTaken[nextSide].addFirst(pieceTaken);
 
-            posBitBoard[pieceTaken.getPieceID()][pieceTaken.getSide()] ^= pieceTaken.asBitMask();
-            allPosBitBoard[pieceTaken.getSide()] ^= pieceTaken.asBitMask();
-
-            // remove ref to piecetaken on board
-            board[pieceTaken.getRow()][pieceTaken.getCol()] = null;
+            posBitBoard[pieceTakenId][nextSide] ^= pieceTakenMask;
+            allPosBitBoard[nextSide] ^= pieceTakenMask;
 
             // remove old hash from piece that was taken, if any
-            hashCode ^= rngTable.getPiecePerSquareRandom(pieceTaken.getSide(), pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol());
+            hashCode ^= rngTable.getPiecePerSquareRandom(nextSide, pieceTakenId, pieceTakenRow, pieceTakenCol);
 
         }
 
@@ -272,7 +289,7 @@ public class Board {
         board[toRow][toCol] = pieceMoving;
 
         // tell piece its new position
-        pieceMoving.move(toRow,toCol);
+        pieceMoving.move(toRow, toCol);
 
         if (note == Move.MoveNote.NEW_QUEEN) {
             pieceMoving.setPieceID(QUEEN);
@@ -337,13 +354,13 @@ public class Board {
             }
 
         } else {
-            undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, lastMove.hadMoved());
+            undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, lastMove.getHadMoved());
         }
 
         if (lastMove.hasPieceTaken()) {
 
             // add taken piece back to vectors and board
-            final Piece pieceTaken = piecesTaken[prevSide].pop();
+            final Piece pieceTaken = piecesTaken[prevSide].removeFirst();
 
             pieces[prevSide].add(pieceTaken);
 
@@ -373,6 +390,10 @@ public class Board {
     }
 
     private void undoMovePiece(final Piece pieceMoving, final int fromRow, final int fromCol, final Move.MoveNote note, final boolean hadMoved) {
+
+        if (pieceMoving == null) {
+            throw new RuntimeException("");
+        }
 
         final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ getMask(fromRow, fromCol);
 
@@ -551,7 +572,7 @@ public class Board {
         if (board[row][col] != null) {
             return board[row][col].getPieceID();
         } else {
-            return NONE;
+            return Piece.PieceID.NONE;
         }
     }
 
@@ -757,7 +778,22 @@ public class Board {
     }
 
     public Board copy() {
-        return new Board(pieces, turn, moveHistory);
+        List<Move> moveHistory = new ArrayList<>(this.moveHistory);
+        Collections.reverse(moveHistory);
+
+        while (canUndo()) {
+            undoMove();
+        }
+
+        Board boardCopy = new Board(pieces, turn);
+
+        moveHistory.stream()
+                .forEach(m -> {
+                    this.makeMove(m);
+                    boardCopy.makeMove(m.copy());
+                });
+
+        return boardCopy;
     }
 
     public String toString() {
@@ -779,7 +815,7 @@ public class Board {
     }
 
     public String toJson(boolean includeHistory) throws JsonProcessingException {
-        return JSONParser.toJSON(this);
+        return JSONParser.toJSON(this, includeHistory);
     }
 
     public long generateHashCode() {
@@ -855,28 +891,6 @@ public class Board {
         }
 
         return true;
-    }
-
-    private void loadPiecesTaken() {
-
-        for (int i = 0; i < pieces.length; i++) {
-
-            List<Piece> tempPieces = BoardFactory.getFullPieceSet(i);
-
-            for (int p = 0; p < pieces[i].size(); p++) {
-                Piece piecePresent = pieces[i].get(p);
-
-                for (int t = 0; t < tempPieces.size(); t++) {
-                    if (tempPieces.get(t).getPieceID() == piecePresent.getPieceID()) {
-                        tempPieces.remove(t);
-                        break;
-                    }
-                }
-            }
-
-            piecesTaken[i] = new ArrayDeque<>(tempPieces);
-        }
-
     }
 
 }
