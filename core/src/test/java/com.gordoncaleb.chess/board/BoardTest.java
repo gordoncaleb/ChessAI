@@ -573,6 +573,97 @@ public class BoardTest {
         assertThat(board.getPiecesTakenFor(Side.BLACK).toArray(), is(arrayContaining(copyBoard.getPiecesTakenFor(Side.BLACK).toArray())));
     }
 
+    @Test
+    public void testsCastlingRightsKingCastleNear() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,q,_,Q,_,_,_,q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,P,_,_,_,",
+                "_,_,_,N,_,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,K,_,_,R,"
+        };
+
+        Board b = JSONParser.getFromSetup(Side.WHITE, setup);
+
+        assertTrue(b.canCastleNear(Side.WHITE));
+        assertTrue(b.canCastleFar(Side.WHITE));
+
+        Move castleNearMove = new Move(7, 4, 7, 6, 0, Move.MoveNote.CASTLE_NEAR);
+        b.makeMove(castleNearMove);
+
+        assertFalse(b.canCastleNear(Side.WHITE));
+        assertFalse(b.canCastleFar(Side.WHITE));
+
+        b.undoMove();
+
+        assertTrue(b.canCastleNear(Side.WHITE));
+        assertTrue(b.canCastleFar(Side.WHITE));
+    }
+
+    @Test
+    public void testsCastlingRightsKingCastleFar() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,q,_,Q,_,_,_,q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,P,_,_,_,",
+                "_,_,_,N,_,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,K,_,_,R,"
+        };
+
+        Board b = JSONParser.getFromSetup(Side.WHITE, setup);
+
+        assertTrue(b.canCastleNear(Side.WHITE));
+        assertTrue(b.canCastleFar(Side.WHITE));
+
+        Move castleFarMove = new Move(7, 4, 7, 1, 0, Move.MoveNote.CASTLE_FAR);
+        b.makeMove(castleFarMove);
+
+        assertFalse(b.canCastleNear(Side.WHITE));
+        assertFalse(b.canCastleFar(Side.WHITE));
+
+        b.undoMove();
+
+        assertTrue(b.canCastleNear(Side.WHITE));
+        assertTrue(b.canCastleFar(Side.WHITE));
+    }
+
+    @Test
+    @Ignore
+    public void testsCastlingRightsFarRookMove() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,q,_,Q,_,_,_,q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,P,_,_,_,",
+                "_,_,_,N,_,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,K,_,_,R,"
+        };
+
+        Board b = JSONParser.getFromSetup(Side.WHITE, setup);
+
+        assertTrue(b.canCastleNear(Side.WHITE));
+        assertTrue(b.canCastleFar(Side.WHITE));
+
+        Move castleNearMove = new Move(0, 0, 7, 1, 0);
+        b.makeMove(castleNearMove);
+
+        assertTrue(b.canCastleNear(Side.WHITE));
+        assertFalse(b.canCastleFar(Side.WHITE));
+
+        b.undoMove();
+
+        assertTrue(b.canCastleNear(Side.WHITE));
+        assertTrue(b.canCastleFar(Side.WHITE));
+    }
+
     private void makeMoves(Board b, Move[] moves) {
         Stream.of(moves)
                 .forEach(b::makeMove);

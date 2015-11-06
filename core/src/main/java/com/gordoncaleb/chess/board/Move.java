@@ -6,6 +6,8 @@ import com.gordoncaleb.chess.util.JSON;
 
 public class Move {
 
+    public static final Move EMPTY_MOVE = new Move();
+
     public enum MoveNote {
         NONE, CASTLE_NEAR, CASTLE_FAR, NEW_QUEEN, NEW_KNIGHT, ENPASSANT, PAWN_LEAP
     }

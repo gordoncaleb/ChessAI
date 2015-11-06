@@ -21,10 +21,24 @@ public class Board {
     private static final Logger logger = LoggerFactory.getLogger(Board.class);
     private final RNGTable rngTable = RNGTable.instance;
 
-    private static final int BLACK_CASTLE_FAR = 0x8;
-    private static final int BLACK_CASTLE_NEAR = 0x4;
-    private static final int WHITE_CASTLE_FAR = 0x2;
-    private static final int WHITE_CASTLE_NEAR = 0x1;
+    private static final int NEAR = 0;
+    private static final int FAR = 1;
+    private static final int NEAR_AND_FAR = 2;
+    private static final int ALL_CASTLE_RIGHTS = 0xF;
+
+    private static final int[][] castleMasks = new int[2][3];
+
+    static {
+        castleMasks[BLACK][NEAR] = 0x8;
+        castleMasks[BLACK][FAR] = 0x4;
+        castleMasks[BLACK][NEAR_AND_FAR] = 0xC;
+        castleMasks[WHITE][NEAR] = 0x2;
+        castleMasks[WHITE][FAR] = 0x1;
+        castleMasks[WHITE][NEAR_AND_FAR] = 0x3;
+    }
+
+    private int castleRights = ALL_CASTLE_RIGHTS;
+    private Deque<Integer> castleRightsHistory = new ArrayDeque<>();
 
     private final int[] materialRow = new int[2];
     private final int[] pawnRow = new int[2];
@@ -34,9 +48,6 @@ public class Board {
     private ArrayList<Move> validMoves = new ArrayList<>(100);
     private LinkedList<Piece>[] pieces = new LinkedList[2];
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
-
-    private int castleRights;
-    private Deque<Integer> castleRightsHistory = new ArrayDeque<>();
 
     private Piece[] kings = new Piece[2];
     private int[][] rookStartCols = new int[2][2];
@@ -88,6 +99,9 @@ public class Board {
         allPosBitBoard = buildSideBitBoards(posBitBoard);
 
         initializeHashCode();
+
+        castleRightsHistory.push(castleRights);
+
         initializeCastleSetup();
     }
 
@@ -115,7 +129,6 @@ public class Board {
                 .forEach(p -> {
                     posBitBoard[p.getPieceID()][p.getSide()] |= p.asBitMask();
                 });
-
         return posBitBoard;
     }
 
@@ -164,14 +177,12 @@ public class Board {
         final int toCol = move.getToCol();
         final Move.MoveNote note = move.getNote();
 
-        if (board[fromRow][fromCol] == null || board[fromRow][fromCol].getSide() != turn) {
-            logger.debug("Invalid move " + move.toString());
-            return false;
-        }
-
         final int nextSide = Side.otherSide(turn);
-        // save off hashCode
+
+        // save off hash code
         hashCodeHistory.push(hashCode);
+        // save off castle rights
+        castleRightsHistory.push(castleRights);
 
         // remove previous castle options
         hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK),
@@ -204,13 +215,14 @@ public class Board {
 
             // remove old hash from piece that was taken, if any
             hashCode ^= rngTable.getPiecePerSquareRandom(nextSide, pieceTakenId, pieceTakenRow, pieceTakenCol);
-
         }
 
         if (note == Move.MoveNote.CASTLE_NEAR || note == Move.MoveNote.CASTLE_FAR) {
 
             final Piece king = kings[turn];
             final Piece rook;
+
+            castleRights ^= castleMasks[turn][NEAR_AND_FAR];
 
             if (note == Move.MoveNote.CASTLE_NEAR) {
                 rook = board[materialRow[turn]][rookStartCols[turn][1]];
@@ -233,16 +245,12 @@ public class Board {
             }
 
         } else {
-
             movePiece(board[fromRow][fromCol], toRow, toCol, note);
-
         }
 
         // if last move made is pawn leap, remove en passant file num
-        if (getLastMoveMade() != null) {
-            if (getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
-                hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());
-            }
+        if (getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
+            hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());
         }
 
         // if new move is pawn leap, add en passant file num
@@ -274,7 +282,7 @@ public class Board {
 
     private void movePiece(final Piece pieceMoving, final int toRow, final int toCol, final Move.MoveNote note) {
 
-        final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ getMask(toRow, toCol);
+        final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) | getMask(toRow, toCol);
 
         // remove bit position from where piece was and add where it is now
         posBitBoard[pieceMoving.getPieceID()][pieceMoving.getSide()] ^= bitMove;
@@ -306,12 +314,6 @@ public class Board {
     }
 
     public Move undoMove() {
-
-        // if no there is no last move then undoMove is impossible
-        if (moveHistory.isEmpty()) {
-            // logger.debug("Can not undo move");
-            return null;
-        }
 
         // retrieve last move made
         final Move lastMove = getLastMoveMade();
@@ -358,7 +360,6 @@ public class Board {
         }
 
         if (lastMove.hasPieceTaken()) {
-
             // add taken piece back to vectors and board
             final Piece pieceTaken = piecesTaken[prevSide].removeFirst();
 
@@ -369,7 +370,6 @@ public class Board {
             allPosBitBoard[pieceTaken.getSide()] |= pieceTaken.asBitMask();
 
             board[pieceTaken.getRow()][pieceTaken.getCol()] = pieceTaken;
-
         }
 
         //decrement old hashcode frequency
@@ -377,6 +377,8 @@ public class Board {
 
         // move was undone so show move made before that as the last move made
         moveHistory.pop();
+
+        castleRights = castleRightsHistory.pop();
 
         if (hashCodeHistory.isEmpty()) {
             // if no hashCode was saved then generate it the hard way
@@ -390,10 +392,6 @@ public class Board {
     }
 
     private void undoMovePiece(final Piece pieceMoving, final int fromRow, final int fromCol, final Move.MoveNote note, final boolean hadMoved) {
-
-        if (pieceMoving == null) {
-            throw new RuntimeException("");
-        }
 
         final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ getMask(fromRow, fromCol);
 
@@ -421,8 +419,16 @@ public class Board {
 
     }
 
+    public boolean canCastleNear(int side) {
+        return ((castleRights & castleMasks[side][NEAR]) != 0);
+    }
+
+    public boolean canCastleFar(int side) {
+        return ((castleRights & castleMasks[side][FAR]) != 0);
+    }
+
     public boolean canUndo() {
-        return (moveHistory.size() != 0);
+        return (!moveHistory.isEmpty());
     }
 
     public List<Move> generateValidMoves() {
@@ -549,11 +555,7 @@ public class Board {
     }
 
     public Move getLastMoveMade() {
-        if (!moveHistory.isEmpty()) {
-            return moveHistory.peek();
-        } else {
-            return null;
-        }
+        return moveHistory.isEmpty() ? Move.EMPTY_MOVE : moveHistory.peek();
     }
 
     public Deque<Move> getMoveHistory() {
@@ -838,10 +840,8 @@ public class Board {
         hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
                 this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
 
-        if (getLastMoveMade() != null) {
-            if (getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
-                hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());
-            }
+        if (getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
+            hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());
         }
 
         return hashCode;

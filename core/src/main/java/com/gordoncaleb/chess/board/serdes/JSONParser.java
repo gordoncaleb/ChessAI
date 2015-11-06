@@ -115,7 +115,7 @@ public class JSONParser {
         boardDTO.setFullMoves(0);
 
         Move lastMoveMade = board.getLastMoveMade();
-        if (lastMoveMade != null && lastMoveMade.getNote() == Move.MoveNote.ENPASSANT) {
+        if (lastMoveMade.getNote() == Move.MoveNote.ENPASSANT) {
             boardDTO.setEnPassantFile(Optional.of(lastMoveMade.getFromCol()));
         } else {
             boardDTO.setEnPassantFile(Optional.empty());
