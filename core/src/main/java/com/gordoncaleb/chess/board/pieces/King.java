@@ -191,7 +191,7 @@ public class King {
 
     public static boolean canCastleFar(Piece king, Board board, int player, long[] nullMoveInfo, long allPosBitBoard) {
 
-        if (board.kingHasMoved(player) || board.farRookHasMoved(player)) {
+        if (!board.canCastleFar(player)) {
             return false;
         }
 
@@ -214,7 +214,7 @@ public class King {
 
     public static boolean canCastleNear(Piece king, Board board, int player, long[] nullMoveInfo, long allPosBitBoard) {
 
-        if (board.kingHasMoved(player) || board.nearRookHasMoved(player)) {
+        if (!board.canCastleNear(player)) {
             return false;
         }
 

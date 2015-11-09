@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -16,6 +17,9 @@ import org.slf4j.LoggerFactory;
 
 public class RNGTable {
     private static final Logger logger = LoggerFactory.getLogger(RNGTable.class);
+
+    public static final int YES = 1;
+    public static final int NO = 0;
 
     public static final String LOAD_FROM_FILE = "/doc/random.txt";
     public static final int RANDOM_COUNT = 793;
@@ -30,7 +34,7 @@ public class RNGTable {
 
     private long[][][][] piecePerSquare;
     private long blackToMove;
-    private long[][][][] castlingRights;
+    private long[][][] castlingRights;
     private long[] enPassantFile;
 
     public static void main(String[] args) {
@@ -43,7 +47,7 @@ public class RNGTable {
         logger.info("Random file written");
     }
 
-    public RNGTable(){
+    public RNGTable() {
         this(LOAD_FROM_FILE);
     }
 
@@ -110,46 +114,22 @@ public class RNGTable {
     }
 
     private void generateCastlingRights() {
-        castlingRights = new long[2][2][2][2];
+        castlingRights = new long[2][2][2];
 
-        for (int br = 0; br < 2; br++) {
-            for (int bl = 0; bl < 2; bl++) {
-                for (int wr = 0; wr < 2; wr++) {
-                    for (int wl = 0; wl < 2; wl++) {
-                        castlingRights[br][bl][wr][wl] = nextLong();
-                    }
+        for (int s : Arrays.asList(Side.BLACK, Side.WHITE)) {
+            for (int near : Arrays.asList(NO, YES)) {
+                for (int far : Arrays.asList(NO, YES)) {
+                    castlingRights[s][near][far] = nextLong();
                 }
             }
         }
+
     }
 
-    public long getCastlingRightsRandom(boolean blackFarRook, boolean blackNearRook, boolean blackKing, boolean whiteFarRook, boolean whiteNearRook,
-                                        boolean whiteKing) {
-
-        int blackLeft = 0;
-        int blackRight = 0;
-        int whiteLeft = 0;
-        int whiteRight = 0;
-
-        if (!blackKing) {
-            if (!blackFarRook) {
-                blackLeft = 1;
-            }
-            if (!blackNearRook) {
-                blackRight = 1;
-            }
-        }
-
-        if (!whiteKing) {
-            if (!whiteFarRook) {
-                whiteLeft = 1;
-            }
-            if (!whiteNearRook) {
-                whiteRight = 1;
-            }
-        }
-
-        return castlingRights[blackLeft][blackRight][whiteRight][whiteLeft];
+    public long getCastlingRightsRandom(int side,
+                                        int canNear,
+                                        int canFar) {
+        return castlingRights[side][canNear][canFar];
     }
 
     private void generateEnPassantFile() {

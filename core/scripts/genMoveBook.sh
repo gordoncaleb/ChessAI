@@ -3,5 +3,5 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 pushd $DIR/..
-mvn exec:java -Dexec.mainClass=com.gordoncaleb.chess.io.MoveBook
+mvn exec:java -Dexec.mainClass=com.gordoncaleb.chess.engine.MoveBook
 popd

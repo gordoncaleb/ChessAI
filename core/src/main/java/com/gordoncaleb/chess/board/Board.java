@@ -197,12 +197,10 @@ public class Board {
         castleRightsHistory.push(castleRights);
 
         // remove previous castle options
-        hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK),
-                this.nearRookHasMoved(Side.BLACK),
-                this.kingHasMoved(Side.BLACK),
-                this.farRookHasMoved(Side.WHITE),
-                this.nearRookHasMoved(Side.WHITE),
-                this.kingHasMoved(Side.WHITE));
+        hashCode ^= rngTable.getCastlingRightsRandom(turn,
+                canCastleNear(turn) ? RNGTable.YES : RNGTable.NO,
+                canCastleFar(turn) ? RNGTable.YES : RNGTable.NO
+        );
 
         // remove taken piece first
         if (move.hasPieceTaken()) {
@@ -269,12 +267,10 @@ public class Board {
         }
 
         // add new castle options
-        hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK),
-                this.nearRookHasMoved(Side.BLACK),
-                this.kingHasMoved(Side.BLACK),
-                this.farRookHasMoved(Side.WHITE),
-                this.nearRookHasMoved(Side.WHITE),
-                this.kingHasMoved(Side.WHITE));
+        hashCode ^= rngTable.getCastlingRightsRandom(nextSide,
+                canCastleNear(nextSide) ? RNGTable.YES : RNGTable.NO,
+                canCastleFar(nextSide) ? RNGTable.YES : RNGTable.NO
+        );
 
         // either remove black and add white or reverse. Same operation.
         hashCode ^= rngTable.getBlackToMoveRandom();
@@ -785,50 +781,27 @@ public class Board {
         this.boardStatus = boardStatus;
     }
 
-    private Piece farRook(int player) {
-        if (rookStartCols[player][0] != -1) {
-            return board[materialRow[player]][rookStartCols[player][0]];
-        } else {
-            return null;
-        }
-    }
-
-    public boolean farRookHasMoved(int player) {
-        Piece p = farRook(player);
-        return p == null || p.getHasMoved();
-    }
-
-    private Piece nearRook(int player) {
-        if (rookStartCols[player][1] != -1) {
-            return board[materialRow[player]][rookStartCols[player][1]];
-        } else {
-            return null;
-        }
-    }
-
-    public boolean nearRookHasMoved(int player) {
-        Piece p = nearRook(player);
-        return p == null || p.getHasMoved();
-    }
-
     public void applyCastleRights(int player, boolean nearRights, boolean farRights) {
-        Piece nearRook = nearRook(player);
-        Piece farRook = farRook(player);
 
-        if (nearRook != null) {
-            nearRook.setHasMoved(!nearRights);
+        if (nearRights) {
+            castleRights |= rooksInitBitboards[player][NEAR];
+        } else {
+            castleRights &= ~rooksInitBitboards[player][NEAR];
         }
-        if (farRook != null) {
-            farRook.setHasMoved(!farRights);
+
+        if (farRights) {
+            castleRights |= rooksInitBitboards[player][FAR];
+        } else {
+            castleRights &= ~rooksInitBitboards[player][FAR];
+        }
+
+        if (!nearRights && !farRights) {
+            castleRights &= ~kingsInitBitBoards[player];
         }
     }
 
     public int getRookStartingCol(int side, int near) {
         return rookStartCols[side][near];
-    }
-
-    public boolean kingHasMoved(int player) {
-        return kings[player].getHasMoved();
     }
 
     public Board copy() {
@@ -889,8 +862,11 @@ public class Board {
             }
         }
 
-        hashCode ^= rngTable.getCastlingRightsRandom(this.farRookHasMoved(Side.BLACK), this.nearRookHasMoved(Side.BLACK), this.kingHasMoved(Side.BLACK),
-                this.farRookHasMoved(Side.WHITE), this.nearRookHasMoved(Side.WHITE), this.kingHasMoved(Side.WHITE));
+        // add new castle options
+        hashCode ^= rngTable.getCastlingRightsRandom(turn,
+                canCastleNear(turn) ? RNGTable.YES : RNGTable.NO,
+                canCastleFar(turn) ? RNGTable.YES : RNGTable.NO
+        );
 
         if (getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
             hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());

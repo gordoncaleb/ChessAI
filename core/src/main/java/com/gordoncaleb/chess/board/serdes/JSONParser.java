@@ -94,12 +94,12 @@ public class JSONParser {
         BoardDTO boardDTO = new BoardDTO();
 
         CastleRights white = new CastleRights(
-                !board.nearRookHasMoved(Side.WHITE) && !board.kingHasMoved(Side.WHITE),
-                !board.farRookHasMoved(Side.WHITE) && !board.kingHasMoved(Side.WHITE));
+                board.canCastleNear(Side.WHITE),
+                board.canCastleFar(Side.WHITE));
 
         CastleRights black = new CastleRights(
-                !board.nearRookHasMoved(Side.BLACK) && !board.kingHasMoved(Side.BLACK),
-                !board.farRookHasMoved(Side.BLACK) && !board.kingHasMoved(Side.BLACK));
+                board.canCastleNear(Side.BLACK),
+                board.canCastleFar(Side.BLACK));
 
         boardDTO.setCastle(ImmutableMap.of(Side.toString(Side.WHITE), white,
                 Side.toString(Side.BLACK), black));
