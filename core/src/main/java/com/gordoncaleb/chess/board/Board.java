@@ -50,6 +50,8 @@ public class Board {
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
 
     private Piece[] kings = new Piece[2];
+    private long[][] rooksInitBitboards = new long[2][2];
+    private long[] kingsInitBitBoards = new long[2];
     private int[][] rookStartCols = new int[2][2];
     private int[] kingStartCols = new int[2];
 
@@ -116,7 +118,7 @@ public class Board {
         Stream.of(pieces)
                 .flatMap(ps -> ps.stream())
                 .forEach(p ->
-                        board[p.getRow()][p.getCol()] = p
+                                board[p.getRow()][p.getCol()] = p
                 );
 
         return board;
@@ -599,7 +601,9 @@ public class Board {
             for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
                 if (board[materialRow[s]][c] != null) {
-                    if (board[materialRow[s]][c].getPieceID() == ROOK) {
+                    Piece p = board[materialRow[s]][c];
+                    if (p.getPieceID() == ROOK) {
+                        this.rooksInitBitboards[p.getSide()][FAR] = p.asBitMask();
                         rookCols[s][0] = c;
                         break;
                     }
@@ -608,7 +612,9 @@ public class Board {
 
             for (int c = kings[s].getCol() + 1; c < 8; c++) {
                 if (board[materialRow[s]][c] != null) {
-                    if (board[materialRow[s]][c].getPieceID() == ROOK) {
+                    Piece p = board[materialRow[s]][c];
+                    if (p.getPieceID() == ROOK) {
+                        this.rooksInitBitboards[p.getSide()][NEAR] = p.asBitMask();
                         rookCols[s][1] = c;
                         break;
                     }
@@ -618,6 +624,7 @@ public class Board {
 
         kingStartCols[Side.BLACK] = kings[Side.BLACK].getCol();
         kingStartCols[Side.WHITE] = kings[Side.WHITE].getCol();
+
     }
 
     public boolean placePiece(Piece piece, int toRow, int toCol) {
