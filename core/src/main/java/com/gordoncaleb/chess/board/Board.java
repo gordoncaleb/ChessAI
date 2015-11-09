@@ -23,51 +23,40 @@ public class Board {
 
     private static final int NEAR = 0;
     private static final int FAR = 1;
-    private static final int NEAR_AND_FAR = 2;
-    private static final int ALL_CASTLE_RIGHTS = 0xF;
 
-    private static final int[][] castleMasks = new int[2][3];
+    private long castleRights;
+    private final long[][] rooksInitBitboards;
+    private final long[] kingsInitBitBoards;
 
-    static {
-        castleMasks[BLACK][NEAR] = 0x8;
-        castleMasks[BLACK][FAR] = 0x4;
-        castleMasks[BLACK][NEAR_AND_FAR] = 0xC;
-        castleMasks[WHITE][NEAR] = 0x2;
-        castleMasks[WHITE][FAR] = 0x1;
-        castleMasks[WHITE][NEAR_AND_FAR] = 0x3;
-    }
-
-    private int castleRights = ALL_CASTLE_RIGHTS;
-    private Deque<Integer> castleRightsHistory = new ArrayDeque<>();
+    private Deque<Long> castleRightsHistory = new ArrayDeque<>();
 
     private final int[] materialRow = new int[2];
     private final int[] pawnRow = new int[2];
 
-    private Piece[][] board = new Piece[8][8];
+    private final Piece[][] board;
     private Game.GameStatus boardStatus = Game.GameStatus.IN_PLAY;
     private ArrayList<Move> validMoves = new ArrayList<>(100);
     private LinkedList<Piece>[] pieces = new LinkedList[2];
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
 
-    private Piece[] kings = new Piece[2];
-    private long[][] rooksInitBitboards = new long[2][2];
-    private long[] kingsInitBitBoards = new long[2];
-    private int[][] rookStartCols = new int[2][2];
-    private int[] kingStartCols = new int[2];
+    private final Piece[] kings;
+
+    private final int[][] rookStartCols;
+    private final int[] kingStartCols;
 
     private int turn;
     private long hashCode;
     private int hashCodeFreq;
-    private Deque<Move> moveHistory = new ArrayDeque<>();
-    private Deque<Long> hashCodeHistory = new ArrayDeque<>();
-    private Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
+    private final Deque<Move> moveHistory = new ArrayDeque<>();
+    private final Deque<Long> hashCodeHistory = new ArrayDeque<>();
+    private final Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
-    private long[] nullMoveInfo = {0L, ALL_ONES, 0L};
+    private final long[] nullMoveInfo = {0L, ALL_ONES, 0L};
 
-    private long[][] posBitBoard = new long[PIECES_COUNT][2];
-    private long[] allPosBitBoard = new long[2];
+    private final long[][] posBitBoard;
+    private final long[] allPosBitBoard;
 
-    private Board() {
+    private void initConstants() {
         this.pieces[WHITE] = new LinkedList<>();
         this.pieces[BLACK] = new LinkedList<>();
         this.piecesTaken[WHITE] = new ArrayDeque<>();
@@ -80,7 +69,7 @@ public class Board {
 
     //Inputs are copied safely
     public Board(List<Piece>[] pieces, int turn) {
-        this();
+        initConstants();
 
         this.turn = turn;
 
@@ -100,16 +89,30 @@ public class Board {
         posBitBoard = buildPieceBitBoards(this.pieces);
         allPosBitBoard = buildSideBitBoards(posBitBoard);
 
-        initializeHashCode();
+        rookStartCols = findRookStartCols(board, kings);
+        kingStartCols = findKingStartCols(kings);
 
+        kingsInitBitBoards = findKingsInitBitboards(kings);
+        rooksInitBitboards = findRookInitBitBoards(board);
+
+        castleRights = orKingsAndRooks(kingsInitBitBoards, rooksInitBitboards);
         castleRightsHistory.push(castleRights);
 
-        initializeCastleSetup();
+        initializeHashCode();
     }
 
     private void initializeHashCode() {
         hashCode = generateHashCode();
         hashCodeFreq = incrementHashCodeFrequency(hashCode);
+    }
+
+    private long orKingsAndRooks(long[] kingsInitBitBoards, long[][] rooksInitBitboards) {
+        return kingsInitBitBoards[WHITE] |
+                kingsInitBitBoards[BLACK] |
+                rooksInitBitboards[WHITE][NEAR] |
+                rooksInitBitboards[WHITE][FAR] |
+                rooksInitBitboards[BLACK][NEAR] |
+                rooksInitBitboards[BLACK][FAR];
     }
 
     private Piece[][] buildPieceBoard(List<Piece>[] pieces) {
@@ -118,7 +121,7 @@ public class Board {
         Stream.of(pieces)
                 .flatMap(ps -> ps.stream())
                 .forEach(p ->
-                                board[p.getRow()][p.getCol()] = p
+                        board[p.getRow()][p.getCol()] = p
                 );
 
         return board;
@@ -155,6 +158,13 @@ public class Board {
 
         });
         return kings;
+    }
+
+    private long[] findKingsInitBitboards(Piece[] kings) {
+        long[] kingInitBitboards = new long[2];
+        kingInitBitboards[WHITE] = kings[WHITE].asBitMask();
+        kingInitBitboards[BLACK] = kings[BLACK].asBitMask();
+        return kingInitBitboards;
     }
 
     private void inferMovements(List<Piece>[] pieces) {
@@ -224,8 +234,6 @@ public class Board {
             final Piece king = kings[turn];
             final Piece rook;
 
-            castleRights ^= castleMasks[turn][NEAR_AND_FAR];
-
             if (note == Move.MoveNote.CASTLE_NEAR) {
                 rook = board[materialRow[turn]][rookStartCols[turn][1]];
 
@@ -284,7 +292,10 @@ public class Board {
 
     private void movePiece(final Piece pieceMoving, final int toRow, final int toCol, final Move.MoveNote note) {
 
-        final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) | getMask(toRow, toCol);
+        final long fromBit = getMask(pieceMoving.getRow(), pieceMoving.getCol());
+        final long bitMove = fromBit | getMask(toRow, toCol);
+
+        castleRights &= ~fromBit;
 
         // remove bit position from where piece was and add where it is now
         posBitBoard[pieceMoving.getPieceID()][pieceMoving.getSide()] ^= bitMove;
@@ -422,11 +433,13 @@ public class Board {
     }
 
     public boolean canCastleNear(int side) {
-        return ((castleRights & castleMasks[side][NEAR]) != 0);
+        return ((castleRights & kingsInitBitBoards[side]) != 0 &&
+                (castleRights & rooksInitBitboards[side][NEAR]) != 0);
     }
 
     public boolean canCastleFar(int side) {
-        return ((castleRights & castleMasks[side][FAR]) != 0);
+        return ((castleRights & kingsInitBitBoards[side]) != 0 &&
+                (castleRights & rooksInitBitboards[side][FAR]) != 0);
     }
 
     public boolean canUndo() {
@@ -592,18 +605,46 @@ public class Board {
         return piecesTaken[player];
     }
 
-    private void initializeCastleSetup() {
+    private long[][] findRookInitBitBoards(final Piece[][] board) {
 
-        int[][] rookCols = {{-1, -1}, {-1, -1}};
-        this.rookStartCols = rookCols;
+        long[][] rooksInitBitboards = new long[2][2];
 
-        for (int s = 0; s < 2; s++) {
+        for (int s : Arrays.asList(BLACK, WHITE)) {
             for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
                 if (board[materialRow[s]][c] != null) {
                     Piece p = board[materialRow[s]][c];
                     if (p.getPieceID() == ROOK) {
-                        this.rooksInitBitboards[p.getSide()][FAR] = p.asBitMask();
+                        rooksInitBitboards[p.getSide()][FAR] = p.asBitMask();
+                        break;
+                    }
+                }
+            }
+
+            for (int c = kings[s].getCol() + 1; c < 8; c++) {
+                if (board[materialRow[s]][c] != null) {
+                    Piece p = board[materialRow[s]][c];
+                    if (p.getPieceID() == ROOK) {
+                        rooksInitBitboards[p.getSide()][NEAR] = p.asBitMask();
+                        break;
+                    }
+                }
+            }
+        }
+
+        return rooksInitBitboards;
+    }
+
+    private int[][] findRookStartCols(Piece[][] board, Piece[] kings) {
+
+        int[][] rookCols = {{-1, -1}, {-1, -1}};
+
+        for (int s : Arrays.asList(BLACK, WHITE)) {
+            for (int c = kings[s].getCol() - 1; c >= 0; c--) {
+
+                if (board[materialRow[s]][c] != null) {
+                    Piece p = board[materialRow[s]][c];
+                    if (p.getPieceID() == ROOK) {
                         rookCols[s][0] = c;
                         break;
                     }
@@ -614,7 +655,6 @@ public class Board {
                 if (board[materialRow[s]][c] != null) {
                     Piece p = board[materialRow[s]][c];
                     if (p.getPieceID() == ROOK) {
-                        this.rooksInitBitboards[p.getSide()][NEAR] = p.asBitMask();
                         rookCols[s][1] = c;
                         break;
                     }
@@ -622,9 +662,14 @@ public class Board {
             }
         }
 
+        return rookCols;
+    }
+
+    private int[] findKingStartCols(Piece[] kings) {
+        int[] kingStartCols = new int[2];
         kingStartCols[Side.BLACK] = kings[Side.BLACK].getCol();
         kingStartCols[Side.WHITE] = kings[Side.WHITE].getCol();
-
+        return kingStartCols;
     }
 
     public boolean placePiece(Piece piece, int toRow, int toCol) {
@@ -695,7 +740,7 @@ public class Board {
 
         this.hashCode = generateHashCode();
 
-        initializeCastleSetup();
+        //findRookInitBitBoards();
 
         return true;
     }
