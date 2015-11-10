@@ -1,15 +1,19 @@
 package com.gordoncaleb.chess.board.bitboard;
 
+import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.pieces.Pawn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.gordoncaleb.chess.board.Side.BLACK;
+import static com.gordoncaleb.chess.board.Side.WHITE;
 import static com.gordoncaleb.chess.board.bitboard.Slide.northFill;
 import static com.gordoncaleb.chess.board.bitboard.Slide.southFill;
 
@@ -76,6 +80,57 @@ public class BitBoard {
         } else {
             return ((0xFFL >> (7 - highCol + lowCol)) << (lowCol + 56));
         }
+    }
+
+    public static long[][] buildKingToCastleMasks(long[] kings, long[][] rooks) {
+        long[][] kingsToCastleMasks = new long[2][2];
+        for (int side : Arrays.asList(BLACK, WHITE)) {
+            long king = kings[side];
+            long near = getMask(Board.materialRow[side], 6);
+            long far = getMask(Board.materialRow[side], 2);
+
+            kingsToCastleMasks[side][Board.NEAR] = Slide.eastFillAndSlide(
+                    furthestLeft(king, near),
+                    furthestRight(king, near)) &
+                    ~rooks[side][Board.NEAR]; //for chess 960 case where castling rook can be in the way
+
+            kingsToCastleMasks[side][Board.FAR] = Slide.eastFillAndSlide(
+                    furthestLeft(king, far),
+                    furthestRight(king, far)) &
+                    ~rooks[side][Board.FAR]; //for chess 960 case where castling rook can be in the way
+        }
+        return kingsToCastleMasks;
+    }
+
+    public static long[][] buildRookToCastleMasks(long[] kings, long[][] rooks) {
+        long[][] rookToCastleMasks = new long[2][2];
+        for (int side : Arrays.asList(BLACK, WHITE)) {
+            long farRook = rooks[side][Board.FAR];
+            long nearRook = rooks[side][Board.NEAR];
+            long farPos = getMask(Board.materialRow[side], 3);
+            long nearPos = getMask(Board.materialRow[side], 5);
+
+            rookToCastleMasks[side][Board.FAR] = Slide.eastFillAndSlide(
+                    furthestLeft(farRook, farPos),
+                    furthestRight(farRook, farPos)) &
+                    ~farRook &
+                    ~kings[side];
+
+            rookToCastleMasks[side][Board.NEAR] = Slide.eastFillAndSlide(
+                    furthestLeft(nearRook, nearPos),
+                    furthestRight(nearRook, nearPos)) &
+                    ~nearRook &
+                    ~kings[side];
+        }
+        return rookToCastleMasks;
+    }
+
+    public static long furthestRight(long a, long b) {
+        return (Long.numberOfTrailingZeros(a) > Long.numberOfTrailingZeros(b)) ? a : b;
+    }
+
+    public static long furthestLeft(long a, long b) {
+        return (Long.numberOfTrailingZeros(a) > Long.numberOfTrailingZeros(b)) ? b : a;
     }
 
     public static boolean hasOneBitOrLess(long bb) {

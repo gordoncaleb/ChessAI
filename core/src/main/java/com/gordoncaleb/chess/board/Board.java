@@ -19,19 +19,28 @@ import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
 public class Board {
     private static final Logger logger = LoggerFactory.getLogger(Board.class);
+
     private final RNGTable rngTable = RNGTable.instance;
 
-    private static final int NEAR = 0;
-    private static final int FAR = 1;
+    public static final int NEAR = 0;
+    public static final int FAR = 1;
+    public static final int[] materialRow = new int[2];
+    public static final int[] pawnRow = new int[2];
+
+    static {
+        pawnRow[BLACK] = 1;
+        pawnRow[WHITE] = 6;
+        materialRow[BLACK] = 0;
+        materialRow[WHITE] = 7;
+    }
 
     private long castleRights;
     private final long[][] rooksInitBitboards;
     private final long[] kingsInitBitBoards;
+    public final long[][] kingToCastleMasks;
+    public final long[][] rookToCastleMasks;
 
     private Deque<Long> castleRightsHistory = new ArrayDeque<>();
-
-    private final int[] materialRow = new int[2];
-    private final int[] pawnRow = new int[2];
 
     private final Piece[][] board;
     private Game.GameStatus boardStatus = Game.GameStatus.IN_PLAY;
@@ -56,20 +65,10 @@ public class Board {
     private final long[][] posBitBoard;
     private final long[] allPosBitBoard;
 
-    private void initConstants() {
-        this.pieces[WHITE] = new LinkedList<>();
-        this.pieces[BLACK] = new LinkedList<>();
-        this.piecesTaken[WHITE] = new ArrayDeque<>();
-        this.piecesTaken[BLACK] = new ArrayDeque<>();
-        pawnRow[BLACK] = 1;
-        pawnRow[WHITE] = 6;
-        materialRow[BLACK] = 0;
-        materialRow[WHITE] = 7;
-    }
-
     //Inputs are copied safely
     public Board(List<Piece>[] pieces, int turn) {
-        initConstants();
+        this.piecesTaken[WHITE] = new ArrayDeque<>();
+        this.piecesTaken[BLACK] = new ArrayDeque<>();
 
         this.turn = turn;
 
@@ -92,8 +91,10 @@ public class Board {
         rookStartCols = findRookStartCols(board, kings);
         kingStartCols = findKingStartCols(kings);
 
-        kingsInitBitBoards = findKingsInitBitboards(kings);
-        rooksInitBitboards = findRookInitBitBoards(board);
+        kingsInitBitBoards = buildKingsInitBitboards(posBitBoard);
+        rooksInitBitboards = buildRookInitBitBoards(board);
+        kingToCastleMasks = buildKingToCastleMasks(kingsInitBitBoards, rooksInitBitboards);
+        rookToCastleMasks = buildRookToCastleMasks(kingsInitBitBoards, rooksInitBitboards);
 
         castleRights = orKingsAndRooks(kingsInitBitBoards, rooksInitBitboards);
         castleRightsHistory.push(castleRights);
@@ -160,10 +161,10 @@ public class Board {
         return kings;
     }
 
-    private long[] findKingsInitBitboards(Piece[] kings) {
+    private long[] buildKingsInitBitboards(long[][] posBitBoards) {
         long[] kingInitBitboards = new long[2];
-        kingInitBitboards[WHITE] = kings[WHITE].asBitMask();
-        kingInitBitboards[BLACK] = kings[BLACK].asBitMask();
+        kingInitBitboards[WHITE] = posBitBoards[KING][WHITE];
+        kingInitBitboards[BLACK] = posBitBoards[KING][BLACK];
         return kingInitBitboards;
     }
 
@@ -601,7 +602,7 @@ public class Board {
         return piecesTaken[player];
     }
 
-    private long[][] findRookInitBitBoards(final Piece[][] board) {
+    private long[][] buildRookInitBitBoards(final Piece[][] board) {
 
         long[][] rooksInitBitboards = new long[2][2];
 
@@ -735,8 +736,6 @@ public class Board {
         this.hashCodeHistory.clear();
 
         this.hashCode = generateHashCode();
-
-        //findRookInitBitBoards();
 
         return true;
     }

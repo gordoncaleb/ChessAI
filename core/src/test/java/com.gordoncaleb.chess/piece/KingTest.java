@@ -1,6 +1,7 @@
 package com.gordoncaleb.chess.piece;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.King;
@@ -8,10 +9,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertTrue;
 
 public class KingTest {
     public static final Logger logger = LoggerFactory.getLogger(KingTest.class);
@@ -168,5 +174,181 @@ public class KingTest {
                 "1,1,1,1,1,1,1,1,"
         });
 
+    }
+
+    @Test
+    public void testCastleMoveGenerationSimple() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,q,_,Q,_,_,_,q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,P,_,_,_,",
+                "_,_,_,N,_,N,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,K,_,_,R,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), true, true);
+    }
+
+    @Test
+    public void testCastleMoveGenerationFarThroughCheck() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,q,_,_,_,_,q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,P,_,_,_,",
+                "_,_,_,N,_,N,P,_,",
+                "P,P,_,P,_,P,_,P,",
+                "R,_,_,_,K,_,_,R,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), true, false);
+    }
+
+    @Test
+    public void testCastleMoveGenerationNearThroughCheck() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,_,_,_,q,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,P,_,_,_,",
+                "_,_,_,N,_,_,P,_,",
+                "P,P,_,P,_,_,_,P,",
+                "R,_,_,_,K,_,_,R,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), false, true);
+    }
+
+    @Test
+    public void testCastleMoveGenerationWhileCheck() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,_,_,q,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,N,_,_,P,_,",
+                "P,P,_,P,_,_,_,P,",
+                "R,_,_,_,K,_,_,R,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), false, false);
+    }
+
+    @Test
+    public void testCastleMoveGenerationWhileCheck2() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,N,_,_,P,_,",
+                "P,P,_,P,_,_,_,P,",
+                "R,_,_,_,K,_,q,R,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), false, false);
+    }
+
+    @Test
+    public void testCastleMoveGenerationRookBlocked() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,N,_,_,P,_,",
+                "P,P,_,P,_,_,_,P,",
+                "R,N,_,_,K,_,_,R,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), true, false);
+    }
+
+    @Test
+    public void test960CastleMoveGeneration() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,N,_,_,P,_,",
+                "P,P,_,P,_,_,_,P,",
+                "R,K,R,_,_,_,_,_,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), true, false);
+    }
+
+    @Test
+    public void test960CastleMoveGeneration2() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,N,_,_,P,_,",
+                "P,P,_,P,_,_,_,P,",
+                "R,K,_,_,_,_,_,R,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), true, true);
+    }
+
+    @Test
+    public void test960CastleMoveGeneration3() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,N,_,_,P,_,",
+                "P,P,_,P,_,_,_,P,",
+                "_,_,_,_,_,R,K,R,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), false, true);
+    }
+
+    @Test
+    public void test960CastleMoveGeneration4() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,N,_,_,P,_,",
+                "P,P,_,P,_,_,_,P,",
+                "_,_,_,_,R,_,K,R,"
+        };
+
+        checkCastleRights(JSONParser.getFromSetup(Side.WHITE, setup), true, true);
+    }
+
+    private void checkCastleRights(Board b, boolean canNear, boolean canFar) {
+        b.makeNullMove();
+        List<Move> moves = b.generateValidMoves();
+        Optional<Move> far = getWithNote(moves, Move.MoveNote.CASTLE_FAR);
+        Optional<Move> near = getWithNote(moves, Move.MoveNote.CASTLE_NEAR);
+
+        assertTrue(near.isPresent() == canNear);
+        assertTrue(far.isPresent() == canFar);
+    }
+
+    private Optional<Move> getWithNote(List<Move> moves, Move.MoveNote note) {
+        return moves.stream()
+                .filter(m -> m.getNote() == note)
+                .findFirst();
     }
 }
