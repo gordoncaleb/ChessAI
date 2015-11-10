@@ -19,7 +19,6 @@ public class King {
                                                 final long[] nullMoveInfo,
                                                 final long[] posBitBoard,
                                                 final List<Move> validMoves) {
-
         final int currentRow = p.getRow();
         final int currentCol = p.getCol();
         final int side = p.getSide();
@@ -34,7 +33,7 @@ public class King {
         final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
 
         buildValidMovesWithPiecesTaken(validFootPrintWithPiecesTaken, currentRow, currentCol, board, validMoves);
-        buildValidMoves(validFootPrintWoPiecesTaken, currentRow, currentCol, validMoves);
+        buildValidMoves(validFootPrintWoPiecesTaken, currentRow, currentCol, Move.MoveNote.NONE, validMoves);
 
         final long kingNoGo = nullMoveInfo[0] | (friendsOrFoes & ~kingMask);
 

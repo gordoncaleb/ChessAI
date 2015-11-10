@@ -31,7 +31,7 @@ public class Piece {
         NO_PIECE, ENEMY, FRIEND, OFF_BOARD
     }
 
-    public Piece(){
+    public Piece() {
 
     }
 
@@ -47,7 +47,7 @@ public class Piece {
         return row;
     }
 
-    public void setRow(int row){
+    public void setRow(int row) {
         this.row = row;
     }
 
@@ -55,7 +55,7 @@ public class Piece {
         return col;
     }
 
-    public void setCol(int col){
+    public void setCol(int col) {
         this.col = col;
     }
 
@@ -63,7 +63,7 @@ public class Piece {
         return side;
     }
 
-    public void setSide(int side){
+    public void setSide(int side) {
         this.side = side;
     }
 
@@ -102,12 +102,12 @@ public class Piece {
         return BitBoard.getMask(row, col);
     }
 
-    public void move(int row, int col){
+    public void move(int row, int col) {
         this.row = row;
         this.col = col;
     }
 
-    public void unmove(int row, int col){
+    public void unmove(int row, int col) {
         this.row = row;
         this.col = col;
     }
@@ -196,6 +196,7 @@ public class Piece {
     public static List<Move> buildValidMoves(long validFootPrint,
                                              final int fromRow,
                                              final int fromCol,
+                                             final Move.MoveNote note,
                                              final List<Move> validMoves) {
 
         int bitNum;
@@ -205,7 +206,7 @@ public class Piece {
             final int toCol = bitNum % 8;
 
             validMoves.add(
-                    new Move(fromRow, fromCol, toRow, toCol)
+                    new Move(fromRow, fromCol, toRow, toCol, 0, note)
             );
 
             validFootPrint ^= mask;

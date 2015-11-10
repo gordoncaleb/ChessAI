@@ -25,7 +25,7 @@ public class Knight {
         final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
 
         buildValidMovesWithPiecesTaken(validFootPrintWithPiecesTaken, p.getRow(), p.getCol(), board, validMoves);
-        buildValidMoves(validFootPrintWoPiecesTaken, p.getRow(), p.getCol(), validMoves);
+        buildValidMoves(validFootPrintWoPiecesTaken, p.getRow(), p.getCol(), Move.MoveNote.NONE, validMoves);
 
         return validMoves;
     }
