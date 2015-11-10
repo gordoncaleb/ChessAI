@@ -22,41 +22,34 @@ public class Move {
     private static final int fromToMask = 0xFFF;
     private static final int hadMovedMask = 1 << 15;
     private static final int hasPieceTakenMask = 1 << 16;
-    private static final int pieceTakenHasMovedMask = 1 << 26;
 
     private Move.MoveNote note;
     private int fromRow, fromCol, toRow, toCol;
     private Piece pieceTaken;
-    private boolean hadMoved;
 
     public Move() {
 
     }
 
     public Move(int fromRow, int fromCol, int toRow, int toCol) {
-        this(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, null, false);
+        this(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, null);
     }
 
     public Move(int fromRow, int fromCol, int toRow, int toCol, int value) {
-        this(fromRow, fromCol, toRow, toCol, value, MoveNote.NONE, null, false);
+        this(fromRow, fromCol, toRow, toCol, value, MoveNote.NONE, null);
     }
 
     public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note) {
-        this(fromRow, fromCol, toRow, toCol, value, note, null, false);
+        this(fromRow, fromCol, toRow, toCol, value, note, null);
     }
 
     public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken) {
-        this(fromRow, fromCol, toRow, toCol, 0, note, pieceTaken, false);
-    }
-
-    public Move(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken, boolean hadMoved) {
         this.note = note;
         this.fromRow = fromRow;
         this.fromCol = fromCol;
         this.toRow = toRow;
         this.toCol = toCol;
         this.pieceTaken = pieceTaken;
-        this.hadMoved = hadMoved;
     }
 
     public static boolean equals(Move moveA, Move moveB) {
@@ -114,14 +107,6 @@ public class Move {
     public void setValue(int value) {
     }
 
-    public boolean getHadMoved() {
-        return this.hadMoved;
-    }
-
-    public void setHadMoved(boolean hadMoved) {
-        this.hadMoved = hadMoved;
-    }
-
     public boolean hasPieceTaken() {
         return (this.pieceTaken != null);
     }
@@ -135,22 +120,14 @@ public class Move {
     }
 
     public Move copy() {
-        return new Move(fromRow, fromCol, toRow, toCol, 0, note, pieceTaken == null ? null : pieceTaken.copy(), hadMoved);
+        return new Move(fromRow, fromCol, toRow, toCol, 0, note, pieceTaken == null ? null : pieceTaken.copy());
     }
 
     public long toLong() {
         long moveLong = (note.ordinal() << 12) | (fromRow << 9) | (fromCol << 6) | (toRow << 3) | toCol;
 
-        if (hadMoved) {
-            moveLong |= hadMovedMask;
-        }
-
         if (pieceTaken != null) {
             moveLong |= (pieceTaken.getPieceID() << 23) | (pieceTaken.getRow() << 20) | (pieceTaken.getCol() << 17) | hasPieceTakenMask;
-
-            if (pieceTaken.getHasMoved()) {
-                moveLong |= pieceTakenHasMovedMask;
-            }
         } else {
             moveLong |= Piece.PieceID.NONE << 23;
         }
@@ -170,14 +147,13 @@ public class Move {
         int pieceTakenId = (int) ((moveLong >> 23) & 0x7);
         int pieceTakenRow = (int) ((moveLong >> 20) & 0x7);
         int pieceTakenCol = (int) ((moveLong >> 17) & 0x7);
-        boolean pieceTakenHasMoved = ((moveLong & pieceTakenHasMovedMask) != 0);
 
         Piece pieceTaken = null;
         if ((hasPieceTakenMask & moveLong) > 0) {
-            pieceTaken = new Piece(pieceTakenId, -1, pieceTakenRow, pieceTakenCol, pieceTakenHasMoved);
+            pieceTaken = new Piece(pieceTakenId, -1, pieceTakenRow, pieceTakenCol);
         }
 
-        return new Move(fromRow, fromCol, toRow, toCol, value, note, pieceTaken, hadMoved);
+        return new Move(fromRow, fromCol, toRow, toCol, value, note, pieceTaken);
     }
 
     public Move justFromTo() {
@@ -199,7 +175,6 @@ public class Move {
         if (fromCol != move.fromCol) return false;
         if (toRow != move.toRow) return false;
         if (toCol != move.toCol) return false;
-        if (hadMoved != move.hadMoved) return false;
         if (note != move.note) return false;
         return !(pieceTaken != null ? !pieceTaken.equals(move.pieceTaken) : move.pieceTaken != null);
 
@@ -213,7 +188,6 @@ public class Move {
         result = 31 * result + toRow;
         result = 31 * result + toCol;
         result = 31 * result + (pieceTaken != null ? pieceTaken.hashCode() : 0);
-        result = 31 * result + (hadMoved ? 1 : 0);
         return result;
     }
 
@@ -226,7 +200,6 @@ public class Move {
                 ", toRow=" + toRow +
                 ", toCol=" + toCol +
                 ", pieceTaken=" + pieceTaken +
-                ", hadMoved=" + hadMoved +
                 '}';
     }
 }

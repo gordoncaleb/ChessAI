@@ -13,7 +13,6 @@ public class Piece {
     private int row;
     private int col;
     private int side;
-    private boolean hasMoved;
     private long blockingVector;
     private int pieceId;
 
@@ -36,9 +35,8 @@ public class Piece {
 
     }
 
-    public Piece(int pieceId, int side, int row, int col, boolean hasMoved) {
+    public Piece(int pieceId, int side, int row, int col) {
         this.pieceId = pieceId;
-        this.hasMoved = hasMoved;
         this.side = side;
         this.row = row;
         this.col = col;
@@ -69,14 +67,6 @@ public class Piece {
         this.side = side;
     }
 
-    public boolean getHasMoved() {
-        return hasMoved;
-    }
-
-    public void setHasMoved(boolean moved) {
-        this.hasMoved = moved;
-    }
-
     public int getPieceID() {
         return pieceId;
     }
@@ -95,7 +85,6 @@ public class Piece {
         if (row != piece.row) return false;
         if (col != piece.col) return false;
         if (side != piece.side) return false;
-        if (hasMoved != piece.hasMoved) return false;
         return pieceId == piece.pieceId;
 
     }
@@ -105,7 +94,6 @@ public class Piece {
         int result = row;
         result = 31 * result + col;
         result = 31 * result + side;
-        result = 31 * result + (hasMoved ? 1 : 0);
         result = 31 * result + pieceId;
         return result;
     }
@@ -117,13 +105,11 @@ public class Piece {
     public void move(int row, int col){
         this.row = row;
         this.col = col;
-        this.hasMoved = true;
     }
 
-    public void unmove(int row, int col, boolean hadMoved){
+    public void unmove(int row, int col){
         this.row = row;
         this.col = col;
-        this.hasMoved = hadMoved;
     }
 
     public void putBlockingVector(long blockingVector) {
@@ -251,7 +237,7 @@ public class Piece {
     }
 
     public Piece copy() {
-        return new Piece(pieceId, side, row, col, hasMoved);
+        return new Piece(pieceId, side, row, col);
     }
 
 }

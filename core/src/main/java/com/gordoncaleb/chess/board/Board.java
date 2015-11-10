@@ -24,14 +24,14 @@ public class Board {
 
     public static final int NEAR = 0;
     public static final int FAR = 1;
-    public static final int[] materialRow = new int[2];
-    public static final int[] pawnRow = new int[2];
+    public static final int[] MATERIAL_ROW = new int[2];
+    public static final int[] PAWN_ROW = new int[2];
 
     static {
-        pawnRow[BLACK] = 1;
-        pawnRow[WHITE] = 6;
-        materialRow[BLACK] = 0;
-        materialRow[WHITE] = 7;
+        PAWN_ROW[BLACK] = 1;
+        PAWN_ROW[WHITE] = 6;
+        MATERIAL_ROW[BLACK] = 0;
+        MATERIAL_ROW[WHITE] = 7;
     }
 
     private long castleRights;
@@ -79,8 +79,6 @@ public class Board {
         this.pieces[WHITE] = pieces[WHITE].stream()
                 .map(Piece::copy)
                 .collect(Collectors.toCollection(LinkedList::new));
-
-        inferMovements(this.pieces);
 
         kings = findKings(this.pieces);
 
@@ -168,20 +166,6 @@ public class Board {
         return kingInitBitboards;
     }
 
-    private void inferMovements(List<Piece>[] pieces) {
-        Stream.of(pieces).forEach(sidePieces -> {
-            sidePieces.stream()
-                    .filter(p -> p.getPieceID() == PAWN)
-                    .filter(p -> p.getRow() != pawnRow[p.getSide()])
-                    .forEach(p -> p.setHasMoved(true));
-
-            sidePieces.stream()
-                    .filter(p -> p.getPieceID() == KING)
-                    .filter(p -> p.getRow() != materialRow[p.getSide()])
-                    .forEach(p -> p.setHasMoved(true));
-        });
-    }
-
     public boolean makeMove(final Move move) {
 
         final int fromRow = move.getFromRow();
@@ -234,22 +218,22 @@ public class Board {
             final Piece rook;
 
             if (note == Move.MoveNote.CASTLE_NEAR) {
-                rook = board[materialRow[turn]][rookStartCols[turn][1]];
+                rook = board[MATERIAL_ROW[turn]][rookStartCols[turn][1]];
 
-                movePiece(king, materialRow[turn], 6, Move.MoveNote.NONE);
-                movePiece(rook, materialRow[turn], 5, Move.MoveNote.NONE);
+                movePiece(king, MATERIAL_ROW[turn], 6, Move.MoveNote.NONE);
+                movePiece(rook, MATERIAL_ROW[turn], 5, Move.MoveNote.NONE);
 
-                board[materialRow[turn]][6] = king;
-                board[materialRow[turn]][5] = rook;
+                board[MATERIAL_ROW[turn]][6] = king;
+                board[MATERIAL_ROW[turn]][5] = rook;
 
             } else {
-                rook = board[materialRow[turn]][rookStartCols[turn][0]];
+                rook = board[MATERIAL_ROW[turn]][rookStartCols[turn][0]];
 
-                movePiece(king, materialRow[turn], 2, Move.MoveNote.NONE);
-                movePiece(rook, materialRow[turn], 3, Move.MoveNote.NONE);
+                movePiece(king, MATERIAL_ROW[turn], 2, Move.MoveNote.NONE);
+                movePiece(rook, MATERIAL_ROW[turn], 3, Move.MoveNote.NONE);
 
-                board[materialRow[turn]][2] = king;
-                board[materialRow[turn]][3] = rook;
+                board[MATERIAL_ROW[turn]][2] = king;
+                board[MATERIAL_ROW[turn]][3] = rook;
 
             }
 
@@ -345,28 +329,27 @@ public class Board {
             final Piece rook;
 
             if (note == Move.MoveNote.CASTLE_FAR) {
-                rook = board[materialRow[turn]][3];
+                rook = board[MATERIAL_ROW[turn]][3];
 
-                undoMovePiece(king, materialRow[turn], kingStartCols[turn], Move.MoveNote.NONE, false);
-                undoMovePiece(rook, materialRow[turn], rookStartCols[turn][0], Move.MoveNote.NONE, false);
+                undoMovePiece(king, MATERIAL_ROW[turn], kingStartCols[turn], Move.MoveNote.NONE);
+                undoMovePiece(rook, MATERIAL_ROW[turn], rookStartCols[turn][0], Move.MoveNote.NONE);
 
-                board[materialRow[turn]][kingStartCols[turn]] = king;
-                board[materialRow[turn]][rookStartCols[turn][0]] = rook;
+                board[MATERIAL_ROW[turn]][kingStartCols[turn]] = king;
+                board[MATERIAL_ROW[turn]][rookStartCols[turn][0]] = rook;
 
             } else {
 
-                rook = board[materialRow[turn]][5];
+                rook = board[MATERIAL_ROW[turn]][5];
 
-                undoMovePiece(king, materialRow[turn], kingStartCols[turn], Move.MoveNote.NONE, false);
-                undoMovePiece(rook, materialRow[turn], rookStartCols[turn][1], Move.MoveNote.NONE, false);
+                undoMovePiece(king, MATERIAL_ROW[turn], kingStartCols[turn], Move.MoveNote.NONE);
+                undoMovePiece(rook, MATERIAL_ROW[turn], rookStartCols[turn][1], Move.MoveNote.NONE);
 
-                board[materialRow[turn]][kingStartCols[turn]] = king;
-                board[materialRow[turn]][rookStartCols[turn][1]] = rook;
-
+                board[MATERIAL_ROW[turn]][kingStartCols[turn]] = king;
+                board[MATERIAL_ROW[turn]][rookStartCols[turn][1]] = rook;
             }
 
         } else {
-            undoMovePiece(board[toRow][toCol], fromRow, fromCol, note, lastMove.getHadMoved());
+            undoMovePiece(board[toRow][toCol], fromRow, fromCol, note);
         }
 
         if (lastMove.hasPieceTaken()) {
@@ -401,7 +384,7 @@ public class Board {
         return lastMove;
     }
 
-    private void undoMovePiece(final Piece pieceMoving, final int fromRow, final int fromCol, final Move.MoveNote note, final boolean hadMoved) {
+    private void undoMovePiece(final Piece pieceMoving, final int fromRow, final int fromCol, final Move.MoveNote note) {
 
         final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ getMask(fromRow, fromCol);
 
@@ -415,7 +398,7 @@ public class Board {
         board[fromRow][fromCol] = pieceMoving;
 
         // tell piece where it was
-        pieceMoving.unmove(fromRow, fromCol, hadMoved);
+        pieceMoving.unmove(fromRow, fromCol);
 
         if (note == Move.MoveNote.NEW_QUEEN) {
             pieceMoving.setPieceID(PAWN);
@@ -468,8 +451,6 @@ public class Board {
 
             for (int m = prevMovesSize; m < validMoves.size(); m++) {
                 move = validMoves.get(m);
-
-                move.setHadMoved(p.getHasMoved());
 
                 if (move == hashMove) {
                     move.setValue(10000);
@@ -609,8 +590,8 @@ public class Board {
         for (int s : Arrays.asList(BLACK, WHITE)) {
             for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
-                if (board[materialRow[s]][c] != null) {
-                    Piece p = board[materialRow[s]][c];
+                if (board[MATERIAL_ROW[s]][c] != null) {
+                    Piece p = board[MATERIAL_ROW[s]][c];
                     if (p.getPieceID() == ROOK) {
                         rooksInitBitboards[p.getSide()][FAR] = p.asBitMask();
                         break;
@@ -619,8 +600,8 @@ public class Board {
             }
 
             for (int c = kings[s].getCol() + 1; c < 8; c++) {
-                if (board[materialRow[s]][c] != null) {
-                    Piece p = board[materialRow[s]][c];
+                if (board[MATERIAL_ROW[s]][c] != null) {
+                    Piece p = board[MATERIAL_ROW[s]][c];
                     if (p.getPieceID() == ROOK) {
                         rooksInitBitboards[p.getSide()][NEAR] = p.asBitMask();
                         break;
@@ -639,8 +620,8 @@ public class Board {
         for (int s : Arrays.asList(BLACK, WHITE)) {
             for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
-                if (board[materialRow[s]][c] != null) {
-                    Piece p = board[materialRow[s]][c];
+                if (board[MATERIAL_ROW[s]][c] != null) {
+                    Piece p = board[MATERIAL_ROW[s]][c];
                     if (p.getPieceID() == ROOK) {
                         rookCols[s][0] = c;
                         break;
@@ -649,8 +630,8 @@ public class Board {
             }
 
             for (int c = kings[s].getCol() + 1; c < 8; c++) {
-                if (board[materialRow[s]][c] != null) {
-                    Piece p = board[materialRow[s]][c];
+                if (board[MATERIAL_ROW[s]][c] != null) {
+                    Piece p = board[MATERIAL_ROW[s]][c];
                     if (p.getPieceID() == ROOK) {
                         rookCols[s][1] = c;
                         break;
@@ -686,8 +667,6 @@ public class Board {
                 kings[piece.getSide()] = piece;
             }
         }
-
-        piece.setHasMoved(false);
 
         if (piece.getRow() >= 0) {
             // remove where piece was if it was on board
@@ -797,10 +776,6 @@ public class Board {
         if (!nearRights && !farRights) {
             castleRights &= ~kingsInitBitBoards[player];
         }
-    }
-
-    public int getRookStartingCol(int side, int near) {
-        return rookStartCols[side][near];
     }
 
     public Board copy() {

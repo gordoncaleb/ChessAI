@@ -43,7 +43,7 @@ public class BoardFactory {
         Piece temp;
         for (int s = 0; s < 2; s++) {
             for (int p = 0; p < 8; p++) {
-                temp = new Piece(Piece.PieceID.PAWN, s, pawnRow[s], p, false);
+                temp = new Piece(Piece.PieceID.PAWN, s, pawnRow[s], p);
                 pieces[s].add(temp);
             }
         }
@@ -66,7 +66,7 @@ public class BoardFactory {
 
         for (int s = 0; s < 2; s++) {
             for (int p = 0; p < 8; p++) {
-                temp = new Piece(setup[p], s, mainRow[s], p, false);
+                temp = new Piece(setup[p], s, mainRow[s], p);
                 pieces[s].add(temp);
             }
         }
@@ -91,31 +91,6 @@ public class BoardFactory {
 
     private static int rollDie(int dieSize) {
         return r.nextInt(dieSize);
-    }
-
-    public static List<Piece> getFullPieceSet(int player) {
-        List<Piece> pieces = new ArrayList<>();
-
-        for (int i = 0; i < 8; i++) {
-            pieces.add(new Piece(Piece.PieceID.PAWN, player, 0, 0, false));
-        }
-
-        for (int i = 0; i < 2; i++) {
-            pieces.add(new Piece(Piece.PieceID.BISHOP, player, 0, 0, false));
-        }
-
-        for (int i = 0; i < 2; i++) {
-            pieces.add(new Piece(Piece.PieceID.ROOK, player, 0, 0, false));
-        }
-
-        for (int i = 0; i < 2; i++) {
-            pieces.add(new Piece(Piece.PieceID.KNIGHT, player, 0, 0, false));
-        }
-
-        pieces.add(new Piece(Piece.PieceID.KING, player, 0, 0, false));
-        pieces.add(new Piece(Piece.PieceID.QUEEN, player, 0, 0, false));
-
-        return pieces;
     }
 
     public static Board fromFEN(String fen) {

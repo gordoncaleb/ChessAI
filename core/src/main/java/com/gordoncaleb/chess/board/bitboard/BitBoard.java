@@ -86,8 +86,8 @@ public class BitBoard {
         long[][] kingsToCastleMasks = new long[2][2];
         for (int side : Arrays.asList(BLACK, WHITE)) {
             long king = kings[side];
-            long near = getMask(Board.materialRow[side], 6);
-            long far = getMask(Board.materialRow[side], 2);
+            long near = getMask(Board.MATERIAL_ROW[side], 6);
+            long far = getMask(Board.MATERIAL_ROW[side], 2);
 
             kingsToCastleMasks[side][Board.NEAR] = Slide.eastFillAndSlide(
                     furthestLeft(king, near),
@@ -107,8 +107,8 @@ public class BitBoard {
         for (int side : Arrays.asList(BLACK, WHITE)) {
             long farRook = rooks[side][Board.FAR];
             long nearRook = rooks[side][Board.NEAR];
-            long farPos = getMask(Board.materialRow[side], 3);
-            long nearPos = getMask(Board.materialRow[side], 5);
+            long farPos = getMask(Board.MATERIAL_ROW[side], 3);
+            long nearPos = getMask(Board.MATERIAL_ROW[side], 5);
 
             rookToCastleMasks[side][Board.FAR] = Slide.eastFillAndSlide(
                     furthestLeft(farRook, farPos),

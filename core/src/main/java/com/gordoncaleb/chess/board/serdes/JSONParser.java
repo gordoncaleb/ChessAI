@@ -178,7 +178,7 @@ public class JSONParser {
         return Optional.ofNullable(pieceIDMap.get(stringPiece.toUpperCase()))
                 .map(id -> {
                     int player = stringPiece.matches("[a-z]") ? Side.BLACK : Side.WHITE;
-                    return new Piece(id, player, row, col, false);
+                    return new Piece(id, player, row, col);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Piece: " + stringPiece));
     }

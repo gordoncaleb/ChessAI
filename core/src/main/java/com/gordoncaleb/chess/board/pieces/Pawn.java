@@ -41,7 +41,7 @@ public class Pawn {
                 validMoves.add(move);
             }
 
-            if (!p.getHasMoved() && board.checkPiece(currentRow + 2 * dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
+            if (currentRow == Board.PAWN_ROW[player] && board.checkPiece(currentRow + 2 * dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
 
                 if (p.checkValidMove(getMask(currentRow + 2 * dir, currentCol), nullMoveInfo)) {
 
