@@ -18,7 +18,7 @@ public class Pawn {
     private static final long QUEENING_MASK = 0xFF000000000000FFL;
     private static final long NOT_QUEENING_MASK = ~QUEENING_MASK;
 
-    public static List<Move> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Move> validMoves) {
+    public static List<Move> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Move> validMoves) {
 
         final long mask = p.asBitMask();
         final int side = p.getSide();
@@ -70,7 +70,7 @@ public class Pawn {
         return validMoves;
     }
 
-    public static List<Move> generateValidMoves2(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Move> validMoves) {
+    public static List<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Move> validMoves) {
         int currentRow = p.getRow();
         int currentCol = p.getCol();
         int player = p.getSide();
