@@ -136,18 +136,6 @@ public class Piece {
         return stringId;
     }
 
-    public boolean checkValidMove(long position, long[] nullMoveInfo) {
-        return checkValidMove(nullMoveInfo, position, position);
-    }
-
-    public boolean checkValidMove(long[] nullMoveInfo, long position, long attacks) {
-        if ((attacks & nullMoveInfo[1]) != 0 && (position & blockingVector) != 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public static String stringID(int id) {
         switch (id) {
             case ROOK:
@@ -192,28 +180,6 @@ public class Piece {
         }
 
     }
-
-//    public static List<Move> buildValidMoves(long validFootPrint,
-//                                             final int fromRow,
-//                                             final int fromCol,
-//                                             final Move.MoveNote note,
-//                                             final List<Move> validMoves) {
-//
-//        int bitNum;
-//        while ((bitNum = Long.numberOfTrailingZeros(validFootPrint)) < 64) {
-//            final long mask = (1L << bitNum);
-//            final int toRow = bitNum / 8;
-//            final int toCol = bitNum % 8;
-//
-//            validMoves.add(
-//                    new Move(fromRow, fromCol, toRow, toCol, 0, note)
-//            );
-//
-//            validFootPrint ^= mask;
-//        }
-//
-//        return validMoves;
-//    }
 
     public static List<Move> buildValidMoves(long validFootPrint,
                                              final int fromRow,

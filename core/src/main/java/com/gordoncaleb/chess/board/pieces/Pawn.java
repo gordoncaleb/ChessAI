@@ -18,7 +18,7 @@ public class Pawn {
     private static final long QUEENING_MASK = 0xFF000000000000FFL;
     private static final long NOT_QUEENING_MASK = ~QUEENING_MASK;
 
-    public static List<Move> generateValidMoves2(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Move> validMoves) {
+    public static List<Move> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Move> validMoves) {
 
         final long mask = p.asBitMask();
         final int side = p.getSide();
@@ -68,90 +68,6 @@ public class Pawn {
         Piece.buildValidMoves(validLeapMoves, row, col, Move.MoveNote.PAWN_LEAP, board, validMoves);
 
         return validMoves;
-    }
-
-    public static List<Move> generateValidMoves(Piece p, Board board, long[] nullMoveInfo, long[] posBitBoard, List<Move> validMoves) {
-        int currentRow = p.getRow();
-        int currentCol = p.getCol();
-        int player = p.getSide();
-        int dir;
-        int fifthRank;
-        Move move;
-
-        int[] lr = {1, -1};
-
-        if (player == Side.WHITE) {
-            dir = -1;
-            fifthRank = 3;
-        } else {
-            dir = 1;
-            fifthRank = 4;
-        }
-
-        if (board.checkPiece(currentRow + dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
-
-            if (p.checkValidMove(getMask(currentRow + dir, currentCol), nullMoveInfo)) {
-
-                move = new Move(currentRow, currentCol, currentRow + dir, currentCol, 0, Move.MoveNote.NONE);
-
-                if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-                    move.setNote(Move.MoveNote.NEW_QUEEN);
-                }
-
-                validMoves.add(move);
-            }
-
-            if (currentRow == Board.PAWN_ROW[player] && board.checkPiece(currentRow + 2 * dir, currentCol, player) == Piece.PositionStatus.NO_PIECE) {
-
-                if (p.checkValidMove(getMask(currentRow + 2 * dir, currentCol), nullMoveInfo)) {
-
-                    validMoves.add(new Move(currentRow, currentCol, currentRow + 2 * dir, currentCol, 0, Move.MoveNote.PAWN_LEAP));
-
-                }
-            }
-
-        }
-
-        // Check left and right attack angles
-        for (int i : lr) {
-            if (board.checkPiece(currentRow + dir, currentCol + i, player) == Piece.PositionStatus.ENEMY) {
-
-                if (p.checkValidMove(getMask(currentRow + dir, currentCol + i), nullMoveInfo)) {
-
-                    move = new Move(currentRow, currentCol, currentRow + dir, currentCol + i);
-
-                    if ((currentRow + dir) == 0 || (currentRow + dir) == 7) {
-                        move.setNote(Move.MoveNote.NEW_QUEEN);
-                    }
-
-                    move.setPieceTaken(board.getPiece(currentRow + dir, currentCol + i));
-                    validMoves.add(move);
-                }
-
-            }
-        }
-
-        // Check left and right en passant rule
-        if (currentRow == fifthRank && board.getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
-            for (int i : lr) {
-                if (board.checkPiece(fifthRank, currentCol + i, player) == Piece.PositionStatus.ENEMY) {
-
-                    if (board.getLastMoveMade().getToCol() == (currentCol + i)) {
-
-                        long position = getMask(currentRow + dir, currentCol + i);
-                        if (p.checkValidMove(nullMoveInfo, position, position | getMask(fifthRank, currentCol + i))) {
-
-                            move = new Move(currentRow, currentCol, currentRow + dir, currentCol + i, 0, Move.MoveNote.ENPASSANT, board.getPiece(fifthRank, currentCol + i));
-                            validMoves.add(move);
-                        }
-
-                    }
-                }
-            }
-        }
-
-        return validMoves;
-
     }
 
     public static long getPawnAttacks(final long pawns, final int side) {
