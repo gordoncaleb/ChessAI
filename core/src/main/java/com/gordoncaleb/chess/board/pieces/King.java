@@ -3,10 +3,8 @@ package com.gordoncaleb.chess.board.pieces;
 import java.util.List;
 
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.engine.score.Values;
 
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;
@@ -24,16 +22,11 @@ public class King {
         final int side = p.getSide();
 
         final long kingMask = p.asBitMask();
-        final long foes = posBitBoard[Side.otherSide(side)];
         final long friendsOrFoes = posBitBoard[0] | posBitBoard[1];
         final long footPrint = getKingAttacks(kingMask) & ~posBitBoard[side];
-
         final long validFootPrint = footPrint & ~(nullMoveInfo[0] | nullMoveInfo[2]);
-        final long validFootPrintWithPiecesTaken = validFootPrint & foes;
-        final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
 
-        buildValidMovesWithPiecesTaken(validFootPrintWithPiecesTaken, currentRow, currentCol, board, validMoves);
-        buildValidMoves(validFootPrintWoPiecesTaken, currentRow, currentCol, Move.MoveNote.NONE, validMoves);
+        buildValidMoves(validFootPrint, currentRow, currentCol, Move.MoveNote.NONE, board, validMoves);
 
         final long kingNoGo = nullMoveInfo[0] | (friendsOrFoes & ~kingMask);
 

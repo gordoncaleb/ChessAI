@@ -8,7 +8,6 @@ import com.gordoncaleb.chess.board.Board;
 
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMoves;
-import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMovesWithPiecesTaken;
 
 public class Knight {
 
@@ -17,15 +16,11 @@ public class Knight {
                                                 final long[] nullMoveInfo,
                                                 final long[] posBitBoard,
                                                 final List<Move> validMoves) {
-        final long foes = posBitBoard[Side.otherSide(p.getSide())];
+
         final long footPrint = getKnightAttacks(p.asBitMask()) & ~posBitBoard[p.getSide()];
-
         final long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector();
-        final long validFootPrintWithPiecesTaken = validFootPrint & foes;
-        final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
 
-        buildValidMovesWithPiecesTaken(validFootPrintWithPiecesTaken, p.getRow(), p.getCol(), board, validMoves);
-        buildValidMoves(validFootPrintWoPiecesTaken, p.getRow(), p.getCol(), Move.MoveNote.NONE, validMoves);
+        buildValidMoves(validFootPrint, p.getRow(), p.getCol(), Move.MoveNote.NONE, board, validMoves);
 
         return validMoves;
     }

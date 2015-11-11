@@ -143,24 +143,25 @@ public class BoardTest {
     public void testEnPassantOutOfCheck() throws Exception {
         String[] setup = {
                 "_,_,_,_,_,_,_,_,",
-                "_,p,_,n,_,_,_,_,",
+                "_,p,_,n,_,_,_,p,",
                 "_,_,_,_,_,_,k,_,",
-                "_,p,_,_,p,_,P,p,",
+                "_,p,_,_,p,_,P,_,",
                 "_,_,_,_,P,_,K,P,",
-                "_,P,_,_,_,_,_,_,",
+                "_,P,_,_,_,P,P,P,",
                 "P,B,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,"
         };
 
-        Board b1 = JSONParser.getFromSetup(Side.WHITE, setup);
-        b1.getMoveHistory().add(new Move(1, 7, 3, 7, 0, Move.MoveNote.PAWN_LEAP));
+        Board b = JSONParser.getFromSetup(Side.BLACK, setup);
+        b.makeMove(new Move(1, 7, 3, 7, 0, Move.MoveNote.PAWN_LEAP));
 
-        logger.info(b1.toJson(true));
+        logger.info(b.toJson(false));
 
-        b1.makeNullMove();
-        List<Move> moves = b1.generateValidMoves();
-        assertEquals(4, moves.size());
-
+        b.makeNullMove();
+        List<Move> moves = b.generateValidMoves();
+        assertThat(moves, containsInAnyOrder(
+                new Move(3, 6, 2, 7, 0, Move.MoveNote.ENPASSANT, b.getPiece(3, 7))
+        ));
     }
 
 
@@ -658,9 +659,9 @@ public class BoardTest {
     }
 
     private void testCastleRights(String[] setup, int side,
-                                     boolean initNear, boolean initFar,
-                                     boolean near, boolean far,
-                                     Move move){
+                                  boolean initNear, boolean initFar,
+                                  boolean near, boolean far,
+                                  Move move) {
         Board b = JSONParser.getFromSetup(side, setup);
 
         assertTrue(b.canCastleNear(side) == initNear);

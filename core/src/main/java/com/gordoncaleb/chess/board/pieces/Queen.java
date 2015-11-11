@@ -8,7 +8,6 @@ import com.gordoncaleb.chess.board.Side;
 
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMoves;
-import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMovesWithPiecesTaken;
 
 public class Queen {
 
@@ -22,13 +21,9 @@ public class Queen {
         final long foes = posBitBoard[Side.otherSide(p.getSide())];
         final long friendOrFoe = (friends | foes);
         final long footPrint = slideQueen(p.asBitMask(), friendOrFoe) & ~friends;
-
         final long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector();
-        final long validFootPrintWithPiecesTaken = validFootPrint & foes;
-        final long validFootPrintWoPiecesTaken = validFootPrint & ~foes;
 
-        buildValidMovesWithPiecesTaken(validFootPrintWithPiecesTaken, p.getRow(), p.getCol(), board, validMoves);
-        buildValidMoves(validFootPrintWoPiecesTaken, p.getRow(), p.getCol(), Move.MoveNote.NONE, validMoves);
+        buildValidMoves(validFootPrint, p.getRow(), p.getCol(), Move.MoveNote.NONE, board, validMoves);
 
         return validMoves;
     }
