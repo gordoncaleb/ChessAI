@@ -20,7 +20,6 @@ public class Move {
      */
 
     private static final int fromToMask = 0xFFF;
-    private static final int hadMovedMask = 1 << 15;
     private static final int hasPieceTakenMask = 1 << 16;
 
     private Move.MoveNote note;
@@ -142,7 +141,6 @@ public class Move {
         int toCol = (int) (moveLong & 0x7);
         int value = (int) (moveLong >> 32);
         MoveNote note = MoveNote.values()[(int) ((moveLong >> 12) & 0x7)];
-        boolean hadMoved = (moveLong & hadMovedMask) != 0;
 
         int pieceTakenId = (int) ((moveLong >> 23) & 0x7);
         int pieceTakenRow = (int) ((moveLong >> 20) & 0x7);
