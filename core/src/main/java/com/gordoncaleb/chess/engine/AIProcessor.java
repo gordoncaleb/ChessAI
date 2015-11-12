@@ -201,9 +201,9 @@ public class AIProcessor extends Thread {
         List<Move> moves;
 
         if (level >= 0) {
-            moves = board.generateValidMoves(hashMove, killerMoves[level]);
+            moves = board.generateValidMoves(hashMove, killerMoves[level]).toList();
         } else {
-            moves = board.generateValidMoves(hashMove, AI.noKillerMoves);
+            moves = board.generateValidMoves(hashMove, AI.noKillerMoves).toList();
         }
 
         Collections.sort(moves, Collections.reverseOrder());
@@ -595,7 +595,7 @@ public class AIProcessor extends Thread {
             if (board.insufficientMaterial() || board.drawByThreeRule()) {
                 board.setBoardStatus(Game.GameStatus.DRAW);
             } else {
-                ArrayList<Move> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves));
+                ArrayList<Move> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves).toList());
 
                 if (moves.size() == 0) {
                     if (board.isInCheck()) {

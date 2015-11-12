@@ -2,6 +2,7 @@ package com.gordoncaleb.chess.board.pieces;
 
 import java.util.List;
 
+import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
@@ -155,7 +156,7 @@ public class Piece {
         }
     }
 
-    public void generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard, List<Move> validMoves) {
+    public void generateValidMoves(Board board, long[] nullMoveInfo, long[] posBitBoard, MoveContainer validMoves) {
 
         switch (pieceId) {
             case ROOK:
@@ -181,12 +182,12 @@ public class Piece {
 
     }
 
-    public static List<Move> buildValidMoves(long validFootPrint,
+    public static MoveContainer buildValidMoves(long validFootPrint,
                                              final int fromRow,
                                              final int fromCol,
                                              final Move.MoveNote note,
                                              final Board board,
-                                             final List<Move> validMoves) {
+                                             final MoveContainer validMoves) {
 
         int bitNum;
         while ((bitNum = Long.numberOfTrailingZeros(validFootPrint)) < 64) {
@@ -195,7 +196,7 @@ public class Piece {
             final int toCol = bitNum % 8;
 
             validMoves.add(
-                    new Move(fromRow, fromCol, toRow, toCol, 0, note, board.getPiece(toRow, toCol))
+                    fromRow, fromCol, toRow, toCol, 0, note, board.getPiece(toRow, toCol)
             );
 
             validFootPrint ^= mask;

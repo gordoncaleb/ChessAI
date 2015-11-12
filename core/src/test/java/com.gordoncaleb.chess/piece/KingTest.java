@@ -337,7 +337,7 @@ public class KingTest {
 
     private void checkCastleRights(Board b, boolean canNear, boolean canFar) {
         b.makeNullMove();
-        List<Move> moves = b.generateValidMoves();
+        List<Move> moves = b.generateValidMoves().toList();
         Optional<Move> far = getWithNote(moves, Move.MoveNote.CASTLE_FAR);
         Optional<Move> near = getWithNote(moves, Move.MoveNote.CASTLE_NEAR);
 

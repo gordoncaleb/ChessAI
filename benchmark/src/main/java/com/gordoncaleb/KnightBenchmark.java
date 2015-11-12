@@ -2,6 +2,7 @@ package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Knight;
@@ -26,7 +27,7 @@ public class KnightBenchmark {
     public Board board;
     public long[] nullMoveInfo;
     public long[] posBitBoard;
-    public List<Move> validMoves;
+    public MoveContainer validMoves;
     public Piece knight;
 
     @Setup
@@ -48,13 +49,13 @@ public class KnightBenchmark {
         knight = board.getPiece(6, 3);
         nullMoveInfo = board.makeNullMove();
         posBitBoard = board.getAllPosBitBoard();
-        validMoves = new ArrayList<Move>();
+        validMoves = new MoveContainer();
     }
 
     @Benchmark
     @Warmup(iterations = 5, batchSize = 5000)
     @Measurement(iterations = 5, batchSize = 5000)
-    public List<Move> testKnightMoveGen() {
+    public MoveContainer testKnightMoveGen() {
         return Knight.generateValidMoves(knight, board, nullMoveInfo, posBitBoard, validMoves);
     }
 

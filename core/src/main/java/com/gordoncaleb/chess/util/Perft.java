@@ -4,6 +4,7 @@ package com.gordoncaleb.chess.util;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,24 +45,25 @@ public class Perft {
         return metrics;
     }
 
-    private void perftBoardRecursiveFunctional(Board b, int depth, int stopDepth, int[][] metrics, List<List<Move>> moveContainers) {
+    private void perftBoardRecursiveFunctional(Board b, int depth, int stopDepth, int[][] metrics, List<MoveContainer> moveContainers) {
         b.makeNullMove();
-        List<Move> moves = moveContainers.get(depth);
+        MoveContainer moves = moveContainers.get(depth);
         b.generateValidMoves(moves);
+        List<Move> moveList = moves.toList();
 
-        long pawnQueenings = moves.stream().filter(m -> m.getNote() == Move.MoveNote.NEW_QUEEN).count();
+        long pawnQueenings = moveList.stream().filter(m -> m.getNote() == Move.MoveNote.NEW_QUEEN).count();
 
-        metrics[depth][0] += moves.size() + pawnQueenings * 3;
-        metrics[depth][1] += moves.stream().filter(m -> m.hasPieceTaken()).count();
-        metrics[depth][2] += moves.stream().filter(m -> m.getNote() == Move.MoveNote.ENPASSANT).count();
+        metrics[depth][0] += moveList.size() + pawnQueenings * 3;
+        metrics[depth][1] += moveList.stream().filter(m -> m.hasPieceTaken()).count();
+        metrics[depth][2] += moveList.stream().filter(m -> m.getNote() == Move.MoveNote.ENPASSANT).count();
 
-        metrics[depth][3] += moves.stream().filter(m -> m.getNote() == Move.MoveNote.CASTLE_FAR ||
+        metrics[depth][3] += moveList.stream().filter(m -> m.getNote() == Move.MoveNote.CASTLE_FAR ||
                 m.getNote() == Move.MoveNote.CASTLE_NEAR).count();
 
-        metrics[depth][4] += moves.stream().filter(m -> m.getNote() == Move.MoveNote.NEW_QUEEN).count() * 4;
+        metrics[depth][4] += moveList.stream().filter(m -> m.getNote() == Move.MoveNote.NEW_QUEEN).count() * 4;
 
         if (depth < stopDepth) {
-            moves.forEach(m -> {
+            moveList.forEach(m -> {
                 b.makeMove(m);
                 perftBoardRecursiveFunctional(b, depth + 1, stopDepth, metrics, moveContainers);
                 b.undoMove();
@@ -69,24 +71,24 @@ public class Perft {
         }
     }
 
-    public void perftBoardRecursiveTimed(Board b, int depth, int stopDepth, List<List<Move>> moveContainers) {
+    public void perftBoardRecursiveTimed(Board b, int depth, int stopDepth, List<MoveContainer> moveContainers) {
         b.makeNullMove();
-        List<Move> moves = moveContainers.get(depth);
+        MoveContainer moves = moveContainers.get(depth);
         b.generateValidMoves(moves);
 
         if (depth < stopDepth) {
-            moves.forEach(m -> {
-                b.makeMove(m);
+            for (int i = 0; i < moves.size(); i++) {
+                b.makeMove(moves.get(i));
                 perftBoardRecursiveTimed(b, depth + 1, stopDepth, moveContainers);
                 b.undoMove();
-            });
+            }
         }
     }
 
-    private List<List<Move>> getMoveContainers(int size) {
-        List<List<Move>> containers = new ArrayList<>();
+    private List<MoveContainer> getMoveContainers(int size) {
+        List<MoveContainer> containers = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            containers.add(new ArrayList<>());
+            containers.add(new MoveContainer());
         }
         return containers;
     }

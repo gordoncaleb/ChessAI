@@ -44,7 +44,7 @@ public class Board {
 
     private final Piece[][] board;
     private Game.GameStatus boardStatus = Game.GameStatus.IN_PLAY;
-    private ArrayList<Move> validMoves = new ArrayList<>(100);
+    private MoveContainer validMoves = new MoveContainer();
     private LinkedList<Piece>[] pieces = new LinkedList[2];
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
 
@@ -56,7 +56,7 @@ public class Board {
     private int turn;
     private long hashCode;
     private int hashCodeFreq;
-    private final Deque<Move> moveHistory = new ArrayDeque<>();
+    private final MoveContainer moveHistory = new MoveContainer(1000);
     private final Deque<Long> hashCodeHistory = new ArrayDeque<>();
     private final Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
@@ -263,7 +263,7 @@ public class Board {
         hashCodeFreq = incrementHashCodeFrequency(hashCode);
 
         // show that this move is now the last move made
-        moveHistory.push(move);
+        moveHistory.add(move);
 
         // move was made, next player's turn
         turn = nextSide;
@@ -426,19 +426,19 @@ public class Board {
         return (!moveHistory.isEmpty());
     }
 
-    public List<Move> generateValidMoves() {
+    public MoveContainer generateValidMoves() {
         return generateValidMoves(null, AI.noKillerMoves, this.validMoves);
     }
 
-    public List<Move> generateValidMoves(List<Move> validMoves) {
+    public MoveContainer generateValidMoves(MoveContainer validMoves) {
         return generateValidMoves(null, AI.noKillerMoves, validMoves);
     }
 
-    public List<Move> generateValidMoves(Move hashMove, Move[] killerMoves) {
+    public MoveContainer generateValidMoves(Move hashMove, Move[] killerMoves) {
         return generateValidMoves(hashMove, killerMoves, this.validMoves);
     }
 
-    public List<Move> generateValidMoves(Move hashMove, Move[] killerMoves, List<Move> validMoves) {
+    public MoveContainer generateValidMoves(Move hashMove, Move[] killerMoves, MoveContainer validMoves) {
 
         validMoves.clear();
 
@@ -530,28 +530,11 @@ public class Board {
         return nullMoveInfo;
     }
 
-    public Piece.PositionStatus checkPiece(int row, int col, int player) {
-
-        if (((row | col) & (~0x7)) != 0) {
-            return Piece.PositionStatus.OFF_BOARD;
-        }
-
-        if (board[row][col] != null) {
-            if (board[row][col].getSide() == player)
-                return Piece.PositionStatus.FRIEND;
-            else
-                return Piece.PositionStatus.ENEMY;
-        } else {
-            return Piece.PositionStatus.NO_PIECE;
-        }
-
-    }
-
     public Move getLastMoveMade() {
         return moveHistory.isEmpty() ? Move.EMPTY_MOVE : moveHistory.peek();
     }
 
-    public Deque<Move> getMoveHistory() {
+    public MoveContainer getMoveHistory() {
         return moveHistory;
     }
 
@@ -779,8 +762,7 @@ public class Board {
     }
 
     public Board copy() {
-        List<Move> moveHistory = new ArrayList<>(this.moveHistory);
-        Collections.reverse(moveHistory);
+        List<Move> moveHistory = new ArrayList<>(this.moveHistory.toList());
 
         while (canUndo()) {
             undoMove();
@@ -791,7 +773,7 @@ public class Board {
         moveHistory.stream()
                 .forEach(m -> {
                     this.makeMove(m);
-                    boardCopy.makeMove(m.copy());
+                    boardCopy.makeMove(m);
                 });
 
         return boardCopy;

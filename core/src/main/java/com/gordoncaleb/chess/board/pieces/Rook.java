@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Side;
 
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;
@@ -11,11 +12,11 @@ import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMoves;
 
 public class Rook {
 
-    public static List<Move> generateValidMoves(final Piece p,
+    public static MoveContainer generateValidMoves(final Piece p,
                                                 final Board board,
                                                 final long[] nullMoveInfo,
                                                 final long[] posBitBoard,
-                                                final List<Move> validMoves) {
+                                                final MoveContainer validMoves) {
 
         final long friends = posBitBoard[p.getSide()];
         final long foes = posBitBoard[Side.otherSide(p.getSide())];

@@ -3,6 +3,7 @@ package com.gordoncaleb.chess.board.pieces;
 import java.util.List;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
@@ -18,7 +19,11 @@ public class Pawn {
     private static final long QUEENING_MASK = 0xFF000000000000FFL;
     private static final long NOT_QUEENING_MASK = ~QUEENING_MASK;
 
-    public static List<Move> generateValidMoves(final Piece p, final Board board, final long[] nullMoveInfo, final long[] posBitBoard, final List<Move> validMoves) {
+    public static MoveContainer generateValidMoves(final Piece p,
+                                                   final Board board,
+                                                   final long[] nullMoveInfo,
+                                                   final long[] posBitBoard,
+                                                   final MoveContainer validMoves) {
 
         final long mask = p.asBitMask();
         final int side = p.getSide();
@@ -43,9 +48,9 @@ public class Pawn {
             enPassantAttack = attacks & WHITE_PAWN_LEAP_ROW_MASK & enpassantColMask;
 
             if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[1] & getMask(4, enpassantCol)) != 0) {
-                validMoves.add(new Move(row, col, WHITE_PAWN_LEAP_ROW, enpassantCol, 0,
+                validMoves.add(row, col, WHITE_PAWN_LEAP_ROW, enpassantCol, 0,
                         Move.MoveNote.ENPASSANT, board.getPiece(4, enpassantCol)
-                ));
+                );
             }
         } else {
             hops = (mask >>> 8) & emptySpace;
@@ -55,9 +60,9 @@ public class Pawn {
             enPassantAttack = attacks & BLACK_PAWN_LEAP_ROW_MASK & enpassantColMask;
 
             if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[1] & getMask(3, enpassantCol)) != 0) {
-                validMoves.add(new Move(row, col, BLACK_PAWN_LEAP_ROW, enpassantCol, 0,
+                validMoves.add(row, col, BLACK_PAWN_LEAP_ROW, enpassantCol, 0,
                         Move.MoveNote.ENPASSANT, board.getPiece(3, enpassantCol)
-                ));
+                );
             }
         }
 

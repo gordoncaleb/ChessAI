@@ -51,6 +51,27 @@ public class Move {
         this.pieceTaken = pieceTaken;
     }
 
+    public void set(int fromRow, int fromCol, int toRow, int toCol) {
+        set(fromRow, fromCol, toRow, toCol, 0, MoveNote.NONE, null);
+    }
+
+    public void set(int fromRow, int fromCol, int toRow, int toCol, int value) {
+        set(fromRow, fromCol, toRow, toCol, value, MoveNote.NONE, null);
+    }
+
+    public void set(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note) {
+        set(fromRow, fromCol, toRow, toCol, value, note, null);
+    }
+
+    public void set(int fromRow, int fromCol, int toRow, int toCol, int value, MoveNote note, Piece pieceTaken){
+        this.note = note;
+        this.fromRow = fromRow;
+        this.fromCol = fromCol;
+        this.toRow = toRow;
+        this.toCol = toCol;
+        this.pieceTaken = pieceTaken;
+    }
+
     public static boolean equals(Move moveA, Move moveB) {
         return (moveA.equals(moveB));
     }

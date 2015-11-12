@@ -2,6 +2,7 @@ package com.gordoncaleb.chess.board.pieces;
 
 import java.util.List;
 
+import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
@@ -12,11 +13,11 @@ import static com.gordoncaleb.chess.board.pieces.Piece.*;
 
 public class King {
 
-    public static List<Move> generateValidMoves(final Piece p,
+    public static MoveContainer generateValidMoves(final Piece p,
                                                 final Board board,
                                                 final long[] nullMoveInfo,
                                                 final long[] posBitBoard,
-                                                final List<Move> validMoves) {
+                                                final MoveContainer validMoves) {
         final int currentRow = p.getRow();
         final int currentCol = p.getCol();
         final int side = p.getSide();
@@ -35,7 +36,7 @@ public class King {
                 board.rookToCastleMasks[side][Board.FAR],
                 kingNoGo,
                 friendsOrFoes)) {
-            validMoves.add(new Move(currentRow, currentCol, currentRow, 2, 0, Move.MoveNote.CASTLE_FAR));
+            validMoves.add(currentRow, currentCol, currentRow, 2, 0, Move.MoveNote.CASTLE_FAR);
         }
 
         if (castleNear(board.canCastleNear(side),
@@ -43,7 +44,7 @@ public class King {
                 board.rookToCastleMasks[side][Board.NEAR],
                 kingNoGo,
                 friendsOrFoes)) {
-            validMoves.add(new Move(currentRow, currentCol, currentRow, 6, 0, Move.MoveNote.CASTLE_NEAR));
+            validMoves.add(currentRow, currentCol, currentRow, 6, 0, Move.MoveNote.CASTLE_NEAR);
         }
 
         return validMoves;

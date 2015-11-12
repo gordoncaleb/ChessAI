@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.pieces.*;
 import org.slf4j.Logger;
@@ -84,12 +85,12 @@ public class Adjudicator {
 
     public List<Move> getValidMoves() {
         board.makeNullMove();
-        validMoves = board.generateValidMoves();
+        validMoves = board.generateValidMoves().toList();
 
         return validMoves;
     }
 
-    public Deque<Move> getMoveHistory() {
+    public MoveContainer getMoveHistory() {
         return board.getMoveHistory();
     }
 

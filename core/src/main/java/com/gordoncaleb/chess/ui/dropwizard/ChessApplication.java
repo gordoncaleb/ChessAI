@@ -3,30 +3,31 @@ package com.gordoncaleb.chess.ui.dropwizard;
 import com.gordoncaleb.chess.ui.dropwizard.guice.AppGuiceModule;
 import com.hubspot.dropwizard.guice.GuiceBundle;
 import io.dropwizard.Application;
+import io.dropwizard.Configuration;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-public class ChessApplication extends Application<Config> {
+public class ChessApplication extends Application<Configuration> {
 
-    private GuiceBundle<Config> guiceBundle;
+    private GuiceBundle<Configuration> guiceBundle;
 
     public static void main(String[] args) throws Exception {
         new ChessApplication().run(args);
     }
 
     @Override
-    public void initialize(Bootstrap<Config> bootstrap) {
-        guiceBundle = GuiceBundle.<Config>newBuilder()
+    public void initialize(Bootstrap<Configuration> bootstrap) {
+        guiceBundle = GuiceBundle.newBuilder()
                 .addModule(new AppGuiceModule())
                 .enableAutoConfig(getClass().getPackage().getName())
-                .setConfigClass(Config.class)
+                .setConfigClass(Configuration.class)
                 .build();
 
         bootstrap.addBundle(guiceBundle);
     }
 
     @Override
-    public void run(Config config, Environment environment) throws Exception {
+    public void run(Configuration config, Environment environment) throws Exception {
 
     }
 }

@@ -158,7 +158,7 @@ public class BoardTest {
         logger.info(b.toJson(false));
 
         b.makeNullMove();
-        List<Move> moves = b.generateValidMoves();
+        List<Move> moves = b.generateValidMoves().toList();
         assertThat(moves, containsInAnyOrder(
                 new Move(3, 6, 2, 7, 0, Move.MoveNote.ENPASSANT, b.getPiece(3, 7))
         ));
@@ -705,7 +705,7 @@ public class BoardTest {
     public List<Move> getValidMoves(int side, String[] setup) {
         Board b1 = JSONParser.getFromSetup(side, setup);
         b1.makeNullMove();
-        return b1.generateValidMoves();
+        return b1.generateValidMoves().toList();
     }
 
     public long[] getNullMoveInfo(int side, String[] setup) {

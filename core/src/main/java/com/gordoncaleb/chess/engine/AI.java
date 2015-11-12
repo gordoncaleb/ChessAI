@@ -533,7 +533,7 @@ public class AI extends Thread implements Player {
     }
 
     private boolean canUndo() {
-        return (getBoard().getMoveHistory().size() > 0);
+        return getBoard().canUndo();
     }
 
     private void setRootNode(DecisionNode newRootNode) {

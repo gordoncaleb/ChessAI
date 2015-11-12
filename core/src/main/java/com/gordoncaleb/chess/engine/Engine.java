@@ -97,7 +97,7 @@ public class Engine {
             if (board.insufficientMaterial() || board.drawByThreeRule()) {
                 board.setBoardStatus(Game.GameStatus.DRAW);
             } else {
-                List<Move> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves));
+                List<Move> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves).toList());
 
                 if (moves.size() == 0) {
                     if (board.isInCheck()) {

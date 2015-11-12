@@ -71,8 +71,7 @@ public class JSONParser {
     public static BoardDTO boardToBoardDtoWithHistory(Board board) {
         BoardDTO boardDTO = new BoardDTO();
 
-        List<Move> moveHistory = new ArrayList<>(board.getMoveHistory());
-        Collections.reverse(moveHistory);
+        List<Move> moveHistory = new ArrayList<>(board.getMoveHistory().toList());
         boardDTO.setMoveHistory(moveHistory);
 
         //find initial position

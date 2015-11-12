@@ -2,6 +2,7 @@ package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Bishop;
@@ -27,14 +28,14 @@ public class BishopBenchmark {
     public long[][] posBitBoard = new long[2][];
     public Piece[] bishop = new Piece[2];
 
-    public List<Move> validMoves;
+    public MoveContainer validMoves;
 
     @Param({"0", "1"})
     private int s;
 
     @Setup
     public void init() {
-        validMoves = new MockList<>();
+        validMoves = new MoveContainer();
 
         String[] setup1 = {
                 "R,_,_,_,_,_,Q,_,",
@@ -73,7 +74,7 @@ public class BishopBenchmark {
     @Benchmark
     @Warmup(iterations = 5, batchSize = 100000)
     @Measurement(iterations = 5, batchSize = 100000)
-    public List<Move> testBishopMoveGen() {
+    public MoveContainer testBishopMoveGen() {
         return Bishop.generateValidMoves(bishop[s], board[s], nullMoveInfo[s], posBitBoard[s], validMoves);
     }
 
