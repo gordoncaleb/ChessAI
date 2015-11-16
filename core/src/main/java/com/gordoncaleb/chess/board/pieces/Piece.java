@@ -184,7 +184,7 @@ public class Piece {
     public static MoveContainer buildValidMoves(long validFootPrint,
                                                 final int fromRow,
                                                 final int fromCol,
-                                                final Move.MoveNote note,
+                                                final int note,
                                                 final Board board,
                                                 final MoveContainer validMoves) {
 

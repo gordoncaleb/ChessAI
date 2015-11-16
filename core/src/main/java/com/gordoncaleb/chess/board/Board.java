@@ -178,7 +178,7 @@ public class Board {
         final int fromCol = move.getFromCol();
         final int toRow = move.getToRow();
         final int toCol = move.getToCol();
-        final Move.MoveNote note = move.getNote();
+        final int note = move.getNote();
 
         final int nextSide = Side.otherSide(turn);
 
@@ -277,7 +277,7 @@ public class Board {
         return true;
     }
 
-    private void movePiece(final Piece pieceMoving, final int toRow, final int toCol, final Move.MoveNote note) {
+    private void movePiece(final Piece pieceMoving, final int toRow, final int toCol, final int note) {
 
         final long fromBit = getMask(pieceMoving.getRow(), pieceMoving.getCol());
         final long bitMove = fromBit | getMask(toRow, toCol);
@@ -322,7 +322,7 @@ public class Board {
         final int fromCol = lastMove.getFromCol();
         final int toRow = lastMove.getToRow();
         final int toCol = lastMove.getToCol();
-        final Move.MoveNote note = lastMove.getNote();
+        final int note = lastMove.getNote();
 
         // last move made was made by previous player, which is also the next
         // player
@@ -390,7 +390,7 @@ public class Board {
         return lastMove;
     }
 
-    private void undoMovePiece(final Piece pieceMoving, final int fromRow, final int fromCol, final Move.MoveNote note) {
+    private void undoMovePiece(final Piece pieceMoving, final int fromRow, final int fromCol, final int note) {
 
         final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) ^ getMask(fromRow, fromCol);
 

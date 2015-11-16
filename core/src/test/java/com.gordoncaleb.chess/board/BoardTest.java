@@ -160,7 +160,7 @@ public class BoardTest {
         List<Move> moves = b.generateValidMoves().toList();
         Piece pt = b.getPiece(3, 7);
         assertThat(moves, containsInAnyOrder(
-                new Move(3, 6, 2, 7, Move.MoveNote.ENPASSANT, b.getPiece(3, 7))
+                new Move(3, 6, 2, 7, Move.MoveNote.EN_PASSANT, b.getPiece(3, 7))
         ));
     }
 

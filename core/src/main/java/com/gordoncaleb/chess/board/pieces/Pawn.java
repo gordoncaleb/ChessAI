@@ -1,7 +1,5 @@
 package com.gordoncaleb.chess.board.pieces;
 
-import java.util.List;
-
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Side;
@@ -50,7 +48,7 @@ public class Pawn {
             if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[1] & getMask(4, enpassantCol)) != 0) {
                 final Piece pieceTaken = board.getPiece(4, enpassantCol);
                 validMoves.add(row, col, WHITE_PAWN_LEAP_ROW, enpassantCol,
-                        Move.MoveNote.ENPASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
+                        Move.MoveNote.EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
                 );
             }
         } else {
@@ -63,7 +61,7 @@ public class Pawn {
             if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[1] & getMask(3, enpassantCol)) != 0) {
                 final Piece pieceTaken = board.getPiece(3, enpassantCol);
                 validMoves.add(row, col, BLACK_PAWN_LEAP_ROW, enpassantCol,
-                        Move.MoveNote.ENPASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
+                        Move.MoveNote.EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
                 );
             }
         }

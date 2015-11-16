@@ -345,7 +345,7 @@ public class KingTest {
         assertTrue(far.isPresent() == canFar);
     }
 
-    private Optional<Move> getWithNote(List<Move> moves, Move.MoveNote note) {
+    private Optional<Move> getWithNote(List<Move> moves, int note) {
         return moves.stream()
                 .filter(m -> m.getNote() == note)
                 .findFirst();

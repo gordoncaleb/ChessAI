@@ -10,11 +10,19 @@ public class Move {
     private static final int DEFAULT_ROW = 0;
     private static final int DEFAULT_COL = 0;
 
-    public enum MoveNote {
-        NONE, CASTLE_NEAR, CASTLE_FAR, NEW_QUEEN, NEW_KNIGHT, ENPASSANT, PAWN_LEAP
+    public static class MoveNote {
+        public static final int NONE = 0x0;
+        public static final int CASTLE_NEAR = 0x1;
+        public static final int CASTLE_FAR = 0x2;
+        public static final int EN_PASSANT = 0x4;
+        public static final int PAWN_LEAP = 0x8;
+        public static final int NEW_QUEEN = 0x010;
+        public static final int NEW_KNIGHT = 0x110;
+        public static final int NEW_BISHOP = 0x210;
+        public static final int NEW_ROOK = 0x310;
     }
 
-    private Move.MoveNote note;
+    private int note;
     private int fromRow, fromCol, toRow, toCol;
     private int pieceTakenId, pieceTakenRow, pieceTakenCol;
 
@@ -26,11 +34,11 @@ public class Move {
         this(fromRow, fromCol, toRow, toCol, MoveNote.NONE, Piece.PieceID.NONE, DEFAULT_ROW, DEFAULT_COL);
     }
 
-    public Move(int fromRow, int fromCol, int toRow, int toCol, MoveNote note) {
+    public Move(int fromRow, int fromCol, int toRow, int toCol, int note) {
         this(fromRow, fromCol, toRow, toCol, note, Piece.PieceID.NONE, DEFAULT_ROW, DEFAULT_COL);
     }
 
-    public Move(int fromRow, int fromCol, int toRow, int toCol, MoveNote note, Piece pieceTaken) {
+    public Move(int fromRow, int fromCol, int toRow, int toCol, int note, Piece pieceTaken) {
         this(fromRow, fromCol, toRow, toCol, note, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol());
     }
 
@@ -38,14 +46,14 @@ public class Move {
                 int fromCol,
                 int toRow,
                 int toCol,
-                MoveNote note,
+                int note,
                 int pieceTakenId,
                 int pieceTakenRow,
                 int pieceTakenCol) {
         set(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
     }
 
-    public void set(int fromRow, int fromCol, int toRow, int toCol, MoveNote note) {
+    public void set(int fromRow, int fromCol, int toRow, int toCol, int note) {
         set(fromRow, fromCol, toRow, toCol, note, Piece.PieceID.NONE, DEFAULT_ROW, DEFAULT_COL);
     }
 
@@ -53,7 +61,7 @@ public class Move {
                     int fromCol,
                     int toRow,
                     int toCol,
-                    MoveNote note,
+                    int note,
                     int pieceTakenId,
                     int pieceTakenRow,
                     int pieceTakenCol) {
@@ -75,11 +83,11 @@ public class Move {
         return JSON.toJSON(this);
     }
 
-    public void setNote(MoveNote note) {
+    public void setNote(int note) {
         this.note = note;
     }
 
-    public MoveNote getNote() {
+    public int getNote() {
         return note;
     }
 
@@ -169,20 +177,20 @@ public class Move {
 
         Move move = (Move) o;
 
+        if (note != move.note) return false;
         if (fromRow != move.fromRow) return false;
         if (fromCol != move.fromCol) return false;
         if (toRow != move.toRow) return false;
         if (toCol != move.toCol) return false;
         if (pieceTakenId != move.pieceTakenId) return false;
         if (pieceTakenRow != move.pieceTakenRow) return false;
-        if (pieceTakenCol != move.pieceTakenCol) return false;
-        return note == move.note;
+        return pieceTakenCol == move.pieceTakenCol;
 
     }
 
     @Override
     public int hashCode() {
-        int result = note != null ? note.hashCode() : 0;
+        int result = note;
         result = 31 * result + fromRow;
         result = 31 * result + fromCol;
         result = 31 * result + toRow;
@@ -217,39 +225,38 @@ public class Move {
     private static final int fromToMask = 0xFFF;
 
     public long toLong() {
-        return toLong(fromRow, fromCol, toRow, toCol, 0, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
+        return toLong(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
     }
 
     public static long toLong(int fromRow,
                               int fromCol,
                               int toRow,
                               int toCol,
-                              int value,
-                              MoveNote note,
+                              int note,
                               int pieceTakenId,
                               int pieceTakenRow,
                               int pieceTakenCol) {
-        return (pieceTakenId << 23) |
-                (pieceTakenRow << 20) |
-                (pieceTakenCol << 17) |
-                (note.ordinal() << 12) |
-                (fromRow << 9) |
-                (fromCol << 6) |
-                (toRow << 3) |
+        return (note << 21) | //12 bits
+                (pieceTakenId << 18) | // 3 bits
+                (pieceTakenRow << 15) | // 3 bits
+                (pieceTakenCol << 12) | // 3 bits
+                (fromRow << 9) | // 3 bits
+                (fromCol << 6) | // 3 bits
+                (toRow << 3) | //3 bits
                 toCol;
     }
 
     public static Move fromLong(long moveLong) {
-        int fromRow = (int) ((moveLong >> 9) & 0x7);
-        int fromCol = (int) ((moveLong >> 6) & 0x7);
-        int toRow = (int) ((moveLong >> 3) & 0x7);
-        int toCol = (int) (moveLong & 0x7);
-        int value = (int) (moveLong >> 32);
-        MoveNote note = MoveNote.values()[(int) ((moveLong >> 12) & 0x7)];
+        int toCol = (int) (moveLong & 0x7); //3 bits
+        int toRow = (int) ((moveLong >> 3) & 0x7); //3 bits
+        int fromCol = (int) ((moveLong >> 6) & 0x7); //3 bits
+        int fromRow = (int) ((moveLong >> 9) & 0x7); //3 bits
 
-        int pieceTakenId = (int) ((moveLong >> 23) & 0x7);
-        int pieceTakenRow = (int) ((moveLong >> 20) & 0x7);
-        int pieceTakenCol = (int) ((moveLong >> 17) & 0x7);
+        int pieceTakenCol = (int) ((moveLong >> 12) & 0x7);
+        int pieceTakenRow = (int) ((moveLong >> 15) & 0x7);
+        int pieceTakenId = (int) ((moveLong >> 18) & 0x7);
+
+        int note = (int) ((moveLong >> 21) & 0x7); //12 bits
 
         return new Move(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
     }

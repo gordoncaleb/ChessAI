@@ -5,7 +5,6 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.board.serdes.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +54,7 @@ public class Perft {
 
         metrics[depth][0] += moveList.size() + pawnQueenings * 3;
         metrics[depth][1] += moveList.stream().filter(m -> m.hasPieceTaken()).count();
-        metrics[depth][2] += moveList.stream().filter(m -> m.getNote() == Move.MoveNote.ENPASSANT).count();
+        metrics[depth][2] += moveList.stream().filter(m -> m.getNote() == Move.MoveNote.EN_PASSANT).count();
 
         metrics[depth][3] += moveList.stream().filter(m -> m.getNote() == Move.MoveNote.CASTLE_FAR ||
                 m.getNote() == Move.MoveNote.CASTLE_NEAR).count();

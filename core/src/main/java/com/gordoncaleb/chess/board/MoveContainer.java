@@ -40,7 +40,7 @@ public class MoveContainer {
                     int fromCol,
                     int toRow,
                     int toCol,
-                    Move.MoveNote note,
+                    int note,
                     int pieceTakenId,
                     int pieceTakenRow,
                     int pieceTakenCol) {
@@ -52,7 +52,7 @@ public class MoveContainer {
                     int fromCol,
                     int toRow,
                     int toCol,
-                    Move.MoveNote note) {
+                    int note) {
         head++;
         moves[head].set(fromRow, fromCol, toRow, toCol, note);
     }

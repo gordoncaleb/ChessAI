@@ -210,7 +210,7 @@ public class PGNParser {
         int toRow = -1;
         int toCol = -1;
 
-        Move.MoveNote note = null;
+        int note = Move.MoveNote.NONE;
         int pieceMovingID = Piece.PieceID.NONE;
 
         if (notation.contains("=")) {
@@ -319,7 +319,7 @@ public class PGNParser {
         }
     }
 
-    private Move matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, Move.MoveNote note, int pieceMovingID) throws Exception {
+    private Move matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, int note, int pieceMovingID) throws Exception {
 
         board.makeNullMove();
         List<Move> moves = board.generateValidMoves().toList();
@@ -330,7 +330,7 @@ public class PGNParser {
 
             match = true;
 
-            if (note != null) {
+            if (note != Move.MoveNote.NONE) {
                 if (move.getNote() != note) {
                     if (move.getNote() == Move.MoveNote.NEW_QUEEN && note == Move.MoveNote.NEW_KNIGHT) {
                         move.setNote(note);

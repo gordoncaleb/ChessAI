@@ -5,13 +5,11 @@ import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.pieces.Pawn;
-import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -146,7 +144,7 @@ public class PawnTest {
         b.makeMove(new Move(1, 7, 3, 7, Move.MoveNote.PAWN_LEAP));
 
         testMovesExactly(b, 3, 6, new Move[]{
-                new Move(3, 6, 2, 7, Move.MoveNote.ENPASSANT, b.getPiece(3, 7)),
+                new Move(3, 6, 2, 7, Move.MoveNote.EN_PASSANT, b.getPiece(3, 7)),
                 new Move(3, 6, 2, 6, Move.MoveNote.NONE),
         });
     }
