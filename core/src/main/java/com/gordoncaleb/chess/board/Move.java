@@ -115,17 +115,6 @@ public class Move {
         this.toCol = toCol;
     }
 
-    public int getValue() {
-        return 0;
-    }
-
-    public void setValue(int value) {
-    }
-
-    public boolean hasPieceTaken() {
-        return (this.pieceTakenId != Piece.PieceID.NONE);
-    }
-
     public int getPieceTakenId() {
         return pieceTakenId;
     }
@@ -148,6 +137,17 @@ public class Move {
 
     public void setPieceTakenCol(int pieceTakenCol) {
         this.pieceTakenCol = pieceTakenCol;
+    }
+
+    public boolean hasPieceTaken() {
+        return (this.pieceTakenId != Piece.PieceID.NONE);
+    }
+
+    public int getValue() {
+        return 0;
+    }
+
+    public void setValue(int value) {
     }
 
     public Move copy() {
