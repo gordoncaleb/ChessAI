@@ -110,7 +110,7 @@ public class BoardTest {
 
         Board b = JSONParser.getFromSetup(Side.WHITE, setup);
         long hashCode = b.generateHashCode();
-        b.makeMove(new Move(1, 6, 0, 6, 0, Move.MoveNote.NEW_KNIGHT));
+        b.makeMove(new Move(1, 6, 0, 6, Move.MoveNote.NEW_KNIGHT));
         assertEquals(Piece.PieceID.KNIGHT, b.getPieceID(0, 6));
         b.undoMove();
         assertEquals(Piece.PieceID.PAWN, b.getPieceID(1, 6));
@@ -132,7 +132,7 @@ public class BoardTest {
 
         Board b = JSONParser.getFromSetup(Side.WHITE, setup);
         long hashCode = b.generateHashCode();
-        b.makeMove(new Move(1, 6, 0, 6, 0, Move.MoveNote.NEW_QUEEN));
+        b.makeMove(new Move(1, 6, 0, 6, Move.MoveNote.NEW_QUEEN));
         assertEquals(Piece.PieceID.QUEEN, b.getPieceID(0, 6));
         b.undoMove();
         assertEquals(Piece.PieceID.PAWN, b.getPieceID(1, 6));
@@ -153,14 +153,15 @@ public class BoardTest {
         };
 
         Board b = JSONParser.getFromSetup(Side.BLACK, setup);
-        b.makeMove(new Move(1, 7, 3, 7, 0, Move.MoveNote.PAWN_LEAP));
+        b.makeMove(new Move(1, 7, 3, 7, Move.MoveNote.PAWN_LEAP));
 
         logger.info(b.toJson(false));
 
         b.makeNullMove();
         List<Move> moves = b.generateValidMoves().toList();
+        Piece pt = b.getPiece(3, 7);
         assertThat(moves, containsInAnyOrder(
-                new Move(3, 6, 2, 7, 0, Move.MoveNote.ENPASSANT, b.getPiece(3, 7))
+                new Move(3, 6, 2, 7, Move.MoveNote.ENPASSANT, b.getPiece(3, 7))
         ));
     }
 
@@ -179,7 +180,7 @@ public class BoardTest {
         };
 
         testNumberOfMoves(Side.WHITE, setup, 1);
-        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(new Move(6, 7, 7, 7)));
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(new Move(6, 7, 7, 7, Move.MoveNote.NONE)));
     }
 
     @Test
@@ -591,7 +592,7 @@ public class BoardTest {
                 setup, Side.WHITE,
                 true, true,
                 false, false,
-                new Move(7, 4, 7, 6, 0, Move.MoveNote.CASTLE_NEAR)
+                new Move(7, 4, 7, 6, Move.MoveNote.CASTLE_NEAR)
         );
     }
 
@@ -612,7 +613,7 @@ public class BoardTest {
                 setup, Side.WHITE,
                 true, true,
                 false, false,
-                new Move(7, 4, 7, 1, 0, Move.MoveNote.CASTLE_FAR)
+                new Move(7, 4, 7, 1, Move.MoveNote.CASTLE_FAR)
         );
     }
 
@@ -633,7 +634,7 @@ public class BoardTest {
                 setup, Side.WHITE,
                 true, true,
                 false, true,
-                new Move(7, 7, 7, 6, 0)
+                new Move(7, 7, 7, 6)
         );
     }
 
@@ -654,7 +655,7 @@ public class BoardTest {
                 setup, Side.WHITE,
                 true, true,
                 true, false,
-                new Move(7, 0, 7, 1, 0)
+                new Move(7, 0, 7, 1)
         );
     }
 
@@ -730,7 +731,7 @@ public class BoardTest {
             for (int c = 0; c < 8; c++) {
                 piece = b.getPiece(r, c);
 
-                if (piece != null) {
+                if (piece.getPieceID() != Piece.PieceID.NONE) {
                     allBitBoard[piece.getPieceID()][piece.getSide()] ^= BitBoard.getMask(r, c);
                 }
 

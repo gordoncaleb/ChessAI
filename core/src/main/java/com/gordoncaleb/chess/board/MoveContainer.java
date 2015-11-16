@@ -1,7 +1,5 @@
 package com.gordoncaleb.chess.board;
 
-import com.gordoncaleb.chess.board.pieces.Piece;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,25 +36,36 @@ public class MoveContainer {
         head = EMPTY;
     }
 
-    public void add(int fromRow, int fromCol, int toRow, int toCol, int value, Move.MoveNote note, Piece pieceTaken) {
+    public void add(int fromRow,
+                    int fromCol,
+                    int toRow,
+                    int toCol,
+                    Move.MoveNote note,
+                    int pieceTakenId,
+                    int pieceTakenRow,
+                    int pieceTakenCol) {
         head++;
-        moves[head].set(fromRow, fromCol, toRow, toCol, value, note, pieceTaken);
+        moves[head].set(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
     }
 
-    public void add(int fromRow, int fromCol, int toRow, int toCol) {
-        add(fromRow, fromCol, toRow, toCol, 0, Move.MoveNote.NONE, null);
-    }
-
-    public void add(int fromRow, int fromCol, int toRow, int toCol, int value) {
-        add(fromRow, fromCol, toRow, toCol, value, Move.MoveNote.NONE, null);
-    }
-
-    public void add(int fromRow, int fromCol, int toRow, int toCol, int value, Move.MoveNote note) {
-        add(fromRow, fromCol, toRow, toCol, value, note, null);
+    public void add(int fromRow,
+                    int fromCol,
+                    int toRow,
+                    int toCol,
+                    Move.MoveNote note) {
+        head++;
+        moves[head].set(fromRow, fromCol, toRow, toCol, note);
     }
 
     public void add(Move m) {
-        add(m.getFromRow(), m.getFromCol(), m.getToRow(), m.getToCol(), m.getValue(), m.getNote(), m.getPieceTaken());
+        add(m.getFromRow(),
+                m.getFromCol(),
+                m.getToRow(),
+                m.getToCol(),
+                m.getNote(),
+                m.getPieceTakenId(),
+                m.getPieceTakenRow(),
+                m.getPieceTakenCol());
     }
 
     public Move get(int i) {

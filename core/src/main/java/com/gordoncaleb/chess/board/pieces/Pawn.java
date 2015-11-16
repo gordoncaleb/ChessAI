@@ -48,8 +48,9 @@ public class Pawn {
             enPassantAttack = attacks & WHITE_PAWN_LEAP_ROW_MASK & enpassantColMask;
 
             if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[1] & getMask(4, enpassantCol)) != 0) {
-                validMoves.add(row, col, WHITE_PAWN_LEAP_ROW, enpassantCol, 0,
-                        Move.MoveNote.ENPASSANT, board.getPiece(4, enpassantCol)
+                final Piece pieceTaken = board.getPiece(4, enpassantCol);
+                validMoves.add(row, col, WHITE_PAWN_LEAP_ROW, enpassantCol,
+                        Move.MoveNote.ENPASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
                 );
             }
         } else {
@@ -60,8 +61,9 @@ public class Pawn {
             enPassantAttack = attacks & BLACK_PAWN_LEAP_ROW_MASK & enpassantColMask;
 
             if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[1] & getMask(3, enpassantCol)) != 0) {
-                validMoves.add(row, col, BLACK_PAWN_LEAP_ROW, enpassantCol, 0,
-                        Move.MoveNote.ENPASSANT, board.getPiece(3, enpassantCol)
+                final Piece pieceTaken = board.getPiece(3, enpassantCol);
+                validMoves.add(row, col, BLACK_PAWN_LEAP_ROW, enpassantCol,
+                        Move.MoveNote.ENPASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
                 );
             }
         }

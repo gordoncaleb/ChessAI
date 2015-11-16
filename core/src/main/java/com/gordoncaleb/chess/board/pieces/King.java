@@ -36,7 +36,7 @@ public class King {
                 board.rookToCastleMasks[side][Board.FAR],
                 kingNoGo,
                 friendsOrFoes)) {
-            validMoves.add(currentRow, currentCol, currentRow, 2, 0, Move.MoveNote.CASTLE_FAR);
+            validMoves.add(currentRow, currentCol, currentRow, 2, Move.MoveNote.CASTLE_FAR);
         }
 
         if (castleNear(board.canCastleNear(side),
@@ -44,7 +44,7 @@ public class King {
                 board.rookToCastleMasks[side][Board.NEAR],
                 kingNoGo,
                 friendsOrFoes)) {
-            validMoves.add(currentRow, currentCol, currentRow, 6, 0, Move.MoveNote.CASTLE_NEAR);
+            validMoves.add(currentRow, currentCol, currentRow, 6, Move.MoveNote.CASTLE_NEAR);
         }
 
         return validMoves;

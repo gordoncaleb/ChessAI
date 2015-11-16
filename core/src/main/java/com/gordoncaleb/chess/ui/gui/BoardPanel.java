@@ -433,7 +433,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
             refreshBoard();
 
             if (move.hasPieceTaken()) {
-                takePiece(move.getPieceTaken().getPieceID(), adjudicator.getTurn());
+                takePiece(move.getPieceTakenId(), adjudicator.getTurn());
             }
 
             updateLastMovedSquare();
@@ -727,7 +727,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
             orienToCol = toCol;
         }
 
-        return new Move(orienFromRow, orienFromCol, orienToRow, orienToCol);
+        return new Move(orienFromRow, orienFromCol, orienToRow, orienToCol, Move.MoveNote.NONE);
 
     }
 

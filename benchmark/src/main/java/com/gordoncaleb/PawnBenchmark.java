@@ -66,7 +66,7 @@ public class PawnBenchmark {
         };
 
         board[1] = JSONParser.getFromSetup(Side.WHITE, setup2);
-        board[1].makeMove(new Move(1, 7, 3, 7, 0, Move.MoveNote.PAWN_LEAP));
+        board[1].makeMove(new Move(1, 7, 3, 7, Move.MoveNote.PAWN_LEAP));
         pawn[1] = board[1].getPiece(3, 6);
         nullMoveInfo[1] = board[1].makeNullMove();
         posBitBoard[1] = board[1].getAllPosBitBoard();

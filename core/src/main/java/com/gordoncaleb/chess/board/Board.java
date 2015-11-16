@@ -117,6 +117,12 @@ public class Board {
     private Piece[][] buildPieceBoard(List<Piece>[] pieces) {
         Piece[][] board = new Piece[8][8];
 
+        for (int r = 0; r < board.length; r++) {
+            for (int c = 0; c < board[r].length; c++) {
+                board[r][c] = Piece.EMPTY;
+            }
+        }
+
         Stream.of(pieces)
                 .flatMap(ps -> ps.stream())
                 .forEach(p ->
@@ -190,16 +196,16 @@ public class Board {
         // remove taken piece first
         if (move.hasPieceTaken()) {
 
-            final int pieceTakenRow = move.getPieceTaken().getRow();
-            final int pieceTakenCol = move.getPieceTaken().getCol();
-            final int pieceTakenId = move.getPieceTaken().getPieceID();
+            final int pieceTakenRow = move.getPieceTakenRow();
+            final int pieceTakenCol = move.getPieceTakenCol();
+            final int pieceTakenId = move.getPieceTakenId();
             final long pieceTakenMask = getMask(pieceTakenRow, pieceTakenCol);
 
             // get ref of pieceTaken
             final Piece pieceTaken = board[pieceTakenRow][pieceTakenCol];
 
             // remove ref to piecetaken on board
-            board[pieceTakenRow][pieceTakenCol] = null;
+            board[pieceTakenRow][pieceTakenCol] = Piece.EMPTY;
 
             // remove pieceTaken from vectors
             pieces[nextSide].remove(pieceTaken);
@@ -286,7 +292,7 @@ public class Board {
         hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), pieceMoving.getRow(), pieceMoving.getCol());
 
         // remove pieces old position
-        board[pieceMoving.getRow()][pieceMoving.getCol()] = null;
+        board[pieceMoving.getRow()][pieceMoving.getCol()] = Piece.EMPTY;
         // update board to reflect piece's new position
         board[toRow][toCol] = pieceMoving;
 
@@ -393,7 +399,7 @@ public class Board {
         allPosBitBoard[pieceMoving.getSide()] ^= bitMove;
 
         // remove old position
-        board[pieceMoving.getRow()][pieceMoving.getCol()] = null;
+        board[pieceMoving.getRow()][pieceMoving.getCol()] = Piece.EMPTY;
         // put piece in old position
         board[fromRow][fromCol] = pieceMoving;
 
@@ -547,11 +553,7 @@ public class Board {
     }
 
     public int getPieceID(int row, int col) {
-        if (board[row][col] != null) {
-            return board[row][col].getPieceID();
-        } else {
-            return Piece.PieceID.NONE;
-        }
+        return board[row][col].getPieceID();
     }
 
     public int getTurn() {
@@ -784,7 +786,7 @@ public class Board {
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                if (board[row][col] != null) {
+                if (board[row][col].getPieceID() != Piece.PieceID.NONE) {
                     stringBoard += board[row][col].toString() + ",";
                 } else {
                     stringBoard += "_,";
@@ -812,7 +814,7 @@ public class Board {
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
                 p = board[r][c];
-                if (p != null) {
+                if (p.getPieceID() != Piece.PieceID.NONE) {
                     hashCode ^= rngTable.getPiecePerSquareRandom(p.getSide(), p.getPieceID(), r, c);
                 }
             }

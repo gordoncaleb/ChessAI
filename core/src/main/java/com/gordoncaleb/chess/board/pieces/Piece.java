@@ -11,6 +11,9 @@ import com.gordoncaleb.chess.board.Move;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class Piece {
+
+    public static final Piece EMPTY = new Piece(NONE, Side.NONE, 0, 0);
+
     private int row;
     private int col;
     private int side;
@@ -26,10 +29,6 @@ public class Piece {
         public static final int QUEEN = 4;
         public static final int KING = 5;
         public static final int PIECES_COUNT = 6;
-    }
-
-    public enum PositionStatus {
-        NO_PIECE, ENEMY, FRIEND, OFF_BOARD
     }
 
     public Piece() {
@@ -152,7 +151,7 @@ public class Piece {
             case PAWN:
                 return "P";
             default:
-                return "";
+                return "_";
         }
     }
 
@@ -183,20 +182,21 @@ public class Piece {
     }
 
     public static MoveContainer buildValidMoves(long validFootPrint,
-                                             final int fromRow,
-                                             final int fromCol,
-                                             final Move.MoveNote note,
-                                             final Board board,
-                                             final MoveContainer validMoves) {
+                                                final int fromRow,
+                                                final int fromCol,
+                                                final Move.MoveNote note,
+                                                final Board board,
+                                                final MoveContainer validMoves) {
 
         int bitNum;
         while ((bitNum = Long.numberOfTrailingZeros(validFootPrint)) < 64) {
             final long mask = (1L << bitNum);
             final int toRow = bitNum / 8;
             final int toCol = bitNum % 8;
+            final Piece pt = board.getPiece(toRow, toCol);
 
             validMoves.add(
-                    fromRow, fromCol, toRow, toCol, 0, note, board.getPiece(toRow, toCol)
+                    fromRow, fromCol, toRow, toCol, note, pt.getPieceID(), pt.getRow(), pt.getCol()
             );
 
             validFootPrint ^= mask;
