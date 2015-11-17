@@ -154,21 +154,32 @@ public class JSONParser {
             }
         }
 
+        boolean whiteNear = false;
+        boolean whiteFar = false;
+        boolean blackNear = false;
+        boolean blackFar = false;
+        if (boardDTO.getCastle() != null) {
+            CastleRights w = boardDTO.getCastle().get("WHITE");
+            CastleRights b = boardDTO.getCastle().get("BLACK");
+            whiteNear = w.isNear();
+            whiteFar = w.isFar();
+            blackNear = b.isNear();
+            blackFar = b.isFar();
+        }
+
         Board board = new Board(new ArrayList[]{pieces.get(Side.BLACK),
                 pieces.get(Side.WHITE)},
-                Side.fromString(boardDTO.getTurn())
+                Side.fromString(boardDTO.getTurn()),
+                whiteNear,
+                whiteFar,
+                blackNear,
+                blackFar
         );
 
         Optional<List<Move>> moveHistory = Optional.ofNullable(boardDTO.getMoveHistory());
         moveHistory.ifPresent(moves -> moves.stream()
                 .forEach(board::makeMove)
         );
-
-        if (boardDTO.getCastle() != null) {
-            boardDTO.getCastle()
-                    .forEach((side, rights) ->
-                            board.applyCastleRights(Side.fromString(side), rights.isNear(), rights.isFar()));
-        }
 
         return board;
     }

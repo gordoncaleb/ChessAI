@@ -71,7 +71,7 @@ public class BoardFactory {
             }
         }
 
-        return new Board(pieces, Side.WHITE);
+        return new Board(pieces, Side.WHITE, true, true, true, true);
     }
 
     private static int ithEmptyPosition(int i, int[] setup) {

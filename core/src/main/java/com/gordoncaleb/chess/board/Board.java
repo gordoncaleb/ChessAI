@@ -66,7 +66,13 @@ public class Board {
     private final long[] allPosBitBoard;
 
     //Inputs are copied safely
-    public Board(List<Piece>[] pieces, int turn) {
+    public Board(List<Piece>[] pieces,
+                 int turn,
+                 boolean whiteNear,
+                 boolean whiteFar,
+                 boolean blackNear,
+                 boolean blackFar) {
+
         this.piecesTaken[WHITE] = new ArrayDeque<>();
         this.piecesTaken[BLACK] = new ArrayDeque<>();
 
@@ -95,6 +101,8 @@ public class Board {
         rookToCastleMasks = buildRookToCastleMasks(kingsInitBitBoards, rooksInitBitboards);
 
         castleRights = orKingsAndRooks(kingsInitBitBoards, rooksInitBitboards);
+        applyCastleRights(Side.WHITE, whiteNear, whiteFar);
+        applyCastleRights(Side.BLACK, blackNear, blackFar);
         castleRightsHistory.push(castleRights);
 
         initializeHashCode();
@@ -738,7 +746,7 @@ public class Board {
         this.boardStatus = boardStatus;
     }
 
-    public void applyCastleRights(int player, boolean nearRights, boolean farRights) {
+    private void applyCastleRights(int player, boolean nearRights, boolean farRights) {
 
         if (nearRights) {
             castleRights |= rooksInitBitboards[player][NEAR];
@@ -764,7 +772,12 @@ public class Board {
             undoMove();
         }
 
-        Board boardCopy = new Board(pieces, turn);
+        Board boardCopy = new Board(pieces,
+                turn,
+                canCastleNear(WHITE),
+                canCastleFar(WHITE),
+                canCastleNear(BLACK),
+                canCastleFar(BLACK));
 
         moveHistory.stream()
                 .forEach(m -> {
