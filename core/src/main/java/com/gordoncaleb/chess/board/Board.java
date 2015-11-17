@@ -299,14 +299,11 @@ public class Board {
         // tell piece its new position
         pieceMoving.move(toRow, toCol);
 
-        if (note == Move.MoveNote.NEW_QUEEN) {
-            pieceMoving.setPieceID(QUEEN);
+        if ((note & Move.MoveNote.NEW_QUEEN) != 0) {
+            final int queenChoice = note >> 8;
+            pieceMoving.setPieceID(queenChoice);
             posBitBoard[PAWN][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
-            posBitBoard[QUEEN][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
-        } else if (note == Move.MoveNote.NEW_KNIGHT) {
-            pieceMoving.setPieceID(KNIGHT);
-            posBitBoard[PAWN][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
-            posBitBoard[KNIGHT][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
+            posBitBoard[queenChoice][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
         }
 
         // add hash of piece at new location
@@ -406,14 +403,11 @@ public class Board {
         // tell piece where it was
         pieceMoving.unmove(fromRow, fromCol);
 
-        if (note == Move.MoveNote.NEW_QUEEN) {
+        if ((note & Move.MoveNote.NEW_QUEEN) != 0) {
+            final int queenChoice = note >> 8;
             pieceMoving.setPieceID(PAWN);
             posBitBoard[PAWN][pieceMoving.getSide()] |= pieceMoving.asBitMask();
-            posBitBoard[QUEEN][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
-        } else if (note == Move.MoveNote.NEW_KNIGHT) {
-            pieceMoving.setPieceID(PAWN);
-            posBitBoard[PAWN][pieceMoving.getSide()] |= pieceMoving.asBitMask();
-            posBitBoard[KNIGHT][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
+            posBitBoard[queenChoice][pieceMoving.getSide()] ^= pieceMoving.asBitMask();
         }
 
     }

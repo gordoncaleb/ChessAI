@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.util.JSON;
 
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
+
 public class Move {
 
     public static final Move EMPTY_MOVE = new Move();
@@ -16,10 +18,10 @@ public class Move {
         public static final int CASTLE_FAR = 0x2;
         public static final int EN_PASSANT = 0x4;
         public static final int PAWN_LEAP = 0x8;
-        public static final int NEW_QUEEN = 0x010;
-        public static final int NEW_KNIGHT = 0x110;
-        public static final int NEW_BISHOP = 0x210;
-        public static final int NEW_ROOK = 0x310;
+        public static final int NEW_QUEEN = (QUEEN << 8) | 0x10;
+        public static final int NEW_KNIGHT = (KNIGHT << 8) | 0x10;
+        public static final int NEW_BISHOP = (BISHOP << 8) | 0x10;
+        public static final int NEW_ROOK = (ROOK << 8) | 0x10;
     }
 
     private int note;
@@ -81,6 +83,14 @@ public class Move {
 
     public String toJson() throws JsonProcessingException {
         return JSON.toJSON(this);
+    }
+
+    public boolean hasQueeningChoice() {
+        return (note & MoveNote.NEW_QUEEN) != 0;
+    }
+
+    public int queeningChoice() {
+        return note >> 8;
     }
 
     public void setNote(int note) {
@@ -256,7 +266,7 @@ public class Move {
         int pieceTakenRow = (int) ((moveLong >> 15) & 0x7);
         int pieceTakenId = (int) ((moveLong >> 18) & 0x7);
 
-        int note = (int) ((moveLong >> 21) & 0x7); //12 bits
+        int note = (int) ((moveLong >> 21) & 0xFFF); //12 bits
 
         return new Move(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
     }
