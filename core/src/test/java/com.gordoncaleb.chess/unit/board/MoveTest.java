@@ -34,7 +34,7 @@ public class MoveTest {
     @Test
     public void testGetNewPieceId() {
         Move m = new Move(7, 7, 0, 0, Move.MoveNote.NEW_ROOK, Piece.PieceID.PAWN, 0, 5);
-        assertTrue(m.hasQueeningChoice());
-        assertEquals(m.queeningChoice(), Piece.PieceID.ROOK);
+        assertTrue(m.hasPromotion());
+        assertEquals(m.promotionChoice(), Piece.PieceID.ROOK);
     }
 }

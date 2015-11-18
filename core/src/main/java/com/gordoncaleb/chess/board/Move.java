@@ -85,11 +85,11 @@ public class Move {
         return JSON.toJSON(this);
     }
 
-    public boolean hasQueeningChoice() {
+    public boolean hasPromotion() {
         return (note & MoveNote.NEW_QUEEN) != 0;
     }
 
-    public int queeningChoice() {
+    public int promotionChoice() {
         return note >> 8;
     }
 
