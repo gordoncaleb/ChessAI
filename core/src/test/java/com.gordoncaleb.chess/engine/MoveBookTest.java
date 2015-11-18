@@ -7,9 +7,11 @@ import org.junit.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class MoveBookTest {
 
@@ -25,10 +27,12 @@ public class MoveBookTest {
         assertEquals(moveBook.size(), loadedMoveBook.size());
 
         for (Long key : moveBook.keySet()) {
+
             List<Move> movesFromTo = moveBook.get(key).stream()
                     .map(Move::justFromTo)
                     .collect(Collectors.toList());
 
+            assertTrue("Binary loaded move book is missing key: " + key, loadedMoveBook.containsKey(key));
             List<Move> loadedMoveBookMoves = loadedMoveBook.get(key).stream()
                     .map(Move::justFromTo)
                     .collect(Collectors.toList());

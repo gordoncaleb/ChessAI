@@ -4,6 +4,7 @@ import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Piece;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -526,6 +527,38 @@ public class BoardTest {
     }
 
     @Test
+    @Ignore
+    public void testEnPassantCausesCheck() throws Exception {
+        String[] setup = {
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "K,R,_,_,_,_,_,_,",
+                "_,R,_,_,_,p,_,k,",
+                "_,R,_,_,_,_,_,_,",
+                "_,_,_,_,P,_,_,_,",
+                "_,_,_,_,_,_,_,_,"
+        };
+
+//              "_,_,_,_,_,_,_,_,",
+//              "_,_,_,_,_,_,_,_,",
+//              "_,_,_,_,_,_,_,_,",
+//              "K,R,_,_,_,_,_,_,",
+//              "_,R,_,_,P,p,_,k,",
+//              "_,R,_,_,_,_,_,_,",
+//              "_,_,_,_,_,_,_,_,",
+//              "_,_,_,_,_,_,_,_,"
+
+        testContainsExactlyMoves(Side.WHITE, setup, new Move[]{
+                new Move(6, 4, 4, 4, Move.MoveNote.PAWN_LEAP)
+        }, Arrays.asList(
+                new Move(4, 5, 5, 5, Move.MoveNote.NONE),
+                new Move(4, 7, 4, 6, Move.MoveNote.NONE)
+        ));
+
+    }
+
+    @Test
     public void testDrawByThreeRule() throws Exception {
         String[] setup = {
                 "_,_,_,_,k,_,_,_,",
@@ -592,6 +625,27 @@ public class BoardTest {
                 true, true,
                 false, false,
                 new Move(7, 4, 7, 6, Move.MoveNote.CASTLE_NEAR)
+        );
+    }
+
+    @Test
+    public void testsCastlingRightsAfterRookTaken() {
+        String[] setup = {
+                "r,_,b,_,k,_,_,r,",
+                "p,p,_,_,_,p,p,p,",
+                "_,_,q,Q,_,_,_,q,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,N,_,_,P,_,",
+                "P,P,P,P,_,P,_,P,",
+                "R,_,_,_,K,N,_,R,"
+        };
+
+        testCastleRights(
+                setup, Side.WHITE,
+                true, true,
+                false, true,
+                new Move(2, 2, 7, 7, Move.MoveNote.NONE, Piece.PieceID.ROOK, 7, 7)
         );
     }
 
@@ -684,26 +738,39 @@ public class BoardTest {
     }
 
     public void testNumberOfMoves(int side, String[] setup, int numberOfMoves) {
-        List<Move> moves = getValidMoves(side, setup);
+        testNumberOfMoves(side, setup, new Move[0], numberOfMoves);
+    }
+
+    public void testNumberOfMoves(int side, String[] setup, Move[] movesToMake, int numberOfMoves) {
+        List<Move> moves = getValidMoves(side, setup, movesToMake);
         assertEquals(numberOfMoves, moves.size());
     }
 
     public void testContainsExactlyMoves(int side, String[] setup, List<Move> expectedMoves) {
-        List<Move> moves = getValidMoves(side, setup).stream()
+        testContainsExactlyMoves(side, setup, new Move[0], expectedMoves);
+    }
+
+    public void testContainsExactlyMoves(int side, String[] setup, Move[] movesToMake, List<Move> expectedMoves) {
+        List<Move> moves = getValidMoves(side, setup, movesToMake).stream()
                 .map(Move::justFromTo)
                 .collect(Collectors.toList());
         assertThat(moves, containsInAnyOrder(expectedMoves.toArray()));
     }
 
     public void testContainsMove(int side, String[] setup, Move expectedMove) {
-        List<Move> moves = getValidMoves(side, setup).stream()
+        testContainsMove(side, setup, new Move[0], expectedMove);
+    }
+
+    public void testContainsMove(int side, String[] setup, Move[] movesToMake, Move expectedMove) {
+        List<Move> moves = getValidMoves(side, setup, movesToMake).stream()
                 .map(Move::justFromTo)
                 .collect(Collectors.toList());
         assertThat(moves, hasItem(expectedMove));
     }
 
-    public List<Move> getValidMoves(int side, String[] setup) {
+    public List<Move> getValidMoves(int side, String[] setup, Move[] movesToMake) {
         Board b1 = JSONParser.getFromSetup(side, setup);
+        this.makeMoves(b1, movesToMake);
         b1.makeNullMove();
         return b1.generateValidMoves().toList();
     }

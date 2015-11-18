@@ -287,10 +287,9 @@ public class Board {
 
     private void movePiece(final Piece pieceMoving, final int toRow, final int toCol, final int note) {
 
-        final long fromBit = getMask(pieceMoving.getRow(), pieceMoving.getCol());
-        final long bitMove = fromBit | getMask(toRow, toCol);
+        final long bitMove = getMask(pieceMoving.getRow(), pieceMoving.getCol()) | getMask(toRow, toCol);
 
-        castleRights &= ~fromBit;
+        castleRights &= ~bitMove;
 
         // remove bit position from where piece was and add where it is now
         posBitBoard[pieceMoving.getPieceID()][pieceMoving.getSide()] ^= bitMove;

@@ -94,7 +94,7 @@ public class BoardFactory {
     }
 
     public static Board fromFEN(String fen) {
-        Pattern p = Pattern.compile("([a-zA-Z0-9\\/]+) ([wb]) ([KQkq]+|[-]) ([a-z][0-9]|[-])\\s?([0-9]?)\\s?([0-9]?)");
+        Pattern p = Pattern.compile("([a-zA-Z0-9\\/]+) ([wb]) ([KQkq]+|[-]) ([a-z][0-9]|[-])\\s*([0-9]*)\\s*([0-9]*)");
         Matcher m = p.matcher(fen.trim());
 
         if (!m.matches() || m.groupCount() < 3) {
