@@ -1,7 +1,8 @@
-package com.gordoncaleb.chess.engine;
+package com.gordoncaleb.chess.unit.engine;
 
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
+import com.gordoncaleb.chess.engine.MoveBook;
 import org.junit.Test;
 
 import java.util.*;

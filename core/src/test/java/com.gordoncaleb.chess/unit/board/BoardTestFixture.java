@@ -1,5 +1,8 @@
-package com.gordoncaleb.chess.board;
+package com.gordoncaleb.chess.unit.board;
 
+
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 
 import java.util.List;
 

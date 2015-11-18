@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess;
+package com.gordoncaleb.chess.unit;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.util.Perft;
@@ -13,7 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class PerftTest {
-    public static final Logger logger = LoggerFactory.getLogger(PerftTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(PerftTest.class);
     private final Perft perft = new Perft();
 
     //Solutions columns
@@ -141,8 +141,9 @@ public class PerftTest {
         perftBoard(b, sol);
     }
 
-    private void perftBoard(Board b, long[][] sol) {
+    public static void perftBoard(Board b, long[][] sol) {
         int stopDepth = sol.length - 1;
+        Perft perft = new Perft();
         long[][] metrics = perft.perftBoardFunctional(b, stopDepth);
 
         logMetrics(metrics);
@@ -156,7 +157,7 @@ public class PerftTest {
         }
     }
 
-    private long[] matchLength(long[] metrics, long[] sol) {
+    public static long[] matchLength(long[] metrics, long[] sol) {
         if (sol.length != metrics.length) {
             long[] temp = new long[sol.length];
             System.arraycopy(metrics, 0, temp, 0, temp.length);
@@ -166,7 +167,7 @@ public class PerftTest {
         }
     }
 
-    private void logMetrics(long[][] metrics) {
+    public static void logMetrics(long[][] metrics) {
         int ply = 1;
         for (long[] plyMetric : metrics) {
             logger.info(ply + ": " + Arrays.toString(plyMetric));

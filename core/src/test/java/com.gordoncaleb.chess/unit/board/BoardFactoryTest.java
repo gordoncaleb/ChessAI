@@ -1,5 +1,6 @@
-package com.gordoncaleb.chess.board;
+package com.gordoncaleb.chess.unit.board;
 
+import com.gordoncaleb.chess.board.BoardFactory;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

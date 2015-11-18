@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess;
+package com.gordoncaleb.chess.unit;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.serdes.PGNParser;

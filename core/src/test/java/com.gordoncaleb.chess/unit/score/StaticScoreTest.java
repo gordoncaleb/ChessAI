@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.score;
+package com.gordoncaleb.chess.unit.score;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;

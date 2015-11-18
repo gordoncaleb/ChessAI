@@ -1,5 +1,6 @@
-package com.gordoncaleb.chess.board;
+package com.gordoncaleb.chess.unit.board;
 
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import org.junit.Test;
 

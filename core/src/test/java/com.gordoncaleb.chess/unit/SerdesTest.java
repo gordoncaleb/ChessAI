@@ -1,8 +1,8 @@
-package com.gordoncaleb.chess;
+package com.gordoncaleb.chess.unit;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
-import com.gordoncaleb.chess.board.BoardTestFixture;
+import com.gordoncaleb.chess.unit.board.BoardTestFixture;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.util.Perft;
 import org.junit.Test;

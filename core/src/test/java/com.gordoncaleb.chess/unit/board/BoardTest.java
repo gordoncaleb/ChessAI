@@ -1,5 +1,9 @@
-package com.gordoncaleb.chess.board;
+package com.gordoncaleb.chess.unit.board;
 
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.BoardFactory;
+import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
 import com.gordoncaleb.chess.board.serdes.JSONParser;

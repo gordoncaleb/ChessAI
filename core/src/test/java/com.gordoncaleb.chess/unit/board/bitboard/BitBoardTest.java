@@ -1,6 +1,7 @@
-package com.gordoncaleb.chess.board.bitboard;
+package com.gordoncaleb.chess.unit.board.bitboard;
 
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import org.junit.Test;
 
 import java.util.ArrayList;

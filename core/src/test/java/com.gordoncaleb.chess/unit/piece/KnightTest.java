@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.piece;
+package com.gordoncaleb.chess.unit.piece;
 
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import org.junit.Before;

@@ -98,27 +98,41 @@
     <profiles>
 
         <profile>
-            <id>buildrandom</id>
+            <id>unitTests</id>
             <build>
-                <defaultGoal>test</defaultGoal>
                 <plugins>
                     <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                                <configuration>
-                                    <mainClass>com.gordoncaleb.chess.board.RNGTable</mainClass>
-                                </configuration>
-                            </execution>
-                        </executions>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/**/*LongRunningTest.java</exclude>
+                                <exclude>**/**/*IntTest.java</exclude>
+                            </excludes>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+
+        <profile>
+            <id>allTests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+            <activation>
+                <property>
+                    <name>allTests</name>
+                </property>
+            </activation>
         </profile>
 
     </profiles>
