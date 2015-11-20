@@ -201,7 +201,7 @@ public class SquarePanel extends JPanel implements PieceGUI {
 	}
 
 	public void updateIcon() {
-		if (id != Piece.PieceID.NONE && player != Side.NONE) {
+		if (id != Piece.PieceID.NO_PIECE && player != Side.NEITHER) {
 			picLabel.setIcon(boardPanel.getChessIcon(id, player));
 			picLabel.updateUI();
 		}
@@ -233,14 +233,14 @@ public class SquarePanel extends JPanel implements PieceGUI {
 	public void clearChessPiece() {
 
 		picLabel.setIcon(null);
-		id = Piece.PieceID.NONE;
+		id = Piece.PieceID.NO_PIECE;
 
 		if (debug)
 			debugPieceValue.setText("");
 	}
 
 	public boolean hasPiece() {
-		return id != Piece.PieceID.NONE;
+		return id != Piece.PieceID.NO_PIECE;
 	}
 
 	public int getPieceID() {

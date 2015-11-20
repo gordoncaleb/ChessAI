@@ -1,18 +1,15 @@
 package com.gordoncaleb.chess.board.pieces;
 
-import java.util.List;
-
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.Move;
 
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class Piece {
 
-    public static final Piece EMPTY = new Piece(NONE, Side.NONE, 0, 0);
+    public static final Piece EMPTY = new Piece(NO_PIECE, Side.NEITHER, 0, 0);
 
     private int row;
     private int col;
@@ -21,7 +18,7 @@ public class Piece {
     private int pieceId;
 
     public static class PieceID {
-        public static final int NONE = -1;
+        public static final int NO_PIECE = -1;
         public static final int PAWN = 0;
         public static final int KNIGHT = 1;
         public static final int BISHOP = 2;

@@ -210,8 +210,8 @@ public class PGNParser {
         int toRow = -1;
         int toCol = -1;
 
-        int note = Move.MoveNote.NONE;
-        int pieceMovingID = Piece.PieceID.NONE;
+        int note = Move.MoveNote.NORMAL;
+        int pieceMovingID = Piece.PieceID.NO_PIECE;
 
         if (notation.contains("=")) {
 
@@ -253,7 +253,7 @@ public class PGNParser {
 
                             pieceMovingID = charIDtoPieceID(leftRight[0].charAt(0));
 
-                            if (pieceMovingID == Piece.PieceID.NONE) {
+                            if (pieceMovingID == Piece.PieceID.NO_PIECE) {
                                 pieceMovingID = Piece.PieceID.PAWN;
                                 fromCol = leftRight[0].charAt(0) - 97;
                             }
@@ -305,7 +305,7 @@ public class PGNParser {
         map.put('Q', QUEEN);
         map.put('K', KING);
         map.put('P', PAWN);
-        return Optional.ofNullable(map.get(id)).orElse(NONE);
+        return Optional.ofNullable(map.get(id)).orElse(NO_PIECE);
     }
 
     public static Optional<Integer> getFileNumberFromAlgNotation(String notation) {
@@ -330,7 +330,7 @@ public class PGNParser {
 
             match = true;
 
-            if (note != Move.MoveNote.NONE) {
+            if (note != Move.MoveNote.NORMAL) {
                 if (move.getNote() != note) {
                     if (move.getNote() == Move.MoveNote.NEW_QUEEN && note == Move.MoveNote.NEW_KNIGHT) {
                         move.setNote(note);
@@ -364,7 +364,7 @@ public class PGNParser {
                 }
             }
 
-            if (pieceMovingID != Piece.PieceID.NONE) {
+            if (pieceMovingID != Piece.PieceID.NO_PIECE) {
                 if (board.getPiece(move.getFromRow(), move.getFromCol()).getPieceID() != pieceMovingID) {
                     match = false;
                 }

@@ -34,7 +34,7 @@ public class PawnTest {
         Board b = JSONParser.getFromSetup(Side.WHITE, setup);
 
         testMovesExactly(b, 6, 4, new Move[]{
-                new Move(6, 4, 5, 4, Move.MoveNote.NONE),
+                new Move(6, 4, 5, 4, Move.MoveNote.NORMAL),
                 new Move(6, 4, 4, 4, Move.MoveNote.PAWN_LEAP)
         });
     }
@@ -55,7 +55,7 @@ public class PawnTest {
         Board b = JSONParser.getFromSetup(Side.BLACK, setup);
 
         testMovesExactly(b, 1, 4, new Move[]{
-                new Move(1, 4, 2, 4, Move.MoveNote.NONE),
+                new Move(1, 4, 2, 4, Move.MoveNote.NORMAL),
                 new Move(1, 4, 3, 4, Move.MoveNote.PAWN_LEAP)
         });
     }
@@ -76,10 +76,10 @@ public class PawnTest {
         Board b = JSONParser.getFromSetup(Side.WHITE, setup);
 
         testMovesExactly(b, 6, 4, new Move[]{
-                new Move(6, 4, 5, 4, Move.MoveNote.NONE),
+                new Move(6, 4, 5, 4, Move.MoveNote.NORMAL),
                 new Move(6, 4, 4, 4, Move.MoveNote.PAWN_LEAP),
-                new Move(6, 4, 5, 5, Move.MoveNote.NONE, b.getPiece(5, 5)),
-                new Move(6, 4, 5, 3, Move.MoveNote.NONE, b.getPiece(5, 3))
+                new Move(6, 4, 5, 5, Move.MoveNote.NORMAL, b.getPiece(5, 5)),
+                new Move(6, 4, 5, 3, Move.MoveNote.NORMAL, b.getPiece(5, 3))
         });
     }
 
@@ -99,8 +99,8 @@ public class PawnTest {
         Board b = JSONParser.getFromSetup(Side.WHITE, setup);
 
         testMovesExactly(b, 6, 4, new Move[]{
-                new Move(6, 4, 5, 5, Move.MoveNote.NONE, b.getPiece(5, 5)),
-                new Move(6, 4, 5, 3, Move.MoveNote.NONE, b.getPiece(5, 3))
+                new Move(6, 4, 5, 5, Move.MoveNote.NORMAL, b.getPiece(5, 5)),
+                new Move(6, 4, 5, 3, Move.MoveNote.NORMAL, b.getPiece(5, 3))
         });
     }
 
@@ -120,9 +120,9 @@ public class PawnTest {
         Board b = JSONParser.getFromSetup(Side.WHITE, setup);
 
         testMovesExactly(b, 6, 4, new Move[]{
-                new Move(6, 4, 5, 4, Move.MoveNote.NONE),
-                new Move(6, 4, 5, 5, Move.MoveNote.NONE, b.getPiece(5, 5)),
-                new Move(6, 4, 5, 3, Move.MoveNote.NONE, b.getPiece(5, 3))
+                new Move(6, 4, 5, 4, Move.MoveNote.NORMAL),
+                new Move(6, 4, 5, 5, Move.MoveNote.NORMAL, b.getPiece(5, 5)),
+                new Move(6, 4, 5, 3, Move.MoveNote.NORMAL, b.getPiece(5, 3))
         });
     }
 
@@ -145,7 +145,7 @@ public class PawnTest {
 
         testMovesExactly(b, 3, 6, new Move[]{
                 new Move(3, 6, 2, 7, Move.MoveNote.EN_PASSANT, b.getPiece(3, 7)),
-                new Move(3, 6, 2, 6, Move.MoveNote.NONE),
+                new Move(3, 6, 2, 6, Move.MoveNote.NORMAL),
         });
     }
 
@@ -167,7 +167,7 @@ public class PawnTest {
         b.makeMove(new Move(1, 7, 3, 7, Move.MoveNote.PAWN_LEAP));
 
         testMovesExactly(b, 3, 6, new Move[]{
-                new Move(3, 6, 2, 6, Move.MoveNote.NONE),
+                new Move(3, 6, 2, 6, Move.MoveNote.NORMAL),
         });
     }
 

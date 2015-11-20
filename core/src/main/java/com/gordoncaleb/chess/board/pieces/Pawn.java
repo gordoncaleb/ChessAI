@@ -7,6 +7,9 @@ import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.board.Board.*;
+import static com.gordoncaleb.chess.board.Side.*;
+import static com.gordoncaleb.chess.board.Move.MoveNote.*;
 
 public class Pawn {
 
@@ -30,10 +33,10 @@ public class Pawn {
 
         final Move lastMove = board.getLastMoveMade();
         final int enpassantCol = lastMove.getFromCol();
-        final long enpassantColMask = lastMove.getNote() == Move.MoveNote.PAWN_LEAP ? BitBoard.getColMask(lastMove.getFromCol()) : 0L;
+        final long enpassantColMask = lastMove.getNote() == PAWN_LEAP ? BitBoard.getColMask(lastMove.getFromCol()) : 0L;
 
         final long foes = posBitBoard[Side.otherSide(side)];
-        final long emptySpace = ~(posBitBoard[0] | posBitBoard[1]);
+        final long emptySpace = ~(posBitBoard[WHITE] | posBitBoard[BLACK]);
         final long valid = nullMoveInfo[1] & p.blockingVector();
 
         final long hops, attacks, validLeapMoves, enPassantAttack;
@@ -48,7 +51,7 @@ public class Pawn {
             if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[1] & getMask(4, enpassantCol)) != 0) {
                 final Piece pieceTaken = board.getPiece(4, enpassantCol);
                 validMoves.add(row, col, WHITE_PAWN_LEAP_ROW, enpassantCol,
-                        Move.MoveNote.EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
+                        EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
                 );
             }
         } else {
@@ -58,19 +61,19 @@ public class Pawn {
 
             enPassantAttack = attacks & BLACK_PAWN_LEAP_ROW_MASK & enpassantColMask;
 
-            if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[1] & getMask(3, enpassantCol)) != 0) {
+            if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[CHECK_VECTORS] & getMask(3, enpassantCol)) != 0) {
                 final Piece pieceTaken = board.getPiece(3, enpassantCol);
                 validMoves.add(row, col, BLACK_PAWN_LEAP_ROW, enpassantCol,
-                        Move.MoveNote.EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
+                        EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
                 );
             }
         }
 
         final long validHopsAndAttacks = valid & (hops | attacks & foes);
 
-        Piece.buildValidMoves(validHopsAndAttacks & NOT_QUEENING_MASK, row, col, Move.MoveNote.NONE, board, validMoves);
-        Piece.buildValidMoves(validHopsAndAttacks & QUEENING_MASK, row, col, Move.MoveNote.NEW_QUEEN, board, validMoves);
-        Piece.buildValidMoves(validLeapMoves, row, col, Move.MoveNote.PAWN_LEAP, board, validMoves);
+        Piece.buildValidMoves(validHopsAndAttacks & NOT_QUEENING_MASK, row, col, NORMAL, board, validMoves);
+        Piece.buildValidMoves(validHopsAndAttacks & QUEENING_MASK, row, col, NEW_QUEEN, board, validMoves);
+        Piece.buildValidMoves(validLeapMoves, row, col, PAWN_LEAP, board, validMoves);
 
         return validMoves;
     }

@@ -82,20 +82,20 @@ public class KingTest {
     }
 
     private void testCheckVector(String[] setup, String[] solution) {
-        long[] nullMoveInfo = new long[]{0, ALL_ONES, 0};
+        long[] nullMoveInfo = new long[]{0, ALL_ONES, 0, 0, 0};
         testSetupKingCheckInfo(setup, nullMoveInfo);
         assertThat(printBitBoard(nullMoveInfo[1]), is(equalTo(printBitBoard(parseBitBoard(solution)))));
     }
 
     private void testCheckVectorCompliment(String[] setup, String[] solution) {
-        long[] nullMoveInfo = new long[]{0, ALL_ONES, 0};
+        long[] nullMoveInfo = new long[]{0, ALL_ONES, 0, 0, 0};
         testSetupKingCheckInfo(setup, nullMoveInfo);
         logger.info("Check Compliment is:\n" + printBitBoard(nullMoveInfo[2]));
         assertThat(nullMoveInfo[2] & parseBitBoard(solution), is(greaterThan(0L)));
     }
 
     private void testBlockingVector(String[] setup, int r, int c, String[] solution) {
-        Board board = testSetupKingCheckInfo(setup, new long[]{0, ALL_ONES, 0});
+        Board board = testSetupKingCheckInfo(setup, new long[]{0, ALL_ONES, 0, 0, 0});
         assertThat(printBitBoard(board.getPiece(r, c).blockingVector()), is(equalTo(printBitBoard(parseBitBoard(solution)))));
     }
 

@@ -149,7 +149,7 @@ public class Adjudicator {
         if (board.isGameOver()) {
             return Side.otherSide(board.getTurn());
         } else {
-            return Side.NONE;
+            return Side.NEITHER;
         }
     }
 

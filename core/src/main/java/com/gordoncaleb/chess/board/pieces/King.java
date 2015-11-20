@@ -1,23 +1,21 @@
 package com.gordoncaleb.chess.board.pieces;
 
-import java.util.List;
-
 import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.*;
+import static com.gordoncaleb.chess.board.Move.MoveNote.*;
 
 public class King {
 
     public static MoveContainer generateValidMoves(final Piece p,
-                                                final Board board,
-                                                final long[] nullMoveInfo,
-                                                final long[] posBitBoard,
-                                                final MoveContainer validMoves) {
+                                                   final Board board,
+                                                   final long[] nullMoveInfo,
+                                                   final long[] posBitBoard,
+                                                   final MoveContainer validMoves) {
         final int currentRow = p.getRow();
         final int currentCol = p.getCol();
         final int side = p.getSide();
@@ -27,7 +25,7 @@ public class King {
         final long footPrint = getKingAttacks(kingMask) & ~posBitBoard[side];
         final long validFootPrint = footPrint & ~(nullMoveInfo[0] | nullMoveInfo[2]);
 
-        buildValidMoves(validFootPrint, currentRow, currentCol, Move.MoveNote.NONE, board, validMoves);
+        buildValidMoves(validFootPrint, currentRow, currentCol, NORMAL, board, validMoves);
 
         final long kingNoGo = nullMoveInfo[0] | (friendsOrFoes & ~kingMask);
 
@@ -36,7 +34,7 @@ public class King {
                 board.rookToCastleMasks[side][Board.FAR],
                 kingNoGo,
                 friendsOrFoes)) {
-            validMoves.add(currentRow, currentCol, currentRow, 2, Move.MoveNote.CASTLE_FAR);
+            validMoves.add(currentRow, currentCol, currentRow, 2, CASTLE_FAR);
         }
 
         if (castleNear(board.canCastleNear(side),
@@ -44,7 +42,7 @@ public class King {
                 board.rookToCastleMasks[side][Board.NEAR],
                 kingNoGo,
                 friendsOrFoes)) {
-            validMoves.add(currentRow, currentCol, currentRow, 6, Move.MoveNote.CASTLE_NEAR);
+            validMoves.add(currentRow, currentCol, currentRow, 6, CASTLE_NEAR);
         }
 
         return validMoves;
@@ -98,17 +96,19 @@ public class King {
         }
 
         final long westSlide = westSlideNoEdge(westFill(king), foeStraightSliders);
+        nullMoveInfo[3] = westSlide;
         if (westSlide != 0) {
             final long westSlideBlockers = westSlide & allExceptMeAndStraightSliders;
             if (westSlideBlockers == 0) {
                 nullMoveInfo[1] &= westSlide;
                 nullMoveInfo[2] |= king << 1;
-            } else if (hasOneBitOrLess(westSlideBlockers)) {
+            } else if (hasOneBitOrLess(westSlideBlockers)) { //has exactly 1 bit
                 setBlocker(board, westSlideBlockers, westSlide);
             }
         }
 
         final long eastSlide = eastSlideNoEdge(eastFill(king), foeStraightSliders);
+        nullMoveInfo[4] = eastSlide;
         if (eastSlide != 0) {
             final long eastSlideBlockers = eastSlide & allExceptMeAndStraightSliders;
             if (eastSlideBlockers == 0) {

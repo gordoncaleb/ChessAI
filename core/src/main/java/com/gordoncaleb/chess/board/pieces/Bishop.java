@@ -1,7 +1,5 @@
 package com.gordoncaleb.chess.board.pieces;
 
-import java.util.List;
-
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
@@ -9,6 +7,7 @@ import com.gordoncaleb.chess.board.Side;
 
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.*;
+import static com.gordoncaleb.chess.board.Move.MoveNote.*;
 
 public class Bishop {
 
@@ -24,7 +23,7 @@ public class Bishop {
         final long footPrint = slideBishop(p.asBitMask(), friendOrFoe) & ~friends;
         final long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector();
 
-        buildValidMoves(validFootPrint, p.getRow(), p.getCol(), Move.MoveNote.NONE, board, validMoves);
+        buildValidMoves(validFootPrint, p.getRow(), p.getCol(), NORMAL, board, validMoves);
 
         return validMoves;
     }

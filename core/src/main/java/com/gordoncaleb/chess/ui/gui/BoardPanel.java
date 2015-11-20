@@ -361,7 +361,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
             Piece piece = adjudicator.getPiece(flipTrans(fromSqr.getRow()), flipTrans(fromSqr.getCol()));
 
             if (adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()))) {
-                if (toSqr.getPieceID() != Piece.PieceID.NONE) {
+                if (toSqr.getPieceID() != Piece.PieceID.NO_PIECE) {
                     takePiece(toSqr.getPieceID(), toSqr.getPlayer());
                 }
 
@@ -395,7 +395,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
             Piece piece = new Piece(fromLbl.getPieceID(), fromLbl.getPlayer(), -1, -1);
 
             if (adjudicator.placePiece(piece, flipTrans(toSqr.getRow()), flipTrans(toSqr.getCol()))) {
-                if (toSqr.getPieceID() != Piece.PieceID.NONE) {
+                if (toSqr.getPieceID() != Piece.PieceID.NO_PIECE) {
                     takePiece(toSqr.getPieceID(), toSqr.getPlayer());
                 }
 
@@ -544,11 +544,11 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
 
-                if (adjudicator.getPieceID(row, col) == Piece.PieceID.NONE && getChessSquare(row, col).getPieceID() != Piece.PieceID.NONE) {
+                if (adjudicator.getPieceID(row, col) == Piece.PieceID.NO_PIECE && getChessSquare(row, col).getPieceID() != Piece.PieceID.NO_PIECE) {
                     getChessSquare(row, col).clearChessPiece();
                 }
 
-                if (adjudicator.getPieceID(row, col) != Piece.PieceID.NONE) {
+                if (adjudicator.getPieceID(row, col) != Piece.PieceID.NO_PIECE) {
                     getChessSquare(row, col).showChessPiece(adjudicator.getPieceID(row, col), adjudicator.getPiecePlayer(row, col));
                 }
 
@@ -727,7 +727,7 @@ public class BoardPanel extends JPanel implements MouseListener, ActionListener 
             orienToCol = toCol;
         }
 
-        return new Move(orienFromRow, orienFromCol, orienToRow, orienToCol, Move.MoveNote.NONE);
+        return new Move(orienFromRow, orienFromCol, orienToRow, orienToCol, Move.MoveNote.NORMAL);
 
     }
 

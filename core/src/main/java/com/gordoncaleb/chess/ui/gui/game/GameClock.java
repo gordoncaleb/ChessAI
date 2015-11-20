@@ -79,7 +79,7 @@ public class GameClock {
 
 	public long getTime(int side) {
 
-		if (side == Side.NONE) {
+		if (side == Side.NEITHER) {
 			return 0;
 		}
 
@@ -96,7 +96,7 @@ public class GameClock {
 	}
 
 	public long getMaxTime(int side) {
-		if (side == Side.NONE) {
+		if (side == Side.NEITHER) {
 			return 0;
 		}
 

@@ -284,7 +284,7 @@ public class Game implements PlayerContainer {
     }
 
     public synchronized void addObserver(Player observer) {
-        // observer.newGame(Side.NONE, board.copy());
+        // observer.newGame(Side.NEITHER, board.copy());
         observer.setGame(this);
         observers.add(observer);
     }

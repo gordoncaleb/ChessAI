@@ -184,7 +184,7 @@ public class BoardTest {
         };
 
         testNumberOfMoves(Side.WHITE, setup, 1);
-        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(new Move(6, 7, 7, 7, Move.MoveNote.NONE)));
+        testContainsExactlyMoves(Side.WHITE, setup, Arrays.asList(new Move(6, 7, 7, 7, Move.MoveNote.NORMAL)));
     }
 
     @Test
@@ -556,8 +556,8 @@ public class BoardTest {
         testContainsExactlyMoves(Side.WHITE, setup, new Move[]{
                 new Move(6, 4, 4, 4, Move.MoveNote.PAWN_LEAP)
         }, Arrays.asList(
-                new Move(4, 5, 5, 5, Move.MoveNote.NONE),
-                new Move(4, 7, 4, 6, Move.MoveNote.NONE)
+                new Move(4, 5, 5, 5, Move.MoveNote.NORMAL),
+                new Move(4, 7, 4, 6, Move.MoveNote.NORMAL)
         ));
 
     }
@@ -649,7 +649,7 @@ public class BoardTest {
                 setup, Side.WHITE,
                 true, true,
                 false, true,
-                new Move(2, 2, 7, 7, Move.MoveNote.NONE, Piece.PieceID.ROOK, 7, 7)
+                new Move(2, 2, 7, 7, Move.MoveNote.NORMAL, Piece.PieceID.ROOK, 7, 7)
         );
     }
 
@@ -801,7 +801,7 @@ public class BoardTest {
             for (int c = 0; c < 8; c++) {
                 piece = b.getPiece(r, c);
 
-                if (piece.getPieceID() != Piece.PieceID.NONE) {
+                if (piece.getPieceID() != Piece.PieceID.NO_PIECE) {
                     allBitBoard[piece.getPieceID()][piece.getSide()] ^= BitBoard.getMask(r, c);
                 }
 

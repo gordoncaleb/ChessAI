@@ -22,6 +22,12 @@ public class Board {
 
     private final RNGTable rngTable = RNGTable.instance;
 
+    public static final int FOE_ATTACKS = 0;
+    public static final int CHECK_VECTORS = 1;
+    public static final int CHECK_COMPLIMENT = 2;
+    public static final int KING_WEST = 3;
+    public static final int KING_EAST = 4;
+
     public static final int NEAR = 0;
     public static final int FAR = 1;
     public static final int[] MATERIAL_ROW = new int[2];
@@ -60,7 +66,8 @@ public class Board {
     private final Deque<Long> hashCodeHistory = new ArrayDeque<>();
     private final Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
-    private final long[] nullMoveInfo = {0L, ALL_ONES, 0L};
+    private final long[] nullMoveInfo = new long[5];
+
 
     private final long[][] posBitBoard;
     private final long[] allPosBitBoard;
@@ -234,8 +241,8 @@ public class Board {
             if (note == Move.MoveNote.CASTLE_NEAR) {
                 rook = board[MATERIAL_ROW[turn]][rookStartCols[turn][1]];
 
-                movePiece(king, MATERIAL_ROW[turn], 6, Move.MoveNote.NONE);
-                movePiece(rook, MATERIAL_ROW[turn], 5, Move.MoveNote.NONE);
+                movePiece(king, MATERIAL_ROW[turn], 6, Move.MoveNote.NORMAL);
+                movePiece(rook, MATERIAL_ROW[turn], 5, Move.MoveNote.NORMAL);
 
                 board[MATERIAL_ROW[turn]][6] = king;
                 board[MATERIAL_ROW[turn]][5] = rook;
@@ -243,8 +250,8 @@ public class Board {
             } else {
                 rook = board[MATERIAL_ROW[turn]][rookStartCols[turn][0]];
 
-                movePiece(king, MATERIAL_ROW[turn], 2, Move.MoveNote.NONE);
-                movePiece(rook, MATERIAL_ROW[turn], 3, Move.MoveNote.NONE);
+                movePiece(king, MATERIAL_ROW[turn], 2, Move.MoveNote.NORMAL);
+                movePiece(rook, MATERIAL_ROW[turn], 3, Move.MoveNote.NORMAL);
 
                 board[MATERIAL_ROW[turn]][2] = king;
                 board[MATERIAL_ROW[turn]][3] = rook;
@@ -341,8 +348,8 @@ public class Board {
             if (note == Move.MoveNote.CASTLE_FAR) {
                 rook = board[MATERIAL_ROW[turn]][3];
 
-                undoMovePiece(king, MATERIAL_ROW[turn], kingStartCols[turn], Move.MoveNote.NONE);
-                undoMovePiece(rook, MATERIAL_ROW[turn], rookStartCols[turn][0], Move.MoveNote.NONE);
+                undoMovePiece(king, MATERIAL_ROW[turn], kingStartCols[turn], Move.MoveNote.NORMAL);
+                undoMovePiece(rook, MATERIAL_ROW[turn], rookStartCols[turn][0], Move.MoveNote.NORMAL);
 
                 board[MATERIAL_ROW[turn]][kingStartCols[turn]] = king;
                 board[MATERIAL_ROW[turn]][rookStartCols[turn][0]] = rook;
@@ -351,8 +358,8 @@ public class Board {
 
                 rook = board[MATERIAL_ROW[turn]][5];
 
-                undoMovePiece(king, MATERIAL_ROW[turn], kingStartCols[turn], Move.MoveNote.NONE);
-                undoMovePiece(rook, MATERIAL_ROW[turn], rookStartCols[turn][1], Move.MoveNote.NONE);
+                undoMovePiece(king, MATERIAL_ROW[turn], kingStartCols[turn], Move.MoveNote.NORMAL);
+                undoMovePiece(rook, MATERIAL_ROW[turn], rookStartCols[turn][1], Move.MoveNote.NORMAL);
 
                 board[MATERIAL_ROW[turn]][kingStartCols[turn]] = king;
                 board[MATERIAL_ROW[turn]][rookStartCols[turn][1]] = rook;
@@ -490,23 +497,16 @@ public class Board {
     }
 
     public long[] makeNullMove() {
-        // long nullMoveAttacks = 0;
-        // long inCheckArrayList = ALL_ONES;
-        // long bitAttackCompliment = 0;
-        //
-        // nullMoveInfo[0] = nullMoveAttacks;
-        // nullMoveInfo[1] = inCheckArrayList;
-        // nullMoveInfo[2] = bitAttackCompliment;
 
         // recalculating check info
         clearBoardStatus();
         pieces[turn].forEach(Piece::clearBlocking);
 
         final int otherSide = Side.otherSide(turn);
-        final long friendOrFoe = allPosBitBoard[0] | allPosBitBoard[1];
-        nullMoveInfo[0] = Pawn.getPawnAttacks(posBitBoard[PAWN][otherSide], otherSide);
-        nullMoveInfo[0] |= Knight.getKnightAttacks(posBitBoard[KNIGHT][otherSide]);
-        nullMoveInfo[0] |= King.getKingAttacks(posBitBoard[KING][otherSide]);
+        final long friendOrFoe = allPosBitBoard[WHITE] | allPosBitBoard[BLACK];
+        nullMoveInfo[FOE_ATTACKS] = Pawn.getPawnAttacks(posBitBoard[PAWN][otherSide], otherSide);
+        nullMoveInfo[FOE_ATTACKS] |= Knight.getKnightAttacks(posBitBoard[KNIGHT][otherSide]);
+        nullMoveInfo[FOE_ATTACKS] |= King.getKingAttacks(posBitBoard[KING][otherSide]);
 
         Queen.getQueenAttacks(posBitBoard[QUEEN][otherSide], friendOrFoe, nullMoveInfo);
         Rook.getRookAttacks(posBitBoard[ROOK][otherSide], friendOrFoe, nullMoveInfo);
@@ -515,8 +515,11 @@ public class Board {
         final long jumperAttacks = Pawn.getPawnAttacks(posBitBoard[KING][turn], turn) & posBitBoard[PAWN][otherSide] |
                 Knight.getKnightAttacks(posBitBoard[KING][turn]) & posBitBoard[KNIGHT][otherSide];
 
-        nullMoveInfo[1] = jumperAttacks == 0 ? ~posBitBoard[KING][turn] : (hasOneBitOrLess(jumperAttacks) ? jumperAttacks : 0);
-        nullMoveInfo[2] = 0;
+        nullMoveInfo[CHECK_VECTORS] = jumperAttacks == 0L ?
+                ~posBitBoard[KING][turn] :
+                (hasOneBitOrLess(jumperAttacks) ? jumperAttacks : 0L);
+
+        nullMoveInfo[CHECK_COMPLIMENT] = 0L;
 
         King.getKingCheckInfo(this,
                 posBitBoard[KING][turn],
@@ -526,7 +529,7 @@ public class Board {
                 friendOrFoe,
                 nullMoveInfo);
 
-        if ((kings[turn].asBitMask() & nullMoveInfo[0]) != 0) {
+        if ((kings[turn].asBitMask() & nullMoveInfo[FOE_ATTACKS]) != 0) {
             setBoardStatus(Game.GameStatus.CHECK);
         }
 
@@ -792,7 +795,7 @@ public class Board {
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                if (board[row][col].getPieceID() != Piece.PieceID.NONE) {
+                if (board[row][col].getPieceID() != Piece.PieceID.NO_PIECE) {
                     stringBoard += board[row][col].toString() + ",";
                 } else {
                     stringBoard += "_,";
@@ -820,7 +823,7 @@ public class Board {
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
                 p = board[r][c];
-                if (p.getPieceID() != Piece.PieceID.NONE) {
+                if (p.getPieceID() != Piece.PieceID.NO_PIECE) {
                     hashCode ^= rngTable.getPiecePerSquareRandom(p.getSide(), p.getPieceID(), r, c);
                 }
             }

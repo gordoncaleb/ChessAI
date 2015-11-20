@@ -4,7 +4,7 @@ public class Side {
 
     public static final int BLACK = 0;
     public static final int WHITE = 1;
-    public static final int NONE = 2;
+    public static final int NEITHER = 2;
     public static final int BOTH = 3;
 
     public static String toString(int side) {
@@ -13,8 +13,8 @@ public class Side {
                 return "WHITE";
             case BLACK:
                 return "BLACK";
-            case NONE:
-                return "NONE";
+            case NEITHER:
+                return "NEITHER";
             case BOTH:
                 return "BOTH";
             default:
@@ -28,12 +28,12 @@ public class Side {
                 return WHITE;
             case "BLACK":
                 return BLACK;
-            case "NONE":
-                return NONE;
+            case "NEITHER":
+                return NEITHER;
             case "BOTH":
                 return BOTH;
             default:
-                return NONE;
+                return NEITHER;
         }
     }
 

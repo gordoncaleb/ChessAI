@@ -49,7 +49,7 @@ public class BoardFactory {
         }
 
         int[] setup = new int[8];
-        Arrays.fill(setup, NONE);
+        Arrays.fill(setup, NO_PIECE);
 
         setup[r1 * 2] = BISHOP;
         setup[r2 * 2 + 1] = BISHOP;
@@ -77,7 +77,7 @@ public class BoardFactory {
     private static int ithEmptyPosition(int i, int[] setup) {
         for (int n = 0; n < setup.length; n++) {
 
-            if (setup[n] == NONE) {
+            if (setup[n] == NO_PIECE) {
                 i--;
             }
 

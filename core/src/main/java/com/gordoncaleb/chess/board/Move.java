@@ -13,7 +13,7 @@ public class Move {
     private static final int DEFAULT_COL = 0;
 
     public static class MoveNote {
-        public static final int NONE = 0x0;
+        public static final int NORMAL = 0x0;
         public static final int CASTLE_NEAR = 0x1;
         public static final int CASTLE_FAR = 0x2;
         public static final int EN_PASSANT = 0x4;
@@ -33,11 +33,11 @@ public class Move {
     }
 
     public Move(int fromRow, int fromCol, int toRow, int toCol) {
-        this(fromRow, fromCol, toRow, toCol, MoveNote.NONE, Piece.PieceID.NONE, DEFAULT_ROW, DEFAULT_COL);
+        this(fromRow, fromCol, toRow, toCol, MoveNote.NORMAL, Piece.PieceID.NO_PIECE, DEFAULT_ROW, DEFAULT_COL);
     }
 
     public Move(int fromRow, int fromCol, int toRow, int toCol, int note) {
-        this(fromRow, fromCol, toRow, toCol, note, Piece.PieceID.NONE, DEFAULT_ROW, DEFAULT_COL);
+        this(fromRow, fromCol, toRow, toCol, note, Piece.PieceID.NO_PIECE, DEFAULT_ROW, DEFAULT_COL);
     }
 
     public Move(int fromRow, int fromCol, int toRow, int toCol, int note, Piece pieceTaken) {
@@ -56,7 +56,7 @@ public class Move {
     }
 
     public void set(int fromRow, int fromCol, int toRow, int toCol, int note) {
-        set(fromRow, fromCol, toRow, toCol, note, Piece.PieceID.NONE, DEFAULT_ROW, DEFAULT_COL);
+        set(fromRow, fromCol, toRow, toCol, note, Piece.PieceID.NO_PIECE, DEFAULT_ROW, DEFAULT_COL);
     }
 
     public void set(int fromRow,
@@ -158,7 +158,7 @@ public class Move {
     }
 
     public boolean hasPieceTaken() {
-        return (this.pieceTakenId != Piece.PieceID.NONE);
+        return (this.pieceTakenId != Piece.PieceID.NO_PIECE);
     }
 
     public int getValue() {
@@ -173,7 +173,7 @@ public class Move {
     }
 
     public Move justFromTo() {
-        return new Move(fromRow, fromCol, toRow, toCol, MoveNote.NONE);
+        return new Move(fromRow, fromCol, toRow, toCol, MoveNote.NORMAL);
     }
 
     public int fromToAsInt() {
