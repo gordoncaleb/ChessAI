@@ -39,7 +39,7 @@ public class Pawn {
         final long emptySpace = ~(posBitBoard[WHITE] | posBitBoard[BLACK]);
         final long valid = nullMoveInfo[1] & p.blockingVector();
 
-        final long hops, attacks, validLeapMoves, enPassantAttack;
+        final long hops, attacks, validLeapMoves, enPassantAttack, enPassantTarget;
 
         if (side == Side.BLACK) {
             hops = (mask << 8) & emptySpace;
@@ -47,8 +47,12 @@ public class Pawn {
             validLeapMoves = ((hops & BLACK_PAWN_LEAP_ROW_MASK) << 8) & emptySpace & valid;
 
             enPassantAttack = attacks & WHITE_PAWN_LEAP_ROW_MASK & enpassantColMask;
+            enPassantTarget = getMask(4, enpassantCol);
 
-            if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[1] & getMask(4, enpassantCol)) != 0) {
+            if ((enPassantAttack & p.blockingVector()) != 0 &&
+                    (nullMoveInfo[1] & enPassantTarget) != 0 &&
+                    (enPassantTarget | mask) != nullMoveInfo[3] &&
+                    (enPassantTarget | mask) != nullMoveInfo[4]) {
                 final Piece pieceTaken = board.getPiece(4, enpassantCol);
                 validMoves.add(row, col, WHITE_PAWN_LEAP_ROW, enpassantCol,
                         EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
@@ -60,8 +64,12 @@ public class Pawn {
             validLeapMoves = ((hops & WHITE_PAWN_LEAP_ROW_MASK) >>> 8) & emptySpace & valid;
 
             enPassantAttack = attacks & BLACK_PAWN_LEAP_ROW_MASK & enpassantColMask;
+            enPassantTarget = getMask(3, enpassantCol);
 
-            if ((enPassantAttack & p.blockingVector()) != 0 && (nullMoveInfo[CHECK_VECTORS] & getMask(3, enpassantCol)) != 0) {
+            if ((enPassantAttack & p.blockingVector()) != 0 &&
+                    (nullMoveInfo[CHECK_VECTORS] & enPassantTarget) != 0 &&
+                    (enPassantTarget | mask) != nullMoveInfo[3] &&
+                    (enPassantTarget | mask) != nullMoveInfo[4]) {
                 final Piece pieceTaken = board.getPiece(3, enpassantCol);
                 validMoves.add(row, col, BLACK_PAWN_LEAP_ROW, enpassantCol,
                         EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()

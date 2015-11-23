@@ -73,6 +73,9 @@ public class King {
         final long allExceptMeAndStraightSliders = allExceptMe & ~foeStraightSliders;
         final long allExceptMeAndDiagonalSliders = allExceptMe & ~foeDiagonalSliders;
 
+        nullMoveInfo[3] = 0;
+        nullMoveInfo[4] = 0;
+
         final long northSlide = northSlideNoEdge(northFill(king), foeStraightSliders);
         if (northSlide != 0) {
             final long northSlideBlockers = northSlide & allExceptMeAndStraightSliders;
@@ -96,9 +99,10 @@ public class King {
         }
 
         final long westSlide = westSlideNoEdge(westFill(king), foeStraightSliders);
-        nullMoveInfo[3] = westSlide;
+
         if (westSlide != 0) {
             final long westSlideBlockers = westSlide & allExceptMeAndStraightSliders;
+            nullMoveInfo[3] = westSlideBlockers;
             if (westSlideBlockers == 0) {
                 nullMoveInfo[1] &= westSlide;
                 nullMoveInfo[2] |= king << 1;
@@ -108,9 +112,9 @@ public class King {
         }
 
         final long eastSlide = eastSlideNoEdge(eastFill(king), foeStraightSliders);
-        nullMoveInfo[4] = eastSlide;
         if (eastSlide != 0) {
             final long eastSlideBlockers = eastSlide & allExceptMeAndStraightSliders;
+            nullMoveInfo[4] = eastSlideBlockers;
             if (eastSlideBlockers == 0) {
                 nullMoveInfo[1] &= eastSlide;
                 nullMoveInfo[2] |= king >>> 1;

@@ -53,7 +53,6 @@ public class PerftTest {
     }
 
     @Test
-    @Ignore
     public void perft3() {
         Board b = perft.position3();
         logger.info("\n" + b.toString());

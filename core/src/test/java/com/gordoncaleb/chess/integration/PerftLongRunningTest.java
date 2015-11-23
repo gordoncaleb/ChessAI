@@ -49,7 +49,6 @@ public class PerftLongRunningTest {
     }
 
     @Test
-    @Ignore
     public void perft3() {
         Board b = perft.position3();
         logger.info("\n" + b.toString());
@@ -61,7 +60,7 @@ public class PerftLongRunningTest {
                 {43238, 3348, 123, 0, 0, 1680},//  17},
                 {674624, 52051, 1165, 0, 0, 52950},//  0},
                 {11030083, 940350, 33325, 0, 7552, 452473},// 2733},
-                {178633661, 14519036, 294874, 0, 140024, 12797406, 87}
+                {178633661, 14519036, 294874, 0, 140024, 12797406}//, 87}
         };
 
         PerftTest.perftBoard(b, sol);
