@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
-import com.gordoncaleb.chess.engine.AI;
+import com.gordoncaleb.chess.engine.legacy.AI;
 import com.gordoncaleb.chess.ui.gui.game.Game;
 import com.gordoncaleb.chess.board.pieces.*;
 import org.slf4j.Logger;
@@ -446,10 +446,6 @@ public class Board {
 
     public MoveContainer generateValidMoves(MoveContainer validMoves) {
         return generateValidMoves(null, AI.noKillerMoves, validMoves);
-    }
-
-    public MoveContainer generateValidMoves(Move hashMove, Move[] killerMoves) {
-        return generateValidMoves(hashMove, killerMoves, this.validMoves);
     }
 
     public MoveContainer generateValidMoves(Move hashMove, Move[] killerMoves, MoveContainer validMoves) {

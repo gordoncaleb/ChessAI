@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.engine;
+package com.gordoncaleb.chess.engine.legacy;
 
 import java.util.Arrays;
 import java.util.Collections;

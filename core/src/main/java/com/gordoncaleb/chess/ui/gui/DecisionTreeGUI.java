@@ -15,8 +15,8 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
-import com.gordoncaleb.chess.engine.AI;
-import com.gordoncaleb.chess.engine.DecisionNode;
+import com.gordoncaleb.chess.engine.legacy.AI;
+import com.gordoncaleb.chess.engine.legacy.DecisionNode;
 import com.gordoncaleb.chess.ui.gui.game.Player;
 import com.gordoncaleb.chess.engine.score.StaticScore;
 import org.slf4j.Logger;

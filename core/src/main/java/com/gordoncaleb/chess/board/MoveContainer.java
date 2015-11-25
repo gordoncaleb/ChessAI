@@ -1,6 +1,7 @@
 package com.gordoncaleb.chess.board;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MoveContainer {
@@ -25,7 +26,7 @@ public class MoveContainer {
     }
 
     public boolean isEmpty() {
-        return head < 0;
+        return head == EMPTY;
     }
 
     public int size() {
@@ -96,5 +97,9 @@ public class MoveContainer {
         Move[] a = new Move[size()];
         System.arraycopy(moves, 0, a, 0, size());
         return a;
+    }
+
+    public void sort() {
+        Arrays.sort(moves, 0, head + 1);
     }
 }

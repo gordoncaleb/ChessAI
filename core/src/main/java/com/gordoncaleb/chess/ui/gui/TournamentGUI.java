@@ -8,7 +8,7 @@ import java.util.Hashtable;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 
-import com.gordoncaleb.chess.engine.AI;
+import com.gordoncaleb.chess.engine.legacy.AI;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.ui.gui.game.Game;

@@ -1,47 +1,64 @@
 package com.gordoncaleb.chess.engine;
 
-
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.MoveContainer;
+import com.gordoncaleb.chess.board.MoveContainerFactory;
+import com.gordoncaleb.chess.engine.legacy.AISettings;
 import com.gordoncaleb.chess.engine.score.Values;
 import com.gordoncaleb.chess.engine.score.StaticScore;
 import com.gordoncaleb.chess.ui.gui.game.Game;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
+import static com.gordoncaleb.chess.engine.BoardHashEntry.ValueBounds.*;
+
 public class Engine {
+
+    public static final int MAX_DEPTH = 20;
+    private static final int START_ALPHA = -Values.CHECKMATE_MOVE + 1;
+    private static final int START_BETA = -START_ALPHA;
+    private static final int MAX_KILLER_MOVES = 100;
 
     private final MoveBook moveBook;
     private final StaticScore scorer;
 
-    private Move[][] killerMoves = new Move[100][AISettings.maxKillerMoves];
-    private int[] killerMoveSize = new int[100];
-    private BoardHashEntry[] hashTable = new BoardHashEntry[AISettings.hashTableSize];
+    private final Move[][] killerMoves = new Move[MAX_DEPTH][MAX_KILLER_MOVES];
+    private final int[] killerMoveSize = new int[MAX_DEPTH];
 
-    private final int START_ALPHA = -Values.CHECKMATE_MOVE + 1;
-    private final int START_BETA = -START_ALPHA;
+    private final MoveContainer[] moveContainers;
+
+    private BoardHashEntry[] hashTable;
 
     public Engine(MoveBook moveBook, StaticScore scorer) {
         this.moveBook = moveBook;
         this.scorer = scorer;
+        this.hashTable = initHashTable();
+        this.moveContainers = MoveContainerFactory.buildMoveContainers(MAX_DEPTH);
     }
 
-    public Long process(final Board board, final int depth) {
+    public Move search(final Board board, final int depth) {
 
         Optional<Move> moveBookRec = moveBook.getRecommendations(board.getHashCode())
-                .map(moveList -> moveList.get(0));
+                .flatMap(moveList -> moveList.stream().findFirst());
 
-        clearKillerMoves();
-
-        growDecisionTreeLite(board, START_ALPHA, START_BETA, depth, depth, null, 0);
-
-        return 1L;
+        return moveBookRec.orElseGet(() -> {
+            clearKillerMoves();
+            searchTree(board, START_ALPHA, START_BETA, depth, depth, null, 0);
+            return moveContainers[0].get(0);
+        });
     }
 
-    private int growDecisionTreeLite(Board board, int alpha, int beta, int level, int maxDepth, Move moveMade, int bonusLevel) {
+    private boolean hashOutIsPrune(BoardHashEntry hashOut, int level, int beta) {
+
+        final boolean sufficientLevel = hashOut.getLevel() >= level;
+        final boolean isPV = hashOut.getBounds() == PV;
+        final boolean isCutAndBeatsBeta = hashOut.getBounds() == CUT && hashOut.getScore() >= beta;
+
+        return (sufficientLevel && (isPV || isCutAndBeatsBeta));
+    }
+
+    private int searchTree(Board board, int alpha, int beta, int level, int maxDepth, Move moveMade, int bonusLevel) {
         int suggestedPathValue;
         int bestPathValue = Integer.MIN_VALUE;
 
@@ -49,55 +66,14 @@ public class Engine {
         int b = beta;
         Move bestMove = null;
 
-        int hashIndex = (int) (board.getHashCode() & AISettings.hashIndexMask);
-        BoardHashEntry hashOut;
-        Move hashMove = null;
-        hashOut = hashTable[hashIndex];
-
-
-        if (hashOut != null) {
-            if (hashOut.getHashCode() == board.getHashCode()) {
-
-                if (hashOut.getLevel() >= level) {
-
-                    if (hashOut.getBounds() == BoardHashEntry.ValueBounds.PV) {
-                        return hashOut.getScore();
-                    } else {
-
-                        if (hashOut.getBounds() == BoardHashEntry.ValueBounds.CUT) {
-                            if (hashOut.getScore() >= beta) {
-                                return hashOut.getScore();
-                            } else {
-                                hashMove = hashOut.getBestMove();
-                            }
-                        } else {
-                            hashMove = hashOut.getBestMove();
-                        }
-                    }
-                } else {
-                    hashMove = hashOut.getBestMove();
-                }
-
-            }
-        }
-
         board.makeNullMove();
-
-
-        if ((board.getBoardStatus() == Game.GameStatus.CHECK) && (level > -AISettings.maxInCheckFrontierLevel)) {
-            bonusLevel = Math.min(bonusLevel, level - 2);
-        }
-
-        if ((moveMade.hasPieceTaken()) && (level > -AISettings.maxPieceTakenFrontierLevel)) {
-            bonusLevel = Math.min(bonusLevel, level - 1);
-        }
 
         if (level > bonusLevel) {
 
             if (board.insufficientMaterial() || board.drawByThreeRule()) {
                 board.setBoardStatus(Game.GameStatus.DRAW);
             } else {
-                List<Move> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves).toList());
+                MoveContainer moves = board.generateValidMoves(moveContainers[maxDepth - level]);
 
                 if (moves.size() == 0) {
                     if (board.isInCheck()) {
@@ -107,16 +83,18 @@ public class Engine {
                     }
                 } else {
 
-                    Collections.sort(moves, Collections.reverseOrder());
+                    moves.sort();
 
                     Game.GameStatus tempBoardState;
-                    for (Move move : moves) {
+                    for (int m = 0; m < moves.size(); m++) {
+
+                        final Move move = moves.get(m);
 
                         tempBoardState = board.getBoardStatus();
 
                         board.makeMove(move);
 
-                        suggestedPathValue = -growDecisionTreeLite(board, -beta, -alpha, level - 1, maxDepth, move, bonusLevel);
+                        suggestedPathValue = -searchTree(board, -beta, -alpha, level - 1, maxDepth, move, bonusLevel);
 
                         board.undoMove();
 
@@ -151,26 +129,11 @@ public class Engine {
             }
         }
 
-        if (getNodeType(bestPathValue, a, b) != BoardHashEntry.ValueBounds.ALL && level >= 0 && AISettings.useKillerMove) {
-            addKillerMove(level, bestMove);
-        }
-
-        if (AISettings.useHashTable && level >= 0) {
-            final int moveNum = board.getMoveHistory().size();
-            if (hashOut == null) {
-                hashTable[hashIndex] = new BoardHashEntry(board.getHashCode(), level, bestPathValue, moveNum, getNodeType(bestPathValue, a, b), bestMove);
-            } else {
-                if (hashTableUpdate(hashOut, level, moveNum)) {
-                    hashOut.setAll(board.getHashCode(), level, bestPathValue, moveNum, getNodeType(bestPathValue, a, b), bestMove);// ,board.toString());
-                }
-            }
-
-        }
 
         return bestPathValue;
     }
 
-    private BoardHashEntry.ValueBounds getNodeType(int s, int a, int b) {
+    private int getNodeType(int s, int a, int b) {
         if (s >= b) {
             return BoardHashEntry.ValueBounds.CUT;
         }
@@ -212,5 +175,12 @@ public class Engine {
         }
     }
 
+    private BoardHashEntry[] initHashTable() {
+        BoardHashEntry[] hashTable = new BoardHashEntry[AISettings.hashTableSize];
+        for (int i = 0; i < hashTable.length; i++) {
+            hashTable[i] = new BoardHashEntry();
+        }
+        return hashTable;
+    }
 
 }

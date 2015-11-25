@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
-import com.gordoncaleb.chess.engine.DecisionNode;
+import com.gordoncaleb.chess.engine.legacy.DecisionNode;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Side;

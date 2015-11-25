@@ -1,10 +1,7 @@
 package com.gordoncaleb.chess.util;
 
 
-import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.BoardFactory;
-import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.MoveContainer;
+import com.gordoncaleb.chess.board.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +48,7 @@ public class Perft {
 
     public long[][] perftBoardFunctional(Board b, int stopDepth) {
         long[][] metrics = new long[stopDepth + 1][6];
-        perftBoardRecursiveFunctional(b, 0, stopDepth, metrics, getMoveContainers(stopDepth + 1));
+        perftBoardRecursiveFunctional(b, 0, stopDepth, metrics, MoveContainerFactory.buildMoveContainers(stopDepth + 1));
         return metrics;
     }
 
@@ -71,9 +68,9 @@ public class Perft {
         }
     }
 
-    private void perftBoardRecursiveFunctional(Board b, int depth, int stopDepth, long[][] metrics, List<MoveContainer> moveContainers) {
+    private void perftBoardRecursiveFunctional(Board b, int depth, int stopDepth, long[][] metrics, MoveContainer[] moveContainers) {
         b.makeNullMove();
-        MoveContainer moves = moveContainers.get(depth);
+        MoveContainer moves = moveContainers[depth];
         b.generateValidMoves(moves);
         List<Move> moveList = moves.toList();
 
@@ -116,12 +113,5 @@ public class Perft {
         }
     }
 
-    private List<MoveContainer> getMoveContainers(int size) {
-        List<MoveContainer> containers = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            containers.add(new MoveContainer());
-        }
-        return containers;
-    }
 }
 

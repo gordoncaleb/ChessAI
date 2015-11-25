@@ -1,9 +1,11 @@
-package com.gordoncaleb.chess.engine;
+package com.gordoncaleb.chess.engine.legacy;
 
 import java.util.ArrayList;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.engine.BoardHashEntry;
+import com.gordoncaleb.chess.engine.MoveBook;
 import com.gordoncaleb.chess.engine.score.Values;
 import com.gordoncaleb.chess.ui.gui.game.Game;
 import com.gordoncaleb.chess.ui.gui.game.Player;

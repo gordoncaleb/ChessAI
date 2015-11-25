@@ -20,7 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 import com.gordoncaleb.chess.board.serdes.JSONParser;
-import com.gordoncaleb.chess.engine.AI;
+import com.gordoncaleb.chess.engine.legacy.AI;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.ui.gui.game.Game;

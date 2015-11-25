@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import com.gordoncaleb.chess.engine.AI;
+import com.gordoncaleb.chess.engine.legacy.AI;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.engine.score.StaticScore;

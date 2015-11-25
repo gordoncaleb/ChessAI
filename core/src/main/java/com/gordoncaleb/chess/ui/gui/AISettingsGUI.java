@@ -14,8 +14,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import com.gordoncaleb.chess.engine.AI;
-import com.gordoncaleb.chess.engine.AISettings;
+import com.gordoncaleb.chess.engine.legacy.AI;
+import com.gordoncaleb.chess.engine.legacy.AISettings;
 import com.gordoncaleb.chess.engine.BoardHashEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.engine;
+package com.gordoncaleb.chess.engine.legacy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.engine.BoardHashEntry;
 import com.gordoncaleb.chess.engine.score.Values;
 import com.gordoncaleb.chess.engine.score.StaticScore;
 import com.gordoncaleb.chess.ui.gui.game.Game;
@@ -198,13 +199,7 @@ public class AIProcessor extends Thread {
 
     public void attachValidMoves(DecisionNode branch, Move hashMove, int level) {
 
-        List<Move> moves;
-
-        if (level >= 0) {
-            moves = board.generateValidMoves(hashMove, killerMoves[level]).toList();
-        } else {
-            moves = board.generateValidMoves(hashMove, AI.noKillerMoves).toList();
-        }
+        List<Move> moves = board.generateValidMoves().toList();
 
         Collections.sort(moves, Collections.reverseOrder());
 
@@ -497,7 +492,7 @@ public class AIProcessor extends Thread {
 
     }
 
-    private BoardHashEntry.ValueBounds getNodeType(int s, int a, int b) {
+    private int getNodeType(int s, int a, int b) {
         if (s >= b) {
             return BoardHashEntry.ValueBounds.CUT;
         }
@@ -595,7 +590,7 @@ public class AIProcessor extends Thread {
             if (board.insufficientMaterial() || board.drawByThreeRule()) {
                 board.setBoardStatus(Game.GameStatus.DRAW);
             } else {
-                ArrayList<Move> moves = new ArrayList<>(board.generateValidMoves(hashMove, AI.noKillerMoves).toList());
+                ArrayList<Move> moves = new ArrayList<>(board.generateValidMoves().toList());
 
                 if (moves.size() == 0) {
                     if (board.isInCheck()) {

@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.engine;
+package com.gordoncaleb.chess.engine.legacy;
 
 public class AISettings {
 

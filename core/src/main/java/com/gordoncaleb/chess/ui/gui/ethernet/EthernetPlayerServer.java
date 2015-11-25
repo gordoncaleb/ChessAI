@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 import com.gordoncaleb.chess.board.serdes.JSONParser;
-import com.gordoncaleb.chess.engine.AI;
+import com.gordoncaleb.chess.engine.legacy.AI;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.ui.gui.game.GameResults;
 import com.gordoncaleb.chess.board.Move;
