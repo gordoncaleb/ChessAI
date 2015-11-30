@@ -8,6 +8,8 @@ import com.gordoncaleb.chess.board.pieces.Piece;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.gordoncaleb.chess.board.bitboard.Slide.northFill;
+import static com.gordoncaleb.chess.board.bitboard.Slide.southFill;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class StaticScore {
@@ -95,8 +97,8 @@ public class StaticScore {
 
     public int pawnStructureScore(final int side, final int phase, final Board b) {
 
-        final long pawns = b.getPosBitBoard()[Piece.PieceID.PAWN][side];
-        final long otherPawns = b.getPosBitBoard()[Piece.PieceID.PAWN][Side.otherSide(side)];
+        final long pawns = b.getPosBitBoard()[PAWN][side];
+        final long otherPawns = b.getPosBitBoard()[PAWN][Side.otherSide(side)];
 
         long files = 0x0101010101010101L;
 
@@ -118,29 +120,37 @@ public class StaticScore {
         final long passedBB = BitBoard.getPassedPawns(pawns, otherPawns, side);
 
         int passedPawns = 0;
-
         for (int i = 0; i < 8; i++) {
             passedPawns += Long.bitCount(passedBB & BitBoard.getRowMask(i)) * Values.PASSED_PAWN_BONUS[side][i];
         }
 
-        final int isolatedPawns = Long.bitCount(BitBoard.getIsolatedPawns(pawns, side)) * Values.ISOLATED_PAWN_BONUS;
+        final int isolatedPawns = Long.bitCount(getIsolatedPawns(pawns, side));
 
-        return BitBoard.getBackedPawns(pawns) * Values.BACKED_PAWN_BONUS + doubledPawns * Values.DOUBLED_PAWN_BONUS + ((passedPawns * phase) / 256) + isolatedPawns;
+        final int backedPawns = Long.bitCount(Pawn.getPawnAttacks(pawns, side) & pawns);
+
+        return backedPawns * Values.BACKED_PAWN_BONUS +
+                doubledPawns * Values.DOUBLED_PAWN_BONUS +
+                isolatedPawns * Values.ISOLATED_PAWN_BONUS +
+                ((passedPawns * phase) / 256);
+    }
+
+    public long getIsolatedPawns(long pawns, int side) {
+        long pawnAttacks = Pawn.getPawnAttacks(pawns, side);
+        return ~(southFill(pawnAttacks) | northFill(pawnAttacks)) & pawns;
     }
 
     public int calcGamePhase(final Board b) {
 
-        int phase = Values.TOTALPHASE;
+        long[][] bbs = b.getPosBitBoard();
 
-        for (int i = 0; i < 2; i++) {
-            for (Piece p : b.getPieces()[i]) {
-                phase -= Values.PIECE_PHASE_VAL[p.getPieceID()];
-            }
-        }
+        final int phase = Values.TOTALPHASE -
+                (Long.bitCount(bbs[PAWN][Side.WHITE] | bbs[PAWN][Side.BLACK]) * Values.PIECE_PHASE_VAL[PAWN]) -
+                (Long.bitCount(bbs[KNIGHT][Side.WHITE] | bbs[KNIGHT][Side.BLACK]) * Values.PIECE_PHASE_VAL[KNIGHT]) -
+                (Long.bitCount(bbs[BISHOP][Side.WHITE] | bbs[BISHOP][Side.BLACK]) * Values.PIECE_PHASE_VAL[BISHOP]) -
+                (Long.bitCount(bbs[ROOK][Side.WHITE] | bbs[ROOK][Side.BLACK]) * Values.PIECE_PHASE_VAL[ROOK]) -
+                (Long.bitCount(bbs[QUEEN][Side.WHITE] | bbs[QUEEN][Side.BLACK]) * Values.PIECE_PHASE_VAL[QUEEN]);
 
-        phase = (phase * 256 + (Values.TOTALPHASE / 2)) / Values.TOTALPHASE;
-
-        return phase;
+        return (phase * 256 + (Values.TOTALPHASE / 2)) / Values.TOTALPHASE;
     }
 
     public int staticScore(final Board b) {

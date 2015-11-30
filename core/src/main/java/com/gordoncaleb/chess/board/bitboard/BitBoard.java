@@ -21,16 +21,6 @@ public class BitBoard {
     public static Logger logger = LoggerFactory.getLogger(BitBoard.class);
 
     public static final long ALL_ONES = -1;
-    public static final long WHITE_CASTLE_NEAR = 0x6000000000000000L;
-    public static final long WHITE_CASTLE_FAR = 0xe00000000000000L;
-    public static final long BLACK_CASTLE_NEAR = 0x60L;
-    public static final long BLACK_CASTLE_FAR = 0xeL;
-    public static final long WHITE_CHECK_NEAR = 0x2000000000000000L;
-    public static final long WHITE_CHECK_FAR = 0x800000000000000L;
-    public static final long BLACK_CHECK_NEAR = 0x20L;
-    public static final long BLACK_CHECK_FAR = 0x8L;
-
-    public static final long NOT_LEFT1_RIGHT1 = 0x7E7E7E7E7E7E7E7EL;
 
     public static final long NOT_LEFT1 = 0xFEFEFEFEFEFEFEFEL;
     public static final long NOT_LEFT2 = 0xFCFCFCFCFCFCFCFCL;
@@ -38,6 +28,15 @@ public class BitBoard {
     public static final long NOT_RIGHT1 = 0x7F7F7F7F7F7F7F7FL;
     public static final long NOT_RIGHT2 = 0x3F3F3F3F3F3F3F3FL;
     public static final long NOT_RIGHT4 = 0x0F0F0F0F0F0F0F0FL;
+
+    public static final long COL1 = 0x0101010101010101L;
+    public static final long COL2 = COL1 << 1;
+    public static final long COL3 = COL1 << 2;
+    public static final long COL4 = COL1 << 3;
+    public static final long COL5 = COL1 << 4;
+    public static final long COL6 = COL1 << 5;
+    public static final long COL7 = COL1 << 6;
+    public static final long COL8 = COL1 << 7;
 
     public static final long TOP_BIT = 0x8000000000000000L;
     public static final long BOT_BIT = 0x1L;
@@ -58,29 +57,7 @@ public class BitBoard {
         }
     }
 
-    public static long getIsolatedPawns(long pawns, int side) {
-        long pawnAttacks = Pawn.getPawnAttacks(pawns, side);
-        return ~(southFill(pawnAttacks) | northFill(pawnAttacks)) & pawns;
-    }
 
-    public static long getCastleMask(int col1, int col2, int side) {
-        int lowCol;
-        int highCol;
-
-        if (col1 >= col2) {
-            lowCol = col2;
-            highCol = col1;
-        } else {
-            lowCol = col1;
-            highCol = col2;
-        }
-
-        if (side == Side.BLACK) {
-            return ((0xFFL >> (7 - highCol + lowCol)) << (lowCol));
-        } else {
-            return ((0xFFL >> (7 - highCol + lowCol)) << (lowCol + 56));
-        }
-    }
 
     public static long[][] buildKingToCastleMasks(long[] kings, long[][] rooks) {
         long[][] kingsToCastleMasks = new long[2][2];
@@ -149,28 +126,6 @@ public class BitBoard {
         return (0xFFL << (row * 8));
     }
 
-    public static long getNegSlope(int row, int col) {
-        int s = row - col;
-        if (s >= 0) {
-            return ((0x8040201008040201L) << (s << 3));
-        } else {
-            return ((0x8040201008040201L) >>> (-s << 3));
-        }
-    }
-
-    public static long getPosSlope(int row, int col) {
-        int s = col + row - 7;
-        if (s >= 0) {
-            return ((0x0102040810204080L) << (s << 3));
-        } else {
-            return ((0x0102040810204080L) >>> (-s << 3));
-        }
-    }
-
-    public static int getBackedPawns(long pawns) {
-        return Long.bitCount(((pawns & NOT_RIGHT1) << 7) & pawns) + Long.bitCount(((pawns & NOT_LEFT1) << 9));
-    }
-
     public static void loadKingFootPrints() {
 
         int[][] KINGMOVES = {{1, 1, -1, -1, 1, -1, 0, 0}, {1, -1, 1, -1, 0, 0, 1, -1}};
@@ -193,22 +148,6 @@ public class BitBoard {
 
             }
         }
-    }
-
-    public static long getKingFootPrintMem(int row, int col) {
-        return kingFootPrint[(row << 3) + col];
-    }
-
-    public static long getKingFootPrint(int row, int col) {
-
-        int shift = ((row - 1) * 8 + col - 1);
-
-        if (shift >= 0) {
-            return (0x70507L << shift) & (~getColMask(col ^ 7) | NOT_LEFT1_RIGHT1);
-        } else {
-            return (0x70507L >> -shift) & (~getColMask(col ^ 7) | NOT_LEFT1_RIGHT1);
-        }
-
     }
 
     public static void loadKnightFootPrints() {
