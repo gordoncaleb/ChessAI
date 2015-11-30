@@ -1,8 +1,7 @@
-/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/bin/java -Didea.launcher.port=7532 "-Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15.app/Contents/bin" -Dfile.encoding=UTF-8 -classpath "/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/ant-javafx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/dt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/javafx-mx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/jconsole.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/packager.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/sa-jdi.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/tools.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/deploy.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/javaws.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jfxswt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/management-agent.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/plugin.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/cldrdata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/dnsns.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/jaccess.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/jfxrt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/localedata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/nashorn.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/sunec.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/sunjce_provider.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/sunpkcs11.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/zipfs.jar:/Users/caleb.walker/gordoncaleb/ChessAI/benchmark/target/classes:/Users/caleb.walker/gordoncaleb/ChessAI/core/target/classes:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-core/0.9.1/dropwizard-core-0.9.1.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-util/0.9.1/dropwizard-util-0.9.1.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.6.0/jackson-annotations-2.6.0.jar:/Users/caleb.walker/.m2/repository/com/google/code/findbugs/jsr305/3.0.1/jsr305-3.0.1.jar:/Users/caleb.walker/.m2/repository/joda-time/joda-time/2.9/joda-time-2.9.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-jackson/0.9.1/dropwizard-jackson-0.9.1.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk7/2.6.3/jackson-datatype-jdk7-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-guava/2.6.3/jackson-datatype-guava-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/module/jackson-module-afterburner/2.6.3/jackson-module-afterburner-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-joda/2.6.3/jackson-datatype-joda-2.6.3.jar:/Users/caleb.walker/.m2/repository/ch/qos/logback/logback-classic/1.1.3/logback-classic-1.1.3.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-validation/0.9.1/dropwizard-validation-0.9.1.jar:/Users/caleb.walker/.m2/repository/org/hibernate/hibernate-validator/5.2.2.Final/hibernate-validator-5.2.2.Final.jar:/Users/caleb.walker/.m2/repository/org/jboss/logging/jboss-logging/3.2.1.Final/jboss-logging-3.2.1.Final.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/classmate/1.1.0/classmate-1.1.0.jar:/Users/caleb.walker/.m2/repository/org/glassfish/javax.el/3.0.0/javax.el-3.0.0.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-configuration/0.9.1/dropwizard-configuration-0.9.1.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.6.3/jackson-dataformat-yaml-2.6.3.jar:/Users/caleb.walker/.m2/repository/org/yaml/snakeyaml/1.15/snakeyaml-1.15.jar:/Users/caleb.walker/.m2/repository/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-logging/0.9.1/dropwizard-logging-0.9.1.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/metrics/metrics-logback/3.1.2/metrics-logback-3.1.2.jar:/Users/caleb.walker/.m2/repository/org/slf4j/jul-to-slf4j/1.7.12/jul-to-slf4j-1.7.12.jar:/Users/caleb.walker/.m2/repository/ch/qos/logback/logback-core/1.1.3/logback-core-1.1.3.jar:/Users/caleb.walker/.m2/repository/org/slf4j/log4j-over-slf4j/1.7.12/log4j-over-slf4j-1.7.12.jar:/Users/caleb.walker/.m2/repository/org/slf4j/jcl-over-slf4j/1.7.12/jcl-over-slf4j-1.7.12.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-util/9.2.13.v20150730/jetty-util-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-metrics/0.9.1/dropwizard-metrics-0.9.1.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-jersey/0.9.1/dropwizard-jersey-0.9.1.jar:/Users/caleb.walker/.m2/repository/org/glassfish/jersey/ext/jersey-metainf-services/2.22.1/jersey-metainf-services-2.22.1.jar:/Users/caleb.walker/.m2/repository/org/glassfish/jersey/ext/jersey-bean-validation/2.22.1/jersey-bean-validation-2.22.1.jar:/Users/caleb.walker/.m2/repository/org/glassfish/hk2/external/javax.inject/2.4.0-b31/javax.inject-2.4.0-b31.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/metrics/metrics-jersey2/3.1.2/metrics-jersey2-3.1.2.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/jaxrs/jackson-jaxrs-json-provider/2.6.3/jackson-jaxrs-json-provider-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/jaxrs/jackson-jaxrs-base/2.6.3/jackson-jaxrs-base-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.6.3/jackson-module-jaxb-annotations-2.6.3.jar:/Users/caleb.walker/.m2/repository/org/glassfish/jersey/containers/jersey-container-servlet/2.22.1/jersey-container-servlet-2.22.1.jar:/Users/caleb.walker/.m2/repository/org/glassfish/jersey/containers/jersey-container-servlet-core/2.22.1/jersey-container-servlet-core-2.22.1.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-server/9.2.13.v20150730/jetty-server-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-io/9.2.13.v20150730/jetty-io-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-webapp/9.2.13.v20150730/jetty-webapp-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-xml/9.2.13.v20150730/jetty-xml-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-continuation/9.2.13.v20150730/jetty-continuation-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-servlets/0.9.1/dropwizard-servlets-0.9.1.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/metrics/metrics-annotation/3.1.2/metrics-annotation-3.1.2.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-jetty/0.9.1/dropwizard-jetty-0.9.1.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/metrics/metrics-jetty9/3.1.2/metrics-jetty9-3.1.2.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-servlet/9.2.13.v20150730/jetty-servlet-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-security/9.2.13.v20150730/jetty-security-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-servlets/9.2.13.v20150730/jetty-servlets-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/jetty-http/9.2.13.v20150730/jetty-http-9.2.13.v20150730.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/dropwizard-lifecycle/0.9.1/dropwizard-lifecycle-0.9.1.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/metrics/metrics-core/3.1.2/metrics-core-3.1.2.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/metrics/metrics-jvm/3.1.2/metrics-jvm-3.1.2.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/metrics/metrics-servlets/3.1.2/metrics-servlets-3.1.2.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/metrics/metrics-json/3.1.2/metrics-json-3.1.2.jar:/Users/caleb.walker/.m2/repository/io/dropwizard/metrics/metrics-healthchecks/3.1.2/metrics-healthchecks-3.1.2.jar:/Users/caleb.walker/.m2/repository/net/sourceforge/argparse4j/argparse4j/0.6.0/argparse4j-0.6.0.jar:/Users/caleb.walker/.m2/repository/org/eclipse/jetty/toolchain/setuid/jetty-setuid-java/1.0.3/jetty-setuid-java-1.0.3.jar:/Users/caleb.walker/.m2/repository/com/hubspot/dropwizard/dropwizard-guice/0.8.3.0/dropwizard-guice-0.8.3.0.jar:/Users/caleb.walker/.m2/repository/com/google/code/findbugs/annotations/3.0.0/annotations-3.0.0.jar:/Users/caleb.walker/.m2/repository/com/google/inject/guice/4.0/guice-4.0.jar:/Users/caleb.walker/.m2/repository/com/google/inject/extensions/guice-servlet/4.0/guice-servlet-4.0.jar:/Users/caleb.walker/.m2/repository/org/glassfish/jersey/core/jersey-server/2.19/jersey-server-2.19.jar:/Users/caleb.walker/.m2/repository/org/glassfish/jersey/core/jersey-common/2.19/jersey-common-2.19.jar:/Users/caleb.walker/.m2/repository/org/glassfish/jersey/bundles/repackaged/jersey-guava/2.19/jersey-guava-2.19.jar:/Users/caleb.walker/.m2/repository/org/glassfish/hk2/osgi-resource-locator/1.0.1/osgi-resource-locator-1.0.1.jar:/Users/caleb.walker/.m2/repository/org/glassfish/jersey/core/jersey-client/2.19/jersey-client-2.19.jar:/Users/caleb.walker/.m2/repository/org/glassfish/jersey/media/jersey-media-jaxb/2.19/jersey-media-jaxb-2.19.jar:/Users/caleb.walker/.m2/repository/javax/annotation/javax.annotation-api/1.2/javax.annotation-api-1.2.jar:/Users/caleb.walker/.m2/repository/org/glassfish/hk2/hk2-locator/2.4.0-b25/hk2-locator-2.4.0-b25.jar:/Users/caleb.walker/.m2/repository/javax/validation/validation-api/1.1.0.Final/validation-api-1.1.0.Final.jar:/Users/caleb.walker/.m2/repository/com/squarespace/jersey2-guice/jersey2-guice/0.10/jersey2-guice-0.10.jar:/Users/caleb.walker/.m2/repository/com/google/inject/extensions/guice-multibindings/4.0/guice-multibindings-4.0.jar:/Users/caleb.walker/.m2/repository/org/reflections/reflections/0.9.9/reflections-0.9.9.jar:/Users/caleb.walker/.m2/repository/org/javassist/javassist/3.18.2-GA/javassist-3.18.2-GA.jar:/Users/caleb.walker/.m2/repository/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar:/Users/caleb.walker/.m2/repository/javax/inject/javax.inject/1/javax.inject-1.jar:/Users/caleb.walker/.m2/repository/org/slf4j/slf4j-api/1.7.12/slf4j-api-1.7.12.jar:/Users/caleb.walker/.m2/repository/org/glassfish/hk2/hk2-api/2.4.0-b25/hk2-api-2.4.0-b25.jar:/Users/caleb.walker/.m2/repository/org/glassfish/hk2/hk2-utils/2.4.0-b25/hk2-utils-2.4.0-b25.jar:/Users/caleb.walker/.m2/repository/org/glassfish/hk2/external/aopalliance-repackaged/2.4.0-b25/aopalliance-repackaged-2.4.0-b25.jar:/Users/caleb.walker/.m2/repository/javax/ws/rs/javax.ws.rs-api/2.0.1/javax.ws.rs-api-2.0.1.jar:/Users/caleb.walker/.m2/repository/com/google/guava/guava/18.0/guava-18.0.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.6.3/jackson-datatype-jdk8-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.6.3/jackson-core-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.6.3/jackson-databind-2.6.3.jar:/Users/caleb.walker/.m2/repository/org/hamcrest/hamcrest-all/1.3/hamcrest-all-1.3.jar:/Users/caleb.walker/.m2/repository/org/jsoup/jsoup/1.8.3/jsoup-1.8.3.jar:/Users/caleb.walker/.m2/repository/junit/junit/4.11/junit-4.11.jar:/Users/caleb.walker/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/caleb.walker/.m2/repository/org/openjdk/jmh/jmh-core/1.11.1/jmh-core-1.11.1.jar:/Users/caleb.walker/.m2/repository/net/sf/jopt-simple/jopt-simple/4.6/jopt-simple-4.6.jar:/Users/caleb.walker/.m2/repository/org/apache/commons/commons-math3/3.2/commons-math3-3.2.jar:/Applications/IntelliJ IDEA 15.app/Contents/lib/idea_rt.jar" com.intellij.rt.execution.application.AppMain com.gordoncaleb.PerftBenchmark
 # JMH 1.11.1 (released 66 days ago)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7532 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: <none>
 # Warmup: 5 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -13,41 +12,41 @@
 
 # Run progress: 0.00% complete, ETA 00:01:10
 # Fork: 1 of 1
-# Warmup Iteration   1: n = 121, mean = 8307839 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6561792, 7553024, 10400563, 11144397, 38939525, 45809664, 45809664, 45809664 ns/op
-# Warmup Iteration   2: n = 134, mean = 7525086 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6504448, 6905856, 9371648, 9728000, 10664346, 10813440, 10813440, 10813440 ns/op
-# Warmup Iteration   3: n = 138, mean = 7289574 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6529024, 6795264, 8901427, 9628058, 10296361, 10321920, 10321920, 10321920 ns/op
-# Warmup Iteration   4: n = 137, mean = 7358389 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6529024, 6782976, 9178317, 9584640, 10643374, 10649600, 10649600, 10649600 ns/op
-# Warmup Iteration   5: n = 132, mean = 7607948 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6529024, 7016448, 9350349, 9853338, 10174464, 10174464, 10174464, 10174464 ns/op
-Iteration   1: n = 130, mean = 7698968 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6529024, 7364608, 9481421, 9901670, 10414653, 10485760, 10485760, 10485760 ns/op
-Iteration   2: n = 132, mean = 7616636 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6545408, 7286784, 9351987, 9989325, 11054612, 11141120, 11141120, 11141120 ns/op
-Iteration   3: n = 132, mean = 7611671 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6545408, 7290880, 9432269, 9941811, 10688758, 10780672, 10780672, 10780672 ns/op
-Iteration   4: n = 134, mean = 7487121 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6529024, 7069696, 9003008, 9482240, 10479206, 10502144, 10502144, 10502144 ns/op
-Iteration   5: n = 131, mean = 7678280 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6520832, 7315456, 9250406, 10082714, 10438574, 10485760, 10485760, 10485760 ns/op
+# Warmup Iteration   1: n = 136, mean = 7420205 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6455296, 6610944, 8642560, 10725786, 35108946, 48300032, 48300032, 48300032 ns/op
+# Warmup Iteration   2: n = 131, mean = 7674778 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6414336, 7028736, 9463398, 11190272, 16703816, 17956864, 17956864, 17956864 ns/op
+# Warmup Iteration   3: n = 143, mean = 7039391 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6488064, 6668288, 7967539, 9109504, 10959585, 11190272, 11190272, 11190272 ns/op
+# Warmup Iteration   4: n = 151, mean = 6679355 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6488064, 6561792, 6802637, 7330202, 9002680, 9224192, 9224192, 9224192 ns/op
+# Warmup Iteration   5: n = 129, mean = 7756744 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6496256, 7356416, 9568256, 10141696, 10511974, 10600448, 10600448, 10600448 ns/op
+Iteration   1: n = 134, mean = 7495741 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6512640, 7208960, 8921088, 9551872, 10500506, 10878976, 10878976, 10878976 ns/op
+Iteration   2: n = 135, mean = 7445861 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6488064, 7290880, 8588493, 9545318, 9985720, 10027008, 10027008, 10027008 ns/op
+Iteration   3: n = 132, mean = 7634075 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6529024, 7176192, 9427354, 10033562, 11185029, 11206656, 11206656, 11206656 ns/op
+Iteration   4: n = 130, mean = 7734823 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6537216, 7376896, 9651814, 10351411, 10731028, 10797056, 10797056, 10797056 ns/op
+Iteration   5: n = 130, mean = 7743583 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6537216, 7393280, 9238938, 9965568, 12110725, 12222464, 12222464, 12222464 ns/op
 
 
 Result "testPerft":
-  7617801.712 ±(99.9%) 133452.822 ns/op [Average]
-  (min, avg, max) = (6520832.000, 7617801.712, 11141120.000), stdev = 1036453.567
-  CI (99.9%): [7484348.889, 7751254.534] (assumes normal distribution)
-  Samples, N = 659
-        mean = 7617801.712 ±(99.9%) 133452.822 ns/op
-         min = 6520832.000 ns/op
-  p( 0.0000) = 6520832.000 ns/op
-  p(50.0000) = 7249920.000 ns/op
-  p(90.0000) = 9338880.000 ns/op
-  p(95.0000) = 9879552.000 ns/op
-  p(99.0000) = 10492313.600 ns/op
-  p(99.9000) = 11141120.000 ns/op
-  p(99.9900) = 11141120.000 ns/op
-  p(99.9990) = 11141120.000 ns/op
-  p(99.9999) = 11141120.000 ns/op
-         max = 11141120.000 ns/op
+  7608942.766 ±(99.9%) 129400.746 ns/op [Average]
+  (min, avg, max) = (6488064.000, 7608942.766, 12222464.000), stdev = 1006520.968
+  CI (99.9%): [7479542.019, 7738343.512] (assumes normal distribution)
+  Samples, N = 661
+        mean = 7608942.766 ±(99.9%) 129400.746 ns/op
+         min = 6488064.000 ns/op
+  p( 0.0000) = 6488064.000 ns/op
+  p(50.0000) = 7290880.000 ns/op
+  p(90.0000) = 9152102.400 ns/op
+  p(95.0000) = 9730457.600 ns/op
+  p(99.0000) = 10685317.120 ns/op
+  p(99.9000) = 12222464.000 ns/op
+  p(99.9900) = 12222464.000 ns/op
+  p(99.9990) = 12222464.000 ns/op
+  p(99.9999) = 12222464.000 ns/op
+         max = 12222464.000 ns/op
 
 
 # JMH 1.11.1 (released 66 days ago)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7532 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: <none>
 # Warmup: 5 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -56,43 +55,43 @@ Result "testPerft":
 # Benchmark: com.gordoncaleb.PerftBenchmark.testPerft
 # Parameters: (perftNum = 1)
 
-# Run progress: 14.29% complete, ETA 00:01:10
+# Run progress: 14.29% complete, ETA 00:01:02
 # Fork: 1 of 1
-# Warmup Iteration   1: n = 9, mean = 113508352 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 97779712, 103809024, 188743680, 188743680, 188743680, 188743680, 188743680, 188743680 ns/op
-# Warmup Iteration   2: n = 10, mean = 106627072 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 100794368, 104529920, 114412749, 114425856, 114425856, 114425856, 114425856, 114425856 ns/op
-# Warmup Iteration   3: n = 10, mean = 101187584 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 96468992, 100859904, 108134400, 108265472, 108265472, 108265472, 108265472, 108265472 ns/op
-# Warmup Iteration   4: n = 10, mean = 102472090 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 91226112, 103743488, 108186829, 108265472, 108265472, 108265472, 108265472, 108265472 ns/op
-# Warmup Iteration   5: n = 10, mean = 101174477 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 91226112, 100663296, 111214592, 111411200, 111411200, 111411200, 111411200, 111411200 ns/op
-Iteration   1: n = 10, mean = 103101235 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 96993280, 103350272, 109091226, 109182976, 109182976, 109182976, 109182976, 109182976 ns/op
-Iteration   2: n = 10, mean = 101095834 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 96337920, 99221504, 112485990, 113246208, 113246208, 113246208, 113246208, 113246208 ns/op
-Iteration   3: n = 10, mean = 102039552 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 95420416, 101842944, 110244659, 110624768, 110624768, 110624768, 110624768, 110624768 ns/op
-Iteration   4: n = 10, mean = 103232307 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 93978624, 102629376, 109772800, 109969408, 109969408, 109969408, 109969408, 109969408 ns/op
-Iteration   5: n = 10, mean = 105355674 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 100532224, 104988672, 111660237, 111673344, 111673344, 111673344, 111673344, 111673344 ns/op
+# Warmup Iteration   1: n = 10, mean = 105657139 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 89915392, 96206848, 176409805, 184025088, 184025088, 184025088, 184025088, 184025088 ns/op
+# Warmup Iteration   2: n = 11, mean = 101592716 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 90570752, 101318656, 115841434, 117178368, 117178368, 117178368, 117178368, 117178368 ns/op
+# Warmup Iteration   3: n = 10, mean = 107767398 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 93061120, 103940096, 149487616, 153354240, 153354240, 153354240, 153354240, 153354240 ns/op
+# Warmup Iteration   4: n = 11, mean = 94085865 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 91357184, 93323264, 97438925, 97517568, 97517568, 97517568, 97517568, 97517568 ns/op
+# Warmup Iteration   5: n = 11, mean = 93335180 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 91357184, 92405760, 97334067, 97648640, 97648640, 97648640, 97648640, 97648640 ns/op
+Iteration   1: n = 11, mean = 93263686 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 91095040, 92143616, 98041856, 98566144, 98566144, 98566144, 98566144, 98566144 ns/op
+Iteration   2: n = 11, mean = 92596410 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 91488256, 92667904, 93847552, 93978624, 93978624, 93978624, 93978624, 93978624 ns/op
+Iteration   3: n = 11, mean = 93227939 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 91226112, 92143616, 99326362, 99745792, 99745792, 99745792, 99745792, 99745792 ns/op
+Iteration   4: n = 11, mean = 94145443 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 91488256, 92930048, 98015642, 98172928, 98172928, 98172928, 98172928, 98172928 ns/op
+Iteration   5: n = 11, mean = 93323264 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 91488256, 92274688, 96993280, 97255424, 97255424, 97255424, 97255424, 97255424 ns/op
 
 
 Result "testPerft":
-  102964920.320 ±(99.9%) 2262642.157 ns/op [Average]
-  (min, avg, max) = (93978624.000, 102964920.320, 113246208.000), stdev = 4570649.092
-  CI (99.9%): [100702278.163, 105227562.477] (assumes normal distribution)
-  Samples, N = 50
-        mean = 102964920.320 ±(99.9%) 2262642.157 ns/op
-         min = 93978624.000 ns/op
-  p( 0.0000) = 93978624.000 ns/op
-  p(50.0000) = 101974016.000 ns/op
-  p(90.0000) = 109890764.800 ns/op
-  p(95.0000) = 111601254.400 ns/op
-  p(99.0000) = 113246208.000 ns/op
-  p(99.9000) = 113246208.000 ns/op
-  p(99.9900) = 113246208.000 ns/op
-  p(99.9990) = 113246208.000 ns/op
-  p(99.9999) = 113246208.000 ns/op
-         max = 113246208.000 ns/op
+  93311348.364 ±(99.9%) 1028852.268 ns/op [Average]
+  (min, avg, max) = (91095040.000, 93311348.364, 99745792.000), stdev = 2192568.231
+  CI (99.9%): [92282496.095, 94340200.632] (assumes normal distribution)
+  Samples, N = 55
+        mean = 93311348.364 ±(99.9%) 1028852.268 ns/op
+         min = 91095040.000 ns/op
+  p( 0.0000) = 91095040.000 ns/op
+  p(50.0000) = 92536832.000 ns/op
+  p(90.0000) = 97307852.800 ns/op
+  p(95.0000) = 98251571.200 ns/op
+  p(99.0000) = 99745792.000 ns/op
+  p(99.9000) = 99745792.000 ns/op
+  p(99.9900) = 99745792.000 ns/op
+  p(99.9990) = 99745792.000 ns/op
+  p(99.9999) = 99745792.000 ns/op
+         max = 99745792.000 ns/op
 
 
 # JMH 1.11.1 (released 66 days ago)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7532 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: <none>
 # Warmup: 5 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -101,43 +100,43 @@ Result "testPerft":
 # Benchmark: com.gordoncaleb.PerftBenchmark.testPerft
 # Parameters: (perftNum = 2)
 
-# Run progress: 28.57% complete, ETA 00:00:56
+# Run progress: 28.57% complete, ETA 00:00:57
 # Fork: 1 of 1
-# Warmup Iteration   1: n = 681, mean = 1471243 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1138688, 1241088, 1911603, 2457190, 4008509, 32210944, 32210944, 32210944 ns/op
-# Warmup Iteration   2: n = 743, mean = 1348857 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1138688, 1236992, 1701069, 1984102, 2509537, 3923968, 3923968, 3923968 ns/op
-# Warmup Iteration   3: n = 750, mean = 1336978 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1138688, 1232896, 1689600, 1850982, 2484183, 2551808, 2551808, 2551808 ns/op
-# Warmup Iteration   4: n = 749, mean = 1339706 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1138688, 1241088, 1665024, 1802240, 2486272, 2613248, 2613248, 2613248 ns/op
-# Warmup Iteration   5: n = 754, mean = 1329228 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1138688, 1220608, 1677312, 1872896, 2486272, 3747840, 3747840, 3747840 ns/op
-Iteration   1: n = 755, mean = 1329781 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1140736, 1224704, 1689600, 1899315, 2466120, 4513792, 4513792, 4513792 ns/op
-Iteration   2: n = 770, mean = 1300209 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1138688, 1206272, 1619354, 1787597, 2277499, 2568192, 2568192, 2568192 ns/op
-Iteration   3: n = 778, mean = 1288382 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1136640, 1197056, 1555046, 1743258, 2408653, 2768896, 2768896, 2768896 ns/op
-Iteration   4: n = 772, mean = 1297209 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1138688, 1206272, 1607066, 1759949, 2291180, 2490368, 2490368, 2490368 ns/op
-Iteration   5: n = 759, mean = 1323464 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1136640, 1220608, 1640448, 1902592, 2486272, 4009984, 4009984, 4009984 ns/op
+# Warmup Iteration   1: n = 748, mean = 1340947 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1142784, 1161216, 1501184, 2214912, 3494584, 29163520, 29163520, 29163520 ns/op
+# Warmup Iteration   2: n = 825, mean = 1215402 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1146880, 1155072, 1281638, 1463091, 2164326, 4022272, 4022272, 4022272 ns/op
+# Warmup Iteration   3: n = 847, mean = 1180775 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1150976, 1155072, 1218560, 1256653, 1802813, 2117632, 2117632, 2117632 ns/op
+# Warmup Iteration   4: n = 832, mean = 1204906 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1150976, 1155072, 1243136, 1467904, 2059653, 2519040, 2519040, 2519040 ns/op
+# Warmup Iteration   5: n = 833, mean = 1203563 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1150976, 1155072, 1241088, 1376870, 2007245, 2961408, 2961408, 2961408 ns/op
+Iteration   1: n = 841, mean = 1192774 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1150976, 1155072, 1228800, 1259520, 1843651, 2519040, 2519040, 2519040 ns/op
+Iteration   2: n = 841, mean = 1193098 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1142784, 1155072, 1236582, 1327104, 1872691, 2514944, 2514944, 2514944 ns/op
+Iteration   3: n = 849, mean = 1181776 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1144832, 1148928, 1218560, 1255424, 1850368, 2502656, 2502656, 2502656 ns/op
+Iteration   4: n = 848, mean = 1183179 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1144832, 1148928, 1218765, 1276314, 1835254, 2498560, 2498560, 2498560 ns/op
+Iteration   5: n = 845, mean = 1188155 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1144832, 1148928, 1231667, 1311539, 1836278, 2498560, 2498560, 2498560 ns/op
 
 
 Result "testPerft":
-  1307631.975 ±(99.9%) 13607.496 ns/op [Average]
-  (min, avg, max) = (1136640.000, 1307631.975, 4513792.000), stdev = 255860.780
-  CI (99.9%): [1294024.479, 1321239.471] (assumes normal distribution)
-  Samples, N = 3834
-        mean = 1307631.975 ±(99.9%) 13607.496 ns/op
-         min = 1136640.000 ns/op
-  p( 0.0000) = 1136640.000 ns/op
-  p(50.0000) = 1210368.000 ns/op
-  p(90.0000) = 1615872.000 ns/op
-  p(95.0000) = 1812992.000 ns/op
-  p(99.0000) = 2423398.400 ns/op
-  p(99.9000) = 2804039.680 ns/op
-  p(99.9900) = 4513792.000 ns/op
-  p(99.9990) = 4513792.000 ns/op
-  p(99.9999) = 4513792.000 ns/op
-         max = 4513792.000 ns/op
+  1187777.455 ±(99.9%) 5960.801 ns/op [Average]
+  (min, avg, max) = (1142784.000, 1187777.455, 2519040.000), stdev = 117651.366
+  CI (99.9%): [1181816.654, 1193738.255] (assumes normal distribution)
+  Samples, N = 4224
+        mean = 1187777.455 ±(99.9%) 5960.801 ns/op
+         min = 1142784.000 ns/op
+  p( 0.0000) = 1142784.000 ns/op
+  p(50.0000) = 1153024.000 ns/op
+  p(90.0000) = 1224704.000 ns/op
+  p(95.0000) = 1279488.000 ns/op
+  p(99.0000) = 1836032.000 ns/op
+  p(99.9000) = 2501734.400 ns/op
+  p(99.9900) = 2519040.000 ns/op
+  p(99.9990) = 2519040.000 ns/op
+  p(99.9999) = 2519040.000 ns/op
+         max = 2519040.000 ns/op
 
 
 # JMH 1.11.1 (released 66 days ago)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7532 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: <none>
 # Warmup: 5 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -148,41 +147,41 @@ Result "testPerft":
 
 # Run progress: 42.86% complete, ETA 00:00:44
 # Fork: 1 of 1
-# Warmup Iteration   1: n = 112, mean = 8921527 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7069696, 8040448, 10883891, 11481088, 45091553, 49545216, 49545216, 49545216 ns/op
-# Warmup Iteration   2: n = 127, mean = 7901926 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7028736, 7323648, 9578086, 10692198, 11454382, 11550720, 11550720, 11550720 ns/op
-# Warmup Iteration   3: n = 126, mean = 7951701 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7012352, 7491584, 9605939, 10199040, 11782062, 11976704, 11976704, 11976704 ns/op
-# Warmup Iteration   4: n = 131, mean = 7664773 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7020544, 7323648, 9027584, 9476506, 10654843, 10780672, 10780672, 10780672 ns/op
-# Warmup Iteration   5: n = 128, mean = 7845504 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7020544, 7495680, 9597747, 10043392, 10967286, 11010048, 11010048, 11010048 ns/op
-Iteration   1: n = 128, mean = 7884160 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7020544, 7462912, 9668198, 10325197, 11308237, 11403264, 11403264, 11403264 ns/op
-Iteration   2: n = 127, mean = 7905861 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7020544, 7364608, 9909043, 10469376, 11151606, 11206656, 11206656, 11206656 ns/op
-Iteration   3: n = 130, mean = 7747237 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7028736, 7368704, 9116058, 9617408, 10721362, 10731520, 10731520, 10731520 ns/op
-Iteration   4: n = 126, mean = 7966265 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7012352, 7434240, 9479782, 10386637, 11102618, 11124736, 11124736, 11124736 ns/op
-Iteration   5: n = 127, mean = 7898701 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 7020544, 7380992, 9509274, 10459546, 11366564, 11403264, 11403264, 11403264 ns/op
+# Warmup Iteration   1: n = 123, mean = 8218441 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6938624, 7176192, 9879552, 10915021, 47864873, 57278464, 57278464, 57278464 ns/op
+# Warmup Iteration   2: n = 139, mean = 7236188 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6946816, 7077888, 7405568, 8503296, 10161357, 10403840, 10403840, 10403840 ns/op
+# Warmup Iteration   3: n = 139, mean = 7225815 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6971392, 7069696, 7503872, 8552448, 9758310, 9994240, 9994240, 9994240 ns/op
+# Warmup Iteration   4: n = 139, mean = 7192930 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6987776, 7069696, 7372800, 7872512, 9886106, 9912320, 9912320, 9912320 ns/op
+# Warmup Iteration   5: n = 127, mean = 7925212 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6987776, 7102464, 10308813, 11226317, 17588552, 17661952, 17661952, 17661952 ns/op
+Iteration   1: n = 141, mean = 7172357 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6995968, 7077888, 7256474, 7757005, 10266214, 11436032, 11436032, 11436032 ns/op
+Iteration   2: n = 138, mean = 7256509 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6987776, 7073792, 7621018, 8461517, 10168074, 10174464, 10174464, 10174464 ns/op
+Iteration   3: n = 140, mean = 7189007 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6995968, 7061504, 7337574, 7797965, 10036511, 10452992, 10452992, 10452992 ns/op
+Iteration   4: n = 141, mean = 7148943 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6987776, 7077888, 7279411, 7651328, 9704899, 10551296, 10551296, 10551296 ns/op
+Iteration   5: n = 141, mean = 7158762 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 6987776, 7077888, 7425229, 7724237, 8769864, 9158656, 9158656, 9158656 ns/op
 
 
 Result "testPerft":
-  7879689.630 ±(99.9%) 132715.942 ns/op [Average]
-  (min, avg, max) = (7012352.000, 7879689.630, 11403264.000), stdev = 1014023.999
-  CI (99.9%): [7746973.688, 8012405.572] (assumes normal distribution)
-  Samples, N = 638
-        mean = 7879689.630 ±(99.9%) 132715.942 ns/op
-         min = 7012352.000 ns/op
-  p( 0.0000) = 7012352.000 ns/op
-  p(50.0000) = 7389184.000 ns/op
-  p(90.0000) = 9469952.000 ns/op
-  p(95.0000) = 10289152.000 ns/op
-  p(99.0000) = 11062804.480 ns/op
-  p(99.9000) = 11403264.000 ns/op
-  p(99.9900) = 11403264.000 ns/op
-  p(99.9990) = 11403264.000 ns/op
-  p(99.9999) = 11403264.000 ns/op
-         max = 11403264.000 ns/op
+  7184804.702 ±(99.9%) 53190.428 ns/op [Average]
+  (min, avg, max) = (6987776.000, 7184804.702, 11436032.000), stdev = 426176.396
+  CI (99.9%): [7131614.273, 7237995.130] (assumes normal distribution)
+  Samples, N = 701
+        mean = 7184804.702 ±(99.9%) 53190.428 ns/op
+         min = 6987776.000 ns/op
+  p( 0.0000) = 6987776.000 ns/op
+  p(50.0000) = 7077888.000 ns/op
+  p(90.0000) = 7392460.800 ns/op
+  p(95.0000) = 7764377.600 ns/op
+  p(99.0000) = 9629859.840 ns/op
+  p(99.9000) = 11436032.000 ns/op
+  p(99.9900) = 11436032.000 ns/op
+  p(99.9990) = 11436032.000 ns/op
+  p(99.9999) = 11436032.000 ns/op
+         max = 11436032.000 ns/op
 
 
 # JMH 1.11.1 (released 66 days ago)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7532 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: <none>
 # Warmup: 5 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -191,43 +190,43 @@ Result "testPerft":
 # Benchmark: com.gordoncaleb.PerftBenchmark.testPerft
 # Parameters: (perftNum = 4)
 
-# Run progress: 57.14% complete, ETA 00:00:33
+# Run progress: 57.14% complete, ETA 00:00:32
 # Fork: 1 of 1
-# Warmup Iteration   1: n = 20, mean = 50800230 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 41222144, 47775744, 62862131, 106420634, 108658688, 108658688, 108658688, 108658688 ns/op
-# Warmup Iteration   2: n = 23, mean = 44376420 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 40828928, 45088768, 47277670, 49794253, 50397184, 50397184, 50397184, 50397184 ns/op
-# Warmup Iteration   3: n = 23, mean = 43946162 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 40763392, 44105728, 47133491, 49283072, 49741824, 49741824, 49741824, 49741824 ns/op
-# Warmup Iteration   4: n = 23, mean = 44724046 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 41025536, 44302336, 49899110, 50370970, 50397184, 50397184, 50397184, 50397184 ns/op
-# Warmup Iteration   5: n = 22, mean = 47701271 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 41091072, 47644672, 53490483, 55728538, 56033280, 56033280, 56033280, 56033280 ns/op
-Iteration   1: n = 22, mean = 46539497 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 41615360, 46825472, 49505894, 51160678, 51445760, 51445760, 51445760, 51445760 ns/op
-Iteration   2: n = 22, mean = 45583267 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 41156608, 46170112, 49381376, 49925325, 50003968, 50003968, 50003968, 50003968 ns/op
-Iteration   3: n = 22, mean = 46339910 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 40960000, 45940736, 51537510, 53860762, 54263808, 54263808, 54263808, 54263808 ns/op
-Iteration   4: n = 21, mean = 48924184 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 42074112, 48562176, 52861338, 54480077, 54657024, 54657024, 54657024, 54657024 ns/op
-Iteration   5: n = 23, mean = 45462038 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 40632320, 45744128, 50462720, 51589939, 51773440, 51773440, 51773440, 51773440 ns/op
+# Warmup Iteration   1: n = 22, mean = 45925841 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39911424, 41320448, 58635059, 98605466, 104857600, 104857600, 104857600, 104857600 ns/op
+# Warmup Iteration   2: n = 25, mean = 41245737 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39714816, 40370176, 44380979, 44544819, 44564480, 44564480, 44564480, 44564480 ns/op
+# Warmup Iteration   3: n = 25, mean = 40689992 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39583744, 40239104, 43293082, 44466176, 44564480, 44564480, 44564480, 44564480 ns/op
+# Warmup Iteration   4: n = 25, mean = 40792228 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39649280, 40304640, 44184371, 45003571, 45219840, 45219840, 45219840, 45219840 ns/op
+# Warmup Iteration   5: n = 25, mean = 40378040 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39583744, 39780352, 42572186, 45226394, 45285376, 45285376, 45285376, 45285376 ns/op
+Iteration   1: n = 25, mean = 40532705 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39583744, 39845888, 43162010, 44243354, 44302336, 44302336, 44302336, 44302336 ns/op
+Iteration   2: n = 25, mean = 40336097 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39583744, 39976960, 41484288, 44020531, 45023232, 45023232, 45023232, 45023232 ns/op
+Iteration   3: n = 25, mean = 40257454 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39583744, 39976960, 41130394, 43181670, 43909120, 43909120, 43909120, 43909120 ns/op
+Iteration   4: n = 25, mean = 40288911 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39583744, 39911424, 41274573, 43581440, 44367872, 44367872, 44367872, 44367872 ns/op
+Iteration   5: n = 25, mean = 40202404 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 39583744, 40108032, 41182822, 41772646, 42008576, 42008576, 42008576, 42008576 ns/op
 
 
 Result "testPerft":
-  46538305.164 ±(99.9%) 1101347.218 ns/op [Average]
-  (min, avg, max) = (40632320.000, 46538305.164, 54657024.000), stdev = 3415410.844
-  CI (99.9%): [45436957.946, 47639652.382] (assumes normal distribution)
-  Samples, N = 110
-        mean = 46538305.164 ±(99.9%) 1101347.218 ns/op
-         min = 40632320.000 ns/op
-  p( 0.0000) = 40632320.000 ns/op
-  p(50.0000) = 46694400.000 ns/op
-  p(90.0000) = 51347456.000 ns/op
-  p(95.0000) = 52156825.600 ns/op
-  p(99.0000) = 54613770.240 ns/op
-  p(99.9000) = 54657024.000 ns/op
-  p(99.9900) = 54657024.000 ns/op
-  p(99.9990) = 54657024.000 ns/op
-  p(99.9999) = 54657024.000 ns/op
-         max = 54657024.000 ns/op
+  40323514.368 ±(99.9%) 305823.457 ns/op [Average]
+  (min, avg, max) = (39583744.000, 40323514.368, 45023232.000), stdev = 1014385.671
+  CI (99.9%): [40017690.911, 40629337.825] (assumes normal distribution)
+  Samples, N = 125
+        mean = 40323514.368 ±(99.9%) 305823.457 ns/op
+         min = 39583744.000 ns/op
+  p( 0.0000) = 39583744.000 ns/op
+  p(50.0000) = 39911424.000 ns/op
+  p(90.0000) = 41379430.400 ns/op
+  p(95.0000) = 42454220.800 ns/op
+  p(99.0000) = 44852838.400 ns/op
+  p(99.9000) = 45023232.000 ns/op
+  p(99.9900) = 45023232.000 ns/op
+  p(99.9990) = 45023232.000 ns/op
+  p(99.9999) = 45023232.000 ns/op
+         max = 45023232.000 ns/op
 
 
 # JMH 1.11.1 (released 66 days ago)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7532 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: <none>
 # Warmup: 5 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -236,43 +235,43 @@ Result "testPerft":
 # Benchmark: com.gordoncaleb.PerftBenchmark.testPerft
 # Parameters: (perftNum = 5)
 
-# Run progress: 71.43% complete, ETA 00:00:22
+# Run progress: 71.43% complete, ETA 00:00:21
 # Fork: 1 of 1
-# Warmup Iteration   1: n = 12, mean = 88255147 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 76677120, 80740352, 135790592, 153878528, 153878528, 153878528, 153878528, 153878528 ns/op
-# Warmup Iteration   2: n = 13, mean = 82585442 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 77201408, 82313216, 86219162, 87162880, 87162880, 87162880, 87162880, 87162880 ns/op
-# Warmup Iteration   3: n = 12, mean = 87763627 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 79953920, 87359488, 94581555, 94896128, 94896128, 94896128, 94896128, 94896128 ns/op
-# Warmup Iteration   4: n = 12, mean = 84464981 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 77987840, 82771968, 92785869, 93847552, 93847552, 93847552, 93847552, 93847552 ns/op
-# Warmup Iteration   5: n = 12, mean = 83765931 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 76546048, 83755008, 89050317, 89128960, 89128960, 89128960, 89128960, 89128960 ns/op
-Iteration   1: n = 12, mean = 85524480 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 76546048, 86048768, 89613926, 89653248, 89653248, 89653248, 89653248, 89653248 ns/op
-Iteration   2: n = 12, mean = 84093611 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 76677120, 84606976, 91907686, 92143616, 92143616, 92143616, 92143616, 92143616 ns/op
-Iteration   3: n = 12, mean = 85699243 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 79822848, 85786624, 90754253, 90832896, 90832896, 90832896, 90832896, 90832896 ns/op
-Iteration   4: n = 12, mean = 83427328 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 77725696, 83492864, 88932352, 89915392, 89915392, 89915392, 89915392, 89915392 ns/op
-Iteration   5: n = 12, mean = 85764779 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 81133568, 84672512, 91344077, 91619328, 91619328, 91619328, 91619328, 91619328 ns/op
+# Warmup Iteration   1: n = 12, mean = 85164032 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74186752, 78381056, 133916262, 152043520, 152043520, 152043520, 152043520, 152043520 ns/op
+# Warmup Iteration   2: n = 14, mean = 76789467 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74448896, 76808192, 79953920, 80084992, 80084992, 80084992, 80084992, 80084992 ns/op
+# Warmup Iteration   3: n = 14, mean = 77089061 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74186752, 76939264, 80805888, 81133568, 81133568, 81133568, 81133568, 81133568 ns/op
+# Warmup Iteration   4: n = 14, mean = 75581733 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74186752, 74973184, 79167488, 79560704, 79560704, 79560704, 79560704, 79560704 ns/op
+# Warmup Iteration   5: n = 14, mean = 75787703 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74055680, 75038720, 79757312, 81788928, 81788928, 81788928, 81788928, 81788928 ns/op
+Iteration   1: n = 14, mean = 76283904 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74055680, 75497472, 80150528, 80347136, 80347136, 80347136, 80347136, 80347136 ns/op
+Iteration   2: n = 14, mean = 75525559 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74317824, 74711040, 79757312, 79822848, 79822848, 79822848, 79822848, 79822848 ns/op
+Iteration   3: n = 14, mean = 75815790 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74186752, 75104256, 79167488, 79822848, 79822848, 79822848, 79822848, 79822848 ns/op
+Iteration   4: n = 14, mean = 75712805 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74186752, 75104256, 79364096, 79822848, 79822848, 79822848, 79822848, 79822848 ns/op
+Iteration   5: n = 14, mean = 75357038 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 74317824, 75038720, 77856768, 78774272, 78774272, 78774272, 78774272, 78774272 ns/op
 
 
 Result "testPerft":
-  84901888.000 ±(99.9%) 1886643.440 ns/op [Average]
-  (min, avg, max) = (76546048.000, 84901888.000, 92143616.000), stdev = 4219748.718
-  CI (99.9%): [83015244.560, 86788531.440] (assumes normal distribution)
-  Samples, N = 60
-        mean = 84901888.000 ±(99.9%) 1886643.440 ns/op
-         min = 76546048.000 ns/op
-  p( 0.0000) = 76546048.000 ns/op
-  p(50.0000) = 85393408.000 ns/op
-  p(90.0000) = 90505216.000 ns/op
-  p(95.0000) = 91330969.600 ns/op
-  p(99.0000) = 92143616.000 ns/op
-  p(99.9000) = 92143616.000 ns/op
-  p(99.9900) = 92143616.000 ns/op
-  p(99.9990) = 92143616.000 ns/op
-  p(99.9999) = 92143616.000 ns/op
-         max = 92143616.000 ns/op
+  75739018.971 ±(99.9%) 723231.271 ns/op [Average]
+  (min, avg, max) = (74055680.000, 75739018.971, 80347136.000), stdev = 1760444.998
+  CI (99.9%): [75015787.701, 76462250.242] (assumes normal distribution)
+  Samples, N = 70
+        mean = 75739018.971 ±(99.9%) 723231.271 ns/op
+         min = 74055680.000 ns/op
+  p( 0.0000) = 74055680.000 ns/op
+  p(50.0000) = 75104256.000 ns/op
+  p(90.0000) = 78905344.000 ns/op
+  p(95.0000) = 79822848.000 ns/op
+  p(99.0000) = 80347136.000 ns/op
+  p(99.9000) = 80347136.000 ns/op
+  p(99.9900) = 80347136.000 ns/op
+  p(99.9990) = 80347136.000 ns/op
+  p(99.9999) = 80347136.000 ns/op
+         max = 80347136.000 ns/op
 
 
 # JMH 1.11.1 (released 66 days ago)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7532 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: <none>
 # Warmup: 5 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -281,48 +280,46 @@ Result "testPerft":
 # Benchmark: com.gordoncaleb.PerftBenchmark.testPerft
 # Parameters: (perftNum = 6)
 
-# Run progress: 85.71% complete, ETA 00:00:11
+# Run progress: 85.71% complete, ETA 00:00:10
 # Fork: 1 of 1
-# Warmup Iteration   1: n = 572, mean = 1749185 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1366016, 1502208, 2151219, 2659738, 4773888, 33259520, 33259520, 33259520 ns/op
-# Warmup Iteration   2: n = 667, mean = 1505154 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1366016, 1425408, 1739571, 1905050, 2548859, 4718592, 4718592, 4718592 ns/op
-# Warmup Iteration   3: n = 654, mean = 1534729 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1366016, 1447936, 1820672, 2033664, 2696192, 2985984, 2985984, 2985984 ns/op
-# Warmup Iteration   4: n = 655, mean = 1532745 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1366016, 1447936, 1808384, 2029568, 2755133, 3858432, 3858432, 3858432 ns/op
-# Warmup Iteration   5: n = 654, mean = 1534898 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1366016, 1443840, 1821696, 2027520, 2631885, 2977792, 2977792, 2977792 ns/op
-Iteration   1: n = 648, mean = 1543481 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1366016, 1453056, 1839718, 2040934, 2877727, 2985984, 2985984, 2985984 ns/op
-Iteration   2: n = 639, mean = 1567589 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1366016, 1454080, 1918976, 2105344, 2902426, 4554752, 4554752, 4554752 ns/op
-Iteration   3: n = 654, mean = 1531406 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1366016, 1439744, 1812480, 2020864, 2852864, 3428352, 3428352, 3428352 ns/op
-Iteration   4: n = 643, mean = 1562939 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1363968, 1449984, 1921024, 2109440, 2952397, 3084288, 3084288, 3084288 ns/op
-Iteration   5: n = 642, mean = 1562311 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1366016, 1454080, 1915699, 2170061, 2733179, 2998272, 2998272, 2998272 ns/op
+# Warmup Iteration   1: n = 630, mean = 1591075 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1363968, 1370112, 1754522, 2426675, 3744317, 31490048, 31490048, 31490048 ns/op
+# Warmup Iteration   2: n = 705, mean = 1422526 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1361920, 1370112, 1449984, 1566720, 2496840, 3907584, 3907584, 3907584 ns/op
+# Warmup Iteration   3: n = 714, mean = 1407707 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1361920, 1368064, 1457152, 1550848, 2040320, 3006464, 3006464, 3006464 ns/op
+# Warmup Iteration   4: n = 714, mean = 1404538 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1361920, 1366016, 1439744, 1506304, 2062029, 2584576, 2584576, 2584576 ns/op
+# Warmup Iteration   5: n = 714, mean = 1407441 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1361920, 1368064, 1443840, 1509376, 2078413, 2977792, 2977792, 2977792 ns/op
+Iteration   1: n = 717, mean = 1400946 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1361920, 1366016, 1438106, 1472922, 2083963, 2732032, 2732032, 2732032 ns/op
+Iteration   2: n = 703, mean = 1424569 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1361920, 1368064, 1504461, 1686323, 2087649, 2928640, 2928640, 2928640 ns/op
+Iteration   3: n = 707, mean = 1421280 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1361920, 1366016, 1467187, 1668710, 2198569, 2977792, 2977792, 2977792 ns/op
+Iteration   4: n = 703, mean = 1422815 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1363968, 1368064, 1467597, 1695744, 2289336, 2973696, 2973696, 2973696 ns/op
+Iteration   5: n = 704, mean = 1426351 ns/op, p{0.00, 0.50, 0.90, 0.95, 0.99, 0.999, 0.9999, 1.00} = 1361920, 1368064, 1469440, 1744384, 2157978, 2883584, 2883584, 2883584 ns/op
 
 
 Result "testPerft":
-  1553434.029 ±(99.9%) 16120.116 ns/op [Average]
-  (min, avg, max) = (1363968.000, 1553434.029, 4554752.000), stdev = 277994.743
-  CI (99.9%): [1537313.912, 1569554.145] (assumes normal distribution)
-  Samples, N = 3226
-        mean = 1553434.029 ±(99.9%) 16120.116 ns/op
-         min = 1363968.000 ns/op
-  p( 0.0000) = 1363968.000 ns/op
-  p(50.0000) = 1449984.000 ns/op
-  p(90.0000) = 1878630.400 ns/op
-  p(95.0000) = 2086195.200 ns/op
-  p(99.0000) = 2849710.080 ns/op
-  p(99.9000) = 3166609.408 ns/op
-  p(99.9900) = 4554752.000 ns/op
-  p(99.9990) = 4554752.000 ns/op
-  p(99.9999) = 4554752.000 ns/op
-         max = 4554752.000 ns/op
+  1419124.337 ±(99.9%) 8769.478 ns/op [Average]
+  (min, avg, max) = (1361920.000, 1419124.337, 2977792.000), stdev = 158298.930
+  CI (99.9%): [1410354.860, 1427893.815] (assumes normal distribution)
+  Samples, N = 3534
+        mean = 1419124.337 ±(99.9%) 8769.478 ns/op
+         min = 1361920.000 ns/op
+  p( 0.0000) = 1361920.000 ns/op
+  p(50.0000) = 1368064.000 ns/op
+  p(90.0000) = 1462272.000 ns/op
+  p(95.0000) = 1643008.000 ns/op
+  p(99.0000) = 2148966.400 ns/op
+  p(99.9000) = 2949591.040 ns/op
+  p(99.9900) = 2977792.000 ns/op
+  p(99.9990) = 2977792.000 ns/op
+  p(99.9999) = 2977792.000 ns/op
+         max = 2977792.000 ns/op
 
 
 # Run complete. Total time: 00:01:18
 
-Benchmark                 (perftNum)    Mode   Cnt          Score         Error  Units
-PerftBenchmark.testPerft           0  sample   659    7617801.712 ±  133452.822  ns/op
-PerftBenchmark.testPerft           1  sample    50  102964920.320 ± 2262642.157  ns/op
-PerftBenchmark.testPerft           2  sample  3834    1307631.975 ±   13607.496  ns/op
-PerftBenchmark.testPerft           3  sample   638    7879689.630 ±  132715.942  ns/op
-PerftBenchmark.testPerft           4  sample   110   46538305.164 ± 1101347.218  ns/op
-PerftBenchmark.testPerft           5  sample    60   84901888.000 ± 1886643.440  ns/op
-PerftBenchmark.testPerft           6  sample  3226    1553434.029 ±   16120.116  ns/op
-
-Process finished with exit code 0
+Benchmark                 (perftNum)    Mode   Cnt         Score         Error  Units
+PerftBenchmark.testPerft           0  sample   661   7608942.766 ±  129400.746  ns/op
+PerftBenchmark.testPerft           1  sample    55  93311348.364 ± 1028852.268  ns/op
+PerftBenchmark.testPerft           2  sample  4224   1187777.455 ±    5960.801  ns/op
+PerftBenchmark.testPerft           3  sample   701   7184804.702 ±   53190.428  ns/op
+PerftBenchmark.testPerft           4  sample   125  40323514.368 ±  305823.457  ns/op
+PerftBenchmark.testPerft           5  sample    70  75739018.971 ±  723231.271  ns/op
+PerftBenchmark.testPerft           6  sample  3534   1419124.337 ±    8769.478  ns/op
