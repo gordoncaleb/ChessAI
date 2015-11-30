@@ -1,8 +1,11 @@
 package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.MoveContainer;
+import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
+import com.gordoncaleb.chess.util.Perft;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -16,10 +19,30 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class MoveGenerationBenchmark {
 
-    private Board b1;
+
+    @Param({"0", "1", "2", "3", "4", "5", "6", "7"})
+    private int perftNum;
+    private int perftDepth = 3;
+
+    private final Board[] perftBoards = new Board[8];
+    private final Perft perft = new Perft();
+    private final MoveContainer[][] moveContainers = new MoveContainer[8][];
 
     @Setup
     public void init() {
+
+        perftBoards[0] = perft.standardInitialPosition();
+        perftBoards[1] = perft.kiwiPetePosition();
+        perftBoards[2] = perft.position3();
+        perftBoards[3] = perft.position4();
+        perftBoards[4] = perft.position5();
+        perftBoards[5] = perft.position6();
+        perftBoards[6] = perft.promotionPosition();
+
+        for (int i = 0; i < moveContainers.length; i++) {
+            moveContainers[i] = MoveContainerFactory.buildMoveContainers(perftDepth + 1);
+        }
+
         String[] setup = {
                 "R,_,_,_,_,_,Q,_,",
                 "_,P,_,N,_,B,_,_,",
@@ -31,15 +54,15 @@ public class MoveGenerationBenchmark {
                 "r,_,_,_,_,_,_,r,"
         };
 
-        b1 = JSONParser.getFromSetup(Side.WHITE, setup);
+        perftBoards[7] = JSONParser.getFromSetup(Side.WHITE, setup);
     }
 
     @Benchmark
     @Warmup(iterations = 5, batchSize = 5000)
     @Measurement(iterations = 5, batchSize = 5000)
     public void testMoveGeneration1() {
-        b1.makeNullMove();
-        b1.generateValidMoves();
+        perftBoards[perftNum].makeNullMove();
+        perftBoards[perftNum].generateValidMoves();
     }
 
     /*
