@@ -99,9 +99,9 @@ public class Perft {
         }
     }
 
-    public void perftBoardRecursiveTimed(Board b, int depth, int stopDepth, List<MoveContainer> moveContainers) {
+    public void perftBoardRecursiveTimed(Board b, int depth, int stopDepth, MoveContainer[] moveContainers) {
+        MoveContainer moves = moveContainers[depth];
         b.makeNullMove();
-        MoveContainer moves = moveContainers.get(depth);
         b.generateValidMoves(moves);
 
         if (depth < stopDepth) {
