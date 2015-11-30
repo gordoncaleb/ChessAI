@@ -41,6 +41,7 @@ public class SerdesTest {
 
         Board boardFromJson = JSONParser.fromJSON(json);
 
-        assertThat(boardFromJson.getMoveHistory().toArray(), is(arrayContaining(board.getMoveHistory().toArray())));
+        assertThat(boardFromJson.getMoveHistory().toList().toArray(),
+                is(arrayContaining(board.getMoveHistory().toList().toArray())));
     }
 }

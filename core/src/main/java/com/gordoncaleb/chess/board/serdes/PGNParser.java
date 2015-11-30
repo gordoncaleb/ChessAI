@@ -170,7 +170,7 @@ public class PGNParser {
 
         while (board.canUndo()) {
             Move move = board.undoMove();
-            moveBook.put(board.getHashCode(), move);
+            moveBook.put(board.getHashCode(), move.copy());
         }
 
         return moveBook;

@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.engine.legacy.AI;
-import com.gordoncaleb.chess.ui.gui.game.Game;
 import com.gordoncaleb.chess.board.pieces.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,6 @@ public class Board {
     private Deque<Long> castleRightsHistory = new ArrayDeque<>();
 
     private final Piece[][] board;
-    private Game.GameStatus boardStatus = Game.GameStatus.IN_PLAY;
     private MoveContainer validMoves = new MoveContainer();
     private LinkedList<Piece>[] pieces = new LinkedList[2];
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
@@ -233,7 +231,7 @@ public class Board {
             hashCode ^= rngTable.getPiecePerSquareRandom(nextSide, pieceTakenId, pieceTakenRow, pieceTakenCol);
         }
 
-        if (note == Move.MoveNote.CASTLE_NEAR || note == Move.MoveNote.CASTLE_FAR) {
+        if ((note & Move.MoveNote.CASTLE) != 0) {
 
             final Piece king = kings[turn];
             final Piece rook;
@@ -441,44 +439,15 @@ public class Board {
     }
 
     public MoveContainer generateValidMoves() {
-        return generateValidMoves(null, AI.noKillerMoves, this.validMoves);
+        return generateValidMoves(this.validMoves);
     }
 
     public MoveContainer generateValidMoves(MoveContainer validMoves) {
-        return generateValidMoves(null, AI.noKillerMoves, validMoves);
-    }
-
-    public MoveContainer generateValidMoves(Move hashMove, Move[] killerMoves, MoveContainer validMoves) {
 
         validMoves.clear();
 
-        int prevMovesSize = 0;
-
-        Move move;
         for (Piece p : pieces[turn]) {
-
             p.generateValidMoves(this, nullMoveInfo, allPosBitBoard, validMoves);
-
-            for (int m = prevMovesSize; m < validMoves.size(); m++) {
-                move = validMoves.get(m);
-
-                if (move == hashMove) {
-                    move.setValue(10000);
-                    validMoves.set(m, move);
-                    continue;
-                }
-
-                for (int k = 0; k < killerMoves.length; k++) {
-                    if (move == killerMoves[k]) {
-                        move.setValue(9999 - k);
-                        break;
-                    }
-                }
-
-                validMoves.set(m, move);
-            }
-
-            prevMovesSize = validMoves.size();
         }
 
         return validMoves;
@@ -495,7 +464,6 @@ public class Board {
     public long[] makeNullMove() {
 
         // recalculating check info
-        clearBoardStatus();
         pieces[turn].forEach(Piece::clearBlocking);
 
         final int otherSide = Side.otherSide(turn);
@@ -524,10 +492,6 @@ public class Board {
                 posBitBoard[BISHOP][otherSide],
                 friendOrFoe,
                 nullMoveInfo);
-
-        if ((kings[turn].asBitMask() & nullMoveInfo[FOE_ATTACKS]) != 0) {
-            setBoardStatus(Game.GameStatus.CHECK);
-        }
 
         return nullMoveInfo;
     }
@@ -704,46 +668,6 @@ public class Board {
         return true;
     }
 
-    public boolean isInCheck() {
-        return (boardStatus == Game.GameStatus.CHECK);
-    }
-
-    public boolean isInCheckMate() {
-        return (boardStatus == Game.GameStatus.CHECKMATE);
-    }
-
-    public boolean isInStaleMate() {
-        return (boardStatus == Game.GameStatus.STALEMATE);
-    }
-
-    public boolean isTimeUp() {
-        return (boardStatus == Game.GameStatus.TIMES_UP);
-    }
-
-    public boolean isDraw() {
-        return (boardStatus == Game.GameStatus.DRAW);
-    }
-
-    public boolean isInvalid() {
-        return (boardStatus == Game.GameStatus.INVALID);
-    }
-
-    public boolean isGameOver() {
-        return (isInCheckMate() || isInStaleMate() || isTimeUp() || isDraw() || isInvalid());
-    }
-
-    public void clearBoardStatus() {
-        boardStatus = Game.GameStatus.IN_PLAY;
-    }
-
-    public Game.GameStatus getBoardStatus() {
-        return boardStatus;
-    }
-
-    public void setBoardStatus(Game.GameStatus boardStatus) {
-        this.boardStatus = boardStatus;
-    }
-
     private void applyCastleRights(int player, boolean nearRights, boolean farRights) {
 
         if (nearRights) {
@@ -873,15 +797,26 @@ public class Board {
 
     public boolean insufficientMaterial() {
 
-        for (List<Piece> ps : pieces) {
-            for (Piece p : ps) {
-                if ((p.getPieceID() == PAWN) || (p.getPieceID() == QUEEN) || (p.getPieceID() == ROOK)) {
-                    return false;
-                }
-            }
-        }
+        long pawnsQueensAndRooks = posBitBoard[PAWN][WHITE] |
+                posBitBoard[QUEEN][WHITE] |
+                posBitBoard[ROOK][WHITE] |
+                posBitBoard[PAWN][BLACK] |
+                posBitBoard[QUEEN][BLACK] |
+                posBitBoard[ROOK][BLACK];
 
-        return true;
+        return pawnsQueensAndRooks == 0;
+    }
+
+    public boolean isInCheck() {
+        return ((posBitBoard[KING][turn] & nullMoveInfo[FOE_ATTACKS]) != 0);
+    }
+
+    public boolean isDraw() {
+        return (drawByThreeRule() || insufficientMaterial());
+    }
+
+    public boolean isGameOver() {
+        return isDraw() || (isInCheck() && generateValidMoves().isEmpty());
     }
 
 }

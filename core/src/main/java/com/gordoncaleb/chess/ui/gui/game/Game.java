@@ -218,7 +218,7 @@ public class Game implements PlayerContainer {
             }
 
         } else {
-            adjudicator.getBoard().setBoardStatus(GameStatus.INVALID);
+            adjudicator.setGameStatus(GameStatus.INVALID);
         }
 
         if (adjudicator.isGameOver()) {
@@ -316,7 +316,7 @@ public class Game implements PlayerContainer {
 
     }
 
-    public static enum GameStatus {
+    public enum GameStatus {
         IN_PLAY, CHECK, CHECKMATE, STALEMATE, TIMES_UP, DRAW, INVALID
     }
 }

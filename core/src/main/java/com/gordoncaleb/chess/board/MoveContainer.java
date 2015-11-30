@@ -1,28 +1,23 @@
 package com.gordoncaleb.chess.board;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class MoveContainer {
 
     private static final int EMPTY = -1;
     private int head = EMPTY;
-    private final Move[] moves;
+    private final long[] moves;
+    private final Move transientMove = new Move();
 
     public MoveContainer() {
         this(219);
     }
 
     public MoveContainer(int size) {
-        moves = new Move[size];
-        initMoves();
-    }
-
-    private void initMoves() {
-        for (int i = 0; i < moves.length; i++) {
-            moves[i] = new Move();
-        }
+        moves = new long[size];
     }
 
     public boolean isEmpty() {
@@ -46,7 +41,11 @@ public class MoveContainer {
                     int pieceTakenRow,
                     int pieceTakenCol) {
         head++;
-        moves[head].set(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
+        moves[head] = Move.toLong(fromRow, fromCol,
+                toRow, toCol,
+                note,
+                pieceTakenId,
+                pieceTakenRow, pieceTakenCol);
     }
 
     public void add(int fromRow,
@@ -55,7 +54,11 @@ public class MoveContainer {
                     int toCol,
                     int note) {
         head++;
-        moves[head].set(fromRow, fromCol, toRow, toCol, note);
+        moves[head] = Move.toLong(fromRow, fromCol,
+                toRow, toCol,
+                note,
+                NO_PIECE,
+                0, 0);
     }
 
     public void add(Move m) {
@@ -70,36 +73,26 @@ public class MoveContainer {
     }
 
     public Move get(int i) {
-        return moves[i];
-    }
-
-    public void set(int i, Move m) {
-        moves[i] = m;
+        return Move.fromLong(moves[i], transientMove);
     }
 
     public Move pop() {
-        return moves[head--];
+        return Move.fromLong(moves[head--], transientMove);
     }
 
     public Move peek() {
-        return moves[head];
+        return Move.fromLong(moves[head], transientMove);
     }
 
     public List<Move> toList() {
         List<Move> l = new ArrayList<>();
         for (int i = 0; i < size(); i++) {
-            l.add(moves[i]);
+            l.add(Move.fromLong(moves[i]));
         }
         return l;
     }
 
-    public Move[] toArray() {
-        Move[] a = new Move[size()];
-        System.arraycopy(moves, 0, a, 0, size());
-        return a;
-    }
-
     public void sort() {
-        Arrays.sort(moves, 0, head + 1);
+        //order moves
     }
 }

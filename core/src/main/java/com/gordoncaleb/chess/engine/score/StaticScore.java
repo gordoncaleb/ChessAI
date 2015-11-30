@@ -15,10 +15,6 @@ public class StaticScore {
 
     private long openFiles = 0;
 
-    public int getPieceValue(final int row, final int col, final Board b) {
-        return Values.getPieceValue(b.getPiece(row, col).getPieceID()) + getOpeningPositionValue(b.getPiece(row, col));
-    }
-
     public int getOpeningPositionValue(final Piece piece) {
 
         if (piece == null) {
@@ -97,22 +93,6 @@ public class StaticScore {
         return score;
     }
 
-    public int castleScore(final int side, final int[] castleRights) {
-        int score = 0;
-        final int castleRight = castleRights[side];
-
-        switch (castleRight) {
-            case 1:
-                score += Values.FAR_CASTLE_VALUE;
-                break;
-            case 2:
-                score += Values.NEAR_CASTLE_VALUE;
-                break;
-        }
-
-        return score;
-    }
-
     public int pawnStructureScore(final int side, final int phase, final Board b) {
 
         final long pawns = b.getPosBitBoard()[Piece.PieceID.PAWN][side];
@@ -184,19 +164,6 @@ public class StaticScore {
         final int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + materialScore(otherSide, b) + yourPawnScore;
 
         return myScore - yourScore;
-    }
-
-    public boolean canQueen(final Board b) {
-
-        final int turn = b.getTurn();
-        final long p = b.getPosBitBoard()[Piece.PieceID.PAWN][turn];
-        final long o = b.getAllPosBitBoard()[Side.otherSide(turn)];
-
-        if (turn == Side.WHITE) {
-            return (((((p >>> 8) & ~o) | (Pawn.getPawnAttacks(p, turn) & o)) & 0xFFL) != 0);
-        } else {
-            return (((((p << 8) & ~o) | (Pawn.getPawnAttacks(p, turn) & o)) & 0xFF00000000000000L) != 0);
-        }
     }
 
     public String printBoardScoreBreakDown(Board b) {

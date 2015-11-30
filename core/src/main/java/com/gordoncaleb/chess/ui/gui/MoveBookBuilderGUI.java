@@ -342,7 +342,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
     @Override
     public Game.GameStatus getGameStatus() {
-        return boardPanel.getBoard().getBoardStatus();
+        return null;
     }
 
     @Override

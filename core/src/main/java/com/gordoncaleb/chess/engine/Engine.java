@@ -1,104 +1,85 @@
 package com.gordoncaleb.chess.engine;
 
-import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.board.MoveContainerFactory;
-import com.gordoncaleb.chess.engine.legacy.AISettings;
+import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.engine.score.Values;
 import com.gordoncaleb.chess.engine.score.StaticScore;
-import com.gordoncaleb.chess.ui.gui.game.Game;
 
 import java.util.Optional;
+import java.util.Random;
 
-import static com.gordoncaleb.chess.engine.BoardHashEntry.ValueBounds.*;
+import static com.gordoncaleb.chess.board.BoardCondition.*;
 
 public class Engine {
 
     public static final int MAX_DEPTH = 20;
     private static final int START_ALPHA = -Values.CHECKMATE_MOVE + 1;
     private static final int START_BETA = -START_ALPHA;
-    private static final int MAX_KILLER_MOVES = 100;
 
+    private final Random rand = new Random();
     private final MoveBook moveBook;
     private final StaticScore scorer;
 
-    private final Move[][] killerMoves = new Move[MAX_DEPTH][MAX_KILLER_MOVES];
-    private final int[] killerMoveSize = new int[MAX_DEPTH];
-
     private final MoveContainer[] moveContainers;
-
-    private BoardHashEntry[] hashTable;
 
     public Engine(MoveBook moveBook, StaticScore scorer) {
         this.moveBook = moveBook;
         this.scorer = scorer;
-        this.hashTable = initHashTable();
         this.moveContainers = MoveContainerFactory.buildMoveContainers(MAX_DEPTH);
     }
 
     public Move search(final Board board, final int depth) {
+        return search(board, depth, START_ALPHA, START_BETA);
+    }
+
+    public Move search(final Board board, final int depth, final int startAlpha, final int startBeta) {
 
         Optional<Move> moveBookRec = moveBook.getRecommendations(board.getHashCode())
-                .flatMap(moveList -> moveList.stream().findFirst());
+                .map(moveList -> moveList.get(rand.nextInt(moveList.size())));
 
         return moveBookRec.orElseGet(() -> {
-            clearKillerMoves();
-            searchTree(board, START_ALPHA, START_BETA, depth, depth, null, 0);
+            searchTree(board, startAlpha, startBeta, depth, depth);
             return moveContainers[0].get(0);
         });
     }
 
-    private boolean hashOutIsPrune(BoardHashEntry hashOut, int level, int beta) {
-
-        final boolean sufficientLevel = hashOut.getLevel() >= level;
-        final boolean isPV = hashOut.getBounds() == PV;
-        final boolean isCutAndBeatsBeta = hashOut.getBounds() == CUT && hashOut.getScore() >= beta;
-
-        return (sufficientLevel && (isPV || isCutAndBeatsBeta));
-    }
-
-    private int searchTree(Board board, int alpha, int beta, int level, int maxDepth, Move moveMade, int bonusLevel) {
-        int suggestedPathValue;
+    public int searchTree(final Board board, int alpha, final int beta, final int level, final int maxDepth) {
         int bestPathValue = Integer.MIN_VALUE;
 
         int a = alpha;
         int b = beta;
         Move bestMove = null;
 
-        board.makeNullMove();
+        int condition = getBoardCondition(board);
 
-        if (level > bonusLevel) {
+        if (level > maxDepth) {
 
-            if (board.insufficientMaterial() || board.drawByThreeRule()) {
-                board.setBoardStatus(Game.GameStatus.DRAW);
-            } else {
+            if (condition != DRAW) {
+
+                board.makeNullMove();
                 MoveContainer moves = board.generateValidMoves(moveContainers[maxDepth - level]);
 
-                if (moves.size() == 0) {
-                    if (board.isInCheck()) {
-                        board.setBoardStatus(Game.GameStatus.CHECKMATE);
+                if (moves.isEmpty()) {
+                    if (condition == CHECK) {
+                        //checkmate
+                        bestPathValue = -(Values.CHECKMATE_MOVE - (maxDepth - level));
                     } else {
-                        board.setBoardStatus(Game.GameStatus.STALEMATE);
+                        //stalemate
+                        bestPathValue = 0;
                     }
                 } else {
 
+                    //try and order moves to maximize pruning
                     moves.sort();
 
-                    Game.GameStatus tempBoardState;
                     for (int m = 0; m < moves.size(); m++) {
 
                         final Move move = moves.get(m);
 
-                        tempBoardState = board.getBoardStatus();
-
                         board.makeMove(move);
 
-                        suggestedPathValue = -searchTree(board, -beta, -alpha, level - 1, maxDepth, move, bonusLevel);
+                        final int suggestedPathValue = -searchTree(board, -beta, -alpha, level - 1, maxDepth);
 
                         board.undoMove();
-
-                        board.setBoardStatus(tempBoardState);
 
                         if (suggestedPathValue > bestPathValue) {
                             bestPathValue = suggestedPathValue;
@@ -106,81 +87,34 @@ public class Engine {
                         }
 
                         if (bestPathValue > alpha) {
+                            //narrowing ab window
                             alpha = bestPathValue;
                         }
 
                         if (alpha >= beta) {
+                            //pruned!
                             break;
                         }
 
                     }
 
                 }
+            } else {
+                bestPathValue = 0;
             }
         } else {
             bestPathValue = scorer.staticScore(board);
         }
 
-        if (board.isInCheckMate()) {
-            bestPathValue = -(Values.CHECKMATE_MOVE - (maxDepth - level));
-        } else {
-            if (board.isInStaleMate() || board.isDraw()) {
-                bestPathValue = 0;
-            }
-        }
-
-
         return bestPathValue;
     }
 
-    private int getNodeType(int s, int a, int b) {
-        if (s >= b) {
-            return BoardHashEntry.ValueBounds.CUT;
+    private int getBoardCondition(Board board) {
+        if (board.isInCheck()) {
+            return CHECK;
+        } else {
+            return board.isDraw() ? DRAW : IN_PLAY;
         }
-
-        if (s < a) {
-            return BoardHashEntry.ValueBounds.ALL;
-        }
-
-        return BoardHashEntry.ValueBounds.PV;
-    }
-
-    private boolean hashTableUpdate(BoardHashEntry present, int cLevel, int cMoveNum) {
-        return (present.getMoveNum() <= cMoveNum) || (cLevel > present.getLevel());
-    }
-
-    public void clearKillerMoves() {
-        for (int i = 0; i < killerMoves.length; i++) {
-            killerMoveSize[i] = 0;
-            for (int m = 0; m < AISettings.maxKillerMoves; m++) {
-                killerMoves[i][m] = null;
-            }
-        }
-    }
-
-    public void addKillerMove(int level, Move move) {
-
-        if (level >= 0) {
-            if (killerMoveSize[level] < AISettings.maxKillerMoves) {
-
-                for (int i = 0; i < killerMoveSize[level]; i++) {
-                    if (killerMoves[level][i] == move) {
-                        return;
-                    }
-                }
-
-                killerMoves[level][killerMoveSize[level]] = move;
-                killerMoveSize[level]++;
-            }
-        }
-    }
-
-    private BoardHashEntry[] initHashTable() {
-        BoardHashEntry[] hashTable = new BoardHashEntry[AISettings.hashTableSize];
-        for (int i = 0; i < hashTable.length; i++) {
-            hashTable[i] = new BoardHashEntry();
-        }
-        return hashTable;
     }
 
 }

@@ -2,6 +2,7 @@ package com.gordoncaleb.chess.engine.legacy;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Stream;
 
 import com.gordoncaleb.chess.board.Move;
 import org.slf4j.Logger;
@@ -15,8 +16,6 @@ public class DecisionNode implements Comparable<DecisionNode> {
     private Move move;
 
     private int chosenPathValue;
-
-
 
     public DecisionNode(Move move) {
         this(move, 0);
@@ -42,6 +41,18 @@ public class DecisionNode implements Comparable<DecisionNode> {
     @Override
     public int compareTo(DecisionNode o) {
         return this.chosenPathValue - o.getChosenPathValue();
+    }
+
+    public void setHeadChild(Move m) {
+        for (int i = 0; i < children.length; i++) {
+            DecisionNode node = (DecisionNode) children[i];
+            if (node.getMove() == m) {
+                Object a = children[0];
+                children[0] = node;
+                children[i] = a;
+                break;
+            }
+        }
     }
 
     public boolean equals(DecisionNode o) {

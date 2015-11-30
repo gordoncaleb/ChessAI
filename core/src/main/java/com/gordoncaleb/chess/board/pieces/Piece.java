@@ -18,7 +18,7 @@ public class Piece {
     private int pieceId;
 
     public static class PieceID {
-        public static final int NO_PIECE = -1;
+        public static final int NO_PIECE = 6;
         public static final int PAWN = 0;
         public static final int KNIGHT = 1;
         public static final int BISHOP = 2;

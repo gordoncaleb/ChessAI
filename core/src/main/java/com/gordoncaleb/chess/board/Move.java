@@ -16,6 +16,7 @@ public class Move {
         public static final int NORMAL = 0x0;
         public static final int CASTLE_NEAR = 0x1;
         public static final int CASTLE_FAR = 0x2;
+        public static final int CASTLE = 0x3;
         public static final int EN_PASSANT = 0x4;
         public static final int PAWN_LEAP = 0x8;
         public static final int NEW_QUEEN = (QUEEN << 8) | 0x10;
@@ -246,7 +247,7 @@ public class Move {
                               int pieceTakenId,
                               int pieceTakenRow,
                               int pieceTakenCol) {
-        return (note << 21) | //12 bits
+        return ((long) note << 21) | //12 bits
                 (pieceTakenId << 18) | // 3 bits
                 (pieceTakenRow << 15) | // 3 bits
                 (pieceTakenCol << 12) | // 3 bits
@@ -256,7 +257,7 @@ public class Move {
                 toCol;
     }
 
-    public static Move fromLong(long moveLong) {
+    public static Move fromLong(long moveLong, Move move) {
         int toCol = (int) (moveLong & 0x7); //3 bits
         int toRow = (int) ((moveLong >> 3) & 0x7); //3 bits
         int fromCol = (int) ((moveLong >> 6) & 0x7); //3 bits
@@ -267,7 +268,11 @@ public class Move {
         int pieceTakenId = (int) ((moveLong >> 18) & 0x7);
 
         int note = (int) ((moveLong >> 21) & 0xFFF); //12 bits
+        move.set(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
+        return move;
+    }
 
-        return new Move(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
+    public static Move fromLong(long moveLong) {
+        return fromLong(moveLong, new Move());
     }
 }

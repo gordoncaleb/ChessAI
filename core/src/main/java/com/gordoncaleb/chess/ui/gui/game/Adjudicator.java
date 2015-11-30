@@ -16,6 +16,7 @@ public class Adjudicator {
     private List<Move> validMoves;
     private Stack<Move> undoneMoves;
     private Board board;
+    private Game.GameStatus gameStatus;
 
     public Adjudicator(Board board) {
         undoneMoves = new Stack<>();
@@ -103,7 +104,7 @@ public class Adjudicator {
     }
 
     public int getPiecePlayer(int row, int col) {
-        Piece p = board.getPiece(row,col);
+        Piece p = board.getPiece(row, col);
         return p.getSide();
     }
 
@@ -136,9 +137,11 @@ public class Adjudicator {
     }
 
     public Game.GameStatus getGameStatus() {
+        return gameStatus;
+    }
 
-        return board.getBoardStatus();
-
+    public void setGameStatus(Game.GameStatus gameStatus) {
+        this.gameStatus = gameStatus;
     }
 
     public boolean isGameOver() {

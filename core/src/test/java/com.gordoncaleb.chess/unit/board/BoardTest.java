@@ -1,9 +1,6 @@
 package com.gordoncaleb.chess.unit.board;
 
-import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.BoardFactory;
-import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.Side;
+import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
@@ -75,15 +72,22 @@ public class BoardTest {
 
         long origHash = b.getHashCode();
 
-        Stack<Move> moveStack = new Stack<>();
+        MoveContainer moveStack = new MoveContainer(b.getMoveHistory().size());
         while (b.canUndo()) {
             assertEquals(b.getHashCode(), b.generateHashCode());
-            moveStack.push(b.undoMove());
+            moveStack.add(b.undoMove());
         }
 
         while (!moveStack.isEmpty()) {
             assertEquals(b.getHashCode(), b.generateHashCode());
-            b.makeMove(moveStack.pop());
+            Move m = moveStack.pop();
+            try {
+                b.makeMove(m);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("Move invalid {}", m);
+                logger.error("Board: \n{}", b.toString());
+            }
         }
 
         assertEquals(b.getHashCode(), b.generateHashCode());
@@ -531,7 +535,6 @@ public class BoardTest {
     }
 
     @Test
-    @Ignore
     public void testEnPassantCausesCheck() throws Exception {
         String[] setup = {
                 "_,_,_,_,_,_,_,_,",
@@ -543,15 +546,6 @@ public class BoardTest {
                 "_,_,_,_,P,_,_,_,",
                 "_,_,_,_,_,_,_,_,"
         };
-
-//              "_,_,_,_,_,_,_,_,",
-//              "_,_,_,_,_,_,_,_,",
-//              "_,_,_,_,_,_,_,_,",
-//              "K,R,_,_,_,_,_,_,",
-//              "_,R,_,_,P,p,_,k,",
-//              "_,R,_,_,_,_,_,_,",
-//              "_,_,_,_,_,_,_,_,",
-//              "_,_,_,_,_,_,_,_,"
 
         testContainsExactlyMoves(Side.WHITE, setup, new Move[]{
                 new Move(6, 4, 4, 4, Move.MoveNote.PAWN_LEAP)
@@ -605,10 +599,13 @@ public class BoardTest {
         Board copyBoard = board.copy();
 
         assertThat(board.getHashCode(), is(equalTo(copyBoard.getHashCode())));
-        assertThat(board.getMoveHistory().toArray(), is(arrayContaining(copyBoard.getMoveHistory().toArray())));
+        assertThat(board.getMoveHistory().toList().toArray(),
+                is(arrayContaining(copyBoard.getMoveHistory().toList().toArray())));
 
-        assertThat(board.getPiecesTakenFor(Side.WHITE).toArray(), is(arrayContaining(copyBoard.getPiecesTakenFor(Side.WHITE).toArray())));
-        assertThat(board.getPiecesTakenFor(Side.BLACK).toArray(), is(arrayContaining(copyBoard.getPiecesTakenFor(Side.BLACK).toArray())));
+        assertThat(board.getPiecesTakenFor(Side.WHITE).toArray(),
+                is(arrayContaining(copyBoard.getPiecesTakenFor(Side.WHITE).toArray())));
+        assertThat(board.getPiecesTakenFor(Side.BLACK).toArray(),
+                is(arrayContaining(copyBoard.getPiecesTakenFor(Side.BLACK).toArray())));
     }
 
     @Test
