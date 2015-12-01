@@ -8,6 +8,9 @@ import com.gordoncaleb.chess.board.pieces.Piece;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.gordoncaleb.chess.board.bitboard.Slide.northFill;
 import static com.gordoncaleb.chess.board.bitboard.Slide.southFill;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
@@ -15,13 +18,9 @@ import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 public class StaticScore {
     private static final Logger logger = LoggerFactory.getLogger(StaticScore.class);
 
-    private long openFiles = 0;
+    public static final int ENDGAME_PHASE = 256;
 
-    public int getOpeningPositionValue(final Piece piece) {
-
-        if (piece == null) {
-            return 0;
-        }
+    public int getOpeningPositionValue(final Piece piece, final long openFiles) {
 
         switch (piece.getPieceID()) {
             case KNIGHT:
@@ -43,7 +42,7 @@ public class StaticScore {
 
     }
 
-    public int getEndGamePositionValue(final Piece piece) {
+    public int getEndGamePositionValue(final Piece piece, final long openFiles) {
 
         switch (piece.getPieceID()) {
             case KNIGHT:
@@ -65,21 +64,21 @@ public class StaticScore {
 
     }
 
-    public int openingPositionScore(final int side, final Board b) {
+    public int openingPositionScore(final int side, final Board b, final long openFiles) {
         int score = 0;
 
         for (Piece p : b.getPieces()[side]) {
-            score += getOpeningPositionValue(p);
+            score += getOpeningPositionValue(p, openFiles);
         }
 
         return score;
     }
 
-    public int endGamePositionScore(final int side, final Board b) {
+    public int endGamePositionScore(final int side, final Board b, final long openFiles) {
         int score = 0;
 
         for (Piece p : b.getPieces()[side]) {
-            score += getEndGamePositionValue(p);
+            score += getEndGamePositionValue(p, openFiles);
         }
 
         return score;
@@ -95,62 +94,65 @@ public class StaticScore {
         return score;
     }
 
-    public int pawnStructureScore(final int side, final int phase, final Board b) {
+    public int pawnStructureScore(final int side, final int phase, final long friendPawns, final long foePawns) {
 
-        final long pawns = b.getPosBitBoard()[PAWN][side];
-        final long otherPawns = b.getPosBitBoard()[PAWN][Side.otherSide(side)];
+        final int doubledPawns = getDoubledPawns(friendPawns);
 
-        long files = 0x0101010101010101L;
-
-        int occupiedCol = 0;
-        for (int c = 0; c < 8; c++) {
-            if ((files & pawns) != 0) {
-
-                occupiedCol++;
-
-                if ((files & otherPawns) == 0) {
-                    openFiles |= files;
-                }
-            }
-            files = files << 1;
-        }
-
-        final int doubledPawns = Long.bitCount(pawns) - occupiedCol;
-
-        final long passedBB = BitBoard.getPassedPawns(pawns, otherPawns, side);
+        final long passedBB = getPassedPawns(friendPawns, foePawns, side);
 
         int passedPawns = 0;
         for (int i = 0; i < 8; i++) {
             passedPawns += Long.bitCount(passedBB & BitBoard.getRowMask(i)) * Values.PASSED_PAWN_BONUS[side][i];
         }
 
-        final int isolatedPawns = Long.bitCount(getIsolatedPawns(pawns, side));
+        final int isolatedPawns = Long.bitCount(getIsolatedPawns(friendPawns, side));
 
-        final int backedPawns = Long.bitCount(Pawn.getPawnAttacks(pawns, side) & pawns);
+        final int backedPawns = Long.bitCount(Pawn.getPawnAttacks(friendPawns, side) & friendPawns);
 
         return backedPawns * Values.BACKED_PAWN_BONUS +
                 doubledPawns * Values.DOUBLED_PAWN_BONUS +
                 isolatedPawns * Values.ISOLATED_PAWN_BONUS +
-                ((passedPawns * phase) / 256);
+                ((passedPawns * phase) / ENDGAME_PHASE);
     }
 
-    public long getIsolatedPawns(long pawns, int side) {
-        long pawnAttacks = Pawn.getPawnAttacks(pawns, side);
+    public long getPassedPawns(final long friendPawns, final long foePawns, final int friendSide) {
+        if (friendSide == Side.WHITE) {
+            return (~southFill(foePawns | Pawn.getPawnAttacks(foePawns, Side.BLACK)) & friendPawns);
+        } else {
+            return (~northFill(foePawns | Pawn.getPawnAttacks(foePawns, Side.WHITE)) & friendPawns);
+        }
+    }
+
+    public long getOpenFiles(final long pawns) {
+        return ~(northFill(pawns) | southFill(pawns));
+    }
+
+    public int getDoubledPawns(long pawns) {
+        int occupiedCol = 0;
+        for (int c = 0; c < 8; c++) {
+            if ((BitBoard.COL1 << c & pawns) != 0) {
+                occupiedCol++;
+            }
+        }
+        return Long.bitCount(pawns) - occupiedCol;
+    }
+
+    public long getIsolatedPawns(final long pawns, final int side) {
+        final long pawnAttacks = Pawn.getPawnAttacks(pawns, side);
         return ~(southFill(pawnAttacks) | northFill(pawnAttacks)) & pawns;
     }
 
     public int calcGamePhase(final Board b) {
 
-        long[][] bbs = b.getPosBitBoard();
+        final long[][] bbs = b.getPosBitBoard();
 
         final int phase = Values.TOTALPHASE -
-                (Long.bitCount(bbs[PAWN][Side.WHITE] | bbs[PAWN][Side.BLACK]) * Values.PIECE_PHASE_VAL[PAWN]) -
                 (Long.bitCount(bbs[KNIGHT][Side.WHITE] | bbs[KNIGHT][Side.BLACK]) * Values.PIECE_PHASE_VAL[KNIGHT]) -
                 (Long.bitCount(bbs[BISHOP][Side.WHITE] | bbs[BISHOP][Side.BLACK]) * Values.PIECE_PHASE_VAL[BISHOP]) -
                 (Long.bitCount(bbs[ROOK][Side.WHITE] | bbs[ROOK][Side.BLACK]) * Values.PIECE_PHASE_VAL[ROOK]) -
                 (Long.bitCount(bbs[QUEEN][Side.WHITE] | bbs[QUEEN][Side.BLACK]) * Values.PIECE_PHASE_VAL[QUEEN]);
 
-        return (phase * 256 + (Values.TOTALPHASE / 2)) / Values.TOTALPHASE;
+        return (phase * ENDGAME_PHASE + (Values.TOTALPHASE / 2)) / Values.TOTALPHASE;
     }
 
     public int staticScore(final Board b) {
@@ -161,59 +163,79 @@ public class StaticScore {
         final int otherSide = Side.otherSide(side);
         final int phase = calcGamePhase(b);
 
-        final int myPawnScore = pawnStructureScore(side, phase, b);
-        final int yourPawnScore = pawnStructureScore(otherSide, phase, b);
+        final long yourPawns = b.getPosBitBoard()[PAWN][side];
+        final long myPawns = b.getPosBitBoard()[PAWN][Side.otherSide(side)];
 
-        final int openingMyScore = openingPositionScore(side, b);
-        final int openingYourScore = openingPositionScore(otherSide, b);
+        final int myPawnScore = pawnStructureScore(side, phase, myPawns, yourPawns);
+        final int yourPawnScore = pawnStructureScore(otherSide, phase, yourPawns, myPawns);
 
-        final int endGameMyScore = endGamePositionScore(side, b);
-        final int endGameYourScore = endGamePositionScore(otherSide, b);
+        final long myOpenFiles = getOpenFiles(yourPawns);
+        final long yourOpenFiles = getOpenFiles(myPawns);
 
-        final int myScore = (openingMyScore * (256 - phase) + endGameMyScore * phase) / 256 + materialScore(side, b) + myPawnScore;
-        final int yourScore = (openingYourScore * (256 - phase) + endGameYourScore * phase) / 256 + materialScore(otherSide, b) + yourPawnScore;
+        final int openingMyScore = openingPositionScore(side, b, yourOpenFiles);
+        final int openingYourScore = openingPositionScore(otherSide, b, myOpenFiles);
+
+        final int endGameMyScore = endGamePositionScore(side, b, yourOpenFiles);
+        final int endGameYourScore = endGamePositionScore(otherSide, b, myOpenFiles);
+
+        final int myMaterialScore = materialScore(side, b);
+        final int yourMaterialScore = materialScore(otherSide, b);
+
+        final int myScore = (openingMyScore * (ENDGAME_PHASE - phase) + endGameMyScore * phase) / ENDGAME_PHASE + myMaterialScore + myPawnScore;
+        final int yourScore = (openingYourScore * (ENDGAME_PHASE - phase) + endGameYourScore * phase) / ENDGAME_PHASE + yourMaterialScore + yourPawnScore;
 
         return myScore - yourScore;
     }
 
     public String printBoardScoreBreakDown(Board b) {
 
-        String score = "";
+        final int side = b.getTurn();
 
-        int turn = b.getTurn();
-        int otherSide = Side.otherSide(turn);
-        int phase = calcGamePhase(b);
+        final int otherSide = Side.otherSide(side);
+        final int phase = calcGamePhase(b);
 
-        score += ("int phase = " + phase) + "\n";
+        final long yourPawns = b.getPosBitBoard()[PAWN][side];
+        final long myPawns = b.getPosBitBoard()[PAWN][Side.otherSide(side)];
 
-        score += ("int myPawnScore = " + pawnStructureScore(turn, phase, b)) + "\n";
-        score += ("int yourPawnScore = " + pawnStructureScore(otherSide, phase, b)) + "\n";
+        final int myPawnScore = pawnStructureScore(side, phase, myPawns, yourPawns);
+        final int yourPawnScore = pawnStructureScore(otherSide, phase, yourPawns, myPawns);
 
-        score += ("int openingMyScore = " + materialScore(turn, b) + "(openingMaterialScore)+" + "(castleScore)+" + openingPositionScore(turn, b))
-                + "(openPositionScore)" + "\n";
-        score += ("int openingYourScore = " + materialScore(otherSide, b) + "(openMaterialScore)+" + "(castleScore)+"
-                + openingPositionScore(otherSide, b) + "(openPositionScore)")
-                + "\n";
+        final long myOpenFiles = getOpenFiles(yourPawns);
+        final long yourOpenFiles = getOpenFiles(myPawns);
 
-        score += ("int endGameMyScore = " + materialScore(turn, b) + "(endGameMaterial)+" + endGamePositionScore(turn, b) + "(endGamePosition)") + "\n";
-        score += ("int endGameYourScore = " + materialScore(otherSide, b) + "(endGameMaterial)+" + endGamePositionScore(otherSide, b) + "(endGamePosition)")
-                + "\n";
+        final int openingMyScore = openingPositionScore(side, b, yourOpenFiles);
+        final int openingYourScore = openingPositionScore(otherSide, b, myOpenFiles);
 
-        int myopen = materialScore(turn, b) + openingPositionScore(turn, b);
-        int youropen = materialScore(otherSide, b) + openingPositionScore(otherSide, b);
+        final int endGameMyScore = endGamePositionScore(side, b, yourOpenFiles);
+        final int endGameYourScore = endGamePositionScore(otherSide, b, myOpenFiles);
 
-        int myend = materialScore(turn, b) + endGamePositionScore(turn, b);
-        int yourend = materialScore(otherSide, b) + endGamePositionScore(otherSide, b);
+        final int myMaterialScore = materialScore(side, b);
+        final int yourMaterialScore = materialScore(otherSide, b);
 
-        int myscore = (myopen * (256 - phase) + myend * phase) / 256 + pawnStructureScore(turn, phase, b);
+        final int myScore = (openingMyScore * (ENDGAME_PHASE - phase) + endGameMyScore * phase) / ENDGAME_PHASE + myMaterialScore + myPawnScore;
+        final int yourScore = (openingYourScore * (ENDGAME_PHASE - phase) + endGameYourScore * phase) / ENDGAME_PHASE + yourMaterialScore + yourPawnScore;
 
-        int yourscore = (youropen * (256 - phase) + yourend * phase) / 256 + pawnStructureScore(otherSide, phase, b);
+        Map<String, Object> scoreMap = new HashMap<>();
 
-        score += ("int myScore = " + myscore + "\n");
-        score += ("int yourScore = " + yourscore + "\n");
+        scoreMap.put("phase", phase);
 
-        score += ("ptDiff = " + myscore + "-" + yourscore + "=" + (myscore - yourscore) + "\n");
+        scoreMap.put("myPawnScore", myPawnScore);
+        scoreMap.put("yourPawnScore", yourPawnScore);
 
-        return score;
+        scoreMap.put("openingMyScore", openingMyScore);
+        scoreMap.put("openingYourScore", openingYourScore);
+
+        scoreMap.put("endGameMyScore", endGameMyScore);
+        scoreMap.put("endGameYourScore", endGameYourScore);
+
+        scoreMap.put("myMaterialScore", myMaterialScore);
+        scoreMap.put("yourMaterialScore", yourMaterialScore);
+
+        scoreMap.put("myScore", myScore);
+        scoreMap.put("yourScore", yourScore);
+
+        scoreMap.put("scoreDiff", myScore-yourScore);
+
+        return scoreMap.toString();
     }
 }

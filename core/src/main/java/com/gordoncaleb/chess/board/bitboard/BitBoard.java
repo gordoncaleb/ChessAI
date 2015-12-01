@@ -49,16 +49,6 @@ public class BitBoard {
         loadKingFootPrints();
     }
 
-    public static long getPassedPawns(long pawns, long otherPawns, int side) {
-        if (side == Side.WHITE) {
-            return (~northFill(pawns | Pawn.getPawnAttacks(pawns, Side.WHITE)) & otherPawns);
-        } else {
-            return (~southFill(pawns | Pawn.getPawnAttacks(pawns, Side.BLACK)) & otherPawns);
-        }
-    }
-
-
-
     public static long[][] buildKingToCastleMasks(long[] kings, long[][] rooks) {
         long[][] kingsToCastleMasks = new long[2][2];
         for (int side : Arrays.asList(BLACK, WHITE)) {
@@ -213,7 +203,7 @@ public class BitBoard {
 
         long bb = 0;
         for (int i = 0; i < 64; i++) {
-            if (tokens[i].trim().equals("1")) {
+            if (!tokens[i].trim().equals("_")) {
                 bb |= (1L << i);
             }
         }

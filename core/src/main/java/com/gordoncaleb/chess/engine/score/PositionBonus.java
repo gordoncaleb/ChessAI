@@ -129,16 +129,6 @@ public class PositionBonus {
 		}
 	}
 
-	public static int getKnightMoveBonus(int fromRow, int fromCol, int toRow, int toCol, int player) {
-		int bonus;
-		if (player == Side.BLACK) {
-			bonus = knightBonus[toRow][toCol] - knightBonus[fromRow][fromCol];
-		} else {
-			bonus = knightBonus[7 - toRow][toCol] - knightBonus[7 - fromRow][fromCol];
-		}
-		return bonus;
-	}
-
 	public static int getKnightPositionBonus(int row, int col, int player) {
 		int bonus;
 		if (player == Side.BLACK) {
@@ -165,20 +155,6 @@ public class PositionBonus {
 			bonus = kingEndGameBonus[row][col];
 		} else {
 			bonus = kingEndGameBonus[7 - row][col];
-		}
-		return bonus;
-	}
-
-	public static int getRookBonus(int row, int col) {
-		return rookBonus[row][col];
-	}
-
-	public static int getPawnMoveBonus(int fromRow, int fromCol, int toRow, int toCol, int player) {
-		int bonus;
-		if (player == Side.BLACK) {
-			bonus = pawnBonus[toRow][toCol] - pawnBonus[fromRow][fromCol];
-		} else {
-			bonus = pawnBonus[7 - toRow][toCol] - pawnBonus[7 - fromRow][fromCol];
 		}
 		return bonus;
 	}
