@@ -8,7 +8,7 @@ import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.engine.Engine;
 import com.gordoncaleb.chess.engine.MoveBook;
 import com.gordoncaleb.chess.engine.score.Values;
-import com.gordoncaleb.chess.engine.score.StaticScore;
+import com.gordoncaleb.chess.engine.score.StaticScorer;
 
 public class AIProcessor extends Thread {
     private DecisionNode rootNode;
@@ -24,7 +24,7 @@ public class AIProcessor extends Thread {
 
     private boolean stopSearch;
 
-    private StaticScore scorer = new StaticScore();
+    private StaticScorer scorer = new StaticScorer();
 
     private Engine engine = new Engine(new MoveBook(), scorer);
 

@@ -103,7 +103,6 @@ public class Perft {
         MoveContainer moves = moveContainers[depth];
         b.makeNullMove();
         b.generateValidMoves(moves);
-
         if (depth < stopDepth) {
             for (int i = 0; i < moves.size(); i++) {
                 b.makeMove(moves.get(i));

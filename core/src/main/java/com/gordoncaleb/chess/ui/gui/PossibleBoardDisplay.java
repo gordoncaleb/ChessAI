@@ -16,14 +16,14 @@ import javax.swing.SwingConstants;
 import com.gordoncaleb.chess.engine.legacy.AI;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.engine.score.StaticScore;
+import com.gordoncaleb.chess.engine.score.StaticScorer;
 
 public class PossibleBoardDisplay implements MouseListener {
 
     private JFrame frame;
 
     private AI ai;
-    private StaticScore scorer = new StaticScore();
+    private StaticScorer scorer = new StaticScorer();
 
     private ArrayList<BoardPanel> boardPanels;
     private ArrayList<JLabel> boardLabels;

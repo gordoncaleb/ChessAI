@@ -2,7 +2,7 @@ package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.engine.score.Values;
-import com.gordoncaleb.chess.engine.score.StaticScore;
+import com.gordoncaleb.chess.engine.score.StaticScorer;
 
 import java.util.Optional;
 import java.util.Random;
@@ -17,11 +17,11 @@ public class Engine {
 
     private final Random rand = new Random();
     private final MoveBook moveBook;
-    private final StaticScore scorer;
+    private final StaticScorer scorer;
 
     private final MoveContainer[] moveContainers;
 
-    public Engine(MoveBook moveBook, StaticScore scorer) {
+    public Engine(MoveBook moveBook, StaticScorer scorer) {
         this.moveBook = moveBook;
         this.scorer = scorer;
         this.moveContainers = MoveContainerFactory.buildMoveContainers(MAX_DEPTH);

@@ -11,6 +11,8 @@ public class MoveContainer {
     private int head = EMPTY;
     private final long[] moves;
     private final Move transientMove = new Move();
+    private int markScore;
+    private long markedMove;
 
     public MoveContainer() {
         this(219);
@@ -70,6 +72,21 @@ public class MoveContainer {
                 m.getPieceTakenId(),
                 m.getPieceTakenRow(),
                 m.getPieceTakenCol());
+    }
+
+    public void markMove(int score) {
+        if (score > markScore) {
+            markedMove = moves[head];
+        }
+    }
+
+    public void resetMarkedMove() {
+        markScore = Integer.MIN_VALUE;
+        markedMove = 0;
+    }
+
+    public Move getMarkedMove(){
+        return Move.fromLong(markedMove, transientMove);
     }
 
     public Move get(int i) {

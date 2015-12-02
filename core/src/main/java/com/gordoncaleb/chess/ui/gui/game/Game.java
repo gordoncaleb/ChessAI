@@ -10,7 +10,7 @@ import com.gordoncaleb.chess.engine.legacy.DecisionNode;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.engine.score.StaticScore;
+import com.gordoncaleb.chess.engine.score.StaticScorer;
 import com.gordoncaleb.chess.util.FileIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public class Game implements PlayerContainer {
     private boolean paused;
     private GameClock clock;
     private Adjudicator adjudicator;
-    private StaticScore scorer = new StaticScore();
+    private StaticScorer scorer = new StaticScorer();
 
     private Boolean gameActive;
 

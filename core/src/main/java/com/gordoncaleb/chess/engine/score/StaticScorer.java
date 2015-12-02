@@ -17,8 +17,8 @@ import static com.gordoncaleb.chess.board.bitboard.Slide.southFill;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 import static com.gordoncaleb.chess.engine.score.Values.*;
 
-public class StaticScore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StaticScore.class);
+public class StaticScorer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticScorer.class);
 
     public static final int ENDGAME_PHASE = 256;
 

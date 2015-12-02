@@ -1,7 +1,7 @@
 package com.gordoncaleb;
 
 import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.engine.score.StaticScore;
+import com.gordoncaleb.chess.engine.score.StaticScorer;
 import com.gordoncaleb.chess.util.Perft;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
@@ -22,7 +22,7 @@ public class StaticScoreBenchmark {
     private final Board[] perftBoards = new Board[7];
     private final Perft perft = new Perft();
 
-    private StaticScore scorer;
+    private StaticScorer scorer;
 
     @Setup
     public void init() {
@@ -34,7 +34,7 @@ public class StaticScoreBenchmark {
         perftBoards[5] = perft.position6();
         perftBoards[6] = perft.promotionPosition();
 
-        scorer = new StaticScore();
+        scorer = new StaticScorer();
     }
 
     @Benchmark

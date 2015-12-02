@@ -4,7 +4,7 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
-import com.gordoncaleb.chess.engine.score.StaticScore;
+import com.gordoncaleb.chess.engine.score.StaticScorer;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.engine.score.Values;
 import org.junit.Test;
@@ -14,9 +14,9 @@ import static org.hamcrest.Matchers.*;
 
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
-public class StaticScoreTest {
+public class StaticScorerTest {
 
-    StaticScore scorer = new StaticScore();
+    StaticScorer scorer = new StaticScorer();
 
     @Test
     public void testMaterialValueForWin() {
@@ -215,7 +215,7 @@ public class StaticScoreTest {
                 "_,_,_,_,K,_,_,_,"
         });
 
-        assertThat(scorer.calcGamePhase(b), is(equalTo(StaticScore.ENDGAME_PHASE)));
+        assertThat(scorer.calcGamePhase(b), is(equalTo(StaticScorer.ENDGAME_PHASE)));
     }
 
     @Test

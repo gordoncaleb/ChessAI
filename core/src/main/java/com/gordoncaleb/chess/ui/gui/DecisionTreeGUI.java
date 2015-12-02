@@ -18,7 +18,7 @@ import javax.swing.tree.TreeSelectionModel;
 import com.gordoncaleb.chess.engine.legacy.AI;
 import com.gordoncaleb.chess.engine.legacy.DecisionNode;
 import com.gordoncaleb.chess.ui.gui.game.Player;
-import com.gordoncaleb.chess.engine.score.StaticScore;
+import com.gordoncaleb.chess.engine.score.StaticScorer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class DecisionTreeGUI implements KeyListener, MouseListener {
 	private JScrollPane treeView;
 	private DecisionNode rootDecision;
 
-	private StaticScore scorer = new StaticScore();
+	private StaticScorer scorer = new StaticScorer();
 	private int[] nodeCount = new int[20];
 	private int distanceFromRoot = 0;
 
