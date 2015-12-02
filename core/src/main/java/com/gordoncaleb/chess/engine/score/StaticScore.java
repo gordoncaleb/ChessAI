@@ -16,7 +16,7 @@ import static com.gordoncaleb.chess.board.bitboard.Slide.southFill;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class StaticScore {
-    private static final Logger logger = LoggerFactory.getLogger(StaticScore.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticScore.class);
 
     public static final int ENDGAME_PHASE = 256;
 
@@ -36,7 +36,7 @@ public class StaticScore {
             case ROOK:
                 return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE : 0;
             default:
-                logger.debug("Error: invalid piece value request!");
+                LOGGER.debug("Error: invalid piece value request!");
                 return 0;
         }
 
@@ -58,7 +58,7 @@ public class StaticScore {
             case ROOK:
                 return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE + 50 : 0;
             default:
-                logger.debug("Error: invalid piece value request!");
+                LOGGER.debug("Error: invalid piece value request!");
                 return 0;
         }
 
@@ -117,9 +117,9 @@ public class StaticScore {
 
     public long getPassedPawns(final long friendPawns, final long foePawns, final int friendSide) {
         if (friendSide == Side.WHITE) {
-            return (~southFill(foePawns | Pawn.getPawnAttacks(foePawns, Side.BLACK)) & friendPawns);
+            return ~southFill(foePawns | Pawn.getPawnAttacks(foePawns, Side.BLACK)) & friendPawns;
         } else {
-            return (~northFill(foePawns | Pawn.getPawnAttacks(foePawns, Side.WHITE)) & friendPawns);
+            return ~northFill(foePawns | Pawn.getPawnAttacks(foePawns, Side.WHITE)) & friendPawns;
         }
     }
 

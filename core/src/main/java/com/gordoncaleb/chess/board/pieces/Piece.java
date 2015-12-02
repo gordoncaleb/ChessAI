@@ -125,9 +125,9 @@ public class Piece {
         String stringId;
 
         if (this.getSide() == Side.WHITE) {
-            stringId = this.stringID(this.pieceId);
+            stringId = stringID(this.pieceId);
         } else {
-            stringId = this.stringID(this.pieceId).toLowerCase();
+            stringId = stringID(this.pieceId).toLowerCase();
         }
 
         return stringId;
@@ -187,7 +187,7 @@ public class Piece {
 
         int bitNum;
         while ((bitNum = Long.numberOfTrailingZeros(validFootPrint)) < 64) {
-            final long mask = (1L << bitNum);
+            final long mask = 1L << bitNum;
             final int toRow = bitNum / 8;
             final int toCol = bitNum % 8;
             final Piece pt = board.getPiece(toRow, toCol);

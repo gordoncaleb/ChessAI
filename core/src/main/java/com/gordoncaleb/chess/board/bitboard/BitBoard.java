@@ -1,8 +1,6 @@
 package com.gordoncaleb.chess.board.bitboard;
 
 import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.pieces.Pawn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +12,6 @@ import java.util.stream.Stream;
 
 import static com.gordoncaleb.chess.board.Side.BLACK;
 import static com.gordoncaleb.chess.board.Side.WHITE;
-import static com.gordoncaleb.chess.board.bitboard.Slide.northFill;
-import static com.gordoncaleb.chess.board.bitboard.Slide.southFill;
 
 public class BitBoard {
     public static Logger logger = LoggerFactory.getLogger(BitBoard.class);
@@ -30,23 +26,14 @@ public class BitBoard {
     public static final long NOT_RIGHT4 = 0x0F0F0F0F0F0F0F0FL;
 
     public static final long COL1 = 0x0101010101010101L;
-    public static final long COL2 = COL1 << 1;
-    public static final long COL3 = COL1 << 2;
-    public static final long COL4 = COL1 << 3;
-    public static final long COL5 = COL1 << 4;
-    public static final long COL6 = COL1 << 5;
-    public static final long COL7 = COL1 << 6;
-    public static final long COL8 = COL1 << 7;
 
     public static final long TOP_BIT = 0x8000000000000000L;
     public static final long BOT_BIT = 0x1L;
 
-    public final static long[] kingFootPrint = new long[64];
-    public final static long[][] knightFootPrint = new long[8][8];
+    private static final long[][] knightFootPrint = new long[8][8];
 
     static {
         loadKnightFootPrints();
-        loadKingFootPrints();
     }
 
     public static long[][] buildKingToCastleMasks(long[] kings, long[][] rooks) {
@@ -114,30 +101,6 @@ public class BitBoard {
 
     public static long getRowMask(int row) {
         return (0xFFL << (row * 8));
-    }
-
-    public static void loadKingFootPrints() {
-
-        int[][] KINGMOVES = {{1, 1, -1, -1, 1, -1, 0, 0}, {1, -1, 1, -1, 0, 0, 1, -1}};
-
-        int nextr;
-        int nextc;
-
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                kingFootPrint[r * 8 + c] = 0;
-
-                for (int m = 0; m < 8; m++) {
-                    nextr = r + KINGMOVES[0][m];
-                    nextc = c + KINGMOVES[1][m];
-
-                    if (nextr >= 0 && nextr < 8 && nextc >= 0 && nextc < 8) {
-                        kingFootPrint[r * 8 + c] |= getMask(nextr, nextc);
-                    }
-                }
-
-            }
-        }
     }
 
     public static void loadKnightFootPrints() {

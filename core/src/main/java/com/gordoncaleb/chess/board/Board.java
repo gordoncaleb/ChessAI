@@ -7,19 +7,15 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
-import com.gordoncaleb.chess.engine.legacy.AI;
 import com.gordoncaleb.chess.board.pieces.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.gordoncaleb.chess.board.Side.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 
 public class Board {
-    private static final Logger logger = LoggerFactory.getLogger(Board.class);
 
-    private final RNGTable rngTable = RNGTable.instance;
+    private static final RNGTable rngTable = RNGTable.instance;
 
     public static final int FOE_ATTACKS = 0;
     public static final int CHECK_VECTORS = 1;
@@ -30,11 +26,8 @@ public class Board {
     public static final int NEAR = 0;
     public static final int FAR = 1;
     public static final int[] MATERIAL_ROW = new int[2];
-    public static final int[] PAWN_ROW = new int[2];
 
     static {
-        PAWN_ROW[BLACK] = 1;
-        PAWN_ROW[WHITE] = 6;
         MATERIAL_ROW[BLACK] = 0;
         MATERIAL_ROW[WHITE] = 7;
     }
@@ -118,7 +111,7 @@ public class Board {
         hashCodeFreq = incrementHashCodeFrequency(hashCode);
     }
 
-    private long orKingsAndRooks(long[] kingsInitBitBoards, long[][] rooksInitBitboards) {
+    private static long orKingsAndRooks(long[] kingsInitBitBoards, long[][] rooksInitBitboards) {
         return kingsInitBitBoards[WHITE] |
                 kingsInitBitBoards[BLACK] |
                 rooksInitBitboards[WHITE][NEAR] |
@@ -128,21 +121,21 @@ public class Board {
     }
 
     private Piece[][] buildPieceBoard(List<Piece>[] pieces) {
-        Piece[][] board = new Piece[8][8];
+        Piece[][] b = new Piece[8][8];
 
-        for (int r = 0; r < board.length; r++) {
-            for (int c = 0; c < board[r].length; c++) {
-                board[r][c] = Piece.EMPTY;
+        for (int r = 0; r < b.length; r++) {
+            for (int c = 0; c < b[r].length; c++) {
+                b[r][c] = Piece.EMPTY;
             }
         }
 
         Stream.of(pieces)
-                .flatMap(ps -> ps.stream())
+                .flatMap(List::stream)
                 .forEach(p ->
-                        board[p.getRow()][p.getCol()] = p
+                        b[p.getRow()][p.getCol()] = p
                 );
 
-        return board;
+        return b;
     }
 
     private long[][] buildPieceBitBoards(List<Piece>[] pieces) {
