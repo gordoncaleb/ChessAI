@@ -37,7 +37,7 @@ public class Pawn {
 
         final long foes = posBitBoard[Side.otherSide(side)];
         final long emptySpace = ~(posBitBoard[WHITE] | posBitBoard[BLACK]);
-        final long valid = nullMoveInfo[1] & p.blockingVector();
+        final long valid = nullMoveInfo[CHECK_VECTORS] & p.blockingVector();
 
         final long hops, attacks, validLeapMoves, enPassantAttack, enPassantTarget;
 
@@ -50,9 +50,9 @@ public class Pawn {
             enPassantTarget = getMask(4, enpassantCol);
 
             if ((enPassantAttack & p.blockingVector()) != 0 &&
-                    (nullMoveInfo[1] & enPassantTarget) != 0 &&
-                    (enPassantTarget | mask) != nullMoveInfo[3] &&
-                    (enPassantTarget | mask) != nullMoveInfo[4]) {
+                    (nullMoveInfo[CHECK_VECTORS] & enPassantTarget) != 0 &&
+                    (enPassantTarget | mask) != nullMoveInfo[KING_WEST] &&
+                    (enPassantTarget | mask) != nullMoveInfo[KING_EAST]) {
                 final Piece pieceTaken = board.getPiece(4, enpassantCol);
                 validMoves.add(row, col, WHITE_PAWN_LEAP_ROW, enpassantCol,
                         EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()
@@ -68,8 +68,8 @@ public class Pawn {
 
             if ((enPassantAttack & p.blockingVector()) != 0 &&
                     (nullMoveInfo[CHECK_VECTORS] & enPassantTarget) != 0 &&
-                    (enPassantTarget | mask) != nullMoveInfo[3] &&
-                    (enPassantTarget | mask) != nullMoveInfo[4]) {
+                    (enPassantTarget | mask) != nullMoveInfo[KING_WEST] &&
+                    (enPassantTarget | mask) != nullMoveInfo[KING_EAST]) {
                 final Piece pieceTaken = board.getPiece(3, enpassantCol);
                 validMoves.add(row, col, BLACK_PAWN_LEAP_ROW, enpassantCol,
                         EN_PASSANT, pieceTaken.getPieceID(), pieceTaken.getRow(), pieceTaken.getCol()

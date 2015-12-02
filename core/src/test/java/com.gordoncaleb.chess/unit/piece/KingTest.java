@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
+import static com.gordoncaleb.chess.board.Board.*;
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -84,14 +85,14 @@ public class KingTest {
     private void testCheckVector(String[] setup, String[] solution) {
         long[] nullMoveInfo = new long[]{0, ALL_ONES, 0, 0, 0};
         testSetupKingCheckInfo(setup, nullMoveInfo);
-        assertThat(printBitBoard(nullMoveInfo[1]), is(equalTo(printBitBoard(parseBitBoard(solution)))));
+        assertThat(printBitBoard(nullMoveInfo[CHECK_VECTORS]), is(equalTo(printBitBoard(parseBitBoard(solution)))));
     }
 
     private void testCheckVectorCompliment(String[] setup, String[] solution) {
         long[] nullMoveInfo = new long[]{0, ALL_ONES, 0, 0, 0};
         testSetupKingCheckInfo(setup, nullMoveInfo);
-        logger.info("Check Compliment is:\n" + printBitBoard(nullMoveInfo[2]));
-        assertThat(nullMoveInfo[2] & parseBitBoard(solution), is(greaterThan(0L)));
+        logger.info("Check Compliment is:\n" + printBitBoard(nullMoveInfo[CHECK_COMPLIMENT]));
+        assertThat(nullMoveInfo[CHECK_COMPLIMENT] & parseBitBoard(solution), is(greaterThan(0L)));
     }
 
     private void testBlockingVector(String[] setup, int r, int c, String[] solution) {

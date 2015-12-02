@@ -25,7 +25,7 @@ public class Board {
 
     public static final int NEAR = 0;
     public static final int FAR = 1;
-    public static final int[] MATERIAL_ROW = new int[2];
+    private static final int[] MATERIAL_ROW = new int[2];
 
     static {
         MATERIAL_ROW[BLACK] = 0;
@@ -58,7 +58,6 @@ public class Board {
     private final Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
     private final long[] nullMoveInfo = new long[5];
-
 
     private final long[][] posBitBoard;
     private final long[] allPosBitBoard;
@@ -95,8 +94,8 @@ public class Board {
 
         kingsInitBitBoards = buildKingsInitBitboards(posBitBoard);
         rooksInitBitboards = buildRookInitBitBoards(board);
-        kingToCastleMasks = buildKingToCastleMasks(kingsInitBitBoards, rooksInitBitboards);
-        rookToCastleMasks = buildRookToCastleMasks(kingsInitBitBoards, rooksInitBitboards);
+        kingToCastleMasks = buildKingToCastleMasks(kingsInitBitBoards, rooksInitBitboards, MATERIAL_ROW);
+        rookToCastleMasks = buildRookToCastleMasks(kingsInitBitBoards, rooksInitBitboards, MATERIAL_ROW);
 
         castleRights = orKingsAndRooks(kingsInitBitBoards, rooksInitBitboards);
         applyCastleRights(Side.WHITE, whiteNear, whiteFar);

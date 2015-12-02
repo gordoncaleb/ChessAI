@@ -4,6 +4,7 @@ import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Board;
 
+import static com.gordoncaleb.chess.board.Board.CHECK_VECTORS;
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.board.Move.MoveNote.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.buildValidMoves;
@@ -17,7 +18,7 @@ public class Knight {
                                                    final MoveContainer validMoves) {
 
         final long footPrint = getKnightAttacks(p.asBitMask()) & ~posBitBoard[p.getSide()];
-        final long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector();
+        final long validFootPrint = footPrint & nullMoveInfo[CHECK_VECTORS] & p.blockingVector();
 
         buildValidMoves(validFootPrint, p.getRow(), p.getCol(), NORMAL, board, validMoves);
 

@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.gordoncaleb.chess.board.Board.CHECK_VECTORS;
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -379,7 +380,7 @@ public class BoardTest {
 
         long[] nullMoveInfo = getNullMoveInfo(Side.WHITE, setup);
 
-        assertThat(printBitBoard(nullMoveInfo[1]), is(equalTo(printBitBoard(parseBitBoard(new String[]{
+        assertThat(printBitBoard(nullMoveInfo[CHECK_VECTORS]), is(equalTo(printBitBoard(parseBitBoard(new String[]{
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
@@ -406,7 +407,7 @@ public class BoardTest {
 
         long[] nullMoveInfo = getNullMoveInfo(Side.WHITE, setup);
 
-        assertThat(printBitBoard(nullMoveInfo[1]), is(equalTo(printBitBoard(parseBitBoard(new String[]{
+        assertThat(printBitBoard(nullMoveInfo[CHECK_VECTORS]), is(equalTo(printBitBoard(parseBitBoard(new String[]{
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",

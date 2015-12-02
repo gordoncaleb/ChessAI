@@ -1,13 +1,13 @@
 package com.gordoncaleb.chess.board.pieces;
 
 import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Side;
 
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.*;
 import static com.gordoncaleb.chess.board.Move.MoveNote.*;
+import static com.gordoncaleb.chess.board.Board.*;
 
 public class Bishop {
 
@@ -21,7 +21,7 @@ public class Bishop {
         final long foes = posBitBoard[Side.otherSide(p.getSide())];
         final long friendOrFoe = (friends | foes);
         final long footPrint = slideBishop(p.asBitMask(), friendOrFoe) & ~friends;
-        final long validFootPrint = footPrint & nullMoveInfo[1] & p.blockingVector();
+        final long validFootPrint = footPrint & nullMoveInfo[CHECK_VECTORS] & p.blockingVector();
 
         buildValidMoves(validFootPrint, p.getRow(), p.getCol(), NORMAL, board, validMoves);
 
@@ -41,7 +41,7 @@ public class Bishop {
                                         final long[] nullMoveInfo) {
         long mask;
         while ((mask = Long.lowestOneBit(bishops)) != 0) {
-            nullMoveInfo[0] |= slideBishop(mask, friendOrFoe) & ~mask;
+            nullMoveInfo[FOE_ATTACKS] |= slideBishop(mask, friendOrFoe) & ~mask;
             bishops ^= mask;
         }
     }

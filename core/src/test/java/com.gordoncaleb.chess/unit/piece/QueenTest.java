@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
+import static com.gordoncaleb.chess.board.Board.*;
 
 public class QueenTest {
 
@@ -157,7 +158,7 @@ public class QueenTest {
         long[] nullMoveInfo = new long[]{0, ALL_ONES, 0};
         Queen.getQueenAttacks(queens, friendOrFoe, nullMoveInfo);
 
-        assertThat(printBitBoard(nullMoveInfo[0]), is(equalTo(printBitBoard(parseBitBoard(new String[]{
+        assertThat(printBitBoard(nullMoveInfo[FOE_ATTACKS]), is(equalTo(printBitBoard(parseBitBoard(new String[]{
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,1,_,_,_,_,",
@@ -169,6 +170,4 @@ public class QueenTest {
         })))));
 
     }
-
-
 }
