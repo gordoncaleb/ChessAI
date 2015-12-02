@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.gordoncaleb.chess.board.bitboard.Slide.northFill;
@@ -21,21 +22,25 @@ public class StaticScore {
 
     public static final int ENDGAME_PHASE = 256;
 
-    public int getOpeningPositionValue(final Piece piece, final long openFiles) {
+    public int getOpeningPositionValue(final int pieceId,
+                                       final int row,
+                                       final int col,
+                                       final int side,
+                                       final long openFiles) {
 
-        switch (piece.getPieceID()) {
+        switch (pieceId) {
             case KNIGHT:
-                return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+                return PositionBonus.getKnightPositionBonus(row, col, side);
             case PAWN:
-                return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+                return PositionBonus.getPawnPositionBonus(row, col, side);
             case BISHOP:
-                return 0;
+                return PositionBonus.BISHOP_OPENING;
             case KING:
-                return PositionBonus.getKingOpeningPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+                return PositionBonus.getKingOpeningPositionBonus(row, col, side);
             case QUEEN:
-                return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE : 0;
+                return ((BitBoard.getMask(row, col) & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE_OPENING : 0;
             case ROOK:
-                return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE : 0;
+                return ((BitBoard.getMask(row, col) & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE_OPENING : 0;
             default:
                 LOGGER.debug("Error: invalid piece value request!");
                 return 0;
@@ -43,21 +48,25 @@ public class StaticScore {
 
     }
 
-    public int getEndGamePositionValue(final Piece piece, final long openFiles) {
+    public int getEndGamePositionValue(final int pieceId,
+                                       final int row,
+                                       final int col,
+                                       final int side,
+                                       final long openFiles) {
 
-        switch (piece.getPieceID()) {
+        switch (pieceId) {
             case KNIGHT:
-                return PositionBonus.getKnightPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+                return PositionBonus.getKnightPositionBonus(row, col, side);
             case PAWN:
-                return PositionBonus.getPawnPositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+                return PositionBonus.getPawnPositionBonus(row, col, side);
             case BISHOP:
-                return 50;
+                return PositionBonus.BISHOP_ENDGAME;
             case KING:
-                return PositionBonus.getKingEndGamePositionBonus(piece.getRow(), piece.getCol(), piece.getSide());
+                return PositionBonus.getKingEndGamePositionBonus(row, col, side);
             case QUEEN:
-                return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE + 100 : 0;
+                return ((BitBoard.getMask(row, col) & openFiles) != 0) ? PositionBonus.QUEEN_ON_OPENFILE_ENDGAME : 0;
             case ROOK:
-                return ((piece.asBitMask() & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE + 50 : 0;
+                return ((BitBoard.getMask(row, col) & openFiles) != 0) ? PositionBonus.ROOK_ON_OPENFILE_ENDGAME : 0;
             default:
                 LOGGER.debug("Error: invalid piece value request!");
                 return 0;
@@ -65,21 +74,21 @@ public class StaticScore {
 
     }
 
-    public int openingPositionScore(final int side, final Board b, final long openFiles) {
+    public int openingPositionScore(final List<Piece> pieces, final long openFiles) {
         int score = 0;
 
-        for (Piece p : b.getPieces()[side]) {
-            score += getOpeningPositionValue(p, openFiles);
+        for (Piece p : pieces) {
+            score += getOpeningPositionValue(p.getPieceID(), p.getRow(), p.getCol(), p.getSide(), openFiles);
         }
 
         return score;
     }
 
-    public int endGamePositionScore(final int side, final Board b, final long openFiles) {
+    public int endGamePositionScore(final List<Piece> pieces, final long openFiles) {
         int score = 0;
 
-        for (Piece p : b.getPieces()[side]) {
-            score += getEndGamePositionValue(p, openFiles);
+        for (Piece p : pieces) {
+            score += getEndGamePositionValue(p.getPieceID(), p.getRow(), p.getCol(), p.getSide(), openFiles);
         }
 
         return score;
@@ -171,11 +180,11 @@ public class StaticScore {
         final long myOpenFiles = getOpenFiles(yourPawns);
         final long yourOpenFiles = getOpenFiles(myPawns);
 
-        final int openingMyScore = openingPositionScore(side, b, yourOpenFiles);
-        final int openingYourScore = openingPositionScore(otherSide, b, myOpenFiles);
+        final int openingMyScore = openingPositionScore(b.getPieces()[side], yourOpenFiles);
+        final int openingYourScore = openingPositionScore(b.getPieces()[otherSide], myOpenFiles);
 
-        final int endGameMyScore = endGamePositionScore(side, b, yourOpenFiles);
-        final int endGameYourScore = endGamePositionScore(otherSide, b, myOpenFiles);
+        final int endGameMyScore = endGamePositionScore(b.getPieces()[side], yourOpenFiles);
+        final int endGameYourScore = endGamePositionScore(b.getPieces()[otherSide], myOpenFiles);
 
         final int materialScoreDelta = materialScoreDelta(side, otherSide, b.getPosBitBoard());
 
@@ -201,11 +210,11 @@ public class StaticScore {
         final long myOpenFiles = getOpenFiles(yourPawns);
         final long yourOpenFiles = getOpenFiles(myPawns);
 
-        final int openingMyScore = openingPositionScore(side, b, yourOpenFiles);
-        final int openingYourScore = openingPositionScore(otherSide, b, myOpenFiles);
+        final int openingMyScore = openingPositionScore(b.getPieces()[side], yourOpenFiles);
+        final int openingYourScore = openingPositionScore(b.getPieces()[otherSide], myOpenFiles);
 
-        final int endGameMyScore = endGamePositionScore(side, b, yourOpenFiles);
-        final int endGameYourScore = endGamePositionScore(otherSide, b, myOpenFiles);
+        final int endGameMyScore = endGamePositionScore(b.getPieces()[side], yourOpenFiles);
+        final int endGameYourScore = endGamePositionScore(b.getPieces()[otherSide], myOpenFiles);
 
         final int materialScoreDelta = materialScoreDelta(side, otherSide, b.getPosBitBoard());
 

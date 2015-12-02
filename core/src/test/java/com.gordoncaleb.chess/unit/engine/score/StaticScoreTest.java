@@ -6,6 +6,7 @@ import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.engine.score.StaticScore;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
+import com.gordoncaleb.chess.engine.score.Values;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -220,7 +221,7 @@ public class StaticScoreTest {
     @Test
     public void testMaterialValue() {
         String[] setup = {
-                "r,n,b,q,k,b,n,r,",
+                "r,n,b,_,k,b,n,r,",
                 "p,p,p,p,p,p,_,p,",
                 "_,_,_,_,_,_,_,_,",
                 "_,_,_,_,_,_,_,_,",
@@ -230,12 +231,14 @@ public class StaticScoreTest {
                 "R,N,B,Q,K,B,N,R,"
         };
 
+        int delta = Values.PAWN_VALUE + Values.QUEEN_VALUE;
+
         Board board = JSONParser.getFromSetup(Side.WHITE, setup);
         assertThat("Delta", scorer.materialScoreDelta(Side.WHITE, Side.BLACK, board.getPosBitBoard()),
-                greaterThan(0));
+                equalTo(delta));
 
         assertThat("Delta", scorer.materialScoreDelta(Side.BLACK, Side.WHITE, board.getPosBitBoard()),
-                lessThan(0));
+                equalTo(-delta));
     }
 
 }
