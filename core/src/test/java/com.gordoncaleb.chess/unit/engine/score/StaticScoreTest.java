@@ -18,7 +18,7 @@ public class StaticScoreTest {
     StaticScore scorer = new StaticScore();
 
     @Test
-    public void testMaterialValue() {
+    public void testMaterialValueForWin() {
         String[] setup = {
                 "r,n,b,q,k,b,n,r,",
                 "p,p,p,p,p,p,_,p,",
@@ -216,4 +216,26 @@ public class StaticScoreTest {
 
         assertThat(scorer.calcGamePhase(b), is(equalTo(StaticScore.ENDGAME_PHASE)));
     }
+
+    @Test
+    public void testMaterialValue() {
+        String[] setup = {
+                "r,n,b,q,k,b,n,r,",
+                "p,p,p,p,p,p,_,p,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "P,P,P,P,P,P,P,P,",
+                "R,N,B,Q,K,B,N,R,"
+        };
+
+        Board board = JSONParser.getFromSetup(Side.WHITE, setup);
+        assertThat("Delta", scorer.materialScoreDelta(Side.WHITE, Side.BLACK, board.getPosBitBoard()),
+                greaterThan(0));
+
+        assertThat("Delta", scorer.materialScoreDelta(Side.BLACK, Side.WHITE, board.getPosBitBoard()),
+                lessThan(0));
+    }
+
 }

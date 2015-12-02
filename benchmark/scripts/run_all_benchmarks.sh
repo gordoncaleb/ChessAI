@@ -10,8 +10,8 @@ function runBenchmark () {
     java -cp target/ohword-benchmark-0.1-SNAPSHOT.jar:target/benchmarks.jar com.gordoncaleb.$1 | tee results/$1.md
 }
 
-runBenchmark "PerftBenchmark"
-runBenchmark "MoveGenerationBenchmark"
+#runBenchmark "PerftBenchmark"
+#runBenchmark "MoveGenerationBenchmark"
 runBenchmark "StaticScoreBenchmark"
 
 echo "All benchmark tests complete"

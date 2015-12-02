@@ -12,99 +12,99 @@
 
 # Run progress: 0.00% complete, ETA 00:07:00
 # Fork: 1 of 10
-# Warmup Iteration   1: 513.013 ns/op
-Iteration   1: 489.851 ns/op
-Iteration   2: 512.814 ns/op
-Iteration   3: 494.278 ns/op
-Iteration   4: 492.070 ns/op
-Iteration   5: 520.754 ns/op
+# Warmup Iteration   1: 487.117 ns/op
+Iteration   1: 478.697 ns/op
+Iteration   2: 455.000 ns/op
+Iteration   3: 472.506 ns/op
+Iteration   4: 465.473 ns/op
+Iteration   5: 457.853 ns/op
 
-# Run progress: 1.43% complete, ETA 00:07:26
+# Run progress: 1.43% complete, ETA 00:07:22
 # Fork: 2 of 10
-# Warmup Iteration   1: 510.178 ns/op
-Iteration   1: 507.063 ns/op
-Iteration   2: 499.625 ns/op
-Iteration   3: 481.846 ns/op
-Iteration   4: 489.564 ns/op
-Iteration   5: 520.369 ns/op
+# Warmup Iteration   1: 473.558 ns/op
+Iteration   1: 490.955 ns/op
+Iteration   2: 495.880 ns/op
+Iteration   3: 478.306 ns/op
+Iteration   4: 471.069 ns/op
+Iteration   5: 479.665 ns/op
 
-# Run progress: 2.86% complete, ETA 00:07:17
+# Run progress: 2.86% complete, ETA 00:07:15
 # Fork: 3 of 10
-# Warmup Iteration   1: 528.205 ns/op
-Iteration   1: 520.746 ns/op
-Iteration   2: 514.444 ns/op
-Iteration   3: 522.632 ns/op
-Iteration   4: 515.531 ns/op
-Iteration   5: 505.771 ns/op
+# Warmup Iteration   1: 485.943 ns/op
+Iteration   1: 480.825 ns/op
+Iteration   2: 483.178 ns/op
+Iteration   3: 482.384 ns/op
+Iteration   4: 481.649 ns/op
+Iteration   5: 474.394 ns/op
 
-# Run progress: 4.29% complete, ETA 00:07:10
+# Run progress: 4.29% complete, ETA 00:07:08
 # Fork: 4 of 10
-# Warmup Iteration   1: 486.348 ns/op
-Iteration   1: 497.749 ns/op
-Iteration   2: 496.963 ns/op
-Iteration   3: 497.131 ns/op
-Iteration   4: 496.152 ns/op
-Iteration   5: 503.430 ns/op
+# Warmup Iteration   1: 485.250 ns/op
+Iteration   1: 474.004 ns/op
+Iteration   2: 467.588 ns/op
+Iteration   3: 482.575 ns/op
+Iteration   4: 455.934 ns/op
+Iteration   5: 468.970 ns/op
 
-# Run progress: 5.71% complete, ETA 00:07:03
+# Run progress: 5.71% complete, ETA 00:07:02
 # Fork: 5 of 10
-# Warmup Iteration   1: 510.541 ns/op
-Iteration   1: 526.715 ns/op
-Iteration   2: 503.705 ns/op
-Iteration   3: 492.475 ns/op
-Iteration   4: 484.271 ns/op
-Iteration   5: 503.738 ns/op
+# Warmup Iteration   1: 482.018 ns/op
+Iteration   1: 480.826 ns/op
+Iteration   2: 480.549 ns/op
+Iteration   3: 470.681 ns/op
+Iteration   4: 484.854 ns/op
+Iteration   5: 474.470 ns/op
 
-# Run progress: 7.14% complete, ETA 00:06:57
+# Run progress: 7.14% complete, ETA 00:06:55
 # Fork: 6 of 10
-# Warmup Iteration   1: 516.324 ns/op
-Iteration   1: 515.849 ns/op
-Iteration   2: 495.738 ns/op
-Iteration   3: 481.805 ns/op
-Iteration   4: 490.744 ns/op
-Iteration   5: 515.908 ns/op
+# Warmup Iteration   1: 496.608 ns/op
+Iteration   1: 506.865 ns/op
+Iteration   2: 518.233 ns/op
+Iteration   3: 517.998 ns/op
+Iteration   4: 511.060 ns/op
+Iteration   5: 532.301 ns/op
 
-# Run progress: 8.57% complete, ETA 00:06:51
+# Run progress: 8.57% complete, ETA 00:06:49
 # Fork: 7 of 10
-# Warmup Iteration   1: 500.260 ns/op
-Iteration   1: 513.942 ns/op
-Iteration   2: 517.660 ns/op
-Iteration   3: 504.199 ns/op
-Iteration   4: 489.642 ns/op
-Iteration   5: 506.293 ns/op
+# Warmup Iteration   1: 526.354 ns/op
+Iteration   1: 499.209 ns/op
+Iteration   2: 511.783 ns/op
+Iteration   3: 518.639 ns/op
+Iteration   4: 512.057 ns/op
+Iteration   5: 517.572 ns/op
 
-# Run progress: 10.00% complete, ETA 00:06:44
+# Run progress: 10.00% complete, ETA 00:06:42
 # Fork: 8 of 10
-# Warmup Iteration   1: 508.329 ns/op
-Iteration   1: 498.437 ns/op
-Iteration   2: 498.604 ns/op
-Iteration   3: 508.150 ns/op
-Iteration   4: 484.404 ns/op
-Iteration   5: 517.592 ns/op
+# Warmup Iteration   1: 497.531 ns/op
+Iteration   1: 500.394 ns/op
+Iteration   2: 488.660 ns/op
+Iteration   3: 474.590 ns/op
+Iteration   4: 480.726 ns/op
+Iteration   5: 476.164 ns/op
 
-# Run progress: 11.43% complete, ETA 00:06:38
+# Run progress: 11.43% complete, ETA 00:06:36
 # Fork: 9 of 10
-# Warmup Iteration   1: 520.729 ns/op
-Iteration   1: 510.974 ns/op
-Iteration   2: 515.869 ns/op
-Iteration   3: 509.500 ns/op
-Iteration   4: 520.599 ns/op
-Iteration   5: 491.485 ns/op
+# Warmup Iteration   1: 528.401 ns/op
+Iteration   1: 515.125 ns/op
+Iteration   2: 499.374 ns/op
+Iteration   3: 487.886 ns/op
+Iteration   4: 504.150 ns/op
+Iteration   5: 518.929 ns/op
 
-# Run progress: 12.86% complete, ETA 00:06:31
+# Run progress: 12.86% complete, ETA 00:06:29
 # Fork: 10 of 10
-# Warmup Iteration   1: 505.254 ns/op
-Iteration   1: 507.085 ns/op
-Iteration   2: 509.583 ns/op
-Iteration   3: 521.350 ns/op
-Iteration   4: 503.066 ns/op
-Iteration   5: 492.999 ns/op
+# Warmup Iteration   1: 509.093 ns/op
+Iteration   1: 522.889 ns/op
+Iteration   2: 526.371 ns/op
+Iteration   3: 513.974 ns/op
+Iteration   4: 510.728 ns/op
+Iteration   5: 507.753 ns/op
 
 
 Result "testScore":
-  504.223 ±(99.9%) 5.990 ns/op [Average]
-  (min, avg, max) = (481.805, 504.223, 526.715), stdev = 12.100
-  CI (99.9%): [498.233, 510.213] (assumes normal distribution)
+  491.234 ±(99.9%) 10.106 ns/op [Average]
+  (min, avg, max) = (455.000, 491.234, 532.301), stdev = 20.415
+  CI (99.9%): [481.128, 501.340] (assumes normal distribution)
 
 
 # JMH 1.11.1 (released 68 days ago)
@@ -119,101 +119,101 @@ Result "testScore":
 # Benchmark: com.gordoncaleb.StaticScoreBenchmark.testScore
 # Parameters: (perftNum = 1)
 
-# Run progress: 14.29% complete, ETA 00:06:25
+# Run progress: 14.29% complete, ETA 00:06:23
 # Fork: 1 of 10
-# Warmup Iteration   1: 514.236 ns/op
-Iteration   1: 503.104 ns/op
-Iteration   2: 513.170 ns/op
-Iteration   3: 501.812 ns/op
-Iteration   4: 486.710 ns/op
-Iteration   5: 486.878 ns/op
+# Warmup Iteration   1: 529.079 ns/op
+Iteration   1: 524.178 ns/op
+Iteration   2: 513.691 ns/op
+Iteration   3: 509.498 ns/op
+Iteration   4: 500.152 ns/op
+Iteration   5: 485.647 ns/op
 
-# Run progress: 15.71% complete, ETA 00:06:19
+# Run progress: 15.71% complete, ETA 00:06:18
 # Fork: 2 of 10
-# Warmup Iteration   1: 502.291 ns/op
-Iteration   1: 472.042 ns/op
-Iteration   2: 488.895 ns/op
-Iteration   3: 501.384 ns/op
-Iteration   4: 486.100 ns/op
-Iteration   5: 494.067 ns/op
+# Warmup Iteration   1: 549.053 ns/op
+Iteration   1: 592.887 ns/op
+Iteration   2: 537.343 ns/op
+Iteration   3: 516.971 ns/op
+Iteration   4: 521.059 ns/op
+Iteration   5: 517.695 ns/op
 
-# Run progress: 17.14% complete, ETA 00:06:13
+# Run progress: 17.14% complete, ETA 00:06:11
 # Fork: 3 of 10
-# Warmup Iteration   1: 521.113 ns/op
-Iteration   1: 514.966 ns/op
-Iteration   2: 478.129 ns/op
-Iteration   3: 498.245 ns/op
-Iteration   4: 498.588 ns/op
-Iteration   5: 492.984 ns/op
+# Warmup Iteration   1: 532.478 ns/op
+Iteration   1: 503.530 ns/op
+Iteration   2: 481.256 ns/op
+Iteration   3: 493.837 ns/op
+Iteration   4: 496.399 ns/op
+Iteration   5: 480.519 ns/op
 
-# Run progress: 18.57% complete, ETA 00:06:06
+# Run progress: 18.57% complete, ETA 00:06:05
 # Fork: 4 of 10
-# Warmup Iteration   1: 507.984 ns/op
-Iteration   1: 497.170 ns/op
-Iteration   2: 462.432 ns/op
-Iteration   3: 497.839 ns/op
-Iteration   4: 513.142 ns/op
-Iteration   5: 477.830 ns/op
+# Warmup Iteration   1: 523.448 ns/op
+Iteration   1: 496.980 ns/op
+Iteration   2: 469.560 ns/op
+Iteration   3: 483.369 ns/op
+Iteration   4: 495.923 ns/op
+Iteration   5: 484.103 ns/op
 
-# Run progress: 20.00% complete, ETA 00:06:00
+# Run progress: 20.00% complete, ETA 00:05:59
 # Fork: 5 of 10
-# Warmup Iteration   1: 506.400 ns/op
-Iteration   1: 476.264 ns/op
-Iteration   2: 518.828 ns/op
-Iteration   3: 496.894 ns/op
-Iteration   4: 501.875 ns/op
-Iteration   5: 476.916 ns/op
+# Warmup Iteration   1: 495.581 ns/op
+Iteration   1: 484.828 ns/op
+Iteration   2: 506.551 ns/op
+Iteration   3: 504.390 ns/op
+Iteration   4: 493.369 ns/op
+Iteration   5: 483.421 ns/op
 
-# Run progress: 21.43% complete, ETA 00:05:53
+# Run progress: 21.43% complete, ETA 00:05:52
 # Fork: 6 of 10
-# Warmup Iteration   1: 532.701 ns/op
-Iteration   1: 503.338 ns/op
-Iteration   2: 511.442 ns/op
-Iteration   3: 513.649 ns/op
-Iteration   4: 492.716 ns/op
-Iteration   5: 504.748 ns/op
+# Warmup Iteration   1: 513.312 ns/op
+Iteration   1: 498.537 ns/op
+Iteration   2: 493.761 ns/op
+Iteration   3: 489.663 ns/op
+Iteration   4: 487.013 ns/op
+Iteration   5: 499.727 ns/op
 
-# Run progress: 22.86% complete, ETA 00:05:47
+# Run progress: 22.86% complete, ETA 00:05:46
 # Fork: 7 of 10
-# Warmup Iteration   1: 525.981 ns/op
-Iteration   1: 520.629 ns/op
-Iteration   2: 485.851 ns/op
-Iteration   3: 518.451 ns/op
-Iteration   4: 481.787 ns/op
-Iteration   5: 492.112 ns/op
+# Warmup Iteration   1: 511.050 ns/op
+Iteration   1: 497.544 ns/op
+Iteration   2: 483.006 ns/op
+Iteration   3: 505.810 ns/op
+Iteration   4: 507.061 ns/op
+Iteration   5: 540.797 ns/op
 
-# Run progress: 24.29% complete, ETA 00:05:40
+# Run progress: 24.29% complete, ETA 00:05:39
 # Fork: 8 of 10
-# Warmup Iteration   1: 508.170 ns/op
-Iteration   1: 531.574 ns/op
-Iteration   2: 501.302 ns/op
-Iteration   3: 499.194 ns/op
-Iteration   4: 501.160 ns/op
-Iteration   5: 500.902 ns/op
+# Warmup Iteration   1: 565.235 ns/op
+Iteration   1: 520.318 ns/op
+Iteration   2: 481.970 ns/op
+Iteration   3: 464.096 ns/op
+Iteration   4: 450.328 ns/op
+Iteration   5: 459.956 ns/op
 
-# Run progress: 25.71% complete, ETA 00:05:34
+# Run progress: 25.71% complete, ETA 00:05:33
 # Fork: 9 of 10
-# Warmup Iteration   1: 521.845 ns/op
-Iteration   1: 490.296 ns/op
-Iteration   2: 516.480 ns/op
-Iteration   3: 517.092 ns/op
-Iteration   4: 527.383 ns/op
-Iteration   5: 521.611 ns/op
+# Warmup Iteration   1: 470.437 ns/op
+Iteration   1: 463.909 ns/op
+Iteration   2: 476.345 ns/op
+Iteration   3: 457.492 ns/op
+Iteration   4: 469.998 ns/op
+Iteration   5: 464.896 ns/op
 
 # Run progress: 27.14% complete, ETA 00:05:27
 # Fork: 10 of 10
-# Warmup Iteration   1: 591.533 ns/op
-Iteration   1: 869.215 ns/op
-Iteration   2: 590.323 ns/op
-Iteration   3: 781.070 ns/op
-Iteration   4: 518.072 ns/op
-Iteration   5: 565.866 ns/op
+# Warmup Iteration   1: 470.749 ns/op
+Iteration   1: 460.299 ns/op
+Iteration   2: 457.281 ns/op
+Iteration   3: 459.811 ns/op
+Iteration   4: 457.770 ns/op
+Iteration   5: 456.502 ns/op
 
 
 Result "testScore":
-  515.851 ±(99.9%) 33.635 ns/op [Average]
-  (min, avg, max) = (462.432, 515.851, 869.215), stdev = 67.944
-  CI (99.9%): [482.216, 549.485] (assumes normal distribution)
+  491.621 ±(99.9%) 13.128 ns/op [Average]
+  (min, avg, max) = (450.328, 491.621, 592.887), stdev = 26.520
+  CI (99.9%): [478.492, 504.749] (assumes normal distribution)
 
 
 # JMH 1.11.1 (released 68 days ago)
@@ -228,101 +228,101 @@ Result "testScore":
 # Benchmark: com.gordoncaleb.StaticScoreBenchmark.testScore
 # Parameters: (perftNum = 2)
 
-# Run progress: 28.57% complete, ETA 00:05:21
+# Run progress: 28.57% complete, ETA 00:05:20
 # Fork: 1 of 10
-# Warmup Iteration   1: 234.016 ns/op
-Iteration   1: 211.567 ns/op
-Iteration   2: 203.765 ns/op
-Iteration   3: 209.430 ns/op
-Iteration   4: 203.355 ns/op
-Iteration   5: 202.922 ns/op
+# Warmup Iteration   1: 198.909 ns/op
+Iteration   1: 182.054 ns/op
+Iteration   2: 179.833 ns/op
+Iteration   3: 182.311 ns/op
+Iteration   4: 182.768 ns/op
+Iteration   5: 179.934 ns/op
 
-# Run progress: 30.00% complete, ETA 00:05:16
+# Run progress: 30.00% complete, ETA 00:05:14
 # Fork: 2 of 10
-# Warmup Iteration   1: 212.771 ns/op
-Iteration   1: 211.177 ns/op
-Iteration   2: 210.245 ns/op
-Iteration   3: 212.177 ns/op
-Iteration   4: 219.168 ns/op
-Iteration   5: 208.914 ns/op
+# Warmup Iteration   1: 188.552 ns/op
+Iteration   1: 186.570 ns/op
+Iteration   2: 186.783 ns/op
+Iteration   3: 183.913 ns/op
+Iteration   4: 187.079 ns/op
+Iteration   5: 187.621 ns/op
 
-# Run progress: 31.43% complete, ETA 00:05:10
+# Run progress: 31.43% complete, ETA 00:05:07
 # Fork: 3 of 10
-# Warmup Iteration   1: 214.995 ns/op
-Iteration   1: 216.731 ns/op
-Iteration   2: 215.221 ns/op
-Iteration   3: 213.186 ns/op
-Iteration   4: 214.001 ns/op
-Iteration   5: 219.471 ns/op
+# Warmup Iteration   1: 190.211 ns/op
+Iteration   1: 184.693 ns/op
+Iteration   2: 191.770 ns/op
+Iteration   3: 189.251 ns/op
+Iteration   4: 190.133 ns/op
+Iteration   5: 194.217 ns/op
 
-# Run progress: 32.86% complete, ETA 00:05:03
+# Run progress: 32.86% complete, ETA 00:05:01
 # Fork: 4 of 10
-# Warmup Iteration   1: 199.871 ns/op
-Iteration   1: 219.564 ns/op
-Iteration   2: 211.668 ns/op
-Iteration   3: 210.824 ns/op
-Iteration   4: 213.556 ns/op
-Iteration   5: 211.020 ns/op
+# Warmup Iteration   1: 196.197 ns/op
+Iteration   1: 192.110 ns/op
+Iteration   2: 191.416 ns/op
+Iteration   3: 192.592 ns/op
+Iteration   4: 193.848 ns/op
+Iteration   5: 194.941 ns/op
 
-# Run progress: 34.29% complete, ETA 00:04:57
+# Run progress: 34.29% complete, ETA 00:04:54
 # Fork: 5 of 10
-# Warmup Iteration   1: 210.486 ns/op
-Iteration   1: 215.955 ns/op
-Iteration   2: 218.776 ns/op
-Iteration   3: 214.931 ns/op
-Iteration   4: 210.594 ns/op
-Iteration   5: 231.377 ns/op
+# Warmup Iteration   1: 191.165 ns/op
+Iteration   1: 182.397 ns/op
+Iteration   2: 182.231 ns/op
+Iteration   3: 182.058 ns/op
+Iteration   4: 182.566 ns/op
+Iteration   5: 181.629 ns/op
 
-# Run progress: 35.71% complete, ETA 00:04:50
+# Run progress: 35.71% complete, ETA 00:04:48
 # Fork: 6 of 10
-# Warmup Iteration   1: 204.709 ns/op
-Iteration   1: 203.635 ns/op
-Iteration   2: 207.117 ns/op
-Iteration   3: 216.687 ns/op
-Iteration   4: 218.623 ns/op
-Iteration   5: 213.285 ns/op
+# Warmup Iteration   1: 192.216 ns/op
+Iteration   1: 186.044 ns/op
+Iteration   2: 187.713 ns/op
+Iteration   3: 188.328 ns/op
+Iteration   4: 188.910 ns/op
+Iteration   5: 186.148 ns/op
 
-# Run progress: 37.14% complete, ETA 00:04:44
+# Run progress: 37.14% complete, ETA 00:04:41
 # Fork: 7 of 10
-# Warmup Iteration   1: 210.898 ns/op
-Iteration   1: 199.380 ns/op
-Iteration   2: 196.365 ns/op
-Iteration   3: 205.092 ns/op
-Iteration   4: 204.646 ns/op
-Iteration   5: 207.622 ns/op
+# Warmup Iteration   1: 192.956 ns/op
+Iteration   1: 192.281 ns/op
+Iteration   2: 184.550 ns/op
+Iteration   3: 187.237 ns/op
+Iteration   4: 185.728 ns/op
+Iteration   5: 191.405 ns/op
 
-# Run progress: 38.57% complete, ETA 00:04:37
+# Run progress: 38.57% complete, ETA 00:04:35
 # Fork: 8 of 10
-# Warmup Iteration   1: 209.648 ns/op
-Iteration   1: 230.818 ns/op
-Iteration   2: 222.033 ns/op
-Iteration   3: 203.148 ns/op
-Iteration   4: 207.723 ns/op
-Iteration   5: 209.209 ns/op
+# Warmup Iteration   1: 205.970 ns/op
+Iteration   1: 198.620 ns/op
+Iteration   2: 193.533 ns/op
+Iteration   3: 198.957 ns/op
+Iteration   4: 196.659 ns/op
+Iteration   5: 191.244 ns/op
 
-# Run progress: 40.00% complete, ETA 00:04:31
+# Run progress: 40.00% complete, ETA 00:04:29
 # Fork: 9 of 10
-# Warmup Iteration   1: 204.639 ns/op
-Iteration   1: 191.216 ns/op
-Iteration   2: 206.716 ns/op
-Iteration   3: 189.403 ns/op
-Iteration   4: 192.703 ns/op
-Iteration   5: 193.372 ns/op
+# Warmup Iteration   1: 201.065 ns/op
+Iteration   1: 189.131 ns/op
+Iteration   2: 192.575 ns/op
+Iteration   3: 198.651 ns/op
+Iteration   4: 193.465 ns/op
+Iteration   5: 194.528 ns/op
 
-# Run progress: 41.43% complete, ETA 00:04:24
+# Run progress: 41.43% complete, ETA 00:04:22
 # Fork: 10 of 10
-# Warmup Iteration   1: 212.774 ns/op
-Iteration   1: 208.180 ns/op
-Iteration   2: 213.076 ns/op
-Iteration   3: 207.545 ns/op
-Iteration   4: 209.307 ns/op
-Iteration   5: 212.512 ns/op
+# Warmup Iteration   1: 199.149 ns/op
+Iteration   1: 197.386 ns/op
+Iteration   2: 191.371 ns/op
+Iteration   3: 194.377 ns/op
+Iteration   4: 188.767 ns/op
+Iteration   5: 189.136 ns/op
 
 
 Result "testScore":
-  209.980 ±(99.9%) 4.287 ns/op [Average]
-  (min, avg, max) = (189.403, 209.980, 231.377), stdev = 8.660
-  CI (99.9%): [205.693, 214.267] (assumes normal distribution)
+  189.029 ±(99.9%) 2.571 ns/op [Average]
+  (min, avg, max) = (179.833, 189.029, 198.957), stdev = 5.194
+  CI (99.9%): [186.458, 191.601] (assumes normal distribution)
 
 
 # JMH 1.11.1 (released 68 days ago)
@@ -337,101 +337,101 @@ Result "testScore":
 # Benchmark: com.gordoncaleb.StaticScoreBenchmark.testScore
 # Parameters: (perftNum = 3)
 
-# Run progress: 42.86% complete, ETA 00:04:18
+# Run progress: 42.86% complete, ETA 00:04:16
 # Fork: 1 of 10
-# Warmup Iteration   1: 637.175 ns/op
-Iteration   1: 510.040 ns/op
-Iteration   2: 524.993 ns/op
-Iteration   3: 523.523 ns/op
-Iteration   4: 518.949 ns/op
-Iteration   5: 519.594 ns/op
+# Warmup Iteration   1: 500.790 ns/op
+Iteration   1: 494.924 ns/op
+Iteration   2: 503.985 ns/op
+Iteration   3: 499.110 ns/op
+Iteration   4: 494.583 ns/op
+Iteration   5: 496.232 ns/op
 
-# Run progress: 44.29% complete, ETA 00:04:12
+# Run progress: 44.29% complete, ETA 00:04:10
 # Fork: 2 of 10
-# Warmup Iteration   1: 501.541 ns/op
-Iteration   1: 530.085 ns/op
-Iteration   2: 520.972 ns/op
-Iteration   3: 513.734 ns/op
-Iteration   4: 527.359 ns/op
-Iteration   5: 533.209 ns/op
+# Warmup Iteration   1: 507.660 ns/op
+Iteration   1: 497.641 ns/op
+Iteration   2: 491.856 ns/op
+Iteration   3: 496.477 ns/op
+Iteration   4: 479.308 ns/op
+Iteration   5: 481.364 ns/op
 
-# Run progress: 45.71% complete, ETA 00:04:05
+# Run progress: 45.71% complete, ETA 00:04:03
 # Fork: 3 of 10
-# Warmup Iteration   1: 525.520 ns/op
-Iteration   1: 514.130 ns/op
-Iteration   2: 522.844 ns/op
-Iteration   3: 504.510 ns/op
-Iteration   4: 506.295 ns/op
-Iteration   5: 515.303 ns/op
+# Warmup Iteration   1: 515.137 ns/op
+Iteration   1: 500.803 ns/op
+Iteration   2: 495.917 ns/op
+Iteration   3: 489.624 ns/op
+Iteration   4: 499.777 ns/op
+Iteration   5: 495.939 ns/op
 
-# Run progress: 47.14% complete, ETA 00:03:59
+# Run progress: 47.14% complete, ETA 00:03:57
 # Fork: 4 of 10
-# Warmup Iteration   1: 547.686 ns/op
-Iteration   1: 510.515 ns/op
-Iteration   2: 500.273 ns/op
-Iteration   3: 484.742 ns/op
-Iteration   4: 506.088 ns/op
-Iteration   5: 510.075 ns/op
+# Warmup Iteration   1: 518.345 ns/op
+Iteration   1: 488.242 ns/op
+Iteration   2: 501.233 ns/op
+Iteration   3: 485.424 ns/op
+Iteration   4: 504.058 ns/op
+Iteration   5: 502.797 ns/op
 
-# Run progress: 48.57% complete, ETA 00:03:52
+# Run progress: 48.57% complete, ETA 00:03:51
 # Fork: 5 of 10
-# Warmup Iteration   1: 527.447 ns/op
-Iteration   1: 543.540 ns/op
-Iteration   2: 539.266 ns/op
-Iteration   3: 517.085 ns/op
-Iteration   4: 523.822 ns/op
-Iteration   5: 502.695 ns/op
+# Warmup Iteration   1: 489.753 ns/op
+Iteration   1: 484.819 ns/op
+Iteration   2: 484.225 ns/op
+Iteration   3: 484.655 ns/op
+Iteration   4: 484.717 ns/op
+Iteration   5: 484.894 ns/op
 
-# Run progress: 50.00% complete, ETA 00:03:46
+# Run progress: 50.00% complete, ETA 00:03:44
 # Fork: 6 of 10
-# Warmup Iteration   1: 619.270 ns/op
-Iteration   1: 566.768 ns/op
-Iteration   2: 535.775 ns/op
-Iteration   3: 520.266 ns/op
-Iteration   4: 492.989 ns/op
-Iteration   5: 492.418 ns/op
+# Warmup Iteration   1: 512.564 ns/op
+Iteration   1: 487.069 ns/op
+Iteration   2: 492.197 ns/op
+Iteration   3: 487.262 ns/op
+Iteration   4: 493.611 ns/op
+Iteration   5: 496.755 ns/op
 
-# Run progress: 51.43% complete, ETA 00:03:39
+# Run progress: 51.43% complete, ETA 00:03:38
 # Fork: 7 of 10
-# Warmup Iteration   1: 518.649 ns/op
-Iteration   1: 492.060 ns/op
-Iteration   2: 523.311 ns/op
-Iteration   3: 513.988 ns/op
-Iteration   4: 523.801 ns/op
-Iteration   5: 509.925 ns/op
+# Warmup Iteration   1: 507.075 ns/op
+Iteration   1: 475.690 ns/op
+Iteration   2: 473.343 ns/op
+Iteration   3: 474.705 ns/op
+Iteration   4: 471.931 ns/op
+Iteration   5: 471.623 ns/op
 
-# Run progress: 52.86% complete, ETA 00:03:33
+# Run progress: 52.86% complete, ETA 00:03:31
 # Fork: 8 of 10
-# Warmup Iteration   1: 512.827 ns/op
-Iteration   1: 502.312 ns/op
-Iteration   2: 494.640 ns/op
-Iteration   3: 508.216 ns/op
-Iteration   4: 516.388 ns/op
-Iteration   5: 524.170 ns/op
+# Warmup Iteration   1: 473.482 ns/op
+Iteration   1: 461.944 ns/op
+Iteration   2: 472.276 ns/op
+Iteration   3: 470.009 ns/op
+Iteration   4: 474.184 ns/op
+Iteration   5: 471.621 ns/op
 
-# Run progress: 54.29% complete, ETA 00:03:26
+# Run progress: 54.29% complete, ETA 00:03:25
 # Fork: 9 of 10
-# Warmup Iteration   1: 537.805 ns/op
-Iteration   1: 545.661 ns/op
-Iteration   2: 520.951 ns/op
-Iteration   3: 532.461 ns/op
-Iteration   4: 500.025 ns/op
-Iteration   5: 523.887 ns/op
+# Warmup Iteration   1: 490.802 ns/op
+Iteration   1: 474.341 ns/op
+Iteration   2: 472.502 ns/op
+Iteration   3: 480.888 ns/op
+Iteration   4: 512.991 ns/op
+Iteration   5: 505.973 ns/op
 
-# Run progress: 55.71% complete, ETA 00:03:20
+# Run progress: 55.71% complete, ETA 00:03:18
 # Fork: 10 of 10
-# Warmup Iteration   1: 524.405 ns/op
-Iteration   1: 512.613 ns/op
-Iteration   2: 510.372 ns/op
-Iteration   3: 514.635 ns/op
-Iteration   4: 509.366 ns/op
-Iteration   5: 520.805 ns/op
+# Warmup Iteration   1: 539.243 ns/op
+Iteration   1: 506.566 ns/op
+Iteration   2: 503.005 ns/op
+Iteration   3: 505.294 ns/op
+Iteration   4: 484.307 ns/op
+Iteration   5: 503.516 ns/op
 
 
 Result "testScore":
-  516.629 ±(99.9%) 7.487 ns/op [Average]
-  (min, avg, max) = (484.742, 516.629, 566.768), stdev = 15.124
-  CI (99.9%): [509.142, 524.116] (assumes normal distribution)
+  488.924 ±(99.9%) 6.081 ns/op [Average]
+  (min, avg, max) = (461.944, 488.924, 512.991), stdev = 12.284
+  CI (99.9%): [482.843, 495.005] (assumes normal distribution)
 
 
 # JMH 1.11.1 (released 68 days ago)
@@ -446,101 +446,101 @@ Result "testScore":
 # Benchmark: com.gordoncaleb.StaticScoreBenchmark.testScore
 # Parameters: (perftNum = 4)
 
-# Run progress: 57.14% complete, ETA 00:03:13
+# Run progress: 57.14% complete, ETA 00:03:12
 # Fork: 1 of 10
-# Warmup Iteration   1: 490.730 ns/op
-Iteration   1: 471.419 ns/op
-Iteration   2: 480.781 ns/op
-Iteration   3: 475.821 ns/op
-Iteration   4: 483.195 ns/op
-Iteration   5: 475.393 ns/op
+# Warmup Iteration   1: 452.926 ns/op
+Iteration   1: 438.828 ns/op
+Iteration   2: 435.705 ns/op
+Iteration   3: 436.730 ns/op
+Iteration   4: 427.870 ns/op
+Iteration   5: 441.535 ns/op
 
-# Run progress: 58.57% complete, ETA 00:03:07
+# Run progress: 58.57% complete, ETA 00:03:06
 # Fork: 2 of 10
-# Warmup Iteration   1: 483.925 ns/op
-Iteration   1: 448.446 ns/op
-Iteration   2: 456.487 ns/op
-Iteration   3: 434.805 ns/op
-Iteration   4: 442.339 ns/op
-Iteration   5: 481.537 ns/op
+# Warmup Iteration   1: 487.419 ns/op
+Iteration   1: 484.744 ns/op
+Iteration   2: 450.966 ns/op
+Iteration   3: 454.814 ns/op
+Iteration   4: 461.787 ns/op
+Iteration   5: 435.024 ns/op
 
-# Run progress: 60.00% complete, ETA 00:03:00
+# Run progress: 60.00% complete, ETA 00:02:59
 # Fork: 3 of 10
-# Warmup Iteration   1: 460.724 ns/op
-Iteration   1: 439.023 ns/op
-Iteration   2: 445.601 ns/op
-Iteration   3: 432.631 ns/op
-Iteration   4: 444.268 ns/op
-Iteration   5: 456.762 ns/op
+# Warmup Iteration   1: 449.861 ns/op
+Iteration   1: 448.479 ns/op
+Iteration   2: 452.614 ns/op
+Iteration   3: 449.471 ns/op
+Iteration   4: 421.522 ns/op
+Iteration   5: 420.239 ns/op
 
-# Run progress: 61.43% complete, ETA 00:02:54
+# Run progress: 61.43% complete, ETA 00:02:53
 # Fork: 4 of 10
-# Warmup Iteration   1: 461.970 ns/op
-Iteration   1: 459.771 ns/op
-Iteration   2: 486.509 ns/op
-Iteration   3: 485.163 ns/op
-Iteration   4: 469.856 ns/op
-Iteration   5: 474.827 ns/op
+# Warmup Iteration   1: 429.548 ns/op
+Iteration   1: 424.937 ns/op
+Iteration   2: 427.100 ns/op
+Iteration   3: 430.956 ns/op
+Iteration   4: 420.562 ns/op
+Iteration   5: 447.901 ns/op
 
-# Run progress: 62.86% complete, ETA 00:02:47
+# Run progress: 62.86% complete, ETA 00:02:46
 # Fork: 5 of 10
-# Warmup Iteration   1: 474.310 ns/op
-Iteration   1: 471.377 ns/op
-Iteration   2: 457.583 ns/op
-Iteration   3: 452.547 ns/op
-Iteration   4: 448.642 ns/op
-Iteration   5: 464.611 ns/op
+# Warmup Iteration   1: 488.131 ns/op
+Iteration   1: 431.143 ns/op
+Iteration   2: 450.262 ns/op
+Iteration   3: 472.708 ns/op
+Iteration   4: 453.062 ns/op
+Iteration   5: 438.578 ns/op
 
-# Run progress: 64.29% complete, ETA 00:02:41
+# Run progress: 64.29% complete, ETA 00:02:40
 # Fork: 6 of 10
-# Warmup Iteration   1: 481.231 ns/op
-Iteration   1: 470.395 ns/op
-Iteration   2: 478.162 ns/op
-Iteration   3: 488.279 ns/op
-Iteration   4: 476.101 ns/op
-Iteration   5: 469.542 ns/op
+# Warmup Iteration   1: 466.694 ns/op
+Iteration   1: 440.929 ns/op
+Iteration   2: 427.421 ns/op
+Iteration   3: 434.523 ns/op
+Iteration   4: 449.818 ns/op
+Iteration   5: 437.517 ns/op
 
-# Run progress: 65.71% complete, ETA 00:02:34
+# Run progress: 65.71% complete, ETA 00:02:33
 # Fork: 7 of 10
-# Warmup Iteration   1: 475.464 ns/op
-Iteration   1: 475.506 ns/op
-Iteration   2: 472.582 ns/op
-Iteration   3: 470.978 ns/op
-Iteration   4: 432.069 ns/op
-Iteration   5: 433.915 ns/op
+# Warmup Iteration   1: 434.173 ns/op
+Iteration   1: 432.008 ns/op
+Iteration   2: 431.651 ns/op
+Iteration   3: 429.904 ns/op
+Iteration   4: 427.795 ns/op
+Iteration   5: 426.648 ns/op
 
-# Run progress: 67.14% complete, ETA 00:02:28
+# Run progress: 67.14% complete, ETA 00:02:27
 # Fork: 8 of 10
-# Warmup Iteration   1: 481.609 ns/op
-Iteration   1: 466.984 ns/op
-Iteration   2: 464.634 ns/op
-Iteration   3: 445.720 ns/op
-Iteration   4: 437.517 ns/op
-Iteration   5: 462.778 ns/op
+# Warmup Iteration   1: 434.988 ns/op
+Iteration   1: 430.562 ns/op
+Iteration   2: 435.942 ns/op
+Iteration   3: 433.055 ns/op
+Iteration   4: 428.105 ns/op
+Iteration   5: 415.959 ns/op
 
 # Run progress: 68.57% complete, ETA 00:02:21
 # Fork: 9 of 10
-# Warmup Iteration   1: 454.276 ns/op
-Iteration   1: 442.968 ns/op
-Iteration   2: 435.722 ns/op
-Iteration   3: 436.628 ns/op
-Iteration   4: 437.967 ns/op
-Iteration   5: 435.412 ns/op
+# Warmup Iteration   1: 430.147 ns/op
+Iteration   1: 438.844 ns/op
+Iteration   2: 428.742 ns/op
+Iteration   3: 428.911 ns/op
+Iteration   4: 432.858 ns/op
+Iteration   5: 453.525 ns/op
 
-# Run progress: 70.00% complete, ETA 00:02:15
+# Run progress: 70.00% complete, ETA 00:02:14
 # Fork: 10 of 10
-# Warmup Iteration   1: 474.073 ns/op
-Iteration   1: 478.028 ns/op
-Iteration   2: 462.605 ns/op
-Iteration   3: 471.234 ns/op
-Iteration   4: 456.765 ns/op
-Iteration   5: 443.838 ns/op
+# Warmup Iteration   1: 452.234 ns/op
+Iteration   1: 440.565 ns/op
+Iteration   2: 434.327 ns/op
+Iteration   3: 439.063 ns/op
+Iteration   4: 431.370 ns/op
+Iteration   5: 432.612 ns/op
 
 
 Result "testScore":
-  459.714 ±(99.9%) 8.483 ns/op [Average]
-  (min, avg, max) = (432.069, 459.714, 488.279), stdev = 17.136
-  CI (99.9%): [451.231, 468.197] (assumes normal distribution)
+  438.004 ±(99.9%) 6.555 ns/op [Average]
+  (min, avg, max) = (415.959, 438.004, 484.744), stdev = 13.241
+  CI (99.9%): [431.449, 444.559] (assumes normal distribution)
 
 
 # JMH 1.11.1 (released 68 days ago)
@@ -555,101 +555,101 @@ Result "testScore":
 # Benchmark: com.gordoncaleb.StaticScoreBenchmark.testScore
 # Parameters: (perftNum = 5)
 
-# Run progress: 71.43% complete, ETA 00:02:09
+# Run progress: 71.43% complete, ETA 00:02:08
 # Fork: 1 of 10
-# Warmup Iteration   1: 469.088 ns/op
-Iteration   1: 472.060 ns/op
-Iteration   2: 468.214 ns/op
-Iteration   3: 484.604 ns/op
-Iteration   4: 504.001 ns/op
-Iteration   5: 528.244 ns/op
+# Warmup Iteration   1: 485.130 ns/op
+Iteration   1: 484.288 ns/op
+Iteration   2: 477.577 ns/op
+Iteration   3: 472.689 ns/op
+Iteration   4: 456.502 ns/op
+Iteration   5: 478.559 ns/op
 
-# Run progress: 72.86% complete, ETA 00:02:02
+# Run progress: 72.86% complete, ETA 00:02:01
 # Fork: 2 of 10
-# Warmup Iteration   1: 503.596 ns/op
-Iteration   1: 511.716 ns/op
-Iteration   2: 490.822 ns/op
-Iteration   3: 500.960 ns/op
-Iteration   4: 526.702 ns/op
-Iteration   5: 506.620 ns/op
+# Warmup Iteration   1: 491.501 ns/op
+Iteration   1: 492.787 ns/op
+Iteration   2: 483.234 ns/op
+Iteration   3: 475.934 ns/op
+Iteration   4: 452.337 ns/op
+Iteration   5: 455.452 ns/op
 
-# Run progress: 74.29% complete, ETA 00:01:56
+# Run progress: 74.29% complete, ETA 00:01:55
 # Fork: 3 of 10
-# Warmup Iteration   1: 517.296 ns/op
-Iteration   1: 490.639 ns/op
-Iteration   2: 505.522 ns/op
-Iteration   3: 498.260 ns/op
-Iteration   4: 491.721 ns/op
-Iteration   5: 490.562 ns/op
+# Warmup Iteration   1: 470.824 ns/op
+Iteration   1: 459.497 ns/op
+Iteration   2: 463.550 ns/op
+Iteration   3: 461.452 ns/op
+Iteration   4: 461.254 ns/op
+Iteration   5: 458.212 ns/op
 
 # Run progress: 75.71% complete, ETA 00:01:49
 # Fork: 4 of 10
-# Warmup Iteration   1: 495.956 ns/op
-Iteration   1: 500.302 ns/op
-Iteration   2: 492.556 ns/op
-Iteration   3: 491.759 ns/op
-Iteration   4: 482.247 ns/op
-Iteration   5: 486.872 ns/op
+# Warmup Iteration   1: 468.173 ns/op
+Iteration   1: 457.308 ns/op
+Iteration   2: 461.059 ns/op
+Iteration   3: 458.400 ns/op
+Iteration   4: 463.897 ns/op
+Iteration   5: 461.161 ns/op
 
-# Run progress: 77.14% complete, ETA 00:01:43
+# Run progress: 77.14% complete, ETA 00:01:42
 # Fork: 5 of 10
-# Warmup Iteration   1: 496.692 ns/op
-Iteration   1: 484.073 ns/op
-Iteration   2: 488.889 ns/op
-Iteration   3: 486.163 ns/op
-Iteration   4: 483.841 ns/op
-Iteration   5: 489.313 ns/op
+# Warmup Iteration   1: 487.001 ns/op
+Iteration   1: 466.616 ns/op
+Iteration   2: 463.523 ns/op
+Iteration   3: 488.474 ns/op
+Iteration   4: 498.992 ns/op
+Iteration   5: 476.585 ns/op
 
 # Run progress: 78.57% complete, ETA 00:01:36
 # Fork: 6 of 10
-# Warmup Iteration   1: 488.069 ns/op
-Iteration   1: 503.044 ns/op
-Iteration   2: 489.636 ns/op
-Iteration   3: 473.211 ns/op
-Iteration   4: 489.652 ns/op
-Iteration   5: 477.564 ns/op
+# Warmup Iteration   1: 465.078 ns/op
+Iteration   1: 464.408 ns/op
+Iteration   2: 460.019 ns/op
+Iteration   3: 471.660 ns/op
+Iteration   4: 473.012 ns/op
+Iteration   5: 487.649 ns/op
 
-# Run progress: 80.00% complete, ETA 00:01:30
+# Run progress: 80.00% complete, ETA 00:01:29
 # Fork: 7 of 10
-# Warmup Iteration   1: 489.769 ns/op
-Iteration   1: 450.093 ns/op
-Iteration   2: 471.640 ns/op
-Iteration   3: 481.096 ns/op
-Iteration   4: 477.979 ns/op
-Iteration   5: 476.160 ns/op
+# Warmup Iteration   1: 500.806 ns/op
+Iteration   1: 491.748 ns/op
+Iteration   2: 457.218 ns/op
+Iteration   3: 484.646 ns/op
+Iteration   4: 492.723 ns/op
+Iteration   5: 498.776 ns/op
 
 # Run progress: 81.43% complete, ETA 00:01:23
 # Fork: 8 of 10
-# Warmup Iteration   1: 507.647 ns/op
-Iteration   1: 472.809 ns/op
-Iteration   2: 451.007 ns/op
-Iteration   3: 465.957 ns/op
-Iteration   4: 483.158 ns/op
-Iteration   5: 474.560 ns/op
+# Warmup Iteration   1: 524.448 ns/op
+Iteration   1: 493.517 ns/op
+Iteration   2: 489.375 ns/op
+Iteration   3: 503.135 ns/op
+Iteration   4: 518.446 ns/op
+Iteration   5: 500.948 ns/op
 
-# Run progress: 82.86% complete, ETA 00:01:17
+# Run progress: 82.86% complete, ETA 00:01:16
 # Fork: 9 of 10
-# Warmup Iteration   1: 517.003 ns/op
-Iteration   1: 526.449 ns/op
-Iteration   2: 491.416 ns/op
-Iteration   3: 514.713 ns/op
-Iteration   4: 514.425 ns/op
-Iteration   5: 484.799 ns/op
+# Warmup Iteration   1: 515.030 ns/op
+Iteration   1: 514.764 ns/op
+Iteration   2: 496.846 ns/op
+Iteration   3: 486.501 ns/op
+Iteration   4: 497.242 ns/op
+Iteration   5: 469.618 ns/op
 
 # Run progress: 84.29% complete, ETA 00:01:10
 # Fork: 10 of 10
-# Warmup Iteration   1: 525.711 ns/op
-Iteration   1: 480.036 ns/op
-Iteration   2: 523.721 ns/op
-Iteration   3: 502.086 ns/op
-Iteration   4: 475.508 ns/op
-Iteration   5: 462.449 ns/op
+# Warmup Iteration   1: 460.973 ns/op
+Iteration   1: 476.937 ns/op
+Iteration   2: 508.827 ns/op
+Iteration   3: 472.755 ns/op
+Iteration   4: 509.740 ns/op
+Iteration   5: 512.489 ns/op
 
 
 Result "testScore":
-  489.397 ±(99.9%) 8.894 ns/op [Average]
-  (min, avg, max) = (450.093, 489.397, 528.244), stdev = 17.967
-  CI (99.9%): [480.502, 498.291] (assumes normal distribution)
+  479.247 ±(99.9%) 9.051 ns/op [Average]
+  (min, avg, max) = (452.337, 479.247, 518.446), stdev = 18.283
+  CI (99.9%): [470.196, 488.298] (assumes normal distribution)
 
 
 # JMH 1.11.1 (released 68 days ago)
@@ -666,108 +666,108 @@ Result "testScore":
 
 # Run progress: 85.71% complete, ETA 00:01:04
 # Fork: 1 of 10
-# Warmup Iteration   1: 229.953 ns/op
-Iteration   1: 240.125 ns/op
-Iteration   2: 244.382 ns/op
-Iteration   3: 244.222 ns/op
-Iteration   4: 250.402 ns/op
-Iteration   5: 240.998 ns/op
+# Warmup Iteration   1: 246.033 ns/op
+Iteration   1: 241.879 ns/op
+Iteration   2: 251.085 ns/op
+Iteration   3: 250.284 ns/op
+Iteration   4: 238.013 ns/op
+Iteration   5: 233.066 ns/op
 
 # Run progress: 87.14% complete, ETA 00:00:57
 # Fork: 2 of 10
-# Warmup Iteration   1: 250.234 ns/op
-Iteration   1: 236.129 ns/op
-Iteration   2: 233.432 ns/op
-Iteration   3: 231.438 ns/op
-Iteration   4: 225.915 ns/op
-Iteration   5: 218.024 ns/op
+# Warmup Iteration   1: 232.573 ns/op
+Iteration   1: 242.072 ns/op
+Iteration   2: 242.502 ns/op
+Iteration   3: 222.607 ns/op
+Iteration   4: 223.015 ns/op
+Iteration   5: 232.252 ns/op
 
 # Run progress: 88.57% complete, ETA 00:00:51
 # Fork: 3 of 10
-# Warmup Iteration   1: 226.695 ns/op
-Iteration   1: 239.678 ns/op
-Iteration   2: 229.536 ns/op
-Iteration   3: 233.332 ns/op
-Iteration   4: 237.011 ns/op
-Iteration   5: 234.377 ns/op
+# Warmup Iteration   1: 227.864 ns/op
+Iteration   1: 238.092 ns/op
+Iteration   2: 222.133 ns/op
+Iteration   3: 235.941 ns/op
+Iteration   4: 239.811 ns/op
+Iteration   5: 239.446 ns/op
 
-# Run progress: 90.00% complete, ETA 00:00:45
+# Run progress: 90.00% complete, ETA 00:00:44
 # Fork: 4 of 10
-# Warmup Iteration   1: 246.292 ns/op
-Iteration   1: 233.400 ns/op
-Iteration   2: 232.322 ns/op
-Iteration   3: 234.224 ns/op
-Iteration   4: 244.172 ns/op
-Iteration   5: 243.473 ns/op
+# Warmup Iteration   1: 224.068 ns/op
+Iteration   1: 245.598 ns/op
+Iteration   2: 251.095 ns/op
+Iteration   3: 248.784 ns/op
+Iteration   4: 251.557 ns/op
+Iteration   5: 231.766 ns/op
 
 # Run progress: 91.43% complete, ETA 00:00:38
 # Fork: 5 of 10
-# Warmup Iteration   1: 244.319 ns/op
-Iteration   1: 238.827 ns/op
-Iteration   2: 244.581 ns/op
-Iteration   3: 243.879 ns/op
-Iteration   4: 240.051 ns/op
-Iteration   5: 249.758 ns/op
+# Warmup Iteration   1: 231.898 ns/op
+Iteration   1: 235.958 ns/op
+Iteration   2: 233.229 ns/op
+Iteration   3: 239.620 ns/op
+Iteration   4: 238.618 ns/op
+Iteration   5: 239.071 ns/op
 
 # Run progress: 92.86% complete, ETA 00:00:32
 # Fork: 6 of 10
-# Warmup Iteration   1: 239.274 ns/op
-Iteration   1: 251.911 ns/op
-Iteration   2: 269.331 ns/op
-Iteration   3: 244.728 ns/op
-Iteration   4: 239.230 ns/op
-Iteration   5: 230.304 ns/op
+# Warmup Iteration   1: 251.253 ns/op
+Iteration   1: 249.245 ns/op
+Iteration   2: 254.278 ns/op
+Iteration   3: 255.156 ns/op
+Iteration   4: 258.589 ns/op
+Iteration   5: 247.500 ns/op
 
 # Run progress: 94.29% complete, ETA 00:00:25
 # Fork: 7 of 10
-# Warmup Iteration   1: 240.959 ns/op
-Iteration   1: 232.015 ns/op
-Iteration   2: 249.668 ns/op
-Iteration   3: 232.290 ns/op
-Iteration   4: 235.613 ns/op
-Iteration   5: 228.773 ns/op
+# Warmup Iteration   1: 250.352 ns/op
+Iteration   1: 242.077 ns/op
+Iteration   2: 239.873 ns/op
+Iteration   3: 238.436 ns/op
+Iteration   4: 236.929 ns/op
+Iteration   5: 241.382 ns/op
 
 # Run progress: 95.71% complete, ETA 00:00:19
 # Fork: 8 of 10
-# Warmup Iteration   1: 247.872 ns/op
-Iteration   1: 241.906 ns/op
-Iteration   2: 237.009 ns/op
-Iteration   3: 236.878 ns/op
-Iteration   4: 233.937 ns/op
-Iteration   5: 236.867 ns/op
+# Warmup Iteration   1: 241.716 ns/op
+Iteration   1: 245.287 ns/op
+Iteration   2: 254.697 ns/op
+Iteration   3: 245.646 ns/op
+Iteration   4: 248.655 ns/op
+Iteration   5: 241.412 ns/op
 
 # Run progress: 97.14% complete, ETA 00:00:12
 # Fork: 9 of 10
-# Warmup Iteration   1: 246.077 ns/op
-Iteration   1: 234.499 ns/op
-Iteration   2: 256.178 ns/op
-Iteration   3: 237.247 ns/op
-Iteration   4: 240.630 ns/op
-Iteration   5: 235.907 ns/op
+# Warmup Iteration   1: 244.071 ns/op
+Iteration   1: 248.308 ns/op
+Iteration   2: 250.199 ns/op
+Iteration   3: 241.672 ns/op
+Iteration   4: 239.332 ns/op
+Iteration   5: 244.383 ns/op
 
 # Run progress: 98.57% complete, ETA 00:00:06
 # Fork: 10 of 10
-# Warmup Iteration   1: 255.104 ns/op
-Iteration   1: 249.882 ns/op
-Iteration   2: 241.365 ns/op
-Iteration   3: 242.831 ns/op
-Iteration   4: 233.775 ns/op
-Iteration   5: 232.237 ns/op
+# Warmup Iteration   1: 248.426 ns/op
+Iteration   1: 235.802 ns/op
+Iteration   2: 234.650 ns/op
+Iteration   3: 229.759 ns/op
+Iteration   4: 230.398 ns/op
+Iteration   5: 235.627 ns/op
 
 
 Result "testScore":
-  238.974 ±(99.9%) 4.167 ns/op [Average]
-  (min, avg, max) = (218.024, 238.974, 269.331), stdev = 8.418
-  CI (99.9%): [234.807, 243.141] (assumes normal distribution)
+  241.136 ±(99.9%) 4.165 ns/op [Average]
+  (min, avg, max) = (222.133, 241.136, 258.589), stdev = 8.414
+  CI (99.9%): [236.971, 245.301] (assumes normal distribution)
 
 
-# Run complete. Total time: 00:07:30
+# Run complete. Total time: 00:07:28
 
 Benchmark                       (perftNum)  Mode  Cnt    Score    Error  Units
-StaticScoreBenchmark.testScore           0  avgt   50  504.223 ±  5.990  ns/op
-StaticScoreBenchmark.testScore           1  avgt   50  515.851 ± 33.635  ns/op
-StaticScoreBenchmark.testScore           2  avgt   50  209.980 ±  4.287  ns/op
-StaticScoreBenchmark.testScore           3  avgt   50  516.629 ±  7.487  ns/op
-StaticScoreBenchmark.testScore           4  avgt   50  459.714 ±  8.483  ns/op
-StaticScoreBenchmark.testScore           5  avgt   50  489.397 ±  8.894  ns/op
-StaticScoreBenchmark.testScore           6  avgt   50  238.974 ±  4.167  ns/op
+StaticScoreBenchmark.testScore           0  avgt   50  491.234 ± 10.106  ns/op
+StaticScoreBenchmark.testScore           1  avgt   50  491.621 ± 13.128  ns/op
+StaticScoreBenchmark.testScore           2  avgt   50  189.029 ±  2.571  ns/op
+StaticScoreBenchmark.testScore           3  avgt   50  488.924 ±  6.081  ns/op
+StaticScoreBenchmark.testScore           4  avgt   50  438.004 ±  6.555  ns/op
+StaticScoreBenchmark.testScore           5  avgt   50  479.247 ±  9.051  ns/op
+StaticScoreBenchmark.testScore           6  avgt   50  241.136 ±  4.165  ns/op

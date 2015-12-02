@@ -14,6 +14,7 @@ import java.util.Map;
 import static com.gordoncaleb.chess.board.bitboard.Slide.northFill;
 import static com.gordoncaleb.chess.board.bitboard.Slide.southFill;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
+import static com.gordoncaleb.chess.engine.score.Values.*;
 
 public class StaticScore {
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticScore.class);
@@ -84,14 +85,12 @@ public class StaticScore {
         return score;
     }
 
-    public int materialScore(final int side, final Board b) {
-        int score = 0;
-
-        for (Piece p : b.getPieces()[side]) {
-            score += Values.getPieceValue(p.getPieceID());
-        }
-
-        return score;
+    public int materialScoreDelta(final int friendSide, final int foeSide, final long[][] bitBoards) {
+        return (Long.bitCount(bitBoards[QUEEN][friendSide]) - Long.bitCount(bitBoards[QUEEN][foeSide])) * QUEEN_VALUE +
+                (Long.bitCount(bitBoards[ROOK][friendSide]) - Long.bitCount(bitBoards[ROOK][foeSide])) * ROOK_VALUE +
+                (Long.bitCount(bitBoards[BISHOP][friendSide]) - Long.bitCount(bitBoards[BISHOP][foeSide])) * BISHOP_VALUE +
+                (Long.bitCount(bitBoards[KNIGHT][friendSide]) - Long.bitCount(bitBoards[KNIGHT][foeSide])) * KNIGHT_VALUE +
+                (Long.bitCount(bitBoards[PAWN][friendSide]) - Long.bitCount(bitBoards[PAWN][foeSide])) * PAWN_VALUE;
     }
 
     public int pawnStructureScore(final int side, final int phase, final long friendPawns, final long foePawns) {
@@ -178,13 +177,12 @@ public class StaticScore {
         final int endGameMyScore = endGamePositionScore(side, b, yourOpenFiles);
         final int endGameYourScore = endGamePositionScore(otherSide, b, myOpenFiles);
 
-        final int myMaterialScore = materialScore(side, b);
-        final int yourMaterialScore = materialScore(otherSide, b);
+        final int materialScoreDelta = materialScoreDelta(side, otherSide, b.getPosBitBoard());
 
-        final int myScore = (openingMyScore * (ENDGAME_PHASE - phase) + endGameMyScore * phase) / ENDGAME_PHASE + myMaterialScore + myPawnScore;
-        final int yourScore = (openingYourScore * (ENDGAME_PHASE - phase) + endGameYourScore * phase) / ENDGAME_PHASE + yourMaterialScore + yourPawnScore;
+        final int myScore = (openingMyScore * (ENDGAME_PHASE - phase) + endGameMyScore * phase) / ENDGAME_PHASE + myPawnScore;
+        final int yourScore = (openingYourScore * (ENDGAME_PHASE - phase) + endGameYourScore * phase) / ENDGAME_PHASE + yourPawnScore;
 
-        return myScore - yourScore;
+        return myScore - yourScore + materialScoreDelta;
     }
 
     public String printBoardScoreBreakDown(Board b) {
@@ -209,11 +207,10 @@ public class StaticScore {
         final int endGameMyScore = endGamePositionScore(side, b, yourOpenFiles);
         final int endGameYourScore = endGamePositionScore(otherSide, b, myOpenFiles);
 
-        final int myMaterialScore = materialScore(side, b);
-        final int yourMaterialScore = materialScore(otherSide, b);
+        final int materialScoreDelta = materialScoreDelta(side, otherSide, b.getPosBitBoard());
 
-        final int myScore = (openingMyScore * (ENDGAME_PHASE - phase) + endGameMyScore * phase) / ENDGAME_PHASE + myMaterialScore + myPawnScore;
-        final int yourScore = (openingYourScore * (ENDGAME_PHASE - phase) + endGameYourScore * phase) / ENDGAME_PHASE + yourMaterialScore + yourPawnScore;
+        final int myScore = (openingMyScore * (ENDGAME_PHASE - phase) + endGameMyScore * phase) / ENDGAME_PHASE + myPawnScore;
+        final int yourScore = (openingYourScore * (ENDGAME_PHASE - phase) + endGameYourScore * phase) / ENDGAME_PHASE + yourPawnScore;
 
         Map<String, Object> scoreMap = new HashMap<>();
 
@@ -228,13 +225,12 @@ public class StaticScore {
         scoreMap.put("endGameMyScore", endGameMyScore);
         scoreMap.put("endGameYourScore", endGameYourScore);
 
-        scoreMap.put("myMaterialScore", myMaterialScore);
-        scoreMap.put("yourMaterialScore", yourMaterialScore);
+        scoreMap.put("materialScoreDelta", materialScoreDelta);
 
         scoreMap.put("myScore", myScore);
         scoreMap.put("yourScore", yourScore);
 
-        scoreMap.put("scoreDiff", myScore-yourScore);
+        scoreMap.put("scoreDiff", myScore - yourScore + materialScoreDelta);
 
         return scoreMap.toString();
     }
