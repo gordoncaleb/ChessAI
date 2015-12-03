@@ -21,7 +21,6 @@ import static java.util.stream.Collectors.*;
 import static com.gordoncaleb.chess.board.Move.MoveNote.*;
 
 public class PGNParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PGNParser.class);
 
     private enum AmbiguityLevel {
         NON_AMBIGUOUS, TYPE_DISAMBIGUATE, COL_DISAMBIGUATE, ROW_DISAMBIGUATE, COMPLETE_DISAMBIGUATION;
@@ -320,7 +319,11 @@ public class PGNParser {
         }
     }
 
-    private Move matchValidMove(Board board, int fromRow, int fromCol, int toRow, int toCol, int note, int pieceMovingID) throws Exception {
+    private Move matchValidMove(Board board,
+                                int fromRow, int fromCol,
+                                int toRow, int toCol,
+                                int note,
+                                int pieceMovingID) throws Exception {
 
         board.makeNullMove();
         List<Move> moves = board.generateValidMoves().toList();
@@ -444,7 +447,7 @@ public class PGNParser {
         String disambiguation = disambiguate(move, b);
         boolean needsDisambiguation = !disambiguation.isEmpty();
 
-        int pieceId = getFromPieceId(move, b);
+        int pieceId = b.getPieceID(move.getFromRow(), move.getFromCol());
         String destinationAN = squareToAN(move.getToRow(), move.getToCol());
         switch (pieceId) {
             case PAWN:
@@ -476,10 +479,6 @@ public class PGNParser {
                     }
                 }
         }
-    }
-
-    private int getFromPieceId(Move move, Board b) {
-        return b.getPieceID(move.getFromRow(), move.getFromCol());
     }
 
     public String squareToAN(int r, int c) {
