@@ -1,6 +1,7 @@
 package com.gordoncaleb.chess.unit;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,10 +17,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 
 public class PGNParserTest {
-    private static final Logger logger = LoggerFactory.getLogger(PGNParserTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PGNParserTest.class);
 
     PGNParser parser;
 
@@ -81,5 +85,33 @@ public class PGNParserTest {
         return new BufferedReader(new StringReader(lines.stream().collect(Collectors.joining("\n"))));
 
     }
+
+    @Test
+    public void testSquareToAN() {
+        assertThat(parser.squareToAN(3, 5), equalTo("f5"));
+        assertThat(parser.squareToAN(0, 0), equalTo("a8"));
+        assertThat(parser.squareToAN(7, 7), equalTo("h1"));
+    }
+
+    @Test
+    public void testANOfParsedPGNGame() throws Exception {
+        List<PGNParser.PGNGame> exampleGames = parser.loadFile("/pgns/example.pgn");
+        Board b = parser.getPGNGameAsBoard(exampleGames.get(0));
+
+        List<Move> moveHistory = b.getMoveHistory().toList();
+
+        String algNotation = parser.toAlgebraicNotation(moveHistory, b.startingPosition());
+
+        LOGGER.info(algNotation);
+
+        PGNParser.PGNGame pgnGame = new PGNParser.PGNGame();
+        pgnGame.getGameLines().add(algNotation);
+
+        Board b2 = parser.getPGNGameAsBoard(pgnGame);
+
+        assertThat(b.getHashCode(), is(equalTo(b2.getHashCode())));
+
+    }
+
 
 }

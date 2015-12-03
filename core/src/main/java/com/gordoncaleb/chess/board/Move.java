@@ -196,7 +196,6 @@ public class Move {
         if (pieceTakenId != move.pieceTakenId) return false;
         if (pieceTakenRow != move.pieceTakenRow) return false;
         return pieceTakenCol == move.pieceTakenCol;
-
     }
 
     @Override
@@ -226,12 +225,10 @@ public class Move {
                 '}';
     }
 
-    /**
-     * Bit-field 0-2 = toCol 3-5 = toRow 6-8 = fromCol 9-11 = fromRow 12-14 =
-     * move note 15 = hadMoved 16 = has piece taken 17-19 = pieceTaken col 20-22
-     * = pieceTaken row 23-25 = pieceTaken id 26 = pieceTaken has moved 32-48 =
-     * moveValue
-     */
+    public boolean destinationMatch(Move m) {
+        return m.getToRow() == getToRow() &&
+                m.getToCol() == getToCol();
+    }
 
     private static final int fromToMask = 0xFFF;
 

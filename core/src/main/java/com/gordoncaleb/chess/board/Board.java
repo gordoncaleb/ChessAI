@@ -430,6 +430,19 @@ public class Board {
         return (!moveHistory.isEmpty());
     }
 
+    public void undoAll() {
+        while (canUndo()) {
+            undoMove();
+        }
+    }
+
+    public void undo(int num) {
+        while (canUndo() && num > 0) {
+            undoMove();
+            num--;
+        }
+    }
+
     public MoveContainer generateValidMoves() {
         return generateValidMoves(this.validMoves);
     }
@@ -809,6 +822,12 @@ public class Board {
 
     public boolean isGameOver() {
         return isDraw() || (isInCheck() && generateValidMoves().isEmpty());
+    }
+
+    public Board startingPosition() {
+        Board newBoard = copy();
+        newBoard.undoAll();
+        return newBoard;
     }
 
 }

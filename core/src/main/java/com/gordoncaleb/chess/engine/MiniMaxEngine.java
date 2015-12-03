@@ -18,19 +18,18 @@ public class MiniMaxEngine {
     public MiniMaxEngine(StaticScorer scorer) {
         this.scorer = scorer;
         this.moveContainers = MoveContainerFactory.buildMoveContainers(MAX_DEPTH);
-        this.movePath  = new MovePath(moveContainers);
+        this.movePath = new MovePath(moveContainers);
     }
 
-    public Move search(final Board board, final int depth) {
+    public MovePath search(final Board board, final int depth) {
         resetMoveContainers();
-        searchTree(board, 0, depth);
-        return movePath.get(0);
+        searchTree(board, 0, depth, Integer.MIN_VALUE);
+        return movePath;
     }
 
-    private int searchTree(final Board b, final int level, final int maxLevel) {
+    private int searchTree(final Board b, final int level, final int maxLevel, int maxScore) {
 
         if (level < maxLevel) {
-            int max = Integer.MIN_VALUE;
 
             MoveContainer moves = moveContainers[level];
             b.makeNullMove();
@@ -38,24 +37,24 @@ public class MiniMaxEngine {
 
             for (int i = 0; i < moves.size(); i++) {
                 b.makeMove(moves.get(i));
-                int temp = searchTree(b, level + 1, maxLevel);
+                int temp = searchTree(b, level + 1, maxLevel, -maxScore);
 
-                if (temp > max) {
-                    max = temp;
-                    moves.markMove(max);
+                if (temp > maxScore) {
+                    maxScore = temp;
+                    moves.markMove();
                 }
 
                 b.undoMove();
             }
 
-            return -max;
+            return -maxScore;
         } else {
             return scorer.staticScore(b);
         }
     }
 
-    private void resetMoveContainers(){
-        for(MoveContainer mc: moveContainers){
+    private void resetMoveContainers() {
+        for (MoveContainer mc : moveContainers) {
             mc.resetMarkedMove();
         }
     }

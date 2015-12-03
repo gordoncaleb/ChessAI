@@ -4,6 +4,7 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.BoardFactory;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.engine.MiniMaxEngine;
+import com.gordoncaleb.chess.engine.MovePath;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -21,9 +22,8 @@ public class MiniMaxEngineTest {
 
         LOGGER.info(b.toString());
 
-        Move m = engine.search(b, 3);
+        MovePath movePath = engine.search(b, 4);
 
-        LOGGER.info("Move: " + m.toString());
 
     }
 }
