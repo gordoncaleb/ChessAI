@@ -542,23 +542,25 @@ public class Board {
         long[][] rooksInitBitboards = new long[2][2];
 
         for (int s : Arrays.asList(BLACK, WHITE)) {
-            for (int c = kings[s].getCol() - 1; c >= 0; c--) {
+            if (kings[s] != null) {
+                for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
-                if (board[MATERIAL_ROW[s]][c] != null) {
-                    Piece p = board[MATERIAL_ROW[s]][c];
-                    if (p.getPieceID() == ROOK) {
-                        rooksInitBitboards[p.getSide()][FAR] = p.asBitMask();
-                        break;
+                    if (board[MATERIAL_ROW[s]][c] != null) {
+                        Piece p = board[MATERIAL_ROW[s]][c];
+                        if (p.getPieceID() == ROOK) {
+                            rooksInitBitboards[p.getSide()][FAR] = p.asBitMask();
+                            break;
+                        }
                     }
                 }
-            }
 
-            for (int c = kings[s].getCol() + 1; c < 8; c++) {
-                if (board[MATERIAL_ROW[s]][c] != null) {
-                    Piece p = board[MATERIAL_ROW[s]][c];
-                    if (p.getPieceID() == ROOK) {
-                        rooksInitBitboards[p.getSide()][NEAR] = p.asBitMask();
-                        break;
+                for (int c = kings[s].getCol() + 1; c < 8; c++) {
+                    if (board[MATERIAL_ROW[s]][c] != null) {
+                        Piece p = board[MATERIAL_ROW[s]][c];
+                        if (p.getPieceID() == ROOK) {
+                            rooksInitBitboards[p.getSide()][NEAR] = p.asBitMask();
+                            break;
+                        }
                     }
                 }
             }
@@ -572,23 +574,25 @@ public class Board {
         int[][] rookCols = {{-1, -1}, {-1, -1}};
 
         for (int s : Arrays.asList(BLACK, WHITE)) {
-            for (int c = kings[s].getCol() - 1; c >= 0; c--) {
+            if (kings[s] != null) {
+                for (int c = kings[s].getCol() - 1; c >= 0; c--) {
 
-                if (board[MATERIAL_ROW[s]][c] != null) {
-                    Piece p = board[MATERIAL_ROW[s]][c];
-                    if (p.getPieceID() == ROOK) {
-                        rookCols[s][0] = c;
-                        break;
+                    if (board[MATERIAL_ROW[s]][c] != null) {
+                        Piece p = board[MATERIAL_ROW[s]][c];
+                        if (p.getPieceID() == ROOK) {
+                            rookCols[s][0] = c;
+                            break;
+                        }
                     }
                 }
-            }
 
-            for (int c = kings[s].getCol() + 1; c < 8; c++) {
-                if (board[MATERIAL_ROW[s]][c] != null) {
-                    Piece p = board[MATERIAL_ROW[s]][c];
-                    if (p.getPieceID() == ROOK) {
-                        rookCols[s][1] = c;
-                        break;
+                for (int c = kings[s].getCol() + 1; c < 8; c++) {
+                    if (board[MATERIAL_ROW[s]][c] != null) {
+                        Piece p = board[MATERIAL_ROW[s]][c];
+                        if (p.getPieceID() == ROOK) {
+                            rookCols[s][1] = c;
+                            break;
+                        }
                     }
                 }
             }
@@ -598,9 +602,13 @@ public class Board {
     }
 
     private int[] findKingStartCols(Piece[] kings) {
-        int[] kingStartCols = new int[2];
-        kingStartCols[Side.BLACK] = kings[Side.BLACK].getCol();
-        kingStartCols[Side.WHITE] = kings[Side.WHITE].getCol();
+        int[] kingStartCols = new int[]{-1, -1};
+        if (kings[Side.BLACK] != null) {
+            kingStartCols[Side.BLACK] = kings[Side.BLACK].getCol();
+        }
+        if (kings[WHITE] != null) {
+            kingStartCols[Side.WHITE] = kings[Side.WHITE].getCol();
+        }
         return kingStartCols;
     }
 

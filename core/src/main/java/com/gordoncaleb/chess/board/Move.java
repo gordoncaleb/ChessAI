@@ -56,6 +56,15 @@ public class Move {
         set(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
     }
 
+    public Move(int fromRow,
+                int fromCol,
+                int toRow,
+                int toCol,
+                int note,
+                int pieceTakenId) {
+        set(fromRow, fromCol, toRow, toCol, note, pieceTakenId, toRow, toCol);
+    }
+
     public void set(int fromRow, int fromCol, int toRow, int toCol, int note) {
         set(fromRow, fromCol, toRow, toCol, note, Piece.PieceID.NO_PIECE, DEFAULT_ROW, DEFAULT_COL);
     }

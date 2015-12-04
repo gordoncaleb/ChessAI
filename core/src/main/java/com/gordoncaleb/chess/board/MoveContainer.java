@@ -11,14 +11,20 @@ public class MoveContainer {
     private int head = EMPTY;
     private final long[] moves;
     private final Move transientMove = new Move();
-    private long markedMove;
+    private final long[] markedMoves;
+    private int markedMoveHead = EMPTY;
 
     public MoveContainer() {
-        this(219);
+        this(219, 30);
     }
 
     public MoveContainer(int size) {
+            this(size, 30);
+    }
+
+    public MoveContainer(int size, int markedMoveSize) {
         moves = new long[size];
+        markedMoves = new long[markedMoveSize];
     }
 
     public boolean isEmpty() {
@@ -73,20 +79,18 @@ public class MoveContainer {
                 m.getPieceTakenCol());
     }
 
-    public void markMove() {
-        markedMove = moves[head];
+    public void markMove(final int i) {
+        markedMoves[0] = moves[i];
+        markedMoveHead = 0;
     }
 
-    public void resetMarkedMove() {
-        markedMove = 0;
+    public void promoteMarkedMove() {
+        markedMoves[markedMoveHead + 1] = markedMoves[markedMoveHead];
+        markedMoveHead++;
     }
 
-    public boolean hasMarkedMove(){
-        return markedMove != 0;
-    }
-
-    public Move getMarkedMove() {
-        return Move.fromLong(markedMove, transientMove);
+    public Move getMarkedMove(int i) {
+        return Move.fromLong(markedMoves[i], transientMove);
     }
 
     public Move get(int i) {
