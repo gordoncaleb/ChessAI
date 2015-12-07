@@ -7,9 +7,9 @@ import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.engine.BoardHashEntry;
 import com.gordoncaleb.chess.engine.MoveBook;
 import com.gordoncaleb.chess.engine.score.Values;
-import com.gordoncaleb.chess.ui.gui.game.Game;
-import com.gordoncaleb.chess.ui.gui.game.Player;
-import com.gordoncaleb.chess.ui.gui.game.PlayerContainer;
+import com.gordoncaleb.chess.game.Game;
+import com.gordoncaleb.chess.game.Player;
+import com.gordoncaleb.chess.game.PlayerContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package com.gordoncaleb.chess.ui.gui.game;
+package com.gordoncaleb.chess.game;
 
 import com.gordoncaleb.chess.board.Side;
 
