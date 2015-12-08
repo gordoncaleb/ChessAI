@@ -71,7 +71,7 @@ public class ObserverGUI implements Player, BoardGUI, MouseListener {
 		showSettingsBtn.addMouseListener(this);
 		controlPanel.add(showSettingsBtn, BorderLayout.EAST);
 
-		// frame.setSize(gameWidth, gameHeight);
+		// frame.setDepth(gameWidth, gameHeight);
 		frame.setResizable(false);
 		frame.setVisible(true);
 

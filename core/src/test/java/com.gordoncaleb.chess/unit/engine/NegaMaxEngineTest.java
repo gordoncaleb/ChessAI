@@ -1,6 +1,5 @@
 package com.gordoncaleb.chess.unit.engine;
 
-import com.google.common.collect.ImmutableList;
 import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
@@ -11,15 +10,11 @@ import com.gordoncaleb.chess.engine.score.StaticScorer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.mockito.stubbing.OngoingStubbing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;

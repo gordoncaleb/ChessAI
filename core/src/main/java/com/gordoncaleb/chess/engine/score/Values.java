@@ -20,6 +20,8 @@ public class Values {
 	public static final int FAR_CASTLE_ABILITY_LOST_VALUE = 40;
 	public static final int CASTLE_ABILITY_LOST_VALUE = FAR_CASTLE_ABILITY_LOST_VALUE + NEAR_CASTLE_ABILITY_LOST_VALUE;
 	public static final int CHECKMATE_MOVE = KING_VALUE;
+	public static final int STALEMATE = 0;
+	public static final int DRAW = 0;
 
 	public static final int BACKED_PAWN_BONUS = 2;
 	public static final int DOUBLED_PAWN_BONUS = -5;

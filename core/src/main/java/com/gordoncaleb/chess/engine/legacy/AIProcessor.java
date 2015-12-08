@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.engine.Engine;
 import com.gordoncaleb.chess.engine.MoveBook;
 import com.gordoncaleb.chess.engine.score.Values;
@@ -26,7 +27,7 @@ public class AIProcessor extends Thread {
 
     private StaticScorer scorer = new StaticScorer();
 
-    private Engine engine = new Engine(new MoveBook(), scorer);
+    private Engine engine = new Engine(scorer, MoveContainerFactory.buildMoveContainers(20));
 
     public AIProcessor(AI ai, int maxTreeLevel) {
         this.ai = ai;
@@ -109,7 +110,7 @@ public class AIProcessor extends Thread {
                 task.setChosenPathValue(-val);
 
             } else {
-                task.setHeadChild(engine.search(board, searchDepth, startAlpha, startBeta));
+                task.setHeadChild(engine.search(board, searchDepth, startAlpha, startBeta).get(0));
             }
 
             board.undoMove();
@@ -119,7 +120,6 @@ public class AIProcessor extends Thread {
             }
 
         }
-
     }
 
     public void attachValidMoves(DecisionNode branch, Move hashMove, int level) {

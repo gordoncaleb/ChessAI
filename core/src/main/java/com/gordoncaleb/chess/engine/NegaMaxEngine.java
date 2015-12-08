@@ -19,7 +19,7 @@ public class NegaMaxEngine {
 
     public MovePath search(final Board board, final int depth) {
         searchTree(board, 0, depth);
-        movePath.setSize(depth);
+        movePath.setDepth(depth);
         return movePath;
     }
 
@@ -29,32 +29,24 @@ public class NegaMaxEngine {
             return scorer.staticScore(b);
         }
 
-        MoveContainer moves = moveContainers[level];
         b.makeNullMove();
-        b.generateValidMoves(moves);
+        MoveContainer moves = b.generateValidMoves(moveContainers[level]);
 
-        int myMax = Integer.MIN_VALUE;
+        int maxScore = Integer.MIN_VALUE;
         for (int i = 0; i < moves.size(); i++) {
 
             b.makeMove(moves.get(i));
-            int temp = -searchTree(b, level + 1, maxLevel);
+            final int childScore = -searchTree(b, level + 1, maxLevel);
 
-            if (temp > myMax) {
-                myMax = temp;
-                moves.markMove(i);
-                promoteBelow(level + 1, maxLevel);
+            if (childScore > maxScore) {
+                maxScore = childScore;
+                movePath.markMove(level, maxLevel, i);
             }
 
             b.undoMove();
         }
 
-        return myMax;
-    }
-
-    private void promoteBelow(final int start, final int end) {
-        for (int i = start; i < end; i++) {
-            moveContainers[i].promoteMarkedMove(i - start);
-        }
+        return maxScore;
     }
 
 }

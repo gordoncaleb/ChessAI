@@ -218,7 +218,7 @@ public class MoveBookBuilderGUI implements Player, BoardGUI, MouseListener {
 
         eastPanel.add(controlBtnsPanel, BorderLayout.SOUTH);
 
-        // frame.setSize(gameWidth, gameHeight);
+        // frame.setDepth(gameWidth, gameHeight);
         // frame.setResizable(false);
         frame.setVisible(true);
 
