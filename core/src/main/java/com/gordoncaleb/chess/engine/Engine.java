@@ -31,25 +31,23 @@ public class Engine {
         return movePath;
     }
 
-    public int searchTree(final Board board, final int level, final int maxDepth, int alpha, final int beta) {
+    public int searchTree(final Board board, final int level, final int maxLevel, int alpha, final int beta) {
 
-        if (level == maxDepth) {
-            return scorer.staticScore(board);
+        if (board.isDraw()) {
+            return Values.DRAW;
         }
 
-        int condition = isCheckDrawOrInPlay(board);
-
-        if (condition == DRAW) {
-            return Values.DRAW;
+        if (level == maxLevel) {
+            return scorer.staticScore(board);
         }
 
         board.makeNullMove();
         MoveContainer moves = board.generateValidMoves(moveContainers[level]);
 
         if (moves.isEmpty()) {
-            if (condition == CHECK) {
+            if (board.isInCheck()) {
                 //checkmate
-                return -(Values.CHECKMATE_MOVE - (maxDepth - level));
+                return (maxLevel - level) - Values.CHECKMATE_MOVE;
             } else {
                 //stalemate
                 return Values.STALEMATE;
@@ -57,27 +55,23 @@ public class Engine {
         }
 
         int maxScore = Integer.MIN_VALUE;
-
-        //try and order moves to maximize pruning
-        moves.sort();
-
         for (int m = 0; m < moves.size(); m++) {
 
             final Move move = moves.get(m);
 
             board.makeMove(move);
 
-            final int childScore = -searchTree(board, level + 1, maxDepth, -beta, -alpha);
+            final int childScore = -searchTree(board, level + 1, maxLevel, -beta, -alpha);
 
             board.undoMove();
 
             if (childScore > maxScore) {
                 maxScore = childScore;
-                movePath.markMove(level, maxDepth, m);
+                movePath.markMove(level, maxLevel, m);
             }
 
             if (maxScore > alpha) {
-                //narrowing ab window
+                //narrowing alpha beta window
                 alpha = maxScore;
             }
 
@@ -89,14 +83,6 @@ public class Engine {
         }
 
         return maxScore;
-    }
-
-    private static int isCheckDrawOrInPlay(Board board) {
-        if (board.isInCheck()) {
-            return CHECK;
-        } else {
-            return board.isDraw() ? DRAW : IN_PLAY;
-        }
     }
 
 }

@@ -110,7 +110,4 @@ public class MoveContainer {
         return l;
     }
 
-    public void sort() {
-        //order moves
-    }
 }

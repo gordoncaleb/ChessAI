@@ -1,9 +1,9 @@
 package com.gordoncaleb.chess.engine;
 
-
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
+import com.gordoncaleb.chess.engine.score.Values;
 
 public class NegaMaxEngine {
 
@@ -18,32 +18,61 @@ public class NegaMaxEngine {
     }
 
     public MovePath search(final Board board, final int depth) {
-        searchTree(board, 0, depth);
-        movePath.setDepth(depth);
+        final int val = searchTree(board, 0, depth);
+
+        final int checkMateFound = Values.CHECKMATE_MOVE - Math.abs(val);
+        if (checkMateFound < depth) {
+            movePath.setDepth(checkMateFound);
+        } else {
+            movePath.setDepth(depth);
+        }
+
         return movePath;
     }
 
-    private int searchTree(final Board b, final int level, final int maxLevel) {
+    private static int drawValue() {
+        return Values.DRAW;
+    }
 
-        if (level == maxLevel) {
-            return scorer.staticScore(b);
+    private static int endOfGameValue(final Board board, final int level) {
+        if (board.isInCheck()) {
+            //checkmate
+            return level - Values.CHECKMATE_MOVE;
+        } else {
+            //stalemate
+            return drawValue();
+        }
+    }
+
+    private int searchTree(final Board board, final int level, final int maxLevel) {
+
+        if (board.isDraw()) {
+            return drawValue();
         }
 
-        b.makeNullMove();
-        MoveContainer moves = b.generateValidMoves(moveContainers[level]);
+        if (level == maxLevel) {
+            return scorer.staticScore(board);
+        }
+
+        board.makeNullMove();
+        MoveContainer moves = board.generateValidMoves(moveContainers[level]);
+
+        if (moves.isEmpty()) {
+            return endOfGameValue(board, level);
+        }
 
         int maxScore = Integer.MIN_VALUE;
         for (int i = 0; i < moves.size(); i++) {
 
-            b.makeMove(moves.get(i));
-            final int childScore = -searchTree(b, level + 1, maxLevel);
+            board.makeMove(moves.get(i));
+            final int childScore = -searchTree(board, level + 1, maxLevel);
 
             if (childScore > maxScore) {
                 maxScore = childScore;
                 movePath.markMove(level, maxLevel, i);
             }
 
-            b.undoMove();
+            board.undoMove();
         }
 
         return maxScore;

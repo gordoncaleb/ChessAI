@@ -9,6 +9,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.*;
 
+import static com.gordoncaleb.chess.board.BoardCondition.CHECK;
+import static com.gordoncaleb.chess.board.BoardCondition.DRAW;
+import static com.gordoncaleb.chess.board.BoardCondition.IN_PLAY;
 import static com.gordoncaleb.chess.board.Side.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
@@ -831,7 +834,11 @@ public class Board {
     }
 
     public boolean isGameOver() {
-        return isDraw() || (isInCheck() && generateValidMoves().isEmpty());
+        return isDraw() || isCheckMate();
+    }
+
+    public boolean isCheckMate() {
+        return (isInCheck() && generateValidMoves().isEmpty());
     }
 
     public Board startingPosition() {

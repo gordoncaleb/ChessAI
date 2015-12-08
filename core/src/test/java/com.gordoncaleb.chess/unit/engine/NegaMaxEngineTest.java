@@ -136,6 +136,68 @@ public class NegaMaxEngineTest {
     }
 
     @Test
+    public void testCheckMate() {
+        NegaMaxEngine engine = new NegaMaxEngine(new StaticScorer(),
+                MoveContainerFactory.buildMoveContainers(5));
+
+        Board b = JSONParser.getFromSetup(Side.BLACK, new String[]{
+                "r,n,b,_,_,k,_,_,",
+                "p,p,_,r,b,p,p,p,",
+                "_,_,p,_,_,r,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,B,_,_,q,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "P,P,P,_,N,_,P,P,",
+                "R,N,B,_,K,_,_,R,"
+        });
+
+        MovePath movePath = engine.search(b, 4);
+        List<Move> moves = movePath.asList();
+
+        LOGGER.info("Move Path: {}", new PGNParser().toAlgebraicNotation(moves, b));
+
+        assertThat(moves, contains(
+                new Move(4, 5, 6, 5, NORMAL)
+        ));
+    }
+
+    @Test
+    @Ignore
+    public void testDraw() {
+        NegaMaxEngine engine = new NegaMaxEngine(new StaticScorer(),
+                MoveContainerFactory.buildMoveContainers(5));
+
+        Board b = JSONParser.getFromSetup(Side.WHITE, new String[]{
+                "_,k,_,_,_,_,_,_,",
+                "p,_,p,p,p,p,p,p,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "_,_,_,_,_,_,_,_,",
+                "p,p,p,_,_,_,_,_,",
+                "P,P,P,_,_,_,_,_,",
+                "_,K,_,_,_,_,_,_,"
+        });
+
+        b.makeMove(new Move(7, 1, 7, 0));
+        b.makeMove(new Move(0, 1, 0, 0));
+        b.makeMove(new Move(7, 0, 7, 1));
+        b.makeMove(new Move(0, 0, 0, 1));
+
+        b.makeMove(new Move(7, 1, 7, 0));
+        b.makeMove(new Move(0, 1, 0, 0));
+        b.makeMove(new Move(7, 0, 7, 1));
+
+        MovePath movePath = engine.search(b, 1);
+        List<Move> moves = movePath.asList();
+
+        LOGGER.info("Move Path: {}", new PGNParser().toAlgebraicNotation(moves, b));
+
+        assertThat(moves, contains(
+                new Move(4, 5, 6, 5, NORMAL)
+        ));
+    }
+
+    @Test
     public void testLevel1() {
         NegaMaxEngine engine = new NegaMaxEngine(new StaticScorer(),
                 MoveContainerFactory.buildMoveContainers(5));

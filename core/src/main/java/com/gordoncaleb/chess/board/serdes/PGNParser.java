@@ -389,12 +389,35 @@ public class PGNParser {
     public String toAlgebraicNotation(List<Move> moves, Board b) {
 
         boolean turnIsBlack = b.getTurn() == Side.BLACK;
-        List<String> notations = moves.stream()
-                .map(m -> {
-                    String notation = toAlgebraicNotation(m, b);
-                    b.makeMove(m);
-                    return notation;
-                }).collect(Collectors.toList());
+
+        boolean checkMate = false;
+        boolean gameOver = false;
+        List<String> notations = new ArrayList<>();
+        for (Move m : moves) {
+            String notation = toAlgebraicNotation(m, b);
+
+            b.makeMove(m);
+
+            b.makeNullMove();
+
+            if (b.isInCheck()) {
+                if (b.isCheckMate()) {
+                    checkMate = true;
+                    notations.add(notation + "#");
+                } else {
+                    notations.add(notation + "+");
+                }
+            } else {
+                notations.add(notation);
+            }
+
+            if (b.isGameOver()) {
+                gameOver = true;
+                break;
+            }
+        }
+
+        final int endingTurn = b.getTurn();
 
         b.undo(notations.size());
 
@@ -415,6 +438,14 @@ public class PGNParser {
             }
             sb.append(" ");
             moveNumber++;
+        }
+
+        if (gameOver) {
+            if (checkMate) {
+                sb.append(endingTurn == Side.BLACK ? " 1-0" : " 0-1");
+            } else {
+                sb.append(" 1/2-1/2");
+            }
         }
 
         return sb.toString();
