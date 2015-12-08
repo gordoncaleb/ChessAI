@@ -3,20 +3,17 @@ package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
 
 public class NegaMaxEngine {
-
-    public static final int MAX_DEPTH = 20;
 
     private final StaticScorer scorer;
     private final MoveContainer[] moveContainers;
     private final MovePath movePath;
 
-    public NegaMaxEngine(StaticScorer scorer) {
+    public NegaMaxEngine(StaticScorer scorer, MoveContainer[] moveContainers) {
         this.scorer = scorer;
-        this.moveContainers = MoveContainerFactory.buildMoveContainers(MAX_DEPTH);
+        this.moveContainers = moveContainers;
         this.movePath = new MovePath(moveContainers);
     }
 
@@ -56,7 +53,7 @@ public class NegaMaxEngine {
 
     private void promoteBelow(final int start, final int end) {
         for (int i = start; i < end; i++) {
-            moveContainers[i].promoteMarkedMove();
+            moveContainers[i].promoteMarkedMove(i - start);
         }
     }
 

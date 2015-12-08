@@ -7,5 +7,5 @@ create engine scenario test framework
 add mongo persistence
 
 refactor null move generation
-implement better composition solution for Piece class and impl pieces
+implement better composition solution for Piece class and impl piecesList
 reimplement Move class

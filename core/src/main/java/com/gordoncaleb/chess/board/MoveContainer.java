@@ -12,14 +12,13 @@ public class MoveContainer {
     private final long[] moves;
     private final Move transientMove = new Move();
     private final long[] markedMoves;
-    private int markedMoveHead = EMPTY;
 
     public MoveContainer() {
         this(219, 30);
     }
 
     public MoveContainer(int size) {
-            this(size, 30);
+        this(size, 30);
     }
 
     public MoveContainer(int size, int markedMoveSize) {
@@ -81,12 +80,10 @@ public class MoveContainer {
 
     public void markMove(final int i) {
         markedMoves[0] = moves[i];
-        markedMoveHead = 0;
     }
 
-    public void promoteMarkedMove() {
-        markedMoves[markedMoveHead + 1] = markedMoves[markedMoveHead];
-        markedMoveHead++;
+    public void promoteMarkedMove(final int i) {
+        markedMoves[i + 1] = markedMoves[i];
     }
 
     public Move getMarkedMove(int i) {

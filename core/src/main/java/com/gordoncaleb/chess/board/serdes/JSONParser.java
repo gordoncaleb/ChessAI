@@ -167,8 +167,8 @@ public class JSONParser {
             blackFar = b.isFar();
         }
 
-        Board board = new Board(new ArrayList[]{pieces.get(Side.BLACK),
-                pieces.get(Side.WHITE)},
+        Board board = new Board(pieces.get(Side.WHITE),
+                pieces.get(Side.BLACK),
                 Side.fromString(boardDTO.getTurn()),
                 whiteNear,
                 whiteFar,

@@ -399,7 +399,7 @@ public class PGNParser {
         b.undo(notations.size());
 
         if (turnIsBlack) {
-            notations.add(0, "...");
+            notations.add(0, "..");
         }
 
         int moveNumber = 1;

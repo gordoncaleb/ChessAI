@@ -180,11 +180,11 @@ public class StaticScorer {
         final long myOpenFiles = getOpenFiles(yourPawns);
         final long yourOpenFiles = getOpenFiles(myPawns);
 
-        final int openingMyScore = openingPositionScore(b.getPieces()[side], yourOpenFiles);
-        final int openingYourScore = openingPositionScore(b.getPieces()[otherSide], myOpenFiles);
+        final int openingMyScore = openingPositionScore(b.getPiecesList()[side], yourOpenFiles);
+        final int openingYourScore = openingPositionScore(b.getPiecesList()[otherSide], myOpenFiles);
 
-        final int endGameMyScore = endGamePositionScore(b.getPieces()[side], yourOpenFiles);
-        final int endGameYourScore = endGamePositionScore(b.getPieces()[otherSide], myOpenFiles);
+        final int endGameMyScore = endGamePositionScore(b.getPiecesList()[side], yourOpenFiles);
+        final int endGameYourScore = endGamePositionScore(b.getPiecesList()[otherSide], myOpenFiles);
 
         final int materialScoreDelta = materialScoreDelta(side, otherSide, b.getPosBitBoard());
 
@@ -210,11 +210,11 @@ public class StaticScorer {
         final long myOpenFiles = getOpenFiles(yourPawns);
         final long yourOpenFiles = getOpenFiles(myPawns);
 
-        final int openingMyScore = openingPositionScore(b.getPieces()[side], yourOpenFiles);
-        final int openingYourScore = openingPositionScore(b.getPieces()[otherSide], myOpenFiles);
+        final int openingMyScore = openingPositionScore(b.getPiecesList()[side], yourOpenFiles);
+        final int openingYourScore = openingPositionScore(b.getPiecesList()[otherSide], myOpenFiles);
 
-        final int endGameMyScore = endGamePositionScore(b.getPieces()[side], yourOpenFiles);
-        final int endGameYourScore = endGamePositionScore(b.getPieces()[otherSide], myOpenFiles);
+        final int endGameMyScore = endGamePositionScore(b.getPiecesList()[side], yourOpenFiles);
+        final int endGameYourScore = endGamePositionScore(b.getPiecesList()[otherSide], myOpenFiles);
 
         final int materialScoreDelta = materialScoreDelta(side, otherSide, b.getPosBitBoard());
 

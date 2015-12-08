@@ -40,9 +40,9 @@ public class Board {
 
     private Deque<Long> castleRightsHistory = new ArrayDeque<>();
 
-    private final Piece[][] board;
+    private final Piece[][] piecesArray;
     private MoveContainer validMoves = new MoveContainer();
-    private LinkedList<Piece>[] pieces = new LinkedList[2];
+    private LinkedList<Piece>[] piecesList = new LinkedList[2];
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
 
     private final Piece[] kings;
@@ -63,7 +63,8 @@ public class Board {
     private final long[] allPosBitBoard;
 
     //Inputs are copied safely
-    public Board(List<Piece>[] pieces,
+    public Board(List<Piece> whitePieceList,
+                 List<Piece> blackPieceList,
                  int turn,
                  boolean whiteNear,
                  boolean whiteFar,
@@ -75,25 +76,25 @@ public class Board {
 
         this.turn = turn;
 
-        this.pieces[BLACK] = pieces[BLACK].stream()
+        this.piecesList[BLACK] = blackPieceList.stream()
                 .map(Piece::copy)
                 .collect(Collectors.toCollection(LinkedList::new));
 
-        this.pieces[WHITE] = pieces[WHITE].stream()
+        this.piecesList[WHITE] = whitePieceList.stream()
                 .map(Piece::copy)
                 .collect(Collectors.toCollection(LinkedList::new));
 
-        kings = findKings(this.pieces);
+        kings = findKings(this.piecesList);
 
-        board = buildPieceBoard(this.pieces);
-        posBitBoard = buildPieceBitBoards(this.pieces);
+        piecesArray = buildPieceBoard(this.piecesList);
+        posBitBoard = buildPieceBitBoards(this.piecesList);
         allPosBitBoard = buildSideBitBoards(posBitBoard);
 
-        rookStartCols = findRookStartCols(board, kings);
+        rookStartCols = findRookStartCols(piecesArray, kings);
         kingStartCols = findKingStartCols(kings);
 
         kingsInitBitBoards = buildKingsInitBitboards(posBitBoard);
-        rooksInitBitboards = buildRookInitBitBoards(board);
+        rooksInitBitboards = buildRookInitBitBoards(piecesArray);
         kingToCastleMasks = buildKingToCastleMasks(kingsInitBitBoards, rooksInitBitboards, MATERIAL_ROW);
         rookToCastleMasks = buildRookToCastleMasks(kingsInitBitBoards, rooksInitBitboards, MATERIAL_ROW);
 
@@ -207,13 +208,13 @@ public class Board {
             final long pieceTakenMask = getMask(pieceTakenRow, pieceTakenCol);
 
             // get ref of pieceTaken
-            final Piece pieceTaken = board[pieceTakenRow][pieceTakenCol];
+            final Piece pieceTaken = piecesArray[pieceTakenRow][pieceTakenCol];
 
-            // remove ref to piecetaken on board
-            board[pieceTakenRow][pieceTakenCol] = Piece.EMPTY;
+            // remove ref to piecetaken on piecesArray
+            piecesArray[pieceTakenRow][pieceTakenCol] = Piece.EMPTY;
 
             // remove pieceTaken from vectors
-            pieces[nextSide].remove(pieceTaken);
+            piecesList[nextSide].remove(pieceTaken);
             piecesTaken[nextSide].addFirst(pieceTaken);
 
             posBitBoard[pieceTakenId][nextSide] ^= pieceTakenMask;
@@ -229,27 +230,27 @@ public class Board {
             final Piece rook;
 
             if (note == Move.MoveNote.CASTLE_NEAR) {
-                rook = board[MATERIAL_ROW[turn]][rookStartCols[turn][1]];
+                rook = piecesArray[MATERIAL_ROW[turn]][rookStartCols[turn][1]];
 
                 movePiece(king, MATERIAL_ROW[turn], 6, Move.MoveNote.NORMAL);
                 movePiece(rook, MATERIAL_ROW[turn], 5, Move.MoveNote.NORMAL);
 
-                board[MATERIAL_ROW[turn]][6] = king;
-                board[MATERIAL_ROW[turn]][5] = rook;
+                piecesArray[MATERIAL_ROW[turn]][6] = king;
+                piecesArray[MATERIAL_ROW[turn]][5] = rook;
 
             } else {
-                rook = board[MATERIAL_ROW[turn]][rookStartCols[turn][0]];
+                rook = piecesArray[MATERIAL_ROW[turn]][rookStartCols[turn][0]];
 
                 movePiece(king, MATERIAL_ROW[turn], 2, Move.MoveNote.NORMAL);
                 movePiece(rook, MATERIAL_ROW[turn], 3, Move.MoveNote.NORMAL);
 
-                board[MATERIAL_ROW[turn]][2] = king;
-                board[MATERIAL_ROW[turn]][3] = rook;
+                piecesArray[MATERIAL_ROW[turn]][2] = king;
+                piecesArray[MATERIAL_ROW[turn]][3] = rook;
 
             }
 
         } else {
-            movePiece(board[fromRow][fromCol], toRow, toCol, note);
+            movePiece(piecesArray[fromRow][fromCol], toRow, toCol, note);
         }
 
         // if last move made is pawn leap, remove en passant file num
@@ -295,10 +296,10 @@ public class Board {
         // remove old hash from where piece was
         hashCode ^= rngTable.getPiecePerSquareRandom(turn, pieceMoving.getPieceID(), pieceMoving.getRow(), pieceMoving.getCol());
 
-        // remove pieces old position
-        board[pieceMoving.getRow()][pieceMoving.getCol()] = Piece.EMPTY;
-        // update board to reflect piece's new position
-        board[toRow][toCol] = pieceMoving;
+        // remove piecesList old position
+        piecesArray[pieceMoving.getRow()][pieceMoving.getCol()] = Piece.EMPTY;
+        // update piecesArray to reflect piece's new position
+        piecesArray[toRow][toCol] = pieceMoving;
 
         // tell piece its new position
         pieceMoving.move(toRow, toCol);
@@ -336,40 +337,40 @@ public class Board {
             final Piece rook;
 
             if (note == Move.MoveNote.CASTLE_FAR) {
-                rook = board[MATERIAL_ROW[turn]][3];
+                rook = piecesArray[MATERIAL_ROW[turn]][3];
 
                 undoMovePiece(king, MATERIAL_ROW[turn], kingStartCols[turn], Move.MoveNote.NORMAL);
                 undoMovePiece(rook, MATERIAL_ROW[turn], rookStartCols[turn][0], Move.MoveNote.NORMAL);
 
-                board[MATERIAL_ROW[turn]][kingStartCols[turn]] = king;
-                board[MATERIAL_ROW[turn]][rookStartCols[turn][0]] = rook;
+                piecesArray[MATERIAL_ROW[turn]][kingStartCols[turn]] = king;
+                piecesArray[MATERIAL_ROW[turn]][rookStartCols[turn][0]] = rook;
 
             } else {
 
-                rook = board[MATERIAL_ROW[turn]][5];
+                rook = piecesArray[MATERIAL_ROW[turn]][5];
 
                 undoMovePiece(king, MATERIAL_ROW[turn], kingStartCols[turn], Move.MoveNote.NORMAL);
                 undoMovePiece(rook, MATERIAL_ROW[turn], rookStartCols[turn][1], Move.MoveNote.NORMAL);
 
-                board[MATERIAL_ROW[turn]][kingStartCols[turn]] = king;
-                board[MATERIAL_ROW[turn]][rookStartCols[turn][1]] = rook;
+                piecesArray[MATERIAL_ROW[turn]][kingStartCols[turn]] = king;
+                piecesArray[MATERIAL_ROW[turn]][rookStartCols[turn][1]] = rook;
             }
 
         } else {
-            undoMovePiece(board[toRow][toCol], fromRow, fromCol, note);
+            undoMovePiece(piecesArray[toRow][toCol], fromRow, fromCol, note);
         }
 
         if (lastMove.hasPieceTaken()) {
-            // add taken piece back to vectors and board
+            // add taken piece back to vectors and piecesArray
             final Piece pieceTaken = piecesTaken[prevSide].removeFirst();
 
-            pieces[prevSide].add(pieceTaken);
+            piecesList[prevSide].add(pieceTaken);
 
-            // add piece taken to position bit board
+            // add piece taken to position bit piecesArray
             posBitBoard[pieceTaken.getPieceID()][pieceTaken.getSide()] |= pieceTaken.asBitMask();
             allPosBitBoard[pieceTaken.getSide()] |= pieceTaken.asBitMask();
 
-            board[pieceTaken.getRow()][pieceTaken.getCol()] = pieceTaken;
+            piecesArray[pieceTaken.getRow()][pieceTaken.getCol()] = pieceTaken;
         }
 
         //decrement old hashcode frequency
@@ -400,9 +401,9 @@ public class Board {
         allPosBitBoard[pieceMoving.getSide()] ^= bitMove;
 
         // remove old position
-        board[pieceMoving.getRow()][pieceMoving.getCol()] = Piece.EMPTY;
+        piecesArray[pieceMoving.getRow()][pieceMoving.getCol()] = Piece.EMPTY;
         // put piece in old position
-        board[fromRow][fromCol] = pieceMoving;
+        piecesArray[fromRow][fromCol] = pieceMoving;
 
         // tell piece where it was
         pieceMoving.unmove(fromRow, fromCol);
@@ -436,10 +437,11 @@ public class Board {
         }
     }
 
-    public void undo(int num) {
-        while (canUndo() && num > 0) {
+    public void undo(final int num) {
+        int i = num;
+        while (canUndo() && i > 0) {
             undoMove();
-            num--;
+            i--;
         }
     }
 
@@ -451,7 +453,7 @@ public class Board {
 
         validMoves.clear();
 
-        for (Piece p : pieces[turn]) {
+        for (Piece p : piecesList[turn]) {
             p.generateValidMoves(this, nullMoveInfo, allPosBitBoard, validMoves);
         }
 
@@ -469,7 +471,7 @@ public class Board {
     public long[] makeNullMove() {
 
         // recalculating check info
-        pieces[turn].forEach(Piece::clearBlocking);
+        piecesList[turn].forEach(Piece::clearBlocking);
 
         final int otherSide = Side.otherSide(turn);
         final long friendOrFoe = allPosBitBoard[WHITE] | allPosBitBoard[BLACK];
@@ -513,16 +515,16 @@ public class Board {
         return moveHistory;
     }
 
-    public List<Piece>[] getPieces() {
-        return this.pieces;
+    public List<Piece>[] getPiecesList() {
+        return this.piecesList;
     }
 
     public Piece getPiece(int row, int col) {
-        return board[row][col];
+        return piecesArray[row][col];
     }
 
     public int getPieceID(int row, int col) {
-        return board[row][col].getPieceID();
+        return piecesArray[row][col].getPieceID();
     }
 
     public int getTurn() {
@@ -615,8 +617,8 @@ public class Board {
     public boolean placePiece(Piece piece, int toRow, int toCol) {
 
         if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
-            if (board[toRow][toCol] != null) {
-                if (board[toRow][toCol].getPieceID() == KING) {
+            if (piecesArray[toRow][toCol] != null) {
+                if (piecesArray[toRow][toCol].getPieceID() == KING) {
                     return false;
                 }
             }
@@ -631,28 +633,28 @@ public class Board {
         }
 
         if (piece.getRow() >= 0) {
-            // remove where piece was if it was on board
+            // remove where piece was if it was on piecesArray
             posBitBoard[piece.getPieceID()][piece.getSide()] ^= piece.asBitMask();
             allPosBitBoard[piece.getSide()] ^= piece.asBitMask();
-            board[piece.getRow()][piece.getCol()] = null;
+            piecesArray[piece.getRow()][piece.getCol()] = null;
 
         } else {
 
-            pieces[piece.getSide()].add(piece);
+            piecesList[piece.getSide()].add(piece);
         }
 
         if (toRow >= 0) {
             // remove where piece taken was
-            if (board[toRow][toCol] != null) {
+            if (piecesArray[toRow][toCol] != null) {
 
-                Piece pieceTaken = board[toRow][toCol];
+                Piece pieceTaken = piecesArray[toRow][toCol];
 
                 // remove bit position of piece taken
                 posBitBoard[pieceTaken.getPieceID()][pieceTaken.getSide()] ^= pieceTaken.asBitMask();
                 allPosBitBoard[pieceTaken.getSide()] ^= pieceTaken.asBitMask();
 
                 // remove ref to piece taken
-                pieces[pieceTaken.getSide()].remove(pieceTaken);
+                piecesList[pieceTaken.getSide()].remove(pieceTaken);
             }
 
             // tell piece where it is now
@@ -663,16 +665,16 @@ public class Board {
             posBitBoard[piece.getPieceID()][piece.getSide()] |= piece.asBitMask();
             allPosBitBoard[piece.getSide()] |= piece.asBitMask();
 
-            // update board ref to show piece there
-            board[toRow][toCol] = piece;
+            // update piecesArray ref to show piece there
+            piecesArray[toRow][toCol] = piece;
         } else {
-            // piece is being taken off the board. Remove
+            // piece is being taken off the piecesArray. Remove
             if (piece.getPieceID() != KING) {
-                pieces[piece.getSide()].remove(piece);
+                piecesList[piece.getSide()].remove(piece);
             }
         }
 
-        // basically start over with new board
+        // basically start over with new piecesArray
         this.moveHistory.clear();
         this.hashCodeHistory.clear();
 
@@ -707,7 +709,7 @@ public class Board {
             undoMove();
         }
 
-        Board boardCopy = new Board(pieces,
+        Board boardCopy = new Board(piecesList[WHITE], piecesList[BLACK],
                 turn,
                 canCastleNear(WHITE),
                 canCastleFar(WHITE),
@@ -728,8 +730,8 @@ public class Board {
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                if (board[row][col].getPieceID() != Piece.PieceID.NO_PIECE) {
-                    stringBoard += board[row][col].toString() + ",";
+                if (piecesArray[row][col].getPieceID() != Piece.PieceID.NO_PIECE) {
+                    stringBoard += piecesArray[row][col].toString() + ",";
                 } else {
                     stringBoard += "_,";
                 }
@@ -755,7 +757,7 @@ public class Board {
         Piece p;
         for (int r = 0; r < 8; r++) {
             for (int c = 0; c < 8; c++) {
-                p = board[r][c];
+                p = piecesArray[r][c];
                 if (p.getPieceID() != Piece.PieceID.NO_PIECE) {
                     hashCode ^= rngTable.getPiecePerSquareRandom(p.getSide(), p.getPieceID(), r, c);
                 }
