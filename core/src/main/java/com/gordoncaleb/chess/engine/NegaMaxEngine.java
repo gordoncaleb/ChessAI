@@ -30,24 +30,20 @@ public class NegaMaxEngine {
         return movePath;
     }
 
-    private static int drawValue() {
-        return Values.DRAW;
-    }
-
     private static int endOfGameValue(final Board board, final int level) {
         if (board.isInCheck()) {
             //checkmate
             return level - Values.CHECKMATE_MOVE;
         } else {
             //stalemate
-            return drawValue();
+            return Values.DRAW;
         }
     }
 
     private int searchTree(final Board board, final int level, final int maxLevel) {
 
         if (board.isDraw()) {
-            return drawValue();
+            return Values.DRAW;
         }
 
         if (level == maxLevel) {

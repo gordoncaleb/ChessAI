@@ -41,9 +41,21 @@ public class Perft {
         return BoardFactory.fromFEN(fen);
     }
 
-    public Board promotionPosition(){
+    public Board promotionPosition() {
         String fen = "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1";
         return BoardFactory.fromFEN(fen);
+    }
+
+    public List<Board> allPositions() {
+        List<Board> boards = new ArrayList<>();
+        boards.add(standardInitialPosition());
+        boards.add(kiwiPetePosition());
+        boards.add(position3());
+        boards.add(position4());
+        boards.add(position5());
+        boards.add(position6());
+        boards.add(promotionPosition());
+        return boards;
     }
 
     public long[][] perftBoardFunctional(Board b, int stopDepth) {

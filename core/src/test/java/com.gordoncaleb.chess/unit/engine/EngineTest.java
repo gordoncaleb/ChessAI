@@ -39,8 +39,9 @@ public class EngineTest {
     }
 
     @Test
-    public void testPosition2() {
-        testPositionToMaxLevel(4, new Perft().kiwiPetePosition());
+    public void testAllPerftPositions() {
+        List<Board> testBoards = new Perft().allPositions();
+        testBoards.forEach(b -> testPositionToMaxLevel(3, b));
     }
 
     public void testPositionVsNegaMax(int side, String[] setup) {

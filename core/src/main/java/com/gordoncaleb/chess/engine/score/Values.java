@@ -1,8 +1,5 @@
 package com.gordoncaleb.chess.engine.score;
 
-
-import com.gordoncaleb.chess.board.pieces.Piece;
-
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 
 public class Values {
@@ -14,11 +11,6 @@ public class Values {
     public static final int BISHOP_VALUE = 400;
     public static final int KNIGHT_VALUE = 390;
     public static final int PAWN_VALUE = 100;
-    public static final int NEAR_CASTLE_VALUE = 90;
-    public static final int FAR_CASTLE_VALUE = 80;
-    public static final int NEAR_CASTLE_ABILITY_LOST_VALUE = 50;
-    public static final int FAR_CASTLE_ABILITY_LOST_VALUE = 40;
-    public static final int CASTLE_ABILITY_LOST_VALUE = FAR_CASTLE_ABILITY_LOST_VALUE + NEAR_CASTLE_ABILITY_LOST_VALUE;
     public static final int CHECKMATE_MOVE = KING_VALUE;
     public static final int STALEMATE = 0;
     public static final int DRAW = 3 * PAWN_VALUE;
@@ -26,7 +18,6 @@ public class Values {
     public static final int BACKED_PAWN_BONUS = 2;
     public static final int DOUBLED_PAWN_BONUS = -5;
     public static final int ISOLATED_PAWN_BONUS = -10;
-    public static final int QUEENING_PAWN_BONUS = 600;
 
     public static final int[][] PASSED_PAWN_BONUS = {{0, 10, 20, 40, 60, 100, 600, 0}, {0, 600, 100, 60, 40, 20, 10, 0}};
 
@@ -47,11 +38,4 @@ public class Values {
         PIECE_PHASE_VAL[ROOK] = ROOKPHASE;
         PIECE_PHASE_VAL[KING] = 0;
     }
-
-    public static final int[] PIECE_VALUE = {ROOK_VALUE, KNIGHT_VALUE, BISHOP_VALUE, QUEEN_VALUE, KING_VALUE, PAWN_VALUE};
-
-    public static int getPieceValue(int id) {
-        return PIECE_VALUE[id];
-    }
-
 }
