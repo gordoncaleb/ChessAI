@@ -4,10 +4,9 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.board.Side;
-import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
-import com.gordoncaleb.chess.engine.Engine;
+import com.gordoncaleb.chess.engine.AlphaBetaEngine;
 import com.gordoncaleb.chess.engine.NegaMaxEngine;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
 import com.gordoncaleb.chess.util.Perft;
@@ -21,8 +20,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-public class EngineTest {
-    public static final Logger LOGGER = LoggerFactory.getLogger(EngineTest.class);
+public class AlphaBetaEngineTest {
+    public static final Logger LOGGER = LoggerFactory.getLogger(AlphaBetaEngineTest.class);
 
     @Test
     public void testPosition1() {
@@ -52,13 +51,13 @@ public class EngineTest {
     public void testPositionToMaxLevel(int maxLevel, Board b) {
         LOGGER.info("\n" + b.toString());
         for (int i = 0; i < maxLevel; i++) {
-            Engine engine = new Engine(new StaticScorer(),
+            AlphaBetaEngine alphaBetaEngine = new AlphaBetaEngine(new StaticScorer(),
                     MoveContainerFactory.buildMoveContainers(i + 1));
-            testEngineAgainstNegaMax(engine, i + 1, b);
+            testEngineAgainstNegaMax(alphaBetaEngine, i + 1, b);
         }
     }
 
-    public void testEngineAgainstNegaMax(Engine engine, int level, Board b) {
+    public void testEngineAgainstNegaMax(AlphaBetaEngine alphaBetaEngine, int level, Board b) {
         NegaMaxEngine negaMaxEngine = new NegaMaxEngine(new StaticScorer(),
                 MoveContainerFactory.buildMoveContainers(level + 1));
 
@@ -66,10 +65,10 @@ public class EngineTest {
         Board b2 = b.copy();
 
         List<Move> negaMaxMoveList = negaMaxEngine.search(b1, level).asList();
-        List<Move> engineMoveList = engine.search(b2, level).asList();
+        List<Move> engineMoveList = alphaBetaEngine.search(b2, level).asList();
 
         LOGGER.info("NegaMax Move Path: {}", new PGNParser().toAlgebraicNotation(negaMaxMoveList, b1));
-        LOGGER.info("Engine Move Path: {}", new PGNParser().toAlgebraicNotation(engineMoveList, b2));
+        LOGGER.info("AlphaBetaEngine Move Path: {}", new PGNParser().toAlgebraicNotation(engineMoveList, b2));
 
         assertThat(negaMaxMoveList, is(equalTo(engineMoveList)));
     }

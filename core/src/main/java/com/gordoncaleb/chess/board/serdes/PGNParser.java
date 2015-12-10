@@ -7,9 +7,11 @@ import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.util.cldr.CLDRLocaleDataMetaInfo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +27,10 @@ public class PGNParser {
     private enum AmbiguityLevel {
         NON_AMBIGUOUS, TYPE_DISAMBIGUATE, COL_DISAMBIGUATE, ROW_DISAMBIGUATE, COMPLETE_DISAMBIGUATION;
     }
+
+    private static final Pattern ROWPATTERN = Pattern.compile("[0-9]");
+    private static final Pattern COLPATTERN = Pattern.compile("[a-z]");
+    private static final Pattern PIECEIDPATTERN = Pattern.compile("[A-Z]");
 
     public static class PGNGame {
         Map<String, String> metaData = new HashMap<>();
@@ -74,7 +80,7 @@ public class PGNParser {
                                 toUniqueList())));
     }
 
-    public List<PGNGame> loadFile(String fileName) throws Exception {
+    public List<PGNGame> loadFile(String fileName) throws IOException, URISyntaxException {
         try (BufferedReader lines = FileIO.getResourceAsBufferedReader(fileName)) {
             return parseFileLines(lines);
         }
@@ -176,6 +182,12 @@ public class PGNParser {
         return moveBook;
     }
 
+    public Board getBoardFromAlgebraicNotation(String gameAN) throws Exception {
+        PGNGame pgnGame = new PGNGame();
+        pgnGame.getGameLines().add(gameAN);
+        return getPGNGameAsBoard(pgnGame);
+    }
+
     public Board getPGNGameAsBoard(PGNGame game) throws Exception {
 
         String line = game.gameLine();
@@ -201,17 +213,75 @@ public class PGNParser {
         return board;
     }
 
-    public Move resolveAlgebraicNotation(String notation, Board board) throws Exception {
+    public Move resolveAlgebraicNotation(final String notationRaw, Board board) throws Exception {
 
-        notation = notation.replaceAll("\\+|#", "");
+        //remove unneeded info
+        String notation = notationRaw
+                .replaceAll("x", "")
+                .replaceAll("e\\.p\\.", "")
+                .replaceAll("\\+|#", "");
 
-        int fromRow = -1;
-        int fromCol = -1;
-        int toRow = -1;
-        int toCol = -1;
+        int note = getMoveNoteFromNotation(notation);
 
+        if (notation.contains("=")) {
+            notation = notation.substring(0, notation.indexOf("="));
+        }
+
+        final String destAN = destPortionOfAN(notation);
+        final String srcAN = srcPortionOfAN(notation);
+
+        final int toRow = rowFromAN(destAN);
+        final int toCol = colFromAN(destAN);
+        final int pieceMovingID = movingPieceIdFromAN(srcAN);
+        final int fromRow = rowFromAN(srcAN);
+        final int fromCol = colFromAN(srcAN);
+
+        return matchValidMove(board, fromRow, fromCol, toRow, toCol, note, pieceMovingID);
+    }
+
+    private static int rowFromAN(final String an) {
+        Matcher m = ROWPATTERN.matcher(an);
+
+        if (m.find()) {
+            return 7 - (m.group().charAt(0) - 49);
+        } else {
+            return -1;
+        }
+    }
+
+    private static int colFromAN(final String an) {
+        Matcher m = COLPATTERN.matcher(an);
+
+        if (m.find()) {
+            return m.group().charAt(0) - 97;
+        } else {
+            return -1;
+        }
+    }
+
+    private static int movingPieceIdFromAN(final String an) {
+        Matcher m = PIECEIDPATTERN.matcher(an);
+
+        if (m.find()) {
+            return charIDtoPieceID(m.group().charAt(0));
+        } else {
+            return Piece.PieceID.PAWN;
+        }
+    }
+
+    private static String destPortionOfAN(final String an) {
+        return an.substring(an.length() - 2);
+    }
+
+    private static String srcPortionOfAN(final String an) {
+        if (an.length() == 2) {
+            return "";
+        }
+        return an.substring(0, an.length() - 2);
+    }
+
+    private int getMoveNoteFromNotation(String notation) {
         int note = Move.MoveNote.NORMAL;
-        int pieceMovingID = Piece.PieceID.NO_PIECE;
 
         if (notation.contains("=")) {
 
@@ -222,79 +292,26 @@ public class PGNParser {
                 case 'N':
                     note = Move.MoveNote.NEW_KNIGHT;
                     break;
-                default:
-                    throw new Exception("Unsupported queening option");
+                case 'B':
+                    note = Move.MoveNote.NEW_BISHOP;
+                    break;
+                case 'R':
+                    note = Move.MoveNote.NEW_ROOK;
+                    break;
             }
 
-            notation = notation.substring(0, notation.indexOf("="));
-        }
-
-
-        if (notation.equals("O-O")) {
-            note = Move.MoveNote.CASTLE_NEAR;
         } else {
-
-            if (notation.equals("O-O-O")) {
-                note = Move.MoveNote.CASTLE_FAR;
-            } else {
-
-                if (notation.length() > 2) {
-
-                    if (notation.length() == 3) {
-                        pieceMovingID = charIDtoPieceID(notation.charAt(0));
-                        toRow = 7 - (notation.charAt(2) - 49);
-                        toCol = notation.charAt(1) - 97;
-                    } else {
-                        if (notation.contains("x")) {
-                            String[] leftRight = notation.split("x");
-
-                            toRow = 7 - (leftRight[1].charAt(1) - 49);
-                            toCol = leftRight[1].charAt(0) - 97;
-
-                            pieceMovingID = charIDtoPieceID(leftRight[0].charAt(0));
-
-                            if (pieceMovingID == Piece.PieceID.NO_PIECE) {
-                                pieceMovingID = Piece.PieceID.PAWN;
-                                fromCol = leftRight[0].charAt(0) - 97;
-                            }
-
-                            if (leftRight[0].length() > 1) {
-                                if (leftRight[0].charAt(1) >= 97) {
-                                    fromCol = leftRight[0].charAt(1) - 97;
-                                } else {
-                                    fromRow = 7 - (leftRight[0].charAt(1) - 49);
-                                }
-                            }
-                        } else {
-                            toRow = 7 - (notation.charAt(notation.length() - 1) - 49);
-                            toCol = notation.charAt(notation.length() - 2) - 97;
-
-                            pieceMovingID = charIDtoPieceID(notation.charAt(0));
-
-                            if (notation.charAt(1) >= 97) {
-                                fromCol = notation.charAt(1) - 97;
-                            } else {
-                                fromRow = 7 - (notation.charAt(1) - 49);
-                            }
-
-                        }
-
-                    }
-
-                } else {
-                    if (notation.length() == 2) {
-                        toRow = 7 - (notation.charAt(1) - 49);
-                        toCol = notation.charAt(0) - 97;
-                        pieceMovingID = Piece.PieceID.PAWN;
-                    } else {
-                        throw new Exception("Error resolving notation " + notation);
-                    }
-                }
-
+            switch (notation.toUpperCase()) {
+                case "O-O":
+                    note = Move.MoveNote.CASTLE_NEAR;
+                    break;
+                case "O-O-O":
+                    note = Move.MoveNote.CASTLE_FAR;
+                    break;
             }
         }
 
-        return matchValidMove(board, fromRow, fromCol, toRow, toCol, note, pieceMovingID);
+        return note;
     }
 
     private static int charIDtoPieceID(char id) {
@@ -334,38 +351,28 @@ public class PGNParser {
 
             match = true;
 
-            if (note != Move.MoveNote.NORMAL) {
-                if (move.getNote() != note) {
-                    if (move.getNote() == Move.MoveNote.NEW_QUEEN && note == Move.MoveNote.NEW_KNIGHT) {
-                        move.setNote(note);
-                    } else {
-                        match = false;
-                    }
-                }
-            }
-
-            if (fromRow >= 0) {
-                if (move.getFromRow() != fromRow) {
+            if (note != Move.MoveNote.NORMAL && move.getNote() != note) {
+                if (move.getNote() == Move.MoveNote.NEW_QUEEN && note == Move.MoveNote.NEW_KNIGHT) {
+                    move.setNote(note);
+                } else {
                     match = false;
                 }
             }
 
-            if (fromCol >= 0) {
-                if (move.getFromCol() != fromCol) {
-                    match = false;
-                }
+            if (fromRow >= 0 && move.getFromRow() != fromRow) {
+                match = false;
             }
 
-            if (toCol >= 0) {
-                if (move.getToCol() != toCol) {
-                    match = false;
-                }
+            if (fromCol >= 0 && move.getFromCol() != fromCol) {
+                match = false;
             }
 
-            if (toRow >= 0) {
-                if (move.getToRow() != toRow) {
-                    match = false;
-                }
+            if (toCol >= 0 && move.getToCol() != toCol) {
+                match = false;
+            }
+
+            if (toRow >= 0 && move.getToRow() != toRow) {
+                match = false;
             }
 
             if (pieceMovingID != Piece.PieceID.NO_PIECE) {

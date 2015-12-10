@@ -1,10 +1,12 @@
 package com.gordoncaleb.chess.engine;
 
-import com.gordoncaleb.chess.board.*;
+import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.Move;
+import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.engine.score.Values;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
 
-public class Engine {
+public class AlphaBetaEngine {
 
     private static final int START_ALPHA = -Values.CHECKMATE_MOVE + 1;
     private static final int START_BETA = -START_ALPHA;
@@ -13,7 +15,7 @@ public class Engine {
     private final MoveContainer[] moveContainers;
     private final MovePath movePath;
 
-    public Engine(StaticScorer scorer, MoveContainer[] moveContainers) {
+    public AlphaBetaEngine(StaticScorer scorer, MoveContainer[] moveContainers) {
         this.scorer = scorer;
         this.moveContainers = moveContainers;
         this.movePath = new MovePath(moveContainers);

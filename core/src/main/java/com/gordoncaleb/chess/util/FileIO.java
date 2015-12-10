@@ -17,7 +17,7 @@ import javax.imageio.ImageIO;
 public class FileIO {
     private static final Logger logger = LoggerFactory.getLogger(FileIO.class);
 
-    public static BufferedReader getResourceAsBufferedReader(String fileName) throws Exception {
+    public static BufferedReader getResourceAsBufferedReader(String fileName) throws URISyntaxException, IOException {
         return Files.newBufferedReader(Paths.get(FileIO.class.getResource(fileName).toURI()));
     }
 

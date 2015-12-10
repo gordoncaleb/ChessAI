@@ -12,7 +12,8 @@ function runBenchmark () {
 
 #runBenchmark "PerftBenchmark"
 #runBenchmark "MoveGenerationBenchmark"
-runBenchmark "StaticScoreBenchmark"
+#runBenchmark "StaticScoreBenchmark"
+runBenchmark "EngineBenchmark"
 
 echo "All benchmark tests complete"
 popd
