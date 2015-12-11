@@ -1,8 +1,6 @@
 package com.gordoncaleb;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.engine.AlphaBetaEngine;
@@ -16,17 +14,18 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.util.Statistics;
 
-import java.util.Collection;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class EngineBenchmark {
 
-    @Param({"0", "1"})//, "2", "3", "4", "5", "6"})
+    @Param({"0", "1", "2", "3", "4", "5", "6"})
     private int perftNum;
 
     private final Board[] perftBoards = new Board[7];
@@ -51,40 +50,54 @@ public class EngineBenchmark {
 
     @Benchmark
     @Warmup(iterations = 1)
-    @Measurement(iterations = 1)
+    @Measurement(iterations = 5)
     public void testNegaMax() {
         negaMaxEngine.search(perftBoards[perftNum], 3);
     }
 
     @Benchmark
     @Warmup(iterations = 1)
-    @Measurement(iterations = 1)
+    @Measurement(iterations = 5)
     public void testAlphaBeta() {
         alphaBetaEngine.search(perftBoards[perftNum], 3);
     }
 
-    public static void main(String[] args) throws RunnerException {
+    public static void main(String[] args) throws RunnerException, JsonProcessingException {
         Options opt = new OptionsBuilder()
                 .include(EngineBenchmark.class.getSimpleName())
-                .warmupIterations(1)
-                .measurementIterations(1)
-                .forks(1)
+                .forks(3)
                 .resultFormat(ResultFormatType.JSON)
-                .result(EngineBenchmark.class.getSimpleName() + ".jmh.json")
+//                .result(EngineBenchmark.class.getSimpleName() + ".jmh.json")
                 .build();
 
         Collection<RunResult> results = new Runner(opt).run();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-        results.forEach(result -> {
-            System.out.println(result.getPrimaryResult().getStatistics());
-            System.out.println(result.getPrimaryResult().getLabel());
-            System.out.println(result.getParams().getParam("perftNum"));
-            System.out.println(result.getPrimaryResult().getScore());
+        Map<String, Map<String, List<Statistics>>> resultMap = results.stream()
+                .collect(Collectors.groupingBy(r -> r.getParams().getParam("perftNum"),
+                        Collectors.groupingBy(r -> r.getPrimaryResult().getLabel(),
+                                Collectors.mapping(r -> r.getPrimaryResult().getStatistics()
+                                        , Collectors.toList()))));
 
-        });
+        for (int i = 0; i < 7; i++) {
+            System.out.println("Param " + i + ": " + statDelta(
+                    resultMap.get(i + "").get("testNegaMax").get(0),
+                    resultMap.get(i + "").get("testAlphaBeta").get(0)
+            ));
+        }
 
     }
 
+    private static Map<String, String> statDelta(Statistics a, Statistics b) {
+        Map<String, String> deltaMap = new HashMap<>();
+        deltaMap.put("Mean", percentDelta(a.getMean(), b.getMean()));
+        deltaMap.put("Stdev", percentDelta(a.getStandardDeviation(), b.getStandardDeviation()));
+        deltaMap.put("Max", percentDelta(a.getMax(), b.getMax()));
+        deltaMap.put("Min", percentDelta(a.getMin(), b.getMin()));
+        return deltaMap;
+    }
+
+    private static String percentDelta(double a, double b) {
+        final double delta = ((a / b) - 1) * 100;
+        return String.format("+%2.2f%%", delta);
+    }
 }
