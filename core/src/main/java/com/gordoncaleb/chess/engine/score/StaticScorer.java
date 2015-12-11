@@ -17,7 +17,7 @@ import static com.gordoncaleb.chess.board.bitboard.Slide.southFill;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 import static com.gordoncaleb.chess.engine.score.Values.*;
 
-public class StaticScorer {
+public class StaticScorer implements BoardScorer {
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticScorer.class);
 
     public static final int ENDGAME_PHASE = 256;
@@ -192,6 +192,22 @@ public class StaticScorer {
         final int yourScore = (openingYourScore * (ENDGAME_PHASE - phase) + endGameYourScore * phase) / ENDGAME_PHASE + yourPawnScore;
 
         return myScore - yourScore + materialScoreDelta;
+    }
+
+    @Override
+    public int endOfGameValue(final boolean isInCheck, final int level) {
+        if (isInCheck) {
+            //checkmate
+            return level - Values.CHECKMATE_MOVE;
+        } else {
+            //stalemate
+            return Values.DRAW;
+        }
+    }
+
+    @Override
+    public int drawValue(int level) {
+        return Values.DRAW;
     }
 
     public String printBoardScoreBreakDown(Board b) {

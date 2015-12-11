@@ -149,14 +149,9 @@ public class PGNParser {
     }
 
     private boolean isGameStart(String currentLine, String prevLine) {
-
-        if (isMetaLine(currentLine) && isGameLine(prevLine))
-            return true;
-
-        if (isStartGameLine(currentLine) && isGameLine(prevLine))
-            return true;
-
-        return prevLine.isEmpty();
+        return (isMetaLine(currentLine) && isGameLine(prevLine)) ||
+                (isStartGameLine(currentLine) && isGameLine(prevLine)) ||
+                prevLine.isEmpty();
     }
 
     public Map<String, String> parseMetaData(String line) {
@@ -182,13 +177,21 @@ public class PGNParser {
         return moveBook;
     }
 
-    public Board getBoardFromAlgebraicNotation(String gameAN) throws Exception {
-        PGNGame pgnGame = new PGNGame();
-        pgnGame.getGameLines().add(gameAN);
-        return getPGNGameAsBoard(pgnGame);
+    public static Board getBoardFromAlgebraicNotation(String gameAN) throws Exception {
+        return getBoardFromAlgebraicNotation(gameAN, BoardFactory.getStandardChessBoard());
     }
 
-    public Board getPGNGameAsBoard(PGNGame game) throws Exception {
+    public static Board getBoardFromAlgebraicNotation(String gameAN, Board board) throws Exception {
+        PGNGame pgnGame = new PGNGame();
+        pgnGame.getGameLines().add(gameAN);
+        return getPGNGameAsBoard(pgnGame, board);
+    }
+
+    public static Board getPGNGameAsBoard(PGNGame game) throws Exception {
+        return getPGNGameAsBoard(game, BoardFactory.getStandardChessBoard());
+    }
+
+    public static Board getPGNGameAsBoard(PGNGame game, Board board) throws Exception {
 
         String line = game.gameLine();
         List<String> tokens = Arrays.stream(line.split("[0-9]+\\."))
@@ -198,8 +201,6 @@ public class PGNParser {
                 .filter(s -> !s.matches("\\*"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
-
-        Board board = BoardFactory.getStandardChessBoard();
 
         for (String notation : tokens) {
             try {
@@ -213,7 +214,7 @@ public class PGNParser {
         return board;
     }
 
-    public Move resolveAlgebraicNotation(final String notationRaw, Board board) throws Exception {
+    public static Move resolveAlgebraicNotation(final String notationRaw, Board board) throws Exception {
 
         //remove unneeded info
         String notation = notationRaw
@@ -280,7 +281,7 @@ public class PGNParser {
         return an.substring(0, an.length() - 2);
     }
 
-    private int getMoveNoteFromNotation(String notation) {
+    private static int getMoveNoteFromNotation(String notation) {
         int note = Move.MoveNote.NORMAL;
 
         if (notation.contains("=")) {
@@ -336,11 +337,11 @@ public class PGNParser {
         }
     }
 
-    private Move matchValidMove(Board board,
-                                int fromRow, int fromCol,
-                                int toRow, int toCol,
-                                int note,
-                                int pieceMovingID) throws Exception {
+    private static Move matchValidMove(Board board,
+                                       int fromRow, int fromCol,
+                                       int toRow, int toCol,
+                                       int note,
+                                       int pieceMovingID) throws Exception {
 
         board.makeNullMove();
         List<Move> moves = board.generateValidMoves().toList();

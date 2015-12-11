@@ -3,19 +3,19 @@ package com.gordoncaleb.chess.engine;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
+import com.gordoncaleb.chess.engine.score.BoardScorer;
 import com.gordoncaleb.chess.engine.score.Values;
-import com.gordoncaleb.chess.engine.score.StaticScorer;
 
-public class AlphaBetaEngine {
+public class AlphaBetaEngine implements Engine {
 
     private static final int START_ALPHA = -Values.CHECKMATE_MOVE + 1;
     private static final int START_BETA = -START_ALPHA;
 
-    private final StaticScorer scorer;
+    private final BoardScorer scorer;
     private final MoveContainer[] moveContainers;
     private final MovePath movePath;
 
-    public AlphaBetaEngine(StaticScorer scorer, MoveContainer[] moveContainers) {
+    public AlphaBetaEngine(BoardScorer scorer, MoveContainer[] moveContainers) {
         this.scorer = scorer;
         this.moveContainers = moveContainers;
         this.movePath = new MovePath(moveContainers);
@@ -37,20 +37,10 @@ public class AlphaBetaEngine {
         return movePath;
     }
 
-    private static int endOfGameValue(final Board board, final int level) {
-        if (board.isInCheck()) {
-            //checkmate
-            return level - Values.CHECKMATE_MOVE;
-        } else {
-            //stalemate
-            return Values.DRAW;
-        }
-    }
-
-    public int searchTree(final Board board, final int level, final int maxLevel, int alpha, final int beta) {
+    public int searchTree(final Board board, final int level, final int maxLevel, final int alpha, final int beta) {
 
         if (board.isDraw()) {
-            return Values.DRAW;
+            return scorer.drawValue(level);
         }
 
         if (level == maxLevel) {
@@ -61,17 +51,18 @@ public class AlphaBetaEngine {
         MoveContainer moves = board.generateValidMoves(moveContainers[level]);
 
         if (moves.isEmpty()) {
-            return endOfGameValue(board, level);
+            return scorer.endOfGameValue(board.isInCheck(), level);
         }
 
         int maxScore = Integer.MIN_VALUE;
+        int a = alpha;
         for (int m = 0; m < moves.size(); m++) {
 
             final Move move = moves.get(m);
 
             board.makeMove(move);
 
-            final int childScore = -searchTree(board, level + 1, maxLevel, -beta, -alpha);
+            final int childScore = -searchTree(board, level + 1, maxLevel, -beta, -a);
 
             board.undoMove();
 
@@ -82,7 +73,7 @@ public class AlphaBetaEngine {
 
             if (maxScore > alpha) {
                 //narrowing alpha beta window
-                alpha = maxScore;
+                a = maxScore;
             }
 
             if (alpha >= beta) {

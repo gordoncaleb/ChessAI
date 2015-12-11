@@ -2,16 +2,16 @@ package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.engine.score.StaticScorer;
+import com.gordoncaleb.chess.engine.score.BoardScorer;
 import com.gordoncaleb.chess.engine.score.Values;
 
-public class NegaMaxEngine {
+public class NegaMaxEngine implements Engine {
 
-    private final StaticScorer scorer;
+    private final BoardScorer scorer;
     private final MoveContainer[] moveContainers;
     private final MovePath movePath;
 
-    public NegaMaxEngine(StaticScorer scorer, MoveContainer[] moveContainers) {
+    public NegaMaxEngine(BoardScorer scorer, MoveContainer[] moveContainers) {
         this.scorer = scorer;
         this.moveContainers = moveContainers;
         this.movePath = new MovePath(moveContainers);

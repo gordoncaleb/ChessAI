@@ -2,8 +2,6 @@ package com.gordoncaleb.chess.util;
 
 
 import com.gordoncaleb.chess.board.*;
-import com.gordoncaleb.chess.board.serdes.JSONParser;
-import com.gordoncaleb.chess.board.serdes.PGNParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,35 +44,6 @@ public class Perft {
     public Board promotionPosition() {
         String fen = "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1";
         return BoardFactory.fromFEN(fen);
-    }
-
-    public Board carlsenErnst2004() {
-
-        /**
-         [Event "GMC"]
-         [Site "Wijk aan Zee NED"]
-         [Date "2004.01.24"]
-         [Round "12"]
-         [White "Carlsen,M"]
-         [Black "Ernst,S"]
-         [Result "1-0"]
-         [WhiteElo "2484"]
-         [BlackElo "2474"]
-         [ECO "B19"]
-
-         1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Bf5 5.Ng3 Bg6 6.h4 h6 7.Nf3 Nd7 8.h5 Bh7
-         9.Bd3 Bxd3 10.Qxd3 e6 11.Bf4 Ngf6 12.O-O-O Be7 13.Ne4 Qa5 14.Kb1 O-O 15.Nxf6+ Nxf6
-         16.Ne5 Rad8 17.Qe2 c5 18.Ng6 fxg6 19.Qxe6+ Kh8 20.hxg6 Ng8 21.Bxh6 gxh6 22.Rxh6+ Nxh6
-         23.Qxe7 Nf7 24.gxf7 Kg7 25.Rd3 Rd6 26.Rg3+ Rg6 27.Qe5+ Kxf7 28.Qf5+ Rf6 29.Qd7+  1-0
-         */
-
-                Board b = JSONParser.getFromSetup(Side.BLACK, new String[]{
-                "",
-                "",
-
-        });
-
-        return b;
     }
 
     public List<Board> allPositions() {
