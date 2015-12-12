@@ -1,45 +1,42 @@
 package com.gordoncaleb.chess.engine;
 
-import com.gordoncaleb.chess.board.Move;
-
 public class BoardHashEntry {
 
     private int score;
     private int level;
     private int moveNum;
     private long hashCode;
-    private Move bestMove;
-    private int bounds;
+    private long bestMove;
+    private int bounds = ValueBounds.INVALID;
 
     public static class ValueBounds {
         public static final int PV = 1;
         public static final int CUT = 2;
         public static final int ALL = 3;
         public static final int NA = 0;
+        public static final int INVALID = -1;
     }
 
-    public BoardHashEntry(){
+    public BoardHashEntry() {
 
     }
 
-    public BoardHashEntry(long hashCode, int level, int score, int moveNum, int bounds, Move bestMove) {//,String stringBoard) {
+    public BoardHashEntry(long hashCode, int level, int score, int moveNum, int bounds, long bestMove) {
         this.score = score;
         this.level = level;
         this.moveNum = moveNum;
         this.hashCode = hashCode;
         this.bounds = bounds;
         this.bestMove = bestMove;
-        //this.stringBoard = stringBoard;
     }
 
-    public void setAll(long hashCode, int level, int score, int moveNum, int bounds, Move bestMove) {//, String stringBoard) {
+    public void setAll(long hashCode, int level, int score, int moveNum, int bounds, long bestMove) {
         this.score = score;
         this.level = level;
         this.moveNum = moveNum;
         this.hashCode = hashCode;
         this.bounds = bounds;
         this.bestMove = bestMove;
-        //this.stringBoard = stringBoard;
     }
 
     public int getScore() {
@@ -74,11 +71,11 @@ public class BoardHashEntry {
         this.hashCode = hashCode;
     }
 
-    public Move getBestMove() {
+    public long getBestMove() {
         return bestMove;
     }
 
-    public void setBestMove(Move bestMove) {
+    public void setBestMove(long bestMove) {
         this.bestMove = bestMove;
     }
 

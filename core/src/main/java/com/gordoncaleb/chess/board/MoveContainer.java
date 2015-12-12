@@ -8,10 +8,14 @@ import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 public class MoveContainer {
 
     private static final int EMPTY = -1;
+
+
     private int head = EMPTY;
     private final long[] moves;
     private final Move transientMove = new Move();
     private final long[] markedMoves;
+    private final int[] movePrioritization = new int[64 * 64];
+    private final long[] prioritizedMoves = new long[100];
 
     public MoveContainer() {
         this(219, 30);
@@ -92,6 +96,10 @@ public class MoveContainer {
 
     public Move get(int i) {
         return Move.fromLong(moves[i], transientMove);
+    }
+
+    public long getLong(int i) {
+        return moves[i];
     }
 
     public Move pop() {

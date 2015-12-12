@@ -6,7 +6,7 @@ import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.engine.score.BoardScorer;
 import com.gordoncaleb.chess.engine.score.Values;
 
-public class AlphaBetaEngine implements Engine {
+public class ABWithHashEngine implements Engine {
 
     private static final int START_ALPHA = -Values.CHECKMATE_MOVE + 1;
     private static final int START_BETA = -START_ALPHA;
@@ -14,11 +14,13 @@ public class AlphaBetaEngine implements Engine {
     private final BoardScorer scorer;
     private final MoveContainer[] moveContainers;
     private final MovePath movePath;
+    private final EngineHashTable hashTable;
 
-    public AlphaBetaEngine(BoardScorer scorer, MoveContainer[] moveContainers) {
+    public ABWithHashEngine(BoardScorer scorer, MoveContainer[] moveContainers) {
         this.scorer = scorer;
         this.moveContainers = moveContainers;
         this.movePath = new MovePath(moveContainers);
+        this.hashTable = new EngineHashTable(15);
     }
 
     public MovePath search(final Board board, final int depth) {
@@ -71,12 +73,12 @@ public class AlphaBetaEngine implements Engine {
                 movePath.markMove(level, maxLevel, m);
             }
 
-            if (maxScore > a) {
+            if (maxScore > alpha) {
                 //narrowing alpha beta window
                 a = maxScore;
             }
 
-            if (a >= beta) {
+            if (alpha >= beta) {
                 //pruned!
                 break;
             }
