@@ -3,19 +3,18 @@ package com.gordoncaleb.chess.board;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
-
 public class MoveContainer {
 
     private static final int EMPTY = -1;
-
 
     private int head = EMPTY;
     private final long[] moves;
     private final Move transientMove = new Move();
     private final long[] markedMoves;
+
     private final int[] movePrioritization = new int[64 * 64];
-    private final long[] prioritizedMoves = new long[100];
+    private final int[] prioritizedMovesHead = new int[3];
+    private final long[][] prioritizedMoves = new long[3][100];
 
     public MoveContainer() {
         this(219, 30);
@@ -66,9 +65,7 @@ public class MoveContainer {
         head++;
         moves[head] = Move.toLong(fromRow, fromCol,
                 toRow, toCol,
-                note,
-                NO_PIECE,
-                0, 0);
+                note);
     }
 
     public void add(Move m) {

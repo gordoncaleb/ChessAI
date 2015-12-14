@@ -263,6 +263,19 @@ public class Move {
                 toCol;
     }
 
+    public static long toLong(int fromRow,
+                              int fromCol,
+                              int toRow,
+                              int toCol,
+                              int note) {
+        return ((long) note << 21) | //12 bits
+                (NO_PIECE << 18) | // 3 bits
+                (fromRow << 9) | // 3 bits
+                (fromCol << 6) | // 3 bits
+                (toRow << 3) | //3 bits
+                toCol;
+    }
+
     public static Move fromLong(long moveLong, Move move) {
         int toCol = (int) (moveLong & 0x7); //3 bits
         int toRow = (int) ((moveLong >> 3) & 0x7); //3 bits
