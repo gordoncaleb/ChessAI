@@ -14,11 +14,7 @@ public class MaterialScorer implements BoardScorer {
 
     @Override
     public int staticScore(Board b) {
-        return staticScore(b, b.getTurn());
-    }
-
-    @Override
-    public int staticScore(Board b, int side) {
+        final int side = b.getTurn();
         return materialScoreDelta(side, Side.otherSide(side), b.getPosBitBoard());
     }
 

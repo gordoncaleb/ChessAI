@@ -98,7 +98,7 @@ public class PGNParserTest {
         List<PGNParser.PGNGame> exampleGames = parser.loadFile("/pgns/example.pgn");
         Board b = parser.getPGNGameAsBoard(exampleGames.get(0));
 
-        List<Move> moveHistory = b.getMoveHistory().toList();
+        List<Move> moveHistory = b.getMoveHistory();
 
         String algNotation = parser.toAlgebraicNotation(moveHistory, b.startingPosition());
 

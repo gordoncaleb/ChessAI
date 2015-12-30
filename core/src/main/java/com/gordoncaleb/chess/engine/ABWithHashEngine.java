@@ -38,9 +38,10 @@ public class ABWithHashEngine implements Engine {
 
         for (iterativeDepth = 1; iterativeDepth <= searchDepth; iterativeDepth++) {
 
-            final int val = searchTree(0, startAlpha, startBeta);
+            final int score = searchTree(0, startAlpha, startBeta);
+            movePath.setScore(score);
 
-            final int checkMateIn = checkMateIn(val);
+            final int checkMateIn = checkMateIn(score);
             if (checkMateIn < iterativeDepth) {
                 movePath.setDepth(checkMateIn);
                 return movePath;

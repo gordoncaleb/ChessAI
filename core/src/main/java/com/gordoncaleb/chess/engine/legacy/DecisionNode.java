@@ -59,10 +59,6 @@ public class DecisionNode implements Comparable<DecisionNode> {
         return (this.chosenPathValue == o.getChosenPathValue());
     }
 
-    public synchronized void sort() {
-        Arrays.sort(children, Collections.reverseOrder());
-    }
-
     public synchronized void sort(int toIndex) {
         Arrays.sort(children, 0, toIndex, Collections.reverseOrder());
     }
@@ -71,28 +67,12 @@ public class DecisionNode implements Comparable<DecisionNode> {
         this.children = children;
     }
 
-    public Object[] getChildren() {
-        return children;
-    }
-
-    public void removeAllChildren() {
-        children = null;
-    }
-
     public DecisionNode getChild(int i) {
         return (DecisionNode) children[i];
     }
 
-    public void setChild(int i, DecisionNode child) {
-        children[i] = child;
-    }
-
     public DecisionNode getHeadChild() {
         return (DecisionNode) children[0];
-    }
-
-    public DecisionNode getTailChild() {
-        return (DecisionNode) children[children.length];
     }
 
     public int getChildrenSize() {
@@ -128,13 +108,6 @@ public class DecisionNode implements Comparable<DecisionNode> {
         this.move = nodeMove;
     }
 
-    public int getMoveValue() {
-        if (move != null)
-            return move.getValue();
-        else
-            return 0;
-    }
-
     public int getChosenPathValue() {
         return chosenPathValue;
     }
@@ -142,54 +115,6 @@ public class DecisionNode implements Comparable<DecisionNode> {
     public void setChosenPathValue(int chosenPathValue) {
         this.chosenPathValue = chosenPathValue;
     }
-
-    // public ValueBounds getBound() {
-    // return bound;
-    // }
-    //
-    // public void setBound(ValueBounds bound) {
-    // this.bound = bound;
-    // }
-
-    public boolean hasPieceTaken() {
-        if (move == null) {
-            return false;
-        } else {
-            if (move.hasPieceTaken()) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    public boolean isQueenPromotion() {
-        if (move == null) {
-            return false;
-        } else {
-            if (move.getNote() == Move.MoveNote.NEW_QUEEN) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    // public int getAlpha() {
-    // return alpha;
-    // }
-    //
-    // public void setAlpha(int alpha) {
-    // this.alpha = alpha;
-    // }
-    //
-    // public int getBeta() {
-    // return beta;
-    // }
-    //
-    // public void setBeta(int beta) {
-    // this.beta = beta;
-    // }
 
     public String toString() {
         String me = "Chosen Path Value = " + " " + this.getChosenPathValue();
@@ -206,15 +131,6 @@ public class DecisionNode implements Comparable<DecisionNode> {
 
         return me;
 
-    }
-
-    public void printChildrenValues() {
-
-        for (int i = 0; i < this.getChildrenSize(); i++) {
-            System.out.print(((DecisionNode) children[i]).getChosenPathValue() + ",");
-        }
-
-        System.out.print("\n");
     }
 
 }

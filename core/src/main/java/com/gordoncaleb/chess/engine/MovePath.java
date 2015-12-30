@@ -11,6 +11,7 @@ public class MovePath {
 
     private MoveContainer[] moveContainers;
     private int depth;
+    private int score;
 
     public MovePath(MoveContainer[] moveContainers) {
         this.moveContainers = moveContainers;
@@ -23,6 +24,14 @@ public class MovePath {
 
     public void setDepth(int depth) {
         this.depth = depth;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 
     public Move get(int i) {

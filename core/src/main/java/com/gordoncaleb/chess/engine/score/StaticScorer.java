@@ -164,10 +164,7 @@ public class StaticScorer implements BoardScorer {
     }
 
     public int staticScore(final Board b) {
-        return staticScore(b, b.getTurn());
-    }
-
-    public int staticScore(final Board b, final int side) {
+        final int side = b.getTurn();
         final int otherSide = Side.otherSide(side);
         final int phase = calcGamePhase(b);
 

@@ -7,6 +7,7 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.engine.AlphaBetaEngine;
+import com.gordoncaleb.chess.engine.MovePath;
 import com.gordoncaleb.chess.engine.score.Values;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
 
@@ -103,14 +104,10 @@ public class AIProcessor extends Thread {
 
             final int startAlpha = -Values.CHECKMATE_MOVE + 1;
             final int startBeta = -ai.getAlpha();
-            if (AISettings.useLite) {
 
-                final int val = alphaBetaEngine.searchTree(board, startAlpha, startBeta, searchDepth, searchDepth);
-                task.setChosenPathValue(-val);
-
-            } else {
-                task.setHeadChild(alphaBetaEngine.search(board, searchDepth, startAlpha, startBeta).get(0));
-            }
+            MovePath movePath = alphaBetaEngine.search(board, searchDepth, startAlpha, startBeta);
+            task.setHeadChild(movePath.get(0));
+            task.setChosenPathValue(movePath.getScore());
 
             board.undoMove();
 

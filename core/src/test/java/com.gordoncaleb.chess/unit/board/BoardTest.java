@@ -600,8 +600,8 @@ public class BoardTest {
         Board copyBoard = board.copy();
 
         assertThat(board.getHashCode(), is(equalTo(copyBoard.getHashCode())));
-        assertThat(board.getMoveHistory().toList().toArray(),
-                is(arrayContaining(copyBoard.getMoveHistory().toList().toArray())));
+        assertThat(board.getMoveHistory().toArray(),
+                is(arrayContaining(copyBoard.getMoveHistory().toArray())));
 
         assertThat(board.getPiecesTakenFor(Side.WHITE).toArray(),
                 is(arrayContaining(copyBoard.getPiecesTakenFor(Side.WHITE).toArray())));

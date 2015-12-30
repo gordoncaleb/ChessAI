@@ -6,8 +6,6 @@ public interface BoardScorer {
 
     int staticScore(final Board b);
 
-    int staticScore(final Board b, final int side);
-
     int endOfGameValue(final boolean isInCheck, final int level);
 
     int drawValue(final int level);

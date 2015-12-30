@@ -18,14 +18,15 @@ public class NegaMaxEngine implements Engine {
     }
 
     @Override
-    public MovePath search(final Board board, final int depth) {
-        final int val = searchTree(board, 0, depth);
+    public MovePath search(final Board board, final int maxLevel) {
+        final int score = searchTree(board, 0, maxLevel);
+        movePath.setScore(score);
 
-        final int checkMateFound = Values.CHECKMATE_MOVE - Math.abs(val);
-        if (checkMateFound < depth) {
+        final int checkMateFound = Values.CHECKMATE_MOVE - Math.abs(score);
+        if (checkMateFound < maxLevel) {
             movePath.setDepth(checkMateFound);
         } else {
-            movePath.setDepth(depth);
+            movePath.setDepth(maxLevel);
         }
 
         return movePath;

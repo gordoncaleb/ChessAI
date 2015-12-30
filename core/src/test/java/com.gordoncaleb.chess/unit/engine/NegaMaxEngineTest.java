@@ -7,6 +7,7 @@ import com.gordoncaleb.chess.board.serdes.PGNParser;
 import com.gordoncaleb.chess.engine.MovePath;
 import com.gordoncaleb.chess.engine.NegaMaxEngine;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
+import com.gordoncaleb.chess.unit.engine.mocks.MockBoard;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;

@@ -10,8 +10,10 @@ import com.gordoncaleb.chess.engine.ABWithHashEngine;
 import com.gordoncaleb.chess.engine.AlphaBetaEngine;
 import com.gordoncaleb.chess.engine.MovePath;
 import com.gordoncaleb.chess.engine.NegaMaxEngine;
+import com.gordoncaleb.chess.engine.score.BoardScorer;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
-import com.gordoncaleb.chess.util.Perft;
+import com.gordoncaleb.chess.unit.engine.mocks.MockBoard;
+import com.gordoncaleb.chess.unit.engine.mocks.MockScorer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -27,55 +29,38 @@ public class ABWithHashEngineTest {
     public static final Logger LOGGER = LoggerFactory.getLogger(ABWithHashEngineTest.class);
 
     @Test
-    @Ignore
     public void testPosition1() {
-        testPositionVsAlphaBeta(Side.BLACK, new String[]{
-                "r,n,b,q,_,k,_,r,",
-                "p,p,_,P,b,p,p,p,",
-                "_,_,p,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "_,_,B,_,_,_,_,_,",
-                "_,_,_,_,_,_,_,_,",
-                "P,P,P,_,N,n,P,P,",
-                "R,N,B,Q,K,_,_,R,"
-        });
+        final int maxDepth = 10;
+        testPositionToMaxLevel(maxDepth, new MockScorer(123L, maxDepth));
     }
 
-    @Test
-    @Ignore
-    public void testAllPerftPositions() {
-        List<Board> testBoards = new Perft().allPositions();
-        testBoards.forEach(b -> testPositionToMaxLevel(3, b));
-    }
-
-    public void testPositionVsAlphaBeta(int side, String[] setup) {
-        Board b = JSONParser.getFromSetup(side, setup);
-        testPositionToMaxLevel(4, b);
-    }
-
-    public void testPositionToMaxLevel(int maxLevel, Board b) {
-        LOGGER.info("\n" + b.toString());
+    public void testPositionToMaxLevel(int maxLevel, MockScorer scorer) {
+        MockBoard b = new MockBoard();
         for (int i = 0; i < maxLevel; i++) {
-            ABWithHashEngine engine = new ABWithHashEngine(new StaticScorer(),
-                    MoveContainerFactory.buildMoveContainers(i + 1));
-            testEngineAgainstAlphaBeta(engine, i + 1, b);
+            testEngineAgainstAlphaBeta(scorer, i + 1, b);
         }
     }
 
-    public void testEngineAgainstAlphaBeta(ABWithHashEngine engine, int level, Board b) {
-        AlphaBetaEngine alphaBetaEngine = new AlphaBetaEngine(new StaticScorer(),
+    public void testEngineAgainstAlphaBeta(MockScorer scorer, int level, MockBoard b) {
+
+        ABWithHashEngine engine = new ABWithHashEngine(scorer,
+                MoveContainerFactory.buildMoveContainers(level + 1));
+
+        AlphaBetaEngine alphaBetaEngine = new AlphaBetaEngine(scorer,
                 MoveContainerFactory.buildMoveContainers(level + 1));
 
         Board b1 = b.copy();
         Board b2 = b.copy();
 
-        List<Move> alphaBetaMoveList = alphaBetaEngine.search(b1, level).asList();
+        LOGGER.info("Alpha Beta level={}", level);
+        MovePath abMovePath = alphaBetaEngine.search(b1, level);
+        List<Move> alphaBetaMoveList = abMovePath.asList();
+        LOGGER.info("AlphaBetaEngine score: {} Move Path: {}", abMovePath.getScore(), MockBoard.movesToString(alphaBetaMoveList));
 
+        LOGGER.info("Alpha Beta With hash level={}", level);
         MovePath mp = engine.search(b2, level);
         List<Move> engineMoveList = mp.asList();
-
-        LOGGER.info("AlphaBetaEngine Move Path: {}", new PGNParser().toAlgebraicNotation(alphaBetaMoveList, b1));
-        LOGGER.info("Alpha Beta with Hash Move Path: {}", new PGNParser().toAlgebraicNotation(engineMoveList, b2));
+        LOGGER.info("Alpha Beta with Hash Move score: {} Path: {}", mp.getScore(), MockBoard.movesToString(engineMoveList));
 
         assertThat(alphaBetaMoveList, is(equalTo(engineMoveList)));
     }

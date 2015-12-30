@@ -510,8 +510,8 @@ public class Board {
         return moveHistory.isEmpty() ? Move.EMPTY_MOVE : moveHistory.peek();
     }
 
-    public MoveContainer getMoveHistory() {
-        return moveHistory;
+    public List<Move> getMoveHistory() {
+        return moveHistory.toList();
     }
 
     public int getMoveNumber(){

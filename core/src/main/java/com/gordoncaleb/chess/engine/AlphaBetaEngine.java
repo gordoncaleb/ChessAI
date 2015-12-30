@@ -15,6 +15,9 @@ public class AlphaBetaEngine implements Engine {
     private final MoveContainer[] moveContainers;
     private final MovePath movePath;
 
+    private Board board;
+    private int maxLevel;
+
     public AlphaBetaEngine(BoardScorer scorer, MoveContainer[] moveContainers) {
         this.scorer = scorer;
         this.moveContainers = moveContainers;
@@ -22,23 +25,27 @@ public class AlphaBetaEngine implements Engine {
     }
 
     @Override
-    public MovePath search(final Board board, final int depth) {
-        return search(board, depth, START_ALPHA, START_BETA);
+    public MovePath search(final Board board, final int maxLevel) {
+        return search(board, maxLevel, START_ALPHA, START_BETA);
     }
 
-    public MovePath search(final Board board, final int depth, final int startAlpha, final int startBeta) {
-        final int val = searchTree(board, 0, depth, startAlpha, startBeta);
+    public MovePath search(final Board board, final int maxLevel, final int startAlpha, final int startBeta) {
+        this.board = board;
+        this.maxLevel = maxLevel;
+        final int score = searchTree(0, startAlpha, startBeta);
 
-        final int checkMateFound = Values.CHECKMATE_MOVE - Math.abs(val);
-        if (checkMateFound < depth) {
+        movePath.setScore(score);
+
+        final int checkMateFound = Values.CHECKMATE_MOVE - Math.abs(score);
+        if (checkMateFound < maxLevel) {
             movePath.setDepth(checkMateFound);
         } else {
-            movePath.setDepth(depth);
+            movePath.setDepth(maxLevel);
         }
         return movePath;
     }
 
-    public int searchTree(final Board board, final int level, final int maxLevel, int alpha, final int beta) {
+    public int searchTree(final int level, int alpha, final int beta) {
 
         if (board.isDraw()) {
             return scorer.drawValue(level);
@@ -61,7 +68,7 @@ public class AlphaBetaEngine implements Engine {
 
             board.makeMove(move);
 
-            final int childScore = -searchTree(board, level + 1, maxLevel, -beta, -alpha);
+            final int childScore = -searchTree(level + 1, -beta, -alpha);
 
             board.undoMove();
 

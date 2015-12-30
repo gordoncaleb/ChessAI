@@ -91,7 +91,7 @@ public class Adjudicator {
         return validMoves;
     }
 
-    public MoveContainer getMoveHistory() {
+    public List<Move> getMoveHistory() {
         return board.getMoveHistory();
     }
 

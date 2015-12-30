@@ -74,8 +74,12 @@ public class StaticScorerTest {
 
     private void testWinning(String[] setup, int winner) {
         Board board = JSONParser.getFromSetup(Side.WHITE, setup);
-        int delta = scorer.staticScore(board, winner);
-        assertThat("Delta", delta, greaterThan(0));
+        int delta = scorer.staticScore(board);
+        if(winner == Side.BLACK){
+            assertThat("Delta", delta, lessThan(0));
+        }else {
+            assertThat("Delta", delta, greaterThan(0));
+        }
     }
 
     @Test
