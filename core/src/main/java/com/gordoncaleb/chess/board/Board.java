@@ -9,9 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.*;
 
-import static com.gordoncaleb.chess.board.BoardCondition.CHECK;
-import static com.gordoncaleb.chess.board.BoardCondition.DRAW;
-import static com.gordoncaleb.chess.board.BoardCondition.IN_PLAY;
 import static com.gordoncaleb.chess.board.Side.*;
 import static com.gordoncaleb.chess.board.pieces.Piece.PieceID.*;
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
@@ -145,9 +142,9 @@ public class Board {
         long[][] posBitBoard = new long[PIECES_COUNT][2];
         Stream.of(pieces)
                 .flatMap(List::stream)
-                .forEach(p -> {
-                    posBitBoard[p.getPieceID()][p.getSide()] |= p.asBitMask();
-                });
+                .forEach(p ->
+                        posBitBoard[p.getPieceID()][p.getSide()] |= p.asBitMask()
+                );
         return posBitBoard;
     }
 
@@ -164,13 +161,12 @@ public class Board {
 
     private Piece[] findKings(List<Piece>[] pieces) {
         Piece[] kings = new Piece[2];
-        Stream.of(pieces).forEach(sidePieces -> {
-            sidePieces.stream()
-                    .filter(p -> p.getPieceID() == KING)
-                    .findFirst()
-                    .ifPresent(p -> kings[p.getSide()] = p);
-
-        });
+        Stream.of(pieces).forEach(sidePieces ->
+                sidePieces.stream()
+                        .filter(p -> p.getPieceID() == KING)
+                        .findFirst()
+                        .ifPresent(p -> kings[p.getSide()] = p)
+        );
         return kings;
     }
 
@@ -516,6 +512,10 @@ public class Board {
 
     public MoveContainer getMoveHistory() {
         return moveHistory;
+    }
+
+    public int getMoveNumber(){
+        return moveHistory.size();
     }
 
     public List<Piece>[] getPiecesList() {

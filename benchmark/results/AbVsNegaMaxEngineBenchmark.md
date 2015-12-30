@@ -7,7 +7,7 @@
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testAlphaBeta
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 0)
 
 # Run progress: 0.00% complete, ETA 00:04:12
@@ -53,7 +53,7 @@ Result "testAlphaBeta":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testAlphaBeta
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 1)
 
 # Run progress: 7.14% complete, ETA 00:04:08
@@ -99,7 +99,7 @@ Result "testAlphaBeta":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testAlphaBeta
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 2)
 
 # Run progress: 14.29% complete, ETA 00:03:50
@@ -145,7 +145,7 @@ Result "testAlphaBeta":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testAlphaBeta
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 3)
 
 # Run progress: 21.43% complete, ETA 00:03:31
@@ -191,7 +191,7 @@ Result "testAlphaBeta":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testAlphaBeta
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 4)
 
 # Run progress: 28.57% complete, ETA 00:03:11
@@ -237,7 +237,7 @@ Result "testAlphaBeta":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testAlphaBeta
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 5)
 
 # Run progress: 35.71% complete, ETA 00:02:52
@@ -283,7 +283,7 @@ Result "testAlphaBeta":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testAlphaBeta
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 6)
 
 # Run progress: 42.86% complete, ETA 00:02:33
@@ -329,7 +329,7 @@ Result "testAlphaBeta":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testNegaMax
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testNegaMax
 # Parameters: (perftNum = 0)
 
 # Run progress: 50.00% complete, ETA 00:02:14
@@ -375,7 +375,7 @@ Result "testNegaMax":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testNegaMax
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testNegaMax
 # Parameters: (perftNum = 1)
 
 # Run progress: 57.14% complete, ETA 00:01:55
@@ -421,7 +421,7 @@ Result "testNegaMax":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testNegaMax
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testNegaMax
 # Parameters: (perftNum = 2)
 
 # Run progress: 64.29% complete, ETA 00:01:36
@@ -467,7 +467,7 @@ Result "testNegaMax":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testNegaMax
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testNegaMax
 # Parameters: (perftNum = 3)
 
 # Run progress: 71.43% complete, ETA 00:01:16
@@ -513,7 +513,7 @@ Result "testNegaMax":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testNegaMax
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testNegaMax
 # Parameters: (perftNum = 4)
 
 # Run progress: 78.57% complete, ETA 00:00:57
@@ -559,7 +559,7 @@ Result "testNegaMax":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testNegaMax
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testNegaMax
 # Parameters: (perftNum = 5)
 
 # Run progress: 85.71% complete, ETA 00:00:38
@@ -605,7 +605,7 @@ Result "testNegaMax":
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Average time, time/op
-# Benchmark: com.gordoncaleb.EngineBenchmark.testNegaMax
+# Benchmark: com.gordoncaleb.AbVsNegaMaxEngineBenchmark.testNegaMax
 # Parameters: (perftNum = 6)
 
 # Run progress: 92.86% complete, ETA 00:00:19

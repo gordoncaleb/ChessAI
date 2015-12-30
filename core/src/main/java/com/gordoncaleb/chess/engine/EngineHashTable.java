@@ -20,15 +20,15 @@ public class EngineHashTable {
 
     public BoardHashEntry get(final long hashCode) {
         BoardHashEntry entry = entries[(int) (hashCode & hashMask)];
-        if (entry.getHashCode() == hashCode && entry.getBounds() != BoardHashEntry.ValueBounds.INVALID) {
+        if (entry.getHashCode() == hashCode && entry.getBounds() != BoardHashEntry.ValueBounds.NA) {
             return entry;
         } else {
             return null;
         }
     }
 
-    public void set(long hashCode, int level, int score, int moveNum, int bounds, long bestMove) {
+    public void set(final long hashCode, final int score, final int level, final long bestMove, final int moveNum, final int bounds) {
         entries[(int) (hashCode & hashMask)]
-                .setAll(hashCode, level, score, moveNum, bounds, bestMove);
+                .setAll(hashCode, score, level, bestMove, moveNum, bounds);
     }
 }

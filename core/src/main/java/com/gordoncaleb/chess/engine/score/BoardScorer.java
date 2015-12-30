@@ -11,4 +11,5 @@ public interface BoardScorer {
     int endOfGameValue(final boolean isInCheck, final int level);
 
     int drawValue(final int level);
+
 }

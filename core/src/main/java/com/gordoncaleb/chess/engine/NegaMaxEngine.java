@@ -17,6 +17,7 @@ public class NegaMaxEngine implements Engine {
         this.movePath = new MovePath(moveContainers);
     }
 
+    @Override
     public MovePath search(final Board board, final int depth) {
         final int val = searchTree(board, 0, depth);
 
@@ -51,7 +52,7 @@ public class NegaMaxEngine implements Engine {
         }
 
         board.makeNullMove();
-        MoveContainer moves = board.generateValidMoves(moveContainers[level]);
+        final MoveContainer moves = board.generateValidMoves(moveContainers[level]);
 
         if (moves.isEmpty()) {
             return endOfGameValue(board, level);

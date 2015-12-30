@@ -29,6 +29,10 @@ public class MovePath {
         return moveContainers[i].getMarkedMove(i);
     }
 
+    public long getRaw(int i) {
+        return moveContainers[i].getMarkedMoveRaw(i);
+    }
+
     public void markMove(final int level, final int maxDepth, final int index) {
         moveContainers[level].markMove(index);
         promoteBelow(level + 1, maxDepth);

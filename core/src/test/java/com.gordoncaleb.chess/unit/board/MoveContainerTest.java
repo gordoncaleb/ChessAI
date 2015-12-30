@@ -61,4 +61,25 @@ public class MoveContainerTest {
         assertThat(moveContainer.get(0), is(equalTo(moveA)));
         assertThat(moveContainer.get(1), is(equalTo(moveB)));
     }
+
+    @Test
+    public void testMovePrioritization() {
+        MoveContainer moveContainer = new MoveContainer();
+
+        Move moveA = new Move(1, 2, 3, 4, Move.MoveNote.NORMAL);
+        Move moveB = new Move(0, 0, 7, 7, Move.MoveNote.NEW_ROOK, Piece.PieceID.NO_PIECE, 7, 7);
+
+        moveContainer.prioritizeMove(moveB.toLong());
+
+        moveContainer.add(moveA);
+        moveContainer.add(moveA);
+        moveContainer.add(moveA);
+        moveContainer.add(moveB);
+        moveContainer.add(moveA);
+        moveContainer.add(moveA);
+
+        assertThat(moveContainer.size(), is(equalTo(6)));
+        assertThat(moveContainer.get(0), is(equalTo(moveB)));
+        assertThat(moveContainer.get(1), is(equalTo(moveA)));
+    }
 }

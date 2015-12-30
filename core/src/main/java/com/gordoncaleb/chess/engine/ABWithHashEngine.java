@@ -16,47 +16,65 @@ public class ABWithHashEngine implements Engine {
     private final MovePath movePath;
     private final EngineHashTable hashTable;
 
+    private Board board;
+    private int searchDepth;
+    private int iterativeDepth;
+
     public ABWithHashEngine(BoardScorer scorer, MoveContainer[] moveContainers) {
         this.scorer = scorer;
         this.moveContainers = moveContainers;
         this.movePath = new MovePath(moveContainers);
-        this.hashTable = new EngineHashTable(15);
+        this.hashTable = new EngineHashTable(20);
     }
 
+    @Override
     public MovePath search(final Board board, final int depth) {
-        return search(board, depth, START_ALPHA, START_BETA);
+        this.board = board;
+        this.searchDepth = depth;
+        return search(START_ALPHA, START_BETA);
     }
 
-    public MovePath search(final Board board, final int depth, final int startAlpha, final int startBeta) {
-        final int val = searchTree(board, 0, depth, startAlpha, startBeta);
+    public MovePath search(final int startAlpha, final int startBeta) {
 
-        final int checkMateFound = Values.CHECKMATE_MOVE - Math.abs(val);
-        if (checkMateFound < depth) {
-            movePath.setDepth(checkMateFound);
-        } else {
-            movePath.setDepth(depth);
+        for (iterativeDepth = 1; iterativeDepth <= searchDepth; iterativeDepth++) {
+
+            final int val = searchTree(0, startAlpha, startBeta);
+
+            final int checkMateIn = checkMateIn(val);
+            if (checkMateIn < iterativeDepth) {
+                movePath.setDepth(checkMateIn);
+                return movePath;
+            }
+
+            movePath.setDepth(iterativeDepth);
+            commitPVToHashTable(movePath);
         }
+
         return movePath;
     }
 
-    public int searchTree(final Board board, final int level, final int maxLevel, final int alpha, final int beta) {
+    public int searchTree(final int level, final int alpha, final int beta) {
 
         if (board.isDraw()) {
             return scorer.drawValue(level);
         }
 
-        if (level == maxLevel) {
+        if (level == iterativeDepth) {
             return scorer.staticScore(board);
         }
 
+        final MoveContainer moves = moveContainers[level];
+        final BoardHashEntry hashEntry = hashTable.get(board.getHashCode());
+
+        prioritizeHashEntry(hashEntry, moves);
+
         board.makeNullMove();
-        MoveContainer moves = board.generateValidMoves(moveContainers[level]);
+        board.generateValidMoves(moves);
 
         if (moves.isEmpty()) {
             return scorer.endOfGameValue(board.isInCheck(), level);
         }
 
-        int maxScore = Integer.MIN_VALUE;
         int a = alpha;
         for (int m = 0; m < moves.size(); m++) {
 
@@ -64,28 +82,72 @@ public class ABWithHashEngine implements Engine {
 
             board.makeMove(move);
 
-            final int childScore = -searchTree(board, level + 1, maxLevel, -beta, -a);
+            final int childScore = -searchTree(level + 1, -beta, -a);
 
             board.undoMove();
 
-            if (childScore > maxScore) {
-                maxScore = childScore;
-                movePath.markMove(level, maxLevel, m);
-            }
-
-            if (maxScore > alpha) {
+            if (childScore > a) {
                 //narrowing alpha beta window
-                a = maxScore;
-            }
+                a = childScore;
 
-            if (alpha >= beta) {
-                //pruned!
-                break;
-            }
+                movePath.markMove(level, iterativeDepth, m);
 
+                if (childScore >= beta) {
+                    //pruned!
+                    break;
+                }
+            }
         }
 
-        return maxScore;
+        unprioritizeHashEntry(hashEntry, moves);
+
+        hashTable.set(board.getHashCode(),
+                level,
+                a,
+                movePath.getRaw(level),
+                board.getMoveNumber(),
+                nodeType(alpha, beta, a));
+
+        return a;
+    }
+
+    private static int nodeType(final int a, final int b, final int score) {
+        if (score <= a) {
+            return BoardHashEntry.ValueBounds.ALL;
+        } else if (score < b) {
+            return BoardHashEntry.ValueBounds.PV;
+        } else {
+            return BoardHashEntry.ValueBounds.CUT;
+        }
+    }
+
+    private void commitPVToHashTable(final MovePath movePath) {
+        for (int i = 0; i < movePath.getDepth(); i++) {
+            board.makeMove(movePath.get(i));
+            hashTable.set(board.getHashCode(),
+                    i,
+                    0,
+                    movePath.getRaw(i),
+                    board.getMoveNumber(),
+                    BoardHashEntry.ValueBounds.PV);
+        }
+        board.undo(movePath.getDepth());
+    }
+
+    private static void prioritizeHashEntry(final BoardHashEntry entry, final MoveContainer moveContainer) {
+        if (entry != null) {
+            moveContainer.prioritizeMove(entry.getBestMove());
+        }
+    }
+
+    private static void unprioritizeHashEntry(final BoardHashEntry entry, final MoveContainer moveContainer) {
+        if (entry != null) {
+            moveContainer.unprioritizeMove(entry.getBestMove());
+        }
+    }
+
+    private static int checkMateIn(final int score) {
+        return Values.CHECKMATE_MOVE - Math.abs(score);
     }
 
 }

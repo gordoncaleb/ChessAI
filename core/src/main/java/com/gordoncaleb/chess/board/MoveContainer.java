@@ -1,11 +1,13 @@
 package com.gordoncaleb.chess.board;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MoveContainer {
 
     private static final int EMPTY = -1;
+    private static final int UNPRIORITIZED = -1;
 
     private int head = EMPTY;
     private final long[] moves;
@@ -13,8 +15,6 @@ public class MoveContainer {
     private final long[] markedMoves;
 
     private final int[] movePrioritization = new int[64 * 64];
-    private final int[] prioritizedMovesHead = new int[3];
-    private final long[][] prioritizedMoves = new long[3][100];
 
     public MoveContainer() {
         this(219, 30);
@@ -27,6 +27,69 @@ public class MoveContainer {
     public MoveContainer(int size, int markedMoveSize) {
         moves = new long[size];
         markedMoves = new long[markedMoveSize];
+        Arrays.fill(movePrioritization, UNPRIORITIZED);
+    }
+
+    public void add(int fromRow,
+                    int fromCol,
+                    int toRow,
+                    int toCol,
+                    int note,
+                    int pieceTakenId,
+                    int pieceTakenRow,
+                    int pieceTakenCol) {
+
+        add(Move.toLong(fromRow, fromCol,
+                toRow, toCol,
+                note,
+                pieceTakenId,
+                pieceTakenRow, pieceTakenCol));
+    }
+
+    public void add(int fromRow,
+                    int fromCol,
+                    int toRow,
+                    int toCol,
+                    int note) {
+
+        add(Move.toLong(fromRow, fromCol,
+                toRow, toCol,
+                note));
+    }
+
+    private void add(final long move) {
+        final int priority = movePrioritization[Move.fromToAsInt(move)];
+
+        head++;
+        if (priority > UNPRIORITIZED) {
+            moves[head] = moves[0];
+            moves[0] = move;
+        } else {
+            moves[head] = move;
+        }
+    }
+
+    public void add(Move m) {
+        add(m.getFromRow(),
+                m.getFromCol(),
+                m.getToRow(),
+                m.getToCol(),
+                m.getNote(),
+                m.getPieceTakenId(),
+                m.getPieceTakenRow(),
+                m.getPieceTakenCol());
+    }
+
+    public Move get(int i) {
+        return Move.fromLong(moves[i], transientMove);
+    }
+
+    public Move pop() {
+        return Move.fromLong(moves[head--], transientMove);
+    }
+
+    public Move peek() {
+        return Move.fromLong(moves[head], transientMove);
     }
 
     public boolean isEmpty() {
@@ -41,42 +104,12 @@ public class MoveContainer {
         head = EMPTY;
     }
 
-    public void add(int fromRow,
-                    int fromCol,
-                    int toRow,
-                    int toCol,
-                    int note,
-                    int pieceTakenId,
-                    int pieceTakenRow,
-                    int pieceTakenCol) {
-        head++;
-        moves[head] = Move.toLong(fromRow, fromCol,
-                toRow, toCol,
-                note,
-                pieceTakenId,
-                pieceTakenRow, pieceTakenCol);
+    public void prioritizeMove(long move) {
+        movePrioritization[Move.fromToAsInt(move)] = 1;
     }
 
-    public void add(int fromRow,
-                    int fromCol,
-                    int toRow,
-                    int toCol,
-                    int note) {
-        head++;
-        moves[head] = Move.toLong(fromRow, fromCol,
-                toRow, toCol,
-                note);
-    }
-
-    public void add(Move m) {
-        add(m.getFromRow(),
-                m.getFromCol(),
-                m.getToRow(),
-                m.getToCol(),
-                m.getNote(),
-                m.getPieceTakenId(),
-                m.getPieceTakenRow(),
-                m.getPieceTakenCol());
+    public void unprioritizeMove(long move) {
+        movePrioritization[Move.fromToAsInt(move)] = UNPRIORITIZED;
     }
 
     public void markMove(final int i) {
@@ -91,20 +124,8 @@ public class MoveContainer {
         return Move.fromLong(markedMoves[i], transientMove);
     }
 
-    public Move get(int i) {
-        return Move.fromLong(moves[i], transientMove);
-    }
-
-    public long getLong(int i) {
-        return moves[i];
-    }
-
-    public Move pop() {
-        return Move.fromLong(moves[head--], transientMove);
-    }
-
-    public Move peek() {
-        return Move.fromLong(moves[head], transientMove);
+    public long getMarkedMoveRaw(int i) {
+        return markedMoves[i];
     }
 
     public List<Move> toList() {

@@ -21,6 +21,7 @@ public class AlphaBetaEngine implements Engine {
         this.movePath = new MovePath(moveContainers);
     }
 
+    @Override
     public MovePath search(final Board board, final int depth) {
         return search(board, depth, START_ALPHA, START_BETA);
     }
@@ -37,7 +38,7 @@ public class AlphaBetaEngine implements Engine {
         return movePath;
     }
 
-    public int searchTree(final Board board, final int level, final int maxLevel, final int alpha, final int beta) {
+    public int searchTree(final Board board, final int level, final int maxLevel, int alpha, final int beta) {
 
         if (board.isDraw()) {
             return scorer.drawValue(level);
@@ -48,42 +49,37 @@ public class AlphaBetaEngine implements Engine {
         }
 
         board.makeNullMove();
-        MoveContainer moves = board.generateValidMoves(moveContainers[level]);
+        final MoveContainer moves = board.generateValidMoves(moveContainers[level]);
 
         if (moves.isEmpty()) {
             return scorer.endOfGameValue(board.isInCheck(), level);
         }
 
-        int maxScore = Integer.MIN_VALUE;
-        int a = alpha;
         for (int m = 0; m < moves.size(); m++) {
 
             final Move move = moves.get(m);
 
             board.makeMove(move);
 
-            final int childScore = -searchTree(board, level + 1, maxLevel, -beta, -a);
+            final int childScore = -searchTree(board, level + 1, maxLevel, -beta, -alpha);
 
             board.undoMove();
 
-            if (childScore > maxScore) {
-                maxScore = childScore;
+            if (childScore > alpha) {
                 movePath.markMove(level, maxLevel, m);
-            }
 
-            if (maxScore > a) {
+                if (childScore >= beta) {
+                    //pruned!
+                    return childScore;
+                }
+
                 //narrowing alpha beta window
-                a = maxScore;
-            }
-
-            if (a >= beta) {
-                //pruned!
-                break;
+                alpha = childScore;
             }
 
         }
 
-        return maxScore;
+        return alpha;
     }
 
 }

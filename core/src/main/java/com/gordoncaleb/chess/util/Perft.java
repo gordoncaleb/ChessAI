@@ -64,7 +64,7 @@ public class Perft {
         return metrics;
     }
 
-    private void addOtherQueeningMoveOptions(List<Move> queenings, List<Move> moves) {
+    private static void addOtherQueeningMoveOptions(List<Move> queenings, List<Move> moves) {
         for (Move m : queenings) {
             Move altMoveKnight = m.copy();
             altMoveKnight.setNote(Move.MoveNote.NEW_KNIGHT);

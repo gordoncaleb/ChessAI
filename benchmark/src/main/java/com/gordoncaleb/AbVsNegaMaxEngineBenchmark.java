@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @State(Scope.Thread)
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
-public class EngineBenchmark {
+public class AbVsNegaMaxEngineBenchmark {
 
     @Param({"0", "1", "2", "3", "4", "5", "6"})
     private int perftNum;
@@ -64,10 +64,10 @@ public class EngineBenchmark {
 
     public static void main(String[] args) throws RunnerException, JsonProcessingException {
         Options opt = new OptionsBuilder()
-                .include(EngineBenchmark.class.getSimpleName())
+                .include(AbVsNegaMaxEngineBenchmark.class.getSimpleName())
                 .forks(3)
                 .resultFormat(ResultFormatType.JSON)
-//                .result(EngineBenchmark.class.getSimpleName() + ".jmh.json")
+//                .result(AbVsNegaMaxEngineBenchmark.class.getSimpleName() + ".jmh.json")
                 .build();
 
         Collection<RunResult> results = new Runner(opt).run();
@@ -97,7 +97,7 @@ public class EngineBenchmark {
     }
 
     private static String percentDelta(double a, double b) {
-        final double delta = ((a / b) - 1) * 100;
-        return String.format("+%2.2f%%", delta);
+        final double delta = ((a / b)) * 100;
+        return String.format("%+4.2f%%", delta);
     }
 }

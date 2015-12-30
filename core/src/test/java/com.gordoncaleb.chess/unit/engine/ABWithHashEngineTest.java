@@ -12,6 +12,7 @@ import com.gordoncaleb.chess.engine.MovePath;
 import com.gordoncaleb.chess.engine.NegaMaxEngine;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
 import com.gordoncaleb.chess.util.Perft;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +23,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-public class AlphaBetaEngineTest {
-    public static final Logger LOGGER = LoggerFactory.getLogger(AlphaBetaEngineTest.class);
+public class ABWithHashEngineTest {
+    public static final Logger LOGGER = LoggerFactory.getLogger(ABWithHashEngineTest.class);
 
     @Test
+    @Ignore
     public void testPosition1() {
-        testPositionVsNegaMax(Side.BLACK, new String[]{
+        testPositionVsAlphaBeta(Side.BLACK, new String[]{
                 "r,n,b,q,_,k,_,r,",
                 "p,p,_,P,b,p,p,p,",
                 "_,_,p,_,_,_,_,_,",
@@ -40,12 +42,13 @@ public class AlphaBetaEngineTest {
     }
 
     @Test
+    @Ignore
     public void testAllPerftPositions() {
         List<Board> testBoards = new Perft().allPositions();
         testBoards.forEach(b -> testPositionToMaxLevel(3, b));
     }
 
-    public void testPositionVsNegaMax(int side, String[] setup) {
+    public void testPositionVsAlphaBeta(int side, String[] setup) {
         Board b = JSONParser.getFromSetup(side, setup);
         testPositionToMaxLevel(4, b);
     }
@@ -53,26 +56,28 @@ public class AlphaBetaEngineTest {
     public void testPositionToMaxLevel(int maxLevel, Board b) {
         LOGGER.info("\n" + b.toString());
         for (int i = 0; i < maxLevel; i++) {
-            AlphaBetaEngine alphaBetaEngine = new AlphaBetaEngine(new StaticScorer(),
+            ABWithHashEngine engine = new ABWithHashEngine(new StaticScorer(),
                     MoveContainerFactory.buildMoveContainers(i + 1));
-            testEngineAgainstNegaMax(alphaBetaEngine, i + 1, b);
+            testEngineAgainstAlphaBeta(engine, i + 1, b);
         }
     }
 
-    public void testEngineAgainstNegaMax(AlphaBetaEngine alphaBetaEngine, int level, Board b) {
-        NegaMaxEngine negaMaxEngine = new NegaMaxEngine(new StaticScorer(),
+    public void testEngineAgainstAlphaBeta(ABWithHashEngine engine, int level, Board b) {
+        AlphaBetaEngine alphaBetaEngine = new AlphaBetaEngine(new StaticScorer(),
                 MoveContainerFactory.buildMoveContainers(level + 1));
 
         Board b1 = b.copy();
         Board b2 = b.copy();
 
-        List<Move> negaMaxMoveList = negaMaxEngine.search(b1, level).asList();
-        List<Move> engineMoveList = alphaBetaEngine.search(b2, level).asList();
+        List<Move> alphaBetaMoveList = alphaBetaEngine.search(b1, level).asList();
 
-        LOGGER.info("NegaMax Move Path: {}", new PGNParser().toAlgebraicNotation(negaMaxMoveList, b1));
-        LOGGER.info("AlphaBetaEngine Move Path: {}", new PGNParser().toAlgebraicNotation(engineMoveList, b2));
+        MovePath mp = engine.search(b2, level);
+        List<Move> engineMoveList = mp.asList();
 
-        assertThat(negaMaxMoveList, is(equalTo(engineMoveList)));
+        LOGGER.info("AlphaBetaEngine Move Path: {}", new PGNParser().toAlgebraicNotation(alphaBetaMoveList, b1));
+        LOGGER.info("Alpha Beta with Hash Move Path: {}", new PGNParser().toAlgebraicNotation(engineMoveList, b2));
+
+        assertThat(alphaBetaMoveList, is(equalTo(engineMoveList)));
     }
 
     @Test
@@ -88,15 +93,17 @@ public class AlphaBetaEngineTest {
                 "R,N,B,Q,K,_,_,R,"
         });
 
-        AlphaBetaEngine alphaBetaEngine = new AlphaBetaEngine(new StaticScorer(),
+        ABWithHashEngine aBWithHashEngine = new ABWithHashEngine(new StaticScorer(),
                 MoveContainerFactory.buildMoveContainers(10));
 
         final long now = System.currentTimeMillis();
-        MovePath movePath = alphaBetaEngine.search(b, 4);
+        MovePath movePath = aBWithHashEngine.search(b, 6);
         final long timeTaken = System.currentTimeMillis() - now;
         List<Move> moveList = movePath.asList();
 
-        LOGGER.info("Alpha Beta Move Path: {}", new PGNParser().toAlgebraicNotation(moveList, b));
+        LOGGER.info("Alpha Beta with Hash Move Path: {}", new PGNParser().toAlgebraicNotation(moveList, b));
         LOGGER.info("Time Taken: {}", timeTaken);
+
+        // 1... Nxd1 2.dxc8=Q Qxc8 3.Kxd1 h5 4.g4
     }
 }

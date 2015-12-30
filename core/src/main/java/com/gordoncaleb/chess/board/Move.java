@@ -190,6 +190,10 @@ public class Move {
         return (int) (fromToMask & toLong());
     }
 
+    public static int fromToAsInt(long move) {
+        return (int) (fromToMask & move);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
