@@ -192,10 +192,10 @@ public class StaticScorer implements BoardScorer {
     }
 
     @Override
-    public int endOfGameValue(final boolean isInCheck, final int level) {
+    public int endOfGameValue(final boolean isInCheck, final int levelsToTop) {
         if (isInCheck) {
             //checkmate
-            return level - Values.CHECKMATE_MOVE;
+            return levelsToTop - Values.CHECKMATE_MOVE;
         } else {
             //stalemate
             return Values.DRAW;
@@ -203,7 +203,7 @@ public class StaticScorer implements BoardScorer {
     }
 
     @Override
-    public int drawValue(int level) {
+    public int drawValue() {
         return Values.DRAW;
     }
 

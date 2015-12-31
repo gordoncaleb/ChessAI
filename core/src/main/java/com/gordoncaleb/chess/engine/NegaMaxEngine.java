@@ -32,6 +32,11 @@ public class NegaMaxEngine implements Engine {
         return movePath;
     }
 
+    @Override
+    public MovePath search(final Board board, final int maxLevel, final int startAlpha, final int startBeta) {
+        return search(board, maxLevel);
+    }
+
     private static int endOfGameValue(final Board board, final int level) {
         if (board.isInCheck()) {
             //checkmate
@@ -45,7 +50,7 @@ public class NegaMaxEngine implements Engine {
     private int searchTree(final Board board, final int level, final int maxLevel) {
 
         if (board.isDraw()) {
-            return Values.DRAW;
+            return scorer.drawValue();
         }
 
         if (level == maxLevel) {

@@ -24,7 +24,7 @@ public class MaterialScorer implements BoardScorer {
     }
 
     @Override
-    public int drawValue(int level) {
+    public int drawValue() {
         return 0;
     }
 

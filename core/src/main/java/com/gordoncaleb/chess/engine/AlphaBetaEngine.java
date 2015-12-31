@@ -48,7 +48,7 @@ public class AlphaBetaEngine implements Engine {
     public int searchTree(final int level, int alpha, final int beta) {
 
         if (board.isDraw()) {
-            return scorer.drawValue(level);
+            return scorer.drawValue();
         }
 
         if (level == maxLevel) {

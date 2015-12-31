@@ -7,6 +7,7 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.engine.AlphaBetaEngine;
+import com.gordoncaleb.chess.engine.Engine;
 import com.gordoncaleb.chess.engine.MovePath;
 import com.gordoncaleb.chess.engine.score.Values;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
@@ -27,7 +28,7 @@ public class AIProcessor extends Thread {
 
     private StaticScorer scorer = new StaticScorer();
 
-    private AlphaBetaEngine alphaBetaEngine = new AlphaBetaEngine(scorer, MoveContainerFactory.buildMoveContainers(20));
+    private Engine engine = new AlphaBetaEngine(scorer, MoveContainerFactory.buildMoveContainers(20));
 
     public AIProcessor(AI ai, int maxTreeLevel) {
         this.ai = ai;
@@ -105,7 +106,7 @@ public class AIProcessor extends Thread {
             final int startAlpha = -Values.CHECKMATE_MOVE + 1;
             final int startBeta = -ai.getAlpha();
 
-            MovePath movePath = alphaBetaEngine.search(board, searchDepth, startAlpha, startBeta);
+            MovePath movePath = engine.search(board, searchDepth, startAlpha, startBeta);
             task.setHeadChild(movePath.get(0));
             task.setChosenPathValue(movePath.getScore());
 

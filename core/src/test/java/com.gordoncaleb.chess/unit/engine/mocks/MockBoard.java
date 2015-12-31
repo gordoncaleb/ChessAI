@@ -79,7 +79,7 @@ public class MockBoard extends Board {
     public long getHashCode() {
         return moveHistory.stream()
                 .map(Move::hashCode)
-                .reduce(0, (a, b) -> 31 * a + b);
+                .reduce(0, (a, b) -> 63 * a + b);
     }
 
     @Override
@@ -95,6 +95,11 @@ public class MockBoard extends Board {
     @Override
     public List<Move> getMoveHistory() {
         return moveHistory;
+    }
+
+    @Override
+    public String toString(){
+        return movesToString(moveHistory);
     }
 
     private long updateVisitHistory(int depth) {
