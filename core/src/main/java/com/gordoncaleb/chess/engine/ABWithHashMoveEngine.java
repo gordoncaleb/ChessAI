@@ -1,12 +1,14 @@
 package com.gordoncaleb.chess.engine;
 
+
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.engine.score.BoardScorer;
 import com.gordoncaleb.chess.engine.score.Values;
 
-public class ABWithHashEngine implements Engine {
+
+public class ABWithHashMoveEngine implements Engine {
 
     private static final int START_ALPHA = -Values.CHECKMATE_MOVE + 1;
     private static final int START_BETA = -START_ALPHA;
@@ -19,7 +21,7 @@ public class ABWithHashEngine implements Engine {
     private Board board;
     private int iterativeDepth;
 
-    public ABWithHashEngine(BoardScorer scorer, MoveContainer[] moveContainers) {
+    public ABWithHashMoveEngine(BoardScorer scorer, MoveContainer[] moveContainers) {
         this.scorer = scorer;
         this.moveContainers = moveContainers;
         this.movePath = new MovePath(moveContainers);
@@ -47,13 +49,13 @@ public class ABWithHashEngine implements Engine {
             }
 
             movePath.setDepth(iterativeDepth);
-            commitPVToHashTable(movePath, score);
+            commitPVToHashTable(movePath);
         }
 
         return movePath;
     }
 
-    public int searchTree(final int levelsToTop, final int alpha, final int beta) {
+    public int searchTree(final int levelsToTop, int alpha, final int beta) {
 
         if (board.isDraw()) {
             return scorer.drawValue();
@@ -66,13 +68,6 @@ public class ABWithHashEngine implements Engine {
         final MoveContainer moves = moveContainers[levelsToTop];
         final BoardHashEntry hashEntry = hashTable.get(board.getHashCode());
 
-        final int levelsToBottom = iterativeDepth - levelsToTop;
-
-        final Integer hashScoreCutoff = checkHashScoreForBetaCutoff(hashEntry, beta, levelsToBottom);
-        if (hashScoreCutoff != null) {
-            return hashScoreCutoff;
-        }
-
         prioritizeHashEntry(hashEntry, moves);
 
         board.makeNullMove();
@@ -82,24 +77,23 @@ public class ABWithHashEngine implements Engine {
             return scorer.endOfGameValue(board.isInCheck(), levelsToTop);
         }
 
-        int maxScore = alpha;
         for (int m = 0; m < moves.size(); m++) {
 
             final Move move = moves.get(m);
 
             board.makeMove(move);
 
-            final int childScore = -searchTree(levelsToTop + 1, -beta, -maxScore);
+            final int childScore = -searchTree(levelsToTop + 1, -beta, -alpha);
 
             board.undoMove();
 
-            if (childScore > maxScore) {
+            if (childScore > alpha) {
                 //narrowing alpha beta window
-                maxScore = childScore;
+                alpha = childScore;
 
                 movePath.markMove(levelsToTop, iterativeDepth, m);
 
-                if (maxScore >= beta) {
+                if (alpha >= beta) {
                     //pruned!
                     break;
                 }
@@ -109,52 +103,26 @@ public class ABWithHashEngine implements Engine {
         unprioritizeHashEntry(hashEntry, moves);
 
         hashTable.set(board.getHashCode(),
-                maxScore,
-                levelsToBottom,
+                alpha,
+                0,
                 movePath.getRaw(levelsToTop),
                 board.getMoveNumber(),
-                nodeType(alpha, beta, maxScore));
+                BoardHashEntry.ValueBounds.PV);
 
-        return maxScore;
+        return alpha;
     }
 
-    private static int nodeType(final int a, final int b, final int score) {
-        if (score <= a) {
-            //score is upper bound
-            return BoardHashEntry.ValueBounds.ALL;
-        } else if (score < b) {
-            //score is exact
-            return BoardHashEntry.ValueBounds.PV;
-        } else {
-            //score is lower bound
-            return BoardHashEntry.ValueBounds.CUT;
-        }
-    }
-
-    private void commitPVToHashTable(final MovePath movePath, int score) {
-        final int movePathDepth = movePath.getDepth();
-        for (int i = 0; i < movePathDepth; i++) {
+    private void commitPVToHashTable(final MovePath movePath) {
+        for (int i = 0; i < movePath.getDepth(); i++) {
             board.makeMove(movePath.get(i));
             hashTable.set(board.getHashCode(),
-                    score,
-                    movePathDepth - (i + 1),
+                    0,
+                    0,
                     movePath.getRaw(i),
                     board.getMoveNumber(),
                     BoardHashEntry.ValueBounds.PV);
-            score = -score;
         }
         board.undo(movePath.getDepth());
-    }
-
-    private static Integer checkHashScoreForBetaCutoff(final BoardHashEntry entry, final int beta, final int levelsToBottom) {
-        if (entry != null &&
-                (entry.getBounds() == BoardHashEntry.ValueBounds.CUT
-                        || entry.getBounds() == BoardHashEntry.ValueBounds.PV) &&
-                entry.getLevel() >= levelsToBottom &&
-                entry.getScore() >= beta) {
-            return entry.getScore();
-        }
-        return null;
     }
 
     private static void prioritizeHashEntry(final BoardHashEntry entry, final MoveContainer moveContainer) {
@@ -174,3 +142,4 @@ public class ABWithHashEngine implements Engine {
     }
 
 }
+

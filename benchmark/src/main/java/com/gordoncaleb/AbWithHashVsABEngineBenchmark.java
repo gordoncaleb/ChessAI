@@ -101,7 +101,7 @@ public class AbWithHashVsABEngineBenchmark {
     }
 
     private static String percentDelta(double a, double b) {
-        final double delta = ((a / b)) * 100;
+        final double delta = (a / b) * 100;
         return String.format("%4.2f%%", delta);
     }
 }

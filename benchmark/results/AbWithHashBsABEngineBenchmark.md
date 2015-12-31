@@ -1,8 +1,8 @@
-/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/bin/java -Didea.launcher.port=7533 "-Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin" -Dfile.encoding=UTF-8 -classpath "/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/ant-javafx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/dt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/javafx-mx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/jconsole.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/packager.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/sa-jdi.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/tools.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/deploy.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/javaws.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jfxswt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/management-agent.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/plugin.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/cldrdata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/dnsns.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/jaccess.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/jfxrt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/localedata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/nashorn.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/sunec.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/sunjce_provider.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/sunpkcs11.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/zipfs.jar:/Users/caleb.walker/gordoncaleb/ChessAI/benchmark/target/classes:/Users/caleb.walker/gordoncaleb/ChessAI/core/target/classes:/Users/caleb.walker/.m2/repository/com/google/guava/guava/18.0/guava-18.0.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.6.3/jackson-datatype-jdk8-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.6.3/jackson-databind-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.6.0/jackson-annotations-2.6.0.jar:/Users/caleb.walker/.m2/repository/org/jsoup/jsoup/1.8.3/jsoup-1.8.3.jar:/Users/caleb.walker/.m2/repository/org/slf4j/slf4j-api/1.7.13/slf4j-api-1.7.13.jar:/Users/caleb.walker/.m2/repository/org/slf4j/slf4j-simple/1.7.13/slf4j-simple-1.7.13.jar:/Users/caleb.walker/.m2/repository/org/hamcrest/hamcrest-all/1.3/hamcrest-all-1.3.jar:/Users/caleb.walker/.m2/repository/junit/junit/4.11/junit-4.11.jar:/Users/caleb.walker/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/caleb.walker/.m2/repository/org/mockito/mockito-core/2.0.31-beta/mockito-core-2.0.31-beta.jar:/Users/caleb.walker/.m2/repository/net/bytebuddy/byte-buddy/0.6.14/byte-buddy-0.6.14.jar:/Users/caleb.walker/.m2/repository/org/objenesis/objenesis/2.1/objenesis-2.1.jar:/Users/caleb.walker/.m2/repository/org/openjdk/jmh/jmh-core/1.11.1/jmh-core-1.11.1.jar:/Users/caleb.walker/.m2/repository/net/sf/jopt-simple/jopt-simple/4.6/jopt-simple-4.6.jar:/Users/caleb.walker/.m2/repository/org/apache/commons/commons-math3/3.2/commons-math3-3.2.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.6.3/jackson-core-2.6.3.jar:/Applications/IntelliJ IDEA 15 EAP.app/Contents/lib/idea_rt.jar" com.intellij.rt.execution.application.AppMain com.gordoncaleb.AbWithHashVsABEngineBenchmark
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/bin/java -Didea.launcher.port=7538 "-Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin" -Dfile.encoding=UTF-8 -classpath "/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/ant-javafx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/dt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/javafx-mx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/jconsole.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/packager.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/sa-jdi.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/tools.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/deploy.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/javaws.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jfxswt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/management-agent.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/plugin.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/cldrdata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/dnsns.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/jaccess.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/jfxrt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/localedata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/nashorn.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/sunec.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/sunjce_provider.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/sunpkcs11.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/lib/ext/zipfs.jar:/Users/caleb.walker/gordoncaleb/ChessAI/benchmark/target/classes:/Users/caleb.walker/gordoncaleb/ChessAI/core/target/classes:/Users/caleb.walker/.m2/repository/com/google/guava/guava/18.0/guava-18.0.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.6.3/jackson-datatype-jdk8-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.6.3/jackson-databind-2.6.3.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.6.0/jackson-annotations-2.6.0.jar:/Users/caleb.walker/.m2/repository/org/jsoup/jsoup/1.8.3/jsoup-1.8.3.jar:/Users/caleb.walker/.m2/repository/org/slf4j/slf4j-api/1.7.13/slf4j-api-1.7.13.jar:/Users/caleb.walker/.m2/repository/org/slf4j/slf4j-simple/1.7.13/slf4j-simple-1.7.13.jar:/Users/caleb.walker/.m2/repository/org/hamcrest/hamcrest-all/1.3/hamcrest-all-1.3.jar:/Users/caleb.walker/.m2/repository/junit/junit/4.11/junit-4.11.jar:/Users/caleb.walker/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/caleb.walker/.m2/repository/org/mockito/mockito-core/2.0.31-beta/mockito-core-2.0.31-beta.jar:/Users/caleb.walker/.m2/repository/net/bytebuddy/byte-buddy/0.6.14/byte-buddy-0.6.14.jar:/Users/caleb.walker/.m2/repository/org/objenesis/objenesis/2.1/objenesis-2.1.jar:/Users/caleb.walker/.m2/repository/org/openjdk/jmh/jmh-core/1.11.1/jmh-core-1.11.1.jar:/Users/caleb.walker/.m2/repository/net/sf/jopt-simple/jopt-simple/4.6/jopt-simple-4.6.jar:/Users/caleb.walker/.m2/repository/org/apache/commons/commons-math3/3.2/commons-math3-3.2.jar:/Users/caleb.walker/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.6.3/jackson-core-2.6.3.jar:/Applications/IntelliJ IDEA 15 EAP.app/Contents/lib/idea_rt.jar" com.intellij.rt.execution.application.AppMain com.gordoncaleb.AbWithHashVsABEngineBenchmark
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -13,42 +13,42 @@
 
 # Run progress: 0.00% complete, ETA 00:04:12
 # Fork: 1 of 3
-# Warmup Iteration   1: 90164815.667 ns/op
-Iteration   1: 71904117.929 ns/op
-Iteration   2: 69378549.400 ns/op
-Iteration   3: 69224919.467 ns/op
-Iteration   4: 62954626.500 ns/op
-Iteration   5: 67433839.867 ns/op
+# Warmup Iteration   1: 48098077.905 ns/op
+Iteration   1: 5055288.201 ns/op
+Iteration   2: 5087356.056 ns/op
+Iteration   3: 4812848.301 ns/op
+Iteration   4: 5569865.470 ns/op
+Iteration   5: 5515557.187 ns/op
 
 # Run progress: 2.38% complete, ETA 00:04:42
 # Fork: 2 of 3
-# Warmup Iteration   1: 74556119.143 ns/op
-Iteration   1: 62649149.375 ns/op
-Iteration   2: 67187243.267 ns/op
-Iteration   3: 61021332.765 ns/op
-Iteration   4: 65760543.875 ns/op
-Iteration   5: 62827897.750 ns/op
+# Warmup Iteration   1: 9391357.897 ns/op
+Iteration   1: 4955688.877 ns/op
+Iteration   2: 4795455.043 ns/op
+Iteration   3: 5008940.726 ns/op
+Iteration   4: 5691569.723 ns/op
+Iteration   5: 4873783.296 ns/op
 
-# Run progress: 4.76% complete, ETA 00:04:31
+# Run progress: 4.76% complete, ETA 00:04:27
 # Fork: 3 of 3
-# Warmup Iteration   1: 65278552.438 ns/op
-Iteration   1: 65127053.500 ns/op
-Iteration   2: 61819371.118 ns/op
-Iteration   3: 59808302.118 ns/op
-Iteration   4: 65797724.000 ns/op
-Iteration   5: 64574640.125 ns/op
+# Warmup Iteration   1: 8359936.683 ns/op
+Iteration   1: 5465839.245 ns/op
+Iteration   2: 5214292.135 ns/op
+Iteration   3: 5259563.104 ns/op
+Iteration   4: 5522906.187 ns/op
+Iteration   5: 4839971.068 ns/op
 
 
 Result "testAbWithHash":
-  65164620.737 ±(99.9%) 3655962.560 ns/op [Average]
-  (min, avg, max) = (59808302.118, 65164620.737, 71904117.929), stdev = 3419789.647
-  CI (99.9%): [61508658.177, 68820583.297] (assumes normal distribution)
+  5177928.308 ±(99.9%) 329358.449 ns/op [Average]
+  (min, avg, max) = (4795455.043, 5177928.308, 5691569.723), stdev = 308082.098
+  CI (99.9%): [4848569.859, 5507286.757] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -57,44 +57,44 @@ Result "testAbWithHash":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAbWithHash
 # Parameters: (perftNum = 1)
 
-# Run progress: 7.14% complete, ETA 00:04:23
+# Run progress: 7.14% complete, ETA 00:04:18
 # Fork: 1 of 3
-# Warmup Iteration   1: 3035463116.000 ns/op
-Iteration   1: 2554927320.000 ns/op
-Iteration   2: 2160684021.000 ns/op
-Iteration   3: 2135504558.000 ns/op
-Iteration   4: 2255017598.000 ns/op
-Iteration   5: 2302623305.000 ns/op
+# Warmup Iteration   1: 2976424674.000 ns/op
+Iteration   1: 388113116.333 ns/op
+Iteration   2: 231219684.600 ns/op
+Iteration   3: 212849255.000 ns/op
+Iteration   4: 204612573.000 ns/op
+Iteration   5: 186641085.833 ns/op
 
-# Run progress: 9.52% complete, ETA 00:05:36
+# Run progress: 9.52% complete, ETA 00:04:36
 # Fork: 2 of 3
-# Warmup Iteration   1: 2834412535.000 ns/op
-Iteration   1: 2437380513.000 ns/op
-Iteration   2: 2175511024.000 ns/op
-Iteration   3: 2185729223.000 ns/op
-Iteration   4: 2403060787.000 ns/op
-Iteration   5: 2181843764.000 ns/op
+# Warmup Iteration   1: 3364079075.000 ns/op
+Iteration   1: 378738339.000 ns/op
+Iteration   2: 221273395.400 ns/op
+Iteration   3: 190253812.667 ns/op
+Iteration   4: 193352988.333 ns/op
+Iteration   5: 190225623.500 ns/op
 
-# Run progress: 11.90% complete, ETA 00:06:10
+# Run progress: 11.90% complete, ETA 00:04:45
 # Fork: 3 of 3
-# Warmup Iteration   1: 2820911443.000 ns/op
-Iteration   1: 2435408152.000 ns/op
-Iteration   2: 2016364034.000 ns/op
-Iteration   3: 2008155782.000 ns/op
-Iteration   4: 2169458866.000 ns/op
-Iteration   5: 2029780018.000 ns/op
+# Warmup Iteration   1: 2660143599.000 ns/op
+Iteration   1: 387512368.667 ns/op
+Iteration   2: 231858516.000 ns/op
+Iteration   3: 184399727.167 ns/op
+Iteration   4: 182559682.167 ns/op
+Iteration   5: 185613722.833 ns/op
 
 
 Result "testAbWithHash":
-  2230096597.667 ±(99.9%) 177563722.349 ns/op [Average]
-  (min, avg, max) = (2008155782.000, 2230096597.667, 2554927320.000), stdev = 166093216.067
-  CI (99.9%): [2052532875.318, 2407660320.015] (assumes normal distribution)
+  237948259.367 ±(99.9%) 83148499.986 ns/op [Average]
+  (min, avg, max) = (182559682.167, 237948259.367, 388113116.333), stdev = 77777158.482
+  CI (99.9%): [154799759.381, 321096759.353] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -103,44 +103,44 @@ Result "testAbWithHash":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAbWithHash
 # Parameters: (perftNum = 2)
 
-# Run progress: 14.29% complete, ETA 00:06:24
+# Run progress: 14.29% complete, ETA 00:04:44
 # Fork: 1 of 3
-# Warmup Iteration   1: 5473363.299 ns/op
-Iteration   1: 3326077.974 ns/op
-Iteration   2: 3206858.535 ns/op
-Iteration   3: 2820061.787 ns/op
-Iteration   4: 2816679.357 ns/op
-Iteration   5: 2898302.280 ns/op
+# Warmup Iteration   1: 2313495.685 ns/op
+Iteration   1: 2157272.443 ns/op
+Iteration   2: 2206595.349 ns/op
+Iteration   3: 2247285.404 ns/op
+Iteration   4: 1969982.644 ns/op
+Iteration   5: 1948549.228 ns/op
 
-# Run progress: 16.67% complete, ETA 00:05:53
+# Run progress: 16.67% complete, ETA 00:04:29
 # Fork: 2 of 3
-# Warmup Iteration   1: 3251565.652 ns/op
-Iteration   1: 2927581.041 ns/op
-Iteration   2: 3684242.566 ns/op
-Iteration   3: 3553542.689 ns/op
-Iteration   4: 2868829.434 ns/op
-Iteration   5: 2663870.645 ns/op
+# Warmup Iteration   1: 2510824.848 ns/op
+Iteration   1: 2269596.357 ns/op
+Iteration   2: 1971279.628 ns/op
+Iteration   3: 2170772.372 ns/op
+Iteration   4: 1926247.237 ns/op
+Iteration   5: 1880051.376 ns/op
 
-# Run progress: 19.05% complete, ETA 00:05:28
+# Run progress: 19.05% complete, ETA 00:04:16
 # Fork: 3 of 3
-# Warmup Iteration   1: 3268676.916 ns/op
-Iteration   1: 2986458.501 ns/op
-Iteration   2: 2846123.986 ns/op
-Iteration   3: 3167096.711 ns/op
-Iteration   4: 2762600.143 ns/op
-Iteration   5: 2808733.527 ns/op
+# Warmup Iteration   1: 2362078.758 ns/op
+Iteration   1: 2116527.611 ns/op
+Iteration   2: 1941056.718 ns/op
+Iteration   3: 2093999.942 ns/op
+Iteration   4: 2003417.768 ns/op
+Iteration   5: 2003025.036 ns/op
 
 
 Result "testAbWithHash":
-  3022470.612 ±(99.9%) 322320.920 ns/op [Average]
-  (min, avg, max) = (2663870.645, 3022470.612, 3684242.566), stdev = 301499.188
-  CI (99.9%): [2700149.692, 3344791.531] (assumes normal distribution)
+  2060377.274 ±(99.9%) 135781.088 ns/op [Average]
+  (min, avg, max) = (1880051.376, 2060377.274, 2269596.357), stdev = 127009.714
+  CI (99.9%): [1924596.186, 2196158.362] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -149,44 +149,44 @@ Result "testAbWithHash":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAbWithHash
 # Parameters: (perftNum = 3)
 
-# Run progress: 21.43% complete, ETA 00:05:06
+# Run progress: 21.43% complete, ETA 00:04:05
 # Fork: 1 of 3
-# Warmup Iteration   1: 511826996.333 ns/op
-Iteration   1: 619055419.000 ns/op
-Iteration   2: 567812114.000 ns/op
-Iteration   3: 575147352.500 ns/op
-Iteration   4: 540299658.000 ns/op
-Iteration   5: 511707693.000 ns/op
+# Warmup Iteration   1: 171891065.167 ns/op
+Iteration   1: 28525176.667 ns/op
+Iteration   2: 27574698.324 ns/op
+Iteration   3: 27277153.351 ns/op
+Iteration   4: 31673284.500 ns/op
+Iteration   5: 29384982.257 ns/op
 
-# Run progress: 23.81% complete, ETA 00:04:52
+# Run progress: 23.81% complete, ETA 00:03:55
 # Fork: 2 of 3
-# Warmup Iteration   1: 498773666.333 ns/op
-Iteration   1: 558056243.000 ns/op
-Iteration   2: 520858978.000 ns/op
-Iteration   3: 569089528.500 ns/op
-Iteration   4: 537522868.000 ns/op
-Iteration   5: 529936711.500 ns/op
+# Warmup Iteration   1: 171498142.500 ns/op
+Iteration   1: 28046957.139 ns/op
+Iteration   2: 27025699.158 ns/op
+Iteration   3: 26920875.947 ns/op
+Iteration   4: 29565188.765 ns/op
+Iteration   5: 26273071.256 ns/op
 
-# Run progress: 26.19% complete, ETA 00:04:38
+# Run progress: 26.19% complete, ETA 00:03:45
 # Fork: 3 of 3
-# Warmup Iteration   1: 504024102.333 ns/op
-Iteration   1: 542913775.500 ns/op
-Iteration   2: 515724544.500 ns/op
-Iteration   3: 589541414.000 ns/op
-Iteration   4: 575347541.500 ns/op
-Iteration   5: 523950312.500 ns/op
+# Warmup Iteration   1: 171181210.500 ns/op
+Iteration   1: 27504523.000 ns/op
+Iteration   2: 27108250.816 ns/op
+Iteration   3: 26868110.289 ns/op
+Iteration   4: 27810233.919 ns/op
+Iteration   5: 25811059.795 ns/op
 
 
 Result "testAbWithHash":
-  551797610.233 ±(99.9%) 32797436.845 ns/op [Average]
-  (min, avg, max) = (511707693.000, 551797610.233, 619055419.000), stdev = 30678742.777
-  CI (99.9%): [519000173.388, 584595047.079] (assumes normal distribution)
+  27824617.679 ±(99.9%) 1581199.287 ns/op [Average]
+  (min, avg, max) = (25811059.795, 27824617.679, 31673284.500), stdev = 1479054.794
+  CI (99.9%): [26243418.392, 29405816.966] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -195,44 +195,44 @@ Result "testAbWithHash":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAbWithHash
 # Parameters: (perftNum = 4)
 
-# Run progress: 28.57% complete, ETA 00:04:25
+# Run progress: 28.57% complete, ETA 00:03:36
 # Fork: 1 of 3
-# Warmup Iteration   1: 419380547.333 ns/op
-Iteration   1: 413232264.667 ns/op
-Iteration   2: 397973364.333 ns/op
-Iteration   3: 440371210.667 ns/op
-Iteration   4: 406258727.667 ns/op
-Iteration   5: 404702461.667 ns/op
+# Warmup Iteration   1: 80167730.615 ns/op
+Iteration   1: 33839091.633 ns/op
+Iteration   2: 31023078.788 ns/op
+Iteration   3: 34977969.379 ns/op
+Iteration   4: 30586871.394 ns/op
+Iteration   5: 30429550.152 ns/op
 
-# Run progress: 30.95% complete, ETA 00:04:14
+# Run progress: 30.95% complete, ETA 00:03:28
 # Fork: 2 of 3
-# Warmup Iteration   1: 436201644.333 ns/op
-Iteration   1: 432782743.000 ns/op
-Iteration   2: 398587469.667 ns/op
-Iteration   3: 426615146.667 ns/op
-Iteration   4: 376848158.667 ns/op
-Iteration   5: 362693021.333 ns/op
+# Warmup Iteration   1: 112344883.444 ns/op
+Iteration   1: 36273180.071 ns/op
+Iteration   2: 32440079.250 ns/op
+Iteration   3: 34413287.200 ns/op
+Iteration   4: 31017414.939 ns/op
+Iteration   5: 29978941.471 ns/op
 
-# Run progress: 33.33% complete, ETA 00:04:04
+# Run progress: 33.33% complete, ETA 00:03:19
 # Fork: 3 of 3
-# Warmup Iteration   1: 417542235.000 ns/op
-Iteration   1: 436959955.333 ns/op
-Iteration   2: 418331229.000 ns/op
-Iteration   3: 485785075.333 ns/op
-Iteration   4: 399580579.333 ns/op
-Iteration   5: 417436799.000 ns/op
+# Warmup Iteration   1: 84972011.167 ns/op
+Iteration   1: 32834295.290 ns/op
+Iteration   2: 31038053.848 ns/op
+Iteration   3: 33170849.839 ns/op
+Iteration   4: 31198089.000 ns/op
+Iteration   5: 30041735.529 ns/op
 
 
 Result "testAbWithHash":
-  414543880.422 ±(99.9%) 31005010.110 ns/op [Average]
-  (min, avg, max) = (362693021.333, 414543880.422, 485785075.333), stdev = 29002105.696
-  CI (99.9%): [383538870.312, 445548890.533] (assumes normal distribution)
+  32217499.186 ±(99.9%) 2094855.745 ns/op [Average]
+  (min, avg, max) = (29978941.471, 32217499.186, 36273180.071), stdev = 1959529.364
+  CI (99.9%): [30122643.441, 34312354.931] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -241,44 +241,44 @@ Result "testAbWithHash":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAbWithHash
 # Parameters: (perftNum = 5)
 
-# Run progress: 35.71% complete, ETA 00:03:54
+# Run progress: 35.71% complete, ETA 00:03:11
 # Fork: 1 of 3
-# Warmup Iteration   1: 11095272092.000 ns/op
-Iteration   1: 9737809978.000 ns/op
-Iteration   2: 9777533095.000 ns/op
-Iteration   3: 9030775387.000 ns/op
-Iteration   4: 9262153823.000 ns/op
-Iteration   5: 9805963853.000 ns/op
+# Warmup Iteration   1: 7008447061.000 ns/op
+Iteration   1: 3153138255.000 ns/op
+Iteration   2: 2614077710.000 ns/op
+Iteration   3: 2296310523.000 ns/op
+Iteration   4: 1984571122.000 ns/op
+Iteration   5: 1769718003.000 ns/op
 
-# Run progress: 38.10% complete, ETA 00:05:08
+# Run progress: 38.10% complete, ETA 00:03:24
 # Fork: 2 of 3
-# Warmup Iteration   1: 11260066166.000 ns/op
-Iteration   1: 10333139245.000 ns/op
-Iteration   2: 11353965196.000 ns/op
-Iteration   3: 12252967645.000 ns/op
-Iteration   4: 13800977729.000 ns/op
-Iteration   5: 11372067316.000 ns/op
+# Warmup Iteration   1: 6847596714.000 ns/op
+Iteration   1: 3225709561.000 ns/op
+Iteration   2: 2440031826.000 ns/op
+Iteration   3: 2292503883.000 ns/op
+Iteration   4: 2009054660.000 ns/op
+Iteration   5: 1777177280.000 ns/op
 
-# Run progress: 40.48% complete, ETA 00:06:22
+# Run progress: 40.48% complete, ETA 00:03:33
 # Fork: 3 of 3
-# Warmup Iteration   1: 12571332399.000 ns/op
-Iteration   1: 9822922153.000 ns/op
-Iteration   2: 9937890701.000 ns/op
-Iteration   3: 9820631783.000 ns/op
-Iteration   4: 9546314724.000 ns/op
-Iteration   5: 9770830267.000 ns/op
+# Warmup Iteration   1: 7108645781.000 ns/op
+Iteration   1: 3254193350.000 ns/op
+Iteration   2: 2542929111.000 ns/op
+Iteration   3: 2362825372.000 ns/op
+Iteration   4: 2053272373.000 ns/op
+Iteration   5: 1875430598.000 ns/op
 
 
 Result "testAbWithHash":
-  10375062859.667 ±(99.9%) 1376363164.514 ns/op [Average]
-  (min, avg, max) = (9030775387.000, 10375062859.667, 13800977729.000), stdev = 1287450958.149
-  CI (99.9%): [8998699695.153, 11751426024.181] (assumes normal distribution)
+  2376729575.133 ±(99.9%) 539702661.044 ns/op [Average]
+  (min, avg, max) = (1769718003.000, 2376729575.133, 3254193350.000), stdev = 504838204.038
+  CI (99.9%): [1837026914.089, 2916432236.178] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -287,44 +287,44 @@ Result "testAbWithHash":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAbWithHash
 # Parameters: (perftNum = 6)
 
-# Run progress: 42.86% complete, ETA 00:07:09
+# Run progress: 42.86% complete, ETA 00:03:40
 # Fork: 1 of 3
-# Warmup Iteration   1: 19037513.547 ns/op
-Iteration   1: 15561373.277 ns/op
-Iteration   2: 13550754.360 ns/op
-Iteration   3: 14306160.577 ns/op
-Iteration   4: 12612989.238 ns/op
-Iteration   5: 12703417.125 ns/op
+# Warmup Iteration   1: 6198041.679 ns/op
+Iteration   1: 5244828.307 ns/op
+Iteration   2: 5090849.081 ns/op
+Iteration   3: 5675862.418 ns/op
+Iteration   4: 4976929.495 ns/op
+Iteration   5: 5090951.051 ns/op
 
-# Run progress: 45.24% complete, ETA 00:06:38
+# Run progress: 45.24% complete, ETA 00:03:27
 # Fork: 2 of 3
-# Warmup Iteration   1: 18747434.611 ns/op
-Iteration   1: 15544704.508 ns/op
-Iteration   2: 14331487.714 ns/op
-Iteration   3: 15413450.152 ns/op
-Iteration   4: 13265503.671 ns/op
-Iteration   5: 12865863.885 ns/op
+# Warmup Iteration   1: 5907558.882 ns/op
+Iteration   1: 5230372.233 ns/op
+Iteration   2: 4761359.057 ns/op
+Iteration   3: 5008484.495 ns/op
+Iteration   4: 4903879.263 ns/op
+Iteration   5: 5114265.249 ns/op
 
-# Run progress: 47.62% complete, ETA 00:06:09
+# Run progress: 47.62% complete, ETA 00:03:16
 # Fork: 3 of 3
-# Warmup Iteration   1: 19875996.824 ns/op
-Iteration   1: 15871889.984 ns/op
-Iteration   2: 13386515.947 ns/op
-Iteration   3: 14218427.338 ns/op
-Iteration   4: 13451074.173 ns/op
-Iteration   5: 13272224.132 ns/op
+# Warmup Iteration   1: 8047877.328 ns/op
+Iteration   1: 6299323.719 ns/op
+Iteration   2: 5895298.281 ns/op
+Iteration   3: 6050810.355 ns/op
+Iteration   4: 5310030.032 ns/op
+Iteration   5: 5419285.665 ns/op
 
 
 Result "testAbWithHash":
-  14023722.405 ±(99.9%) 1192118.598 ns/op [Average]
-  (min, avg, max) = (12612989.238, 14023722.405, 15871889.984), stdev = 1115108.476
-  CI (99.9%): [12831603.808, 15215841.003] (assumes normal distribution)
+  5338168.580 ±(99.9%) 479524.669 ns/op [Average]
+  (min, avg, max) = (4761359.057, 5338168.580, 6299323.719), stdev = 448547.672
+  CI (99.9%): [4858643.912, 5817693.249] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -333,44 +333,44 @@ Result "testAbWithHash":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 0)
 
-# Run progress: 50.00% complete, ETA 00:05:42
+# Run progress: 50.00% complete, ETA 00:03:04
 # Fork: 1 of 3
-# Warmup Iteration   1: 174807742.833 ns/op
-Iteration   1: 163266129.714 ns/op
-Iteration   2: 147792322.375 ns/op
-Iteration   3: 118917101.667 ns/op
-Iteration   4: 138271669.625 ns/op
-Iteration   5: 122069584.889 ns/op
+# Warmup Iteration   1: 148835460.286 ns/op
+Iteration   1: 176161711.500 ns/op
+Iteration   2: 151131631.857 ns/op
+Iteration   3: 130067269.500 ns/op
+Iteration   4: 130663210.750 ns/op
+Iteration   5: 130960755.125 ns/op
 
-# Run progress: 52.38% complete, ETA 00:05:17
+# Run progress: 52.38% complete, ETA 00:02:54
 # Fork: 2 of 3
-# Warmup Iteration   1: 160180088.143 ns/op
-Iteration   1: 177324019.333 ns/op
-Iteration   2: 146487605.375 ns/op
-Iteration   3: 117632730.222 ns/op
-Iteration   4: 135737891.125 ns/op
-Iteration   5: 119521560.556 ns/op
+# Warmup Iteration   1: 155558885.143 ns/op
+Iteration   1: 168775841.833 ns/op
+Iteration   2: 141263039.625 ns/op
+Iteration   3: 115828641.444 ns/op
+Iteration   4: 146328450.000 ns/op
+Iteration   5: 129466927.667 ns/op
 
-# Run progress: 54.76% complete, ETA 00:04:54
+# Run progress: 54.76% complete, ETA 00:02:44
 # Fork: 3 of 3
-# Warmup Iteration   1: 159369900.571 ns/op
-Iteration   1: 182588448.500 ns/op
-Iteration   2: 146833219.250 ns/op
-Iteration   3: 133864831.375 ns/op
-Iteration   4: 130888579.875 ns/op
-Iteration   5: 123288643.667 ns/op
+# Warmup Iteration   1: 131268321.625 ns/op
+Iteration   1: 175797312.333 ns/op
+Iteration   2: 142468356.125 ns/op
+Iteration   3: 125507895.667 ns/op
+Iteration   4: 125966853.889 ns/op
+Iteration   5: 128135703.556 ns/op
 
 
 Result "testAlphaBeta":
-  140298955.837 ±(99.9%) 22137306.110 ns/op [Average]
-  (min, avg, max) = (117632730.222, 140298955.837, 182588448.500), stdev = 20707249.872
-  CI (99.9%): [118161649.727, 162436261.946] (assumes normal distribution)
+  141234906.725 ±(99.9%) 20357108.485 ns/op [Average]
+  (min, avg, max) = (115828641.444, 141234906.725, 176161711.500), stdev = 19042051.909
+  CI (99.9%): [120877798.239, 161592015.210] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -379,44 +379,44 @@ Result "testAlphaBeta":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 1)
 
-# Run progress: 57.14% complete, ETA 00:04:32
+# Run progress: 57.14% complete, ETA 00:02:34
 # Fork: 1 of 3
-# Warmup Iteration   1: 12597532606.000 ns/op
-Iteration   1: 12048717350.000 ns/op
-Iteration   2: 11944532809.000 ns/op
-Iteration   3: 15037413117.000 ns/op
-Iteration   4: 15173471981.000 ns/op
-Iteration   5: 14958445500.000 ns/op
+# Warmup Iteration   1: 12624816116.000 ns/op
+Iteration   1: 13407205731.000 ns/op
+Iteration   2: 12247397766.000 ns/op
+Iteration   3: 14376775594.000 ns/op
+Iteration   4: 12132679343.000 ns/op
+Iteration   5: 13573566526.000 ns/op
 
-# Run progress: 59.52% complete, ETA 00:05:03
+# Run progress: 59.52% complete, ETA 00:03:13
 # Fork: 2 of 3
-# Warmup Iteration   1: 12183075572.000 ns/op
-Iteration   1: 11941501570.000 ns/op
-Iteration   2: 11628969900.000 ns/op
-Iteration   3: 13022105239.000 ns/op
-Iteration   4: 11705468932.000 ns/op
-Iteration   5: 13688034158.000 ns/op
+# Warmup Iteration   1: 12279266019.000 ns/op
+Iteration   1: 12588516937.000 ns/op
+Iteration   2: 12318974223.000 ns/op
+Iteration   3: 14775096205.000 ns/op
+Iteration   4: 15156948568.000 ns/op
+Iteration   5: 14683421788.000 ns/op
 
-# Run progress: 61.90% complete, ETA 00:05:20
+# Run progress: 61.90% complete, ETA 00:03:45
 # Fork: 3 of 3
-# Warmup Iteration   1: 12469581774.000 ns/op
-Iteration   1: 12197433231.000 ns/op
-Iteration   2: 11832467540.000 ns/op
-Iteration   3: 13471024962.000 ns/op
-Iteration   4: 12292110341.000 ns/op
-Iteration   5: 13603999349.000 ns/op
+# Warmup Iteration   1: 11646202933.000 ns/op
+Iteration   1: 11680190394.000 ns/op
+Iteration   2: 11660133114.000 ns/op
+Iteration   3: 12843059563.000 ns/op
+Iteration   4: 11439624846.000 ns/op
+Iteration   5: 12771250087.000 ns/op
 
 
 Result "testAlphaBeta":
-  12969713065.267 ±(99.9%) 1369083448.629 ns/op [Average]
-  (min, avg, max) = (11628969900.000, 12969713065.267, 15173471981.000), stdev = 1280641507.393
-  CI (99.9%): [11600629616.638, 14338796513.895] (assumes normal distribution)
+  13043656045.667 ±(99.9%) 1309315914.597 ns/op [Average]
+  (min, avg, max) = (11439624846.000, 13043656045.667, 15156948568.000), stdev = 1224734918.973
+  CI (99.9%): [11734340131.069, 14352971960.264] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -425,44 +425,44 @@ Result "testAlphaBeta":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 2)
 
-# Run progress: 64.29% complete, ETA 00:05:31
+# Run progress: 64.29% complete, ETA 00:04:04
 # Fork: 1 of 3
-# Warmup Iteration   1: 37926473.852 ns/op
-Iteration   1: 30100889.088 ns/op
-Iteration   2: 26944611.947 ns/op
-Iteration   3: 27457319.216 ns/op
-Iteration   4: 26468094.816 ns/op
-Iteration   5: 24502395.317 ns/op
+# Warmup Iteration   1: 28911625.429 ns/op
+Iteration   1: 25386841.275 ns/op
+Iteration   2: 25159317.854 ns/op
+Iteration   3: 25100425.500 ns/op
+Iteration   4: 23107065.455 ns/op
+Iteration   5: 25105303.634 ns/op
 
-# Run progress: 66.67% complete, ETA 00:05:02
+# Run progress: 66.67% complete, ETA 00:03:43
 # Fork: 2 of 3
-# Warmup Iteration   1: 36888630.857 ns/op
-Iteration   1: 34981912.690 ns/op
-Iteration   2: 28231045.694 ns/op
-Iteration   3: 28386145.861 ns/op
-Iteration   4: 24637098.902 ns/op
-Iteration   5: 25512337.150 ns/op
+# Warmup Iteration   1: 29588038.794 ns/op
+Iteration   1: 25912828.615 ns/op
+Iteration   2: 25381432.100 ns/op
+Iteration   3: 24711636.390 ns/op
+Iteration   4: 23347012.837 ns/op
+Iteration   5: 25809125.667 ns/op
 
-# Run progress: 69.05% complete, ETA 00:04:33
+# Run progress: 69.05% complete, ETA 00:03:22
 # Fork: 3 of 3
-# Warmup Iteration   1: 35232801.172 ns/op
-Iteration   1: 30118526.588 ns/op
-Iteration   2: 37575083.852 ns/op
-Iteration   3: 31926654.563 ns/op
-Iteration   4: 24816849.244 ns/op
-Iteration   5: 24150686.095 ns/op
+# Warmup Iteration   1: 30217362.971 ns/op
+Iteration   1: 25251184.400 ns/op
+Iteration   2: 23476168.953 ns/op
+Iteration   3: 24011944.310 ns/op
+Iteration   4: 22462205.178 ns/op
+Iteration   5: 24681311.098 ns/op
 
 
 Result "testAlphaBeta":
-  28387310.068 ±(99.9%) 4248834.086 ns/op [Average]
-  (min, avg, max) = (24150686.095, 28387310.068, 37575083.852), stdev = 3974362.041
-  CI (99.9%): [24138475.982, 32636144.154] (assumes normal distribution)
+  24593586.884 ±(99.9%) 1130454.620 ns/op [Average]
+  (min, avg, max) = (22462205.178, 24593586.884, 25912828.615), stdev = 1057427.953
+  CI (99.9%): [23463132.264, 25724041.504] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -471,44 +471,44 @@ Result "testAlphaBeta":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 3)
 
-# Run progress: 71.43% complete, ETA 00:04:06
+# Run progress: 71.43% complete, ETA 00:03:03
 # Fork: 1 of 3
-# Warmup Iteration   1: 1320438092.000 ns/op
-Iteration   1: 1343665016.000 ns/op
-Iteration   2: 1265993815.000 ns/op
-Iteration   3: 1259395361.000 ns/op
-Iteration   4: 1141920283.000 ns/op
-Iteration   5: 1139316281.000 ns/op
+# Warmup Iteration   1: 1076591764.000 ns/op
+Iteration   1: 1115772476.000 ns/op
+Iteration   2: 1180701869.000 ns/op
+Iteration   3: 1128148186.000 ns/op
+Iteration   4: 1165216968.000 ns/op
+Iteration   5: 1187442293.000 ns/op
 
-# Run progress: 73.81% complete, ETA 00:03:41
+# Run progress: 73.81% complete, ETA 00:02:45
 # Fork: 2 of 3
-# Warmup Iteration   1: 1239177419.000 ns/op
-Iteration   1: 1215465816.000 ns/op
-Iteration   2: 1180436710.000 ns/op
-Iteration   3: 1263262140.000 ns/op
-Iteration   4: 1285637117.000 ns/op
-Iteration   5: 1151738503.000 ns/op
+# Warmup Iteration   1: 1177103234.000 ns/op
+Iteration   1: 1185378015.000 ns/op
+Iteration   2: 1120115492.000 ns/op
+Iteration   3: 1220422111.000 ns/op
+Iteration   4: 1077139940.000 ns/op
+Iteration   5: 1077808989.000 ns/op
 
-# Run progress: 76.19% complete, ETA 00:03:17
+# Run progress: 76.19% complete, ETA 00:02:28
 # Fork: 3 of 3
-# Warmup Iteration   1: 1306276903.000 ns/op
-Iteration   1: 1263770543.000 ns/op
-Iteration   2: 1217997479.000 ns/op
-Iteration   3: 1293221795.000 ns/op
-Iteration   4: 1205943011.000 ns/op
-Iteration   5: 1188409438.000 ns/op
+# Warmup Iteration   1: 1060316793.000 ns/op
+Iteration   1: 1237051894.000 ns/op
+Iteration   2: 1217435617.000 ns/op
+Iteration   3: 1253184886.000 ns/op
+Iteration   4: 1083071660.000 ns/op
+Iteration   5: 1132216513.000 ns/op
 
 
 Result "testAlphaBeta":
-  1227744887.200 ±(99.9%) 64883370.172 ns/op [Average]
-  (min, avg, max) = (1139316281.000, 1227744887.200, 1343665016.000), stdev = 60691944.720
-  CI (99.9%): [1162861517.028, 1292628257.372] (assumes normal distribution)
+  1158740460.600 ±(99.9%) 62774657.350 ns/op [Average]
+  (min, avg, max) = (1077139940.000, 1158740460.600, 1253184886.000), stdev = 58719453.438
+  CI (99.9%): [1095965803.250, 1221515117.950] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -517,44 +517,44 @@ Result "testAlphaBeta":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 4)
 
-# Run progress: 78.57% complete, ETA 00:02:54
+# Run progress: 78.57% complete, ETA 00:02:11
 # Fork: 1 of 3
-# Warmup Iteration   1: 1673199146.000 ns/op
-Iteration   1: 2409759167.000 ns/op
-Iteration   2: 2506351052.000 ns/op
-Iteration   3: 2207464466.000 ns/op
-Iteration   4: 2178855914.000 ns/op
-Iteration   5: 2012875966.000 ns/op
+# Warmup Iteration   1: 1546242545.000 ns/op
+Iteration   1: 2397392902.000 ns/op
+Iteration   2: 2079436511.000 ns/op
+Iteration   3: 1871702208.000 ns/op
+Iteration   4: 1837966173.000 ns/op
+Iteration   5: 1882828908.000 ns/op
 
-# Run progress: 80.95% complete, ETA 00:02:34
+# Run progress: 80.95% complete, ETA 00:01:56
 # Fork: 2 of 3
-# Warmup Iteration   1: 1991318106.000 ns/op
-Iteration   1: 2239436706.000 ns/op
-Iteration   2: 2027885515.000 ns/op
-Iteration   3: 1921741921.000 ns/op
-Iteration   4: 1978258283.000 ns/op
-Iteration   5: 2159211704.000 ns/op
+# Warmup Iteration   1: 1352648217.000 ns/op
+Iteration   1: 1961858443.000 ns/op
+Iteration   2: 1778769361.000 ns/op
+Iteration   3: 1693266310.000 ns/op
+Iteration   4: 1810631967.000 ns/op
+Iteration   5: 1851337071.000 ns/op
 
-# Run progress: 83.33% complete, ETA 00:02:13
+# Run progress: 83.33% complete, ETA 00:01:41
 # Fork: 3 of 3
-# Warmup Iteration   1: 2085481422.000 ns/op
-Iteration   1: 2367531180.000 ns/op
-Iteration   2: 2152923946.000 ns/op
-Iteration   3: 1793144047.000 ns/op
-Iteration   4: 1820416062.000 ns/op
-Iteration   5: 1929383089.000 ns/op
+# Warmup Iteration   1: 1424606041.000 ns/op
+Iteration   1: 2055744908.000 ns/op
+Iteration   2: 2069912533.000 ns/op
+Iteration   3: 1948472051.000 ns/op
+Iteration   4: 1803461638.000 ns/op
+Iteration   5: 2004338078.000 ns/op
 
 
 Result "testAlphaBeta":
-  2113682601.200 ±(99.9%) 227532937.394 ns/op [Average]
-  (min, avg, max) = (1793144047.000, 2113682601.200, 2506351052.000), stdev = 212834450.828
-  CI (99.9%): [1886149663.806, 2341215538.594] (assumes normal distribution)
+  1936474604.133 ±(99.9%) 183369006.509 ns/op [Average]
+  (min, avg, max) = (1693266310.000, 1936474604.133, 2397392902.000), stdev = 171523482.473
+  CI (99.9%): [1753105597.625, 2119843610.642] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -563,44 +563,44 @@ Result "testAlphaBeta":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 5)
 
-# Run progress: 85.71% complete, ETA 00:01:53
+# Run progress: 85.71% complete, ETA 00:01:26
 # Fork: 1 of 3
-# Warmup Iteration   1: 12201888911.000 ns/op
-Iteration   1: 10998368858.000 ns/op
-Iteration   2: 11037317128.000 ns/op
-Iteration   3: 11601612038.000 ns/op
-Iteration   4: 11136127225.000 ns/op
-Iteration   5: 13342542023.000 ns/op
+# Warmup Iteration   1: 12340349301.000 ns/op
+Iteration   1: 11644927407.000 ns/op
+Iteration   2: 11347646207.000 ns/op
+Iteration   3: 12033808570.000 ns/op
+Iteration   4: 11597972482.000 ns/op
+Iteration   5: 11966271506.000 ns/op
 
-# Run progress: 88.10% complete, ETA 00:01:41
+# Run progress: 88.10% complete, ETA 00:01:19
 # Fork: 2 of 3
-# Warmup Iteration   1: 14152116847.000 ns/op
-Iteration   1: 12491047392.000 ns/op
-Iteration   2: 12420431871.000 ns/op
-Iteration   3: 13146017062.000 ns/op
-Iteration   4: 12192326898.000 ns/op
-Iteration   5: 11328751129.000 ns/op
+# Warmup Iteration   1: 12661575139.000 ns/op
+Iteration   1: 11470217819.000 ns/op
+Iteration   2: 11513899267.000 ns/op
+Iteration   3: 13189785652.000 ns/op
+Iteration   4: 11486261798.000 ns/op
+Iteration   5: 11634483584.000 ns/op
 
-# Run progress: 90.48% complete, ETA 00:01:27
+# Run progress: 90.48% complete, ETA 00:01:09
 # Fork: 3 of 3
-# Warmup Iteration   1: 12295304242.000 ns/op
-Iteration   1: 11638720906.000 ns/op
-Iteration   2: 13110314250.000 ns/op
-Iteration   3: 13130022987.000 ns/op
-Iteration   4: 15078454297.000 ns/op
-Iteration   5: 14503146721.000 ns/op
+# Warmup Iteration   1: 12287176076.000 ns/op
+Iteration   1: 11172828623.000 ns/op
+Iteration   2: 11056129667.000 ns/op
+Iteration   3: 11635220031.000 ns/op
+Iteration   4: 11164463565.000 ns/op
+Iteration   5: 11740876652.000 ns/op
 
 
 Result "testAlphaBeta":
-  12477013385.667 ±(99.9%) 1334828657.049 ns/op [Average]
-  (min, avg, max) = (10998368858.000, 12477013385.667, 15078454297.000), stdev = 1248599554.093
-  CI (99.9%): [11142184728.618, 13811842042.715] (assumes normal distribution)
+  11643652855.333 ±(99.9%) 543189512.344 ns/op [Average]
+  (min, avg, max) = (11056129667.000, 11643652855.333, 13189785652.000), stdev = 508099806.908
+  CI (99.9%): [11100463342.989, 12186842367.678] (assumes normal distribution)
 
 
-# JMH 1.11.1 (released 96 days ago, please consider updating!)
+# JMH 1.11.1 (released 97 days ago, please consider updating!)
 # VM version: JDK 1.8.0_60, VM 25.60-b23
 # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/jre/bin/java
-# VM options: -Didea.launcher.port=7533 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
+# VM options: -Didea.launcher.port=7538 -Didea.launcher.bin.path=/Applications/IntelliJ IDEA 15 EAP.app/Contents/bin -Dfile.encoding=UTF-8
 # Warmup: 1 iterations, 1 s each
 # Measurement: 5 iterations, 1 s each
 # Timeout: 10 min per iteration
@@ -609,65 +609,65 @@ Result "testAlphaBeta":
 # Benchmark: com.gordoncaleb.AbWithHashVsABEngineBenchmark.testAlphaBeta
 # Parameters: (perftNum = 6)
 
-# Run progress: 92.86% complete, ETA 00:01:09
+# Run progress: 92.86% complete, ETA 00:00:56
 # Fork: 1 of 3
-# Warmup Iteration   1: 125857294.625 ns/op
-Iteration   1: 106377673.000 ns/op
-Iteration   2: 92289098.091 ns/op
-Iteration   3: 81628179.615 ns/op
-Iteration   4: 87041219.083 ns/op
-Iteration   5: 89027019.083 ns/op
+# Warmup Iteration   1: 84310982.917 ns/op
+Iteration   1: 75774122.571 ns/op
+Iteration   2: 73783155.857 ns/op
+Iteration   3: 75532558.214 ns/op
+Iteration   4: 72726031.286 ns/op
+Iteration   5: 73045981.929 ns/op
 
-# Run progress: 95.24% complete, ETA 00:00:45
+# Run progress: 95.24% complete, ETA 00:00:36
 # Fork: 2 of 3
-# Warmup Iteration   1: 130481741.125 ns/op
-Iteration   1: 121853902.333 ns/op
-Iteration   2: 107642737.400 ns/op
-Iteration   3: 87108390.500 ns/op
-Iteration   4: 92388862.636 ns/op
-Iteration   5: 79492327.385 ns/op
+# Warmup Iteration   1: 84170227.417 ns/op
+Iteration   1: 76073319.786 ns/op
+Iteration   2: 70857010.867 ns/op
+Iteration   3: 84604869.500 ns/op
+Iteration   4: 74532058.429 ns/op
+Iteration   5: 80647747.000 ns/op
 
-# Run progress: 97.62% complete, ETA 00:00:22
+# Run progress: 97.62% complete, ETA 00:00:18
 # Fork: 3 of 3
-# Warmup Iteration   1: 135826470.625 ns/op
-Iteration   1: 113261128.000 ns/op
-Iteration   2: 108616812.300 ns/op
-Iteration   3: 97164015.818 ns/op
-Iteration   4: 105615136.700 ns/op
-Iteration   5: 100422988.909 ns/op
+# Warmup Iteration   1: 114510993.444 ns/op
+Iteration   1: 108854721.200 ns/op
+Iteration   2: 75435911.929 ns/op
+Iteration   3: 78923507.692 ns/op
+Iteration   4: 67954159.267 ns/op
+Iteration   5: 68947827.800 ns/op
 
 
 Result "testAlphaBeta":
-  97995299.390 ±(99.9%) 13205823.478 ns/op [Average]
-  (min, avg, max) = (79492327.385, 97995299.390, 121853902.333), stdev = 12352735.476
-  CI (99.9%): [84789475.912, 111201122.868] (assumes normal distribution)
+  77179532.222 ±(99.9%) 10422977.001 ns/op [Average]
+  (min, avg, max) = (67954159.267, 77179532.222, 108854721.200), stdev = 9749659.154
+  CI (99.9%): [66756555.221, 87602509.222] (assumes normal distribution)
 
 
-# Run complete. Total time: 00:15:28
+# Run complete. Total time: 00:12:31
 
 Benchmark                                     (perftNum)  Mode  Cnt            Score            Error  Units
-AbWithHashVsABEngineBenchmark.testAbWithHash           0  avgt   15     65164620.737 ±    3655962.560  ns/op
-AbWithHashVsABEngineBenchmark.testAbWithHash           1  avgt   15   2230096597.667 ±  177563722.349  ns/op
-AbWithHashVsABEngineBenchmark.testAbWithHash           2  avgt   15      3022470.612 ±     322320.920  ns/op
-AbWithHashVsABEngineBenchmark.testAbWithHash           3  avgt   15    551797610.233 ±   32797436.845  ns/op
-AbWithHashVsABEngineBenchmark.testAbWithHash           4  avgt   15    414543880.422 ±   31005010.110  ns/op
-AbWithHashVsABEngineBenchmark.testAbWithHash           5  avgt   15  10375062859.667 ± 1376363164.514  ns/op
-AbWithHashVsABEngineBenchmark.testAbWithHash           6  avgt   15     14023722.405 ±    1192118.598  ns/op
-AbWithHashVsABEngineBenchmark.testAlphaBeta            0  avgt   15    140298955.837 ±   22137306.110  ns/op
-AbWithHashVsABEngineBenchmark.testAlphaBeta            1  avgt   15  12969713065.267 ± 1369083448.629  ns/op
-AbWithHashVsABEngineBenchmark.testAlphaBeta            2  avgt   15     28387310.068 ±    4248834.086  ns/op
-AbWithHashVsABEngineBenchmark.testAlphaBeta            3  avgt   15   1227744887.200 ±   64883370.172  ns/op
-AbWithHashVsABEngineBenchmark.testAlphaBeta            4  avgt   15   2113682601.200 ±  227532937.394  ns/op
-AbWithHashVsABEngineBenchmark.testAlphaBeta            5  avgt   15  12477013385.667 ± 1334828657.049  ns/op
-AbWithHashVsABEngineBenchmark.testAlphaBeta            6  avgt   15     97995299.390 ±   13205823.478  ns/op
+AbWithHashVsABEngineBenchmark.testAbWithHash           0  avgt   15      5177928.308 ±     329358.449  ns/op
+AbWithHashVsABEngineBenchmark.testAbWithHash           1  avgt   15    237948259.367 ±   83148499.986  ns/op
+AbWithHashVsABEngineBenchmark.testAbWithHash           2  avgt   15      2060377.274 ±     135781.088  ns/op
+AbWithHashVsABEngineBenchmark.testAbWithHash           3  avgt   15     27824617.679 ±    1581199.287  ns/op
+AbWithHashVsABEngineBenchmark.testAbWithHash           4  avgt   15     32217499.186 ±    2094855.745  ns/op
+AbWithHashVsABEngineBenchmark.testAbWithHash           5  avgt   15   2376729575.133 ±  539702661.044  ns/op
+AbWithHashVsABEngineBenchmark.testAbWithHash           6  avgt   15      5338168.580 ±     479524.669  ns/op
+AbWithHashVsABEngineBenchmark.testAlphaBeta            0  avgt   15    141234906.725 ±   20357108.485  ns/op
+AbWithHashVsABEngineBenchmark.testAlphaBeta            1  avgt   15  13043656045.667 ± 1309315914.597  ns/op
+AbWithHashVsABEngineBenchmark.testAlphaBeta            2  avgt   15     24593586.884 ±    1130454.620  ns/op
+AbWithHashVsABEngineBenchmark.testAlphaBeta            3  avgt   15   1158740460.600 ±   62774657.350  ns/op
+AbWithHashVsABEngineBenchmark.testAlphaBeta            4  avgt   15   1936474604.133 ±  183369006.509  ns/op
+AbWithHashVsABEngineBenchmark.testAlphaBeta            5  avgt   15  11643652855.333 ±  543189512.344  ns/op
+AbWithHashVsABEngineBenchmark.testAlphaBeta            6  avgt   15     77179532.222 ±   10422977.001  ns/op
 
 Benchmark result is saved to jmh-result.json
-Param 0: {Mean=+215.30%, Stdev=+605.51%, Min=+196.68%, Max=+253.93%}
-Param 1: {Mean=+581.58%, Stdev=+771.04%, Min=+579.09%, Max=+593.89%}
-Param 2: {Mean=+939.21%, Stdev=+1318.20%, Min=+906.60%, Max=+1019.89%}
-Param 3: {Mean=+222.50%, Stdev=+197.83%, Min=+222.65%, Max=+217.05%}
-Param 4: {Mean=+509.88%, Stdev=+733.86%, Min=+494.40%, Max=+515.94%}
-Param 5: {Mean=+120.26%, Stdev=+96.98%, Min=+121.79%, Max=+109.26%}
-Param 6: {Mean=+698.78%, Stdev=+1107.76%, Min=+630.24%, Max=+767.73%}
+Param 0: {Mean=2727.63%, Stdev=6180.84%, Min=2415.38%, Max=3095.13%}
+Param 1: {Mean=5481.72%, Stdev=1574.67%, Min=6266.24%, Max=3905.29%}
+Param 2: {Mean=1193.64%, Stdev=832.56%, Min=1194.77%, Max=1141.74%}
+Param 3: {Mean=4164.44%, Stdev=3970.07%, Min=4173.17%, Max=3956.60%}
+Param 4: {Mean=6010.63%, Stdev=8753.30%, Min=5648.19%, Max=6609.27%}
+Param 5: {Mean=489.90%, Stdev=100.65%, Min=624.74%, Max=405.32%}
+Param 6: {Mean=1445.81%, Stdev=2173.61%, Min=1427.20%, Max=1728.04%}
 
 Process finished with exit code 0

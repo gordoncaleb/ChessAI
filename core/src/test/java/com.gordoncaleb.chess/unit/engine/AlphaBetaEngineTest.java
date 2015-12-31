@@ -69,8 +69,8 @@ public class AlphaBetaEngineTest {
         List<Move> negaMaxMoveList = negaMaxEngine.search(b1, level).asList();
         List<Move> engineMoveList = alphaBetaEngine.search(b2, level).asList();
 
-        LOGGER.info("NegaMax Move Path: {}", new PGNParser().toAlgebraicNotation(negaMaxMoveList, b1));
-        LOGGER.info("AlphaBetaEngine Move Path: {}", new PGNParser().toAlgebraicNotation(engineMoveList, b2));
+        LOGGER.info("NegaMax Move Path: {}", PGNParser.toAlgebraicNotation(negaMaxMoveList, b1));
+        LOGGER.info("AlphaBetaEngine Move Path: {}", PGNParser.toAlgebraicNotation(engineMoveList, b2));
 
         assertThat(negaMaxMoveList, is(equalTo(engineMoveList)));
     }
@@ -96,7 +96,7 @@ public class AlphaBetaEngineTest {
         final long timeTaken = System.currentTimeMillis() - now;
         List<Move> moveList = movePath.asList();
 
-        LOGGER.info("Alpha Beta Move Path: {}", new PGNParser().toAlgebraicNotation(moveList, b));
+        LOGGER.info("Alpha Beta Move Path: {}", PGNParser.toAlgebraicNotation(moveList, b));
         LOGGER.info("Time Taken: {}", timeTaken);
     }
 }

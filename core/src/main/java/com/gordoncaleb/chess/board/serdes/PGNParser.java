@@ -80,13 +80,13 @@ public class PGNParser {
                                 toUniqueList())));
     }
 
-    public List<PGNGame> loadFile(String fileName) throws IOException, URISyntaxException {
+    public static List<PGNGame> loadFile(String fileName) throws IOException, URISyntaxException {
         try (BufferedReader lines = FileIO.getResourceAsBufferedReader(fileName)) {
             return parseFileLines(lines);
         }
     }
 
-    public List<PGNGame> parseFileLines(BufferedReader lines) throws IOException {
+    public static List<PGNGame> parseFileLines(BufferedReader lines) throws IOException {
 
         List<PGNGame> games = new ArrayList<>();
 
@@ -128,33 +128,33 @@ public class PGNParser {
         return games;
     }
 
-    public boolean isMetaLine(String s) {
+    public static boolean isMetaLine(String s) {
         return s.startsWith(METALINE);
     }
 
-    public boolean isStartComment(String s) {
+    public static boolean isStartComment(String s) {
         return s.startsWith("{");
     }
 
-    public boolean isEndComment(String s) {
+    public static boolean isEndComment(String s) {
         return s.startsWith("}");
     }
 
-    public boolean isGameLine(String s) {
+    public static boolean isGameLine(String s) {
         return !s.isEmpty() && !isMetaLine(s);
     }
 
-    public boolean isStartGameLine(String s) {
+    public static boolean isStartGameLine(String s) {
         return s.startsWith(STARTGAMELINE);
     }
 
-    private boolean isGameStart(String currentLine, String prevLine) {
+    private static boolean isGameStart(String currentLine, String prevLine) {
         return (isMetaLine(currentLine) && isGameLine(prevLine)) ||
                 (isStartGameLine(currentLine) && isGameLine(prevLine)) ||
                 prevLine.isEmpty();
     }
 
-    public Map<String, String> parseMetaData(String line) {
+    public static Map<String, String> parseMetaData(String line) {
         Pattern p = Pattern.compile("\\[(\\w+) \"(.*)\"\\]");
         Matcher m = p.matcher(line);
         if (m.matches()) {
@@ -164,7 +164,7 @@ public class PGNParser {
         }
     }
 
-    public Map<Long, Move> getPGNGameAsMoveBook(PGNGame game) throws Exception {
+    public static Map<Long, Move> getPGNGameAsMoveBook(PGNGame game) throws Exception {
 
         Map<Long, Move> moveBook = new HashMap<>();
         Board board = getPGNGameAsBoard(game);
@@ -394,7 +394,7 @@ public class PGNParser {
         return matchMoves.get(0);
     }
 
-    public String toAlgebraicNotation(List<Move> moves, Board b) {
+    public static String toAlgebraicNotation(List<Move> moves, Board b) {
 
         boolean turnIsBlack = b.getTurn() == Side.BLACK;
 
@@ -459,7 +459,7 @@ public class PGNParser {
         return sb.toString();
     }
 
-    public String toAlgebraicNotation(Move move, Board b) {
+    public static String toAlgebraicNotation(Move move, Board b) {
 
         switch (move.getNote()) {
             case NORMAL:
@@ -481,7 +481,7 @@ public class PGNParser {
         }
     }
 
-    private String normalToAN(Move move, Board b) {
+    private static String normalToAN(Move move, Board b) {
 
         String disambiguation = disambiguate(move, b);
         boolean needsDisambiguation = !disambiguation.isEmpty();
@@ -520,15 +520,15 @@ public class PGNParser {
         }
     }
 
-    public String squareToAN(int r, int c) {
+    public static String squareToAN(int r, int c) {
         return colToFileAN(c) + (8 - r);
     }
 
-    public String colToFileAN(int c) {
+    public static String colToFileAN(int c) {
         return Character.toString((char) ('a' + c));
     }
 
-    private String disambiguate(Move move, Board b) {
+    private static String disambiguate(Move move, Board b) {
         b.makeNullMove();
         AmbiguityLevel al = ambiguityLevel(move, b.generateValidMoves().toList(), b);
 
@@ -549,7 +549,7 @@ public class PGNParser {
         }
     }
 
-    private AmbiguityLevel ambiguityLevel(Move move, List<Move> moves, Board b) {
+    private static AmbiguityLevel ambiguityLevel(Move move, List<Move> moves, Board b) {
         int pieceMovingId = b.getPieceID(move.getFromRow(), move.getFromCol());
 
         List<Move> ambigMoves = moves.stream()

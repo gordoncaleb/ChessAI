@@ -48,7 +48,7 @@ public class NegaMaxEngineTest {
         MovePath movePath = engine.search(b, 2);
         List<Move> moves = movePath.asList();
 
-        LOGGER.info("Move Path: {}", new PGNParser().toAlgebraicNotation(moves, b));
+        LOGGER.info("Move Path: {}", PGNParser.toAlgebraicNotation(moves, b));
 
         assertThat(moves, contains(
                 new Move(5, 4, 4, 5, NORMAL, QUEEN),
@@ -76,7 +76,7 @@ public class NegaMaxEngineTest {
         MovePath movePath = engine.search(b, 3);
         List<Move> moves = movePath.asList();
 
-        LOGGER.info("Move Path: {}", new PGNParser().toAlgebraicNotation(moves, b));
+        LOGGER.info("Move Path: {}", PGNParser.toAlgebraicNotation(moves, b));
 
         assertThat(moves, contains(
                 new Move(6, 5, 7, 3, NORMAL, QUEEN),
@@ -126,7 +126,7 @@ public class NegaMaxEngineTest {
         MovePath movePath = engine.search(b, 4);
         List<Move> moves = movePath.asList();
 
-        LOGGER.info("Move Path: {}", new PGNParser().toAlgebraicNotation(moves, b));
+        LOGGER.info("Move Path: {}", PGNParser.toAlgebraicNotation(moves, b));
 
         assertThat(moves, contains(
                 new Move(6, 5, 7, 3, NORMAL, QUEEN),
@@ -155,7 +155,7 @@ public class NegaMaxEngineTest {
         MovePath movePath = engine.search(b, 4);
         List<Move> moves = movePath.asList();
 
-        LOGGER.info("Move Path: {}", new PGNParser().toAlgebraicNotation(moves, b));
+        LOGGER.info("Move Path: {}", PGNParser.toAlgebraicNotation(moves, b));
 
         assertThat(moves, contains(
                 new Move(4, 5, 6, 5, NORMAL)
@@ -191,7 +191,7 @@ public class NegaMaxEngineTest {
         MovePath movePath = engine.search(b, 1);
         List<Move> moves = movePath.asList();
 
-        LOGGER.info("Move Path: {}", new PGNParser().toAlgebraicNotation(moves, b));
+        LOGGER.info("Move Path: {}", PGNParser.toAlgebraicNotation(moves, b));
 
         assertThat(moves, contains(
                 new Move(4, 5, 6, 5, NORMAL)
@@ -216,7 +216,7 @@ public class NegaMaxEngineTest {
 
         List<Move> movePath = engine.search(b, 1).asList();
 
-        LOGGER.info("Move Path: {}", new PGNParser().toAlgebraicNotation(movePath, b));
+        LOGGER.info("Move Path: {}", PGNParser.toAlgebraicNotation(movePath, b));
 
         assertThat(movePath.get(0), is(equalTo(
                 new Move(6, 5, 7, 3, Move.MoveNote.NORMAL, Piece.PieceID.QUEEN, 7, 3))));
