@@ -159,7 +159,7 @@ public class ABWithHashEngine implements Engine {
 
     private static void prioritizeHashEntry(final BoardHashEntry entry, final MoveContainer moveContainer) {
         if (entry != null) {
-            moveContainer.prioritizeMove(entry.getBestMove());
+            moveContainer.prioritizeMove(entry.getBestMove(), 1);
         }
     }
 

@@ -43,7 +43,7 @@ public class Pawn {
 
         if (side == Side.BLACK) {
             hops = (mask << 8) & emptySpace;
-            attacks = ((mask & NOT_RIGHT1) << 9 | (mask & NOT_LEFT1) << 7);
+            attacks = (mask & NOT_RIGHT1) << 9 | (mask & NOT_LEFT1) << 7;
             validLeapMoves = ((hops & BLACK_PAWN_LEAP_ROW_MASK) << 8) & emptySpace & valid;
 
             enPassantAttack = attacks & WHITE_PAWN_LEAP_ROW_MASK & enpassantColMask;
@@ -60,7 +60,7 @@ public class Pawn {
             }
         } else {
             hops = (mask >>> 8) & emptySpace;
-            attacks = ((mask & NOT_RIGHT1) >>> 7 | (mask & NOT_LEFT1) >>> 9);
+            attacks = (mask & NOT_RIGHT1) >>> 7 | (mask & NOT_LEFT1) >>> 9;
             validLeapMoves = ((hops & WHITE_PAWN_LEAP_ROW_MASK) >>> 8) & emptySpace & valid;
 
             enPassantAttack = attacks & BLACK_PAWN_LEAP_ROW_MASK & enpassantColMask;

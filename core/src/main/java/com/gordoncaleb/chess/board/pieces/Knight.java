@@ -1,6 +1,5 @@
 package com.gordoncaleb.chess.board.pieces;
 
-import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Board;
 

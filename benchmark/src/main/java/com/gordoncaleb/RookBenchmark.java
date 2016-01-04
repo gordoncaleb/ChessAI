@@ -1,20 +1,15 @@
 package com.gordoncaleb;
 
-import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.board.Side;
+import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Piece;
 import com.gordoncaleb.chess.board.pieces.Rook;
-import com.gordoncaleb.util.MockList;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
@@ -34,7 +29,7 @@ public class RookBenchmark {
 
     @Setup
     public void init() {
-        validMoves = new MoveContainer();
+        validMoves = new SimpleMoveContainer();
 
         String[] setup1 = {
                 "R,_,_,_,_,_,Q,_,",

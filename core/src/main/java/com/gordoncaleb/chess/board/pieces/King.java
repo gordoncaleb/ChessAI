@@ -2,7 +2,6 @@ package com.gordoncaleb.chess.board.pieces;
 
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.Move;
 
 import static com.gordoncaleb.chess.board.bitboard.BitBoard.*;
 import static com.gordoncaleb.chess.board.bitboard.Slide.*;

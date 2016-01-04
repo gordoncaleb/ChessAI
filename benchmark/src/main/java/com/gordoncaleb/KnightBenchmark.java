@@ -1,9 +1,6 @@
 package com.gordoncaleb;
 
-import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.board.Side;
+import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Knight;
 import com.gordoncaleb.chess.board.pieces.Piece;
@@ -15,8 +12,6 @@ import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
@@ -49,7 +44,7 @@ public class KnightBenchmark {
         knight = board.getPiece(6, 3);
         nullMoveInfo = board.makeNullMove();
         posBitBoard = board.getAllPosBitBoard();
-        validMoves = new MoveContainer();
+        validMoves = new SimpleMoveContainer();
     }
 
     @Benchmark

@@ -1,9 +1,6 @@
 package com.gordoncaleb.chess.unit.piece;
 
-import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.board.Side;
+import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.board.pieces.Pawn;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import org.junit.Test;
@@ -248,7 +245,7 @@ public class PawnTest {
 
     private void testMovesExactly(Board b, int pRow, int pCol, Move[] expectedMoves) {
         long[] nullMoveInfo = b.makeNullMove();
-        List<Move> moves = Pawn.generateValidMoves(b.getPiece(pRow, pCol), b, nullMoveInfo, b.getAllPosBitBoard(), new MoveContainer(20)).toList();
+        List<Move> moves = Pawn.generateValidMoves(b.getPiece(pRow, pCol), b, nullMoveInfo, b.getAllPosBitBoard(), new SimpleMoveContainer(20)).toList();
         assertThat(moves, containsInAnyOrder(expectedMoves));
     }
 

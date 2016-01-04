@@ -5,7 +5,6 @@ import com.gordoncaleb.chess.board.bitboard.BitBoard;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.pieces.Piece;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +72,7 @@ public class BoardTest {
 
         long origHash = b.getHashCode();
 
-        MoveContainer moveStack = new MoveContainer(b.getMoveHistory().size());
+        MoveContainer moveStack = new SimpleMoveContainer(b.getMoveHistory().size());
         while (b.canUndo()) {
             assertEquals(b.getHashCode(), b.generateHashCode());
             moveStack.add(b.undoMove());

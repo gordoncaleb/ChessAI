@@ -1,9 +1,6 @@
 package com.gordoncaleb;
 
-import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.Move;
-import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.board.MoveContainerFactory;
+import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.util.Perft;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
@@ -11,8 +8,6 @@ import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Thread)
@@ -26,7 +21,7 @@ public class PerftBenchmark {
 
     private final Board[] perftBoards = new Board[7];
     private final Perft perft = new Perft();
-    private final MoveContainer[][] moveContainers = new MoveContainer[7][];
+    private final SimpleMoveContainer[][] moveContainers = new SimpleMoveContainer[7][];
 
     @Setup
     public void init() {

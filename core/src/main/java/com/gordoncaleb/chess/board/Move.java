@@ -19,10 +19,14 @@ public class Move {
         public static final int CASTLE = 0x3;
         public static final int EN_PASSANT = 0x4;
         public static final int PAWN_LEAP = 0x8;
-        public static final int NEW_QUEEN = (QUEEN << 8) | 0x10;
-        public static final int NEW_KNIGHT = (KNIGHT << 8) | 0x10;
-        public static final int NEW_BISHOP = (BISHOP << 8) | 0x10;
-        public static final int NEW_ROOK = (ROOK << 8) | 0x10;
+        public static final int PROMOTION = 0x10;
+        public static final int NEW_KNIGHT = (KNIGHT << 8) | PROMOTION;
+        public static final int NEW_BISHOP = (BISHOP << 8) | PROMOTION;
+        public static final int NEW_ROOK = (ROOK << 8) | PROMOTION;
+        public static final int NEW_QUEEN = (QUEEN << 8) | PROMOTION;
+
+        private MoveNote() {
+        }
     }
 
     private int note;
@@ -30,7 +34,7 @@ public class Move {
     private int pieceTakenId, pieceTakenRow, pieceTakenCol;
 
     public Move() {
-
+        //intentionally left blank
     }
 
     public Move(int fromRow, int fromCol, int toRow, int toCol) {
@@ -96,7 +100,7 @@ public class Move {
     }
 
     public boolean hasPromotion() {
-        return (note & MoveNote.NEW_QUEEN) != 0;
+        return (note & MoveNote.PROMOTION) != 0;
     }
 
     public int promotionChoice() {
@@ -171,13 +175,6 @@ public class Move {
         return (this.pieceTakenId != Piece.PieceID.NO_PIECE);
     }
 
-    public int getValue() {
-        return 0;
-    }
-
-    public void setValue(int value) {
-    }
-
     public Move copy() {
         return new Move(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);
     }
@@ -187,11 +184,11 @@ public class Move {
     }
 
     public int fromToAsInt() {
-        return (int) (fromToMask & toLong());
+        return (int) (FromToMask & toLong());
     }
 
     public static int fromToAsInt(long move) {
-        return (int) (fromToMask & move);
+        return (int) (FromToMask & move);
     }
 
     @Override
@@ -243,7 +240,8 @@ public class Move {
                 m.getToCol() == getToCol();
     }
 
-    private static final int fromToMask = 0xFFF;
+    private static final int FromToMask = 0xFFF;
+    public static final int TOP_BIT = 33;
 
     public long toLong() {
         return toLong(fromRow, fromCol, toRow, toCol, note, pieceTakenId, pieceTakenRow, pieceTakenCol);

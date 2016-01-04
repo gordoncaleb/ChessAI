@@ -19,7 +19,7 @@ public class Bishop {
 
         final long friends = posBitBoard[p.getSide()];
         final long foes = posBitBoard[Side.otherSide(p.getSide())];
-        final long friendOrFoe = (friends | foes);
+        final long friendOrFoe = friends | foes;
         final long footPrint = slideBishop(p.asBitMask(), friendOrFoe) & ~friends;
         final long validFootPrint = footPrint & nullMoveInfo[CHECK_VECTORS] & p.blockingVector();
 

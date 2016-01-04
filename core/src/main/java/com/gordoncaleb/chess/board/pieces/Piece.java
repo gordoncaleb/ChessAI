@@ -26,6 +26,9 @@ public class Piece {
         public static final int QUEEN = 4;
         public static final int KING = 5;
         public static final int PIECES_COUNT = 6;
+
+        private PieceID() {
+        }
     }
 
     public Piece() {

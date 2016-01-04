@@ -128,7 +128,7 @@ public class AIProcessor extends Thread {
         DecisionNode[] children = new DecisionNode[moves.size()];
 
         for (int m = 0; m < moves.size(); m++) {
-            children[m] = (new DecisionNode(moves.get(m), moves.get(m).getValue()));
+            children[m] = (new DecisionNode(moves.get(m), 0));
         }
 
         branch.setChildren(children);

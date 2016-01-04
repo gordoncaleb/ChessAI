@@ -1,9 +1,6 @@
 package com.gordoncaleb;
 
-import com.gordoncaleb.chess.board.Board;
-import com.gordoncaleb.chess.board.MoveContainer;
-import com.gordoncaleb.chess.board.MoveContainerFactory;
-import com.gordoncaleb.chess.board.Side;
+import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.util.Perft;
 import org.openjdk.jmh.annotations.*;
@@ -26,7 +23,7 @@ public class MoveGenerationBenchmark {
 
     private final Board[] perftBoards = new Board[8];
     private final Perft perft = new Perft();
-    private final MoveContainer[][] moveContainers = new MoveContainer[8][];
+    private final SimpleMoveContainer[][] moveContainers = new SimpleMoveContainer[8][];
 
     @Setup
     public void init() {

@@ -41,7 +41,7 @@ public class Board {
     private Deque<Long> castleRightsHistory = new ArrayDeque<>();
 
     private final Piece[][] piecesArray;
-    private MoveContainer validMoves = new MoveContainer();
+    private MoveContainer validMoves = new SimpleMoveContainer();
     private LinkedList<Piece>[] piecesList = new LinkedList[2];
     private Deque<Piece>[] piecesTaken = new ArrayDeque[2];
 
@@ -53,7 +53,7 @@ public class Board {
     private int turn;
     private long hashCode;
     private int hashCodeFreq;
-    private final MoveContainer moveHistory = new MoveContainer(1000);
+    private final MoveContainer moveHistory = new SimpleMoveContainer(1000);
     private final Deque<Long> hashCodeHistory = new ArrayDeque<>();
     private final Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
@@ -514,7 +514,7 @@ public class Board {
         return moveHistory.toList();
     }
 
-    public int getMoveNumber(){
+    public int getMoveNumber() {
         return moveHistory.size();
     }
 
@@ -620,10 +620,8 @@ public class Board {
     public boolean placePiece(Piece piece, int toRow, int toCol) {
 
         if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
-            if (piecesArray[toRow][toCol] != null) {
-                if (piecesArray[toRow][toCol].getPieceID() == KING) {
-                    return false;
-                }
+            if (piecesArray[toRow][toCol] != null && piecesArray[toRow][toCol].getPieceID() == KING) {
+                return false;
             }
         }
 
@@ -728,6 +726,7 @@ public class Board {
         return boardCopy;
     }
 
+    @Override
     public String toString() {
         String stringBoard = "";
 
@@ -826,11 +825,11 @@ public class Board {
     }
 
     public boolean isInCheck() {
-        return ((posBitBoard[KING][turn] & nullMoveInfo[FOE_ATTACKS]) != 0);
+        return (posBitBoard[KING][turn] & nullMoveInfo[FOE_ATTACKS]) != 0;
     }
 
     public boolean isDraw() {
-        return (drawByThreeRule() || insufficientMaterial());
+        return drawByThreeRule() || insufficientMaterial();
     }
 
     public boolean isGameOver() {
@@ -838,7 +837,7 @@ public class Board {
     }
 
     public boolean isCheckMate() {
-        return (isInCheck() && generateValidMoves().isEmpty());
+        return isInCheck() && generateValidMoves().isEmpty();
     }
 
     public Board startingPosition() {
