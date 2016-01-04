@@ -51,5 +51,7 @@ public class SortableMoveContainerTest {
 
         //1, 0, 7, 6, 5, 4, 3, 2
         assertThat(mc.toList(), is(equalTo(Arrays.asList(moveB, moveA, moveH, moveG, moveF, moveE, moveD, moveC))));
+
+        assertThat(mc.get(0), is(equalTo(moveB)));
     }
 }

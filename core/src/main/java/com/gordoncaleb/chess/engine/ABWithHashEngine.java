@@ -82,6 +82,8 @@ public class ABWithHashEngine implements Engine {
             return scorer.endOfGameValue(board.isInCheck(), levelsToTop);
         }
 
+        moves.sort();
+
         int maxScore = alpha;
         for (int m = 0; m < moves.size(); m++) {
 

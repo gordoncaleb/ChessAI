@@ -63,7 +63,7 @@ public class ABWithHashEngineTest {
     public void testEngineABWithHashMove(StaticScorer scorer, int level, Board b) {
 
         ABWithHashEngine abWithHashEngine = new ABWithHashEngine(scorer,
-                MoveContainerFactory.buildMoveContainers(level + 1));
+                MoveContainerFactory.buildSortableMoveContainers(level + 1));
 
         ABWithHashMoveEngine aBWithHashMoveEngine = new ABWithHashMoveEngine(scorer,
                 MoveContainerFactory.buildMoveContainers(level + 1));

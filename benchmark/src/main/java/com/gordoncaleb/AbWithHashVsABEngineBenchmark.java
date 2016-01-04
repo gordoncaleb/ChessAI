@@ -17,10 +17,7 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.util.Statistics;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -48,7 +45,7 @@ public class AbWithHashVsABEngineBenchmark {
         perftBoards[5] = perft.position6();
         perftBoards[6] = perft.promotionPosition();
 
-        abWithHashEngine = new ABWithHashEngine(new StaticScorer(), MoveContainerFactory.buildMoveContainers(10));
+        abWithHashEngine = new ABWithHashEngine(new StaticScorer(), MoveContainerFactory.buildSortableMoveContainers(10));
         alphaBetaEngine = new AlphaBetaEngine(new StaticScorer(), MoveContainerFactory.buildMoveContainers(10));
     }
 
@@ -82,17 +79,22 @@ public class AbWithHashVsABEngineBenchmark {
                                 Collectors.mapping(r -> r.getPrimaryResult().getStatistics()
                                         , Collectors.toList()))));
 
+        List<Map<String, Double>> allDeltas = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
-            System.out.println("Param " + i + ": " + statDelta(
+            Map<String, Double> deltas = statDelta(
                     resultMap.get(i + "").get("testAlphaBeta").get(0),
                     resultMap.get(i + "").get("testAbWithHash").get(0)
-            ));
+            );
+            allDeltas.add(deltas);
+            System.out.println("Param " + i + ": " + deltas);
         }
 
+        double allAggregateMean = allDeltas.stream().mapToDouble(d -> d.get("Mean")).average().getAsDouble();
+        System.out.println("Aggregate Mean: " + allAggregateMean);
     }
 
-    private static Map<String, String> statDelta(Statistics a, Statistics b) {
-        Map<String, String> deltaMap = new HashMap<>();
+    private static Map<String, Double> statDelta(Statistics a, Statistics b) {
+        Map<String, Double> deltaMap = new HashMap<>();
         deltaMap.put("Mean", percentDelta(a.getMean(), b.getMean()));
         deltaMap.put("Stdev", percentDelta(a.getStandardDeviation(), b.getStandardDeviation()));
         deltaMap.put("Max", percentDelta(a.getMax(), b.getMax()));
@@ -100,8 +102,7 @@ public class AbWithHashVsABEngineBenchmark {
         return deltaMap;
     }
 
-    private static String percentDelta(double a, double b) {
-        final double delta = (a / b) * 100;
-        return String.format("%4.2f%%", delta);
+    private static double percentDelta(double a, double b) {
+        return (a / b) * 100;
     }
 }

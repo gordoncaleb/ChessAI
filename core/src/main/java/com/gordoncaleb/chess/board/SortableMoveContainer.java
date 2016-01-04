@@ -8,10 +8,9 @@ public class SortableMoveContainer implements MoveContainer {
 
     private static final int EMPTY = -1;
     private static final int UNPRIORITIZED = -1;
-
     private static final int AUTO_PRIORITY_BITS = 5;
 
-    int head = EMPTY;
+    private int head = EMPTY;
     private final long[] moves;
     private final Move transientMove = new Move();
     private final long[] markedMoves;
@@ -42,21 +41,12 @@ public class SortableMoveContainer implements MoveContainer {
                     int pieceTakenRow,
                     int pieceTakenCol) {
 
-        final long move = Move.toLong(fromRow, fromCol,
+        add(Move.toLong(fromRow, fromCol,
                 toRow, toCol,
                 note,
                 pieceTakenId,
-                pieceTakenRow, pieceTakenCol);
-
-        final int priority = movePrioritization[Move.fromToAsInt(move)];
-
-        head++;
-        if (priority > UNPRIORITIZED) {
-            moves[head] = combinePriority(move, priority);
-        } else {
-            moves[head] = combinePriority(move, calcPriority(note, pieceTakenId));
-        }
-
+                pieceTakenRow, pieceTakenCol),
+                note, pieceTakenId);
     }
 
     @Override
@@ -66,22 +56,25 @@ public class SortableMoveContainer implements MoveContainer {
                     int toCol,
                     int note) {
 
-        final long move = Move.toLong(fromRow, fromCol,
+        add(Move.toLong(fromRow, fromCol,
                 toRow, toCol,
-                note);
+                note),
+                note, Piece.PieceID.NO_PIECE);
+    }
 
+    private void add(final long move, final int note, final int pieceTakenId) {
         final int priority = movePrioritization[Move.fromToAsInt(move)];
 
         head++;
         if (priority > UNPRIORITIZED) {
             moves[head] = combinePriority(move, priority);
         } else {
-            moves[head] = combinePriority(move, noteRating(note));
+            moves[head] = combinePriority(move, calcPriority(note, pieceTakenId));
         }
     }
 
     private static long combinePriority(final long move, final long priority) {
-        return move | (priority << (Move.TOP_BIT + 2));
+        return move | (priority << (Move.TOP_BIT));
     }
 
     //        NEW_QUEEN 0x410
@@ -96,19 +89,20 @@ public class SortableMoveContainer implements MoveContainer {
 
     private static int noteRating(final int note) {
         if ((note & Move.MoveNote.PROMOTION) != 0) {
-            return 4;
+            return Piece.PieceID.QUEEN;
         } else if ((note & Move.MoveNote.CASTLE) != 0) {
-            return 1;
+            return Piece.PieceID.PAWN;
         } else {
             return 0;
         }
     }
 
     private static int calcPriority(final int note, final int captureId) {
-
-        final int captureRating = captureId != Piece.PieceID.NO_PIECE ? captureId + 1 : 0;
-
-        return captureRating != 0 ? captureRating : noteRating(note);
+        if (captureId != Piece.PieceID.NO_PIECE) {
+            return captureId + 1;
+        } else {
+            return noteRating(note);
+        }
     }
 
     @Override
@@ -125,7 +119,7 @@ public class SortableMoveContainer implements MoveContainer {
 
     @Override
     public Move get(int i) {
-        return Move.fromLong(moves[head - i], transientMove);
+        return Move.fromLong(moves[i], transientMove);
     }
 
     @Override
@@ -176,7 +170,7 @@ public class SortableMoveContainer implements MoveContainer {
 
     @Override
     public void markMove(final int i) {
-        markedMoves[0] = moves[head - i];
+        markedMoves[0] = moves[i];
     }
 
     @Override

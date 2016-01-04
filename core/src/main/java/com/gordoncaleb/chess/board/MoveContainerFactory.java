@@ -9,4 +9,12 @@ public class MoveContainerFactory {
         }
         return containers;
     }
+
+    public static SortableMoveContainer[] buildSortableMoveContainers(int size) {
+        SortableMoveContainer[] containers = new SortableMoveContainer[size];
+        for (int i = 0; i < size; i++) {
+            containers[i] = new SortableMoveContainer();
+        }
+        return containers;
+    }
 }

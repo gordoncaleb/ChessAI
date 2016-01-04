@@ -184,11 +184,11 @@ public class Move {
     }
 
     public int fromToAsInt() {
-        return (int) (FromToMask & toLong());
+        return (int) (FROM_TO_MASK & toLong());
     }
 
     public static int fromToAsInt(long move) {
-        return (int) (FromToMask & move);
+        return (int) (FROM_TO_MASK & move);
     }
 
     @Override
@@ -240,7 +240,7 @@ public class Move {
                 m.getToCol() == getToCol();
     }
 
-    private static final int FromToMask = 0xFFF;
+    private static final int FROM_TO_MASK = 0xFFF;
     public static final int TOP_BIT = 33;
 
     public long toLong() {
