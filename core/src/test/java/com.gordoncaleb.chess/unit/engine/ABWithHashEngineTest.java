@@ -109,10 +109,10 @@ public class ABWithHashEngineTest {
         });
 
         ABWithHashEngine aBWithHashEngine = new ABWithHashEngine(new StaticScorer(),
-                MoveContainerFactory.buildMoveContainers(10));
+                MoveContainerFactory.buildSortableMoveContainers(20));
 
         final long now = System.currentTimeMillis();
-        MovePath movePath = aBWithHashEngine.search(b, 6);
+        MovePath movePath = aBWithHashEngine.search(b, 9);
         final long timeTaken = System.currentTimeMillis() - now;
         List<Move> moveList = movePath.asList();
 

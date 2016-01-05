@@ -70,7 +70,8 @@ public class SortableMoveContainer implements MoveContainer {
         if (priority > UNPRIORITIZED) {
             moves[head] = combinePriority(move, priority);
         } else {
-            moves[head] = combinePriority(move, calcPriority(note, pieceTakenId));
+            final int autoPriority = calcAutoPriority(note, pieceTakenId) << AUTO_PRIORITY_BITS;
+            moves[head] = combinePriority(move, autoPriority);
         }
     }
 
@@ -94,13 +95,13 @@ public class SortableMoveContainer implements MoveContainer {
         } else if ((note & Move.MoveNote.CASTLE) != 0) {
             return Piece.PieceID.PAWN;
         } else {
-            return 0;
+            return Piece.PieceID.PAWN + 1;
         }
     }
 
-    private static int calcPriority(final int note, final int captureId) {
+    private static int calcAutoPriority(final int note, final int captureId) {
         if (captureId != Piece.PieceID.NO_PIECE) {
-            return captureId + 1;
+            return captureId;
         } else {
             return noteRating(note);
         }
@@ -140,7 +141,7 @@ public class SortableMoveContainer implements MoveContainer {
 
     @Override
     public void prioritizeMove(final long move, final int priority) {
-        movePrioritization[Move.fromToAsInt(move)] = priority << AUTO_PRIORITY_BITS;
+        movePrioritization[Move.fromToAsInt(move)] = priority;
     }
 
     @Override
@@ -152,11 +153,11 @@ public class SortableMoveContainer implements MoveContainer {
     public void sort() {
         final int size = size();
         Arrays.sort(moves, 0, size);
-        for (int i = 0; i < size / 2; i++) {
-            final long temp = moves[i];
-            moves[i] = moves[head - i];
-            moves[head - i] = temp;
-        }
+//        for (int i = 0; i < size / 2; i++) {
+//            final long temp = moves[i];
+//            moves[i] = moves[head - i];
+//            moves[head - i] = temp;
+//        }
     }
 
     @Override

@@ -67,7 +67,7 @@ public class AbWithHashVsABEngineBenchmark {
         Options opt = new OptionsBuilder()
                 .include(AbWithHashVsABEngineBenchmark.class.getSimpleName())
                 .forks(3)
-                .resultFormat(ResultFormatType.JSON)
+//                .resultFormat(ResultFormatType.JSON)
 //                .result(AbWithHashVsABEngineBenchmark.class.getSimpleName() + ".jmh.json")
                 .build();
 

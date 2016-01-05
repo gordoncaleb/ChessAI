@@ -31,8 +31,8 @@ public class SortableMoveContainerTest {
         Move moveG = new Move(6, 0, 0, 1, Move.MoveNote.NORMAL, Piece.PieceID.ROOK);
         Move moveH = new Move(7, 0, 0, 1, Move.MoveNote.NORMAL, Piece.PieceID.QUEEN);
 
-        mc.prioritizeMove(moveA.toLong(), 1);
-        mc.prioritizeMove(moveB.toLong(), 2);
+        mc.prioritizeMove(moveA.toLong(), 2);
+        mc.prioritizeMove(moveB.toLong(), 1);
 
         mc.add(moveA);
         mc.add(moveB);
