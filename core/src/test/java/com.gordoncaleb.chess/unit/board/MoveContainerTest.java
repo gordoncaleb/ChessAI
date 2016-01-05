@@ -18,7 +18,7 @@ public class MoveContainerTest {
         moveContainer.add(0, 0, 7, 7, Move.MoveNote.NEW_ROOK, Piece.PieceID.NO_PIECE, 7, 7);
 
         assertThat(moveContainer.size(), is(equalTo(1)));
-        assertThat(moveContainer.pop(), is(equalTo(
+        assertThat(moveContainer.get(0), is(equalTo(
                 new Move(0, 0, 7, 7, Move.MoveNote.NEW_ROOK, Piece.PieceID.NO_PIECE, 7, 7)
         )));
     }
@@ -30,7 +30,7 @@ public class MoveContainerTest {
         moveContainer.add(1, 2, 3, 4, Move.MoveNote.NORMAL);
 
         assertThat(moveContainer.size(), is(equalTo(1)));
-        assertThat(moveContainer.pop(), is(equalTo(
+        assertThat(moveContainer.get(0), is(equalTo(
                 new Move(1, 2, 3, 4, Move.MoveNote.NORMAL)
         )));
     }
@@ -45,22 +45,8 @@ public class MoveContainerTest {
         moveContainer.add(moveB);
 
         assertThat(moveContainer.size(), is(equalTo(2)));
-        assertThat(moveContainer.pop(), is(equalTo(moveB)));
-        assertThat(moveContainer.pop(), is(equalTo(moveA)));
-    }
-
-    @Test
-    public void testMoveAddition4() {
-        MoveContainer moveContainer = new SimpleMoveContainer();
-
-        Move moveA = new Move(1, 2, 3, 4, Move.MoveNote.NORMAL);
-        Move moveB = new Move(0, 0, 7, 7, Move.MoveNote.NEW_ROOK, Piece.PieceID.NO_PIECE, 7, 7);
-        moveContainer.add(moveA);
-        moveContainer.add(moveB);
-
-        assertThat(moveContainer.size(), is(equalTo(2)));
-        assertThat(moveContainer.get(0), is(equalTo(moveA)));
         assertThat(moveContainer.get(1), is(equalTo(moveB)));
+        assertThat(moveContainer.get(0), is(equalTo(moveA)));
     }
 
     @Test

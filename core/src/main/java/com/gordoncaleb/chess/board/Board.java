@@ -53,7 +53,7 @@ public class Board {
     private int turn;
     private long hashCode;
     private int hashCodeFreq;
-    private final MoveContainer moveHistory = new SimpleMoveContainer(1000);
+    private final MoveStack moveHistory = new MoveStack(1000);
     private final Deque<Long> hashCodeHistory = new ArrayDeque<>();
     private final Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 

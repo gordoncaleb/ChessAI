@@ -3,6 +3,7 @@ package com.gordoncaleb.chess.board;
 import com.gordoncaleb.chess.board.pieces.Piece;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SortableMoveContainer implements MoveContainer {
 
@@ -123,16 +124,6 @@ public class SortableMoveContainer implements MoveContainer {
     }
 
     @Override
-    public Move pop() {
-        return Move.fromLong(moves[head--], transientMove);
-    }
-
-    @Override
-    public Move peek() {
-        return Move.fromLong(moves[head], transientMove);
-    }
-
-    @Override
     public boolean isEmpty() {
         return head == EMPTY;
     }
@@ -190,10 +181,9 @@ public class SortableMoveContainer implements MoveContainer {
 
     @Override
     public List<Move> toList() {
-        List<Move> l = new ArrayList<>();
-        for (int i = 0; i < size(); i++) {
-            l.add(Move.fromLong(moves[i]));
-        }
-        return l;
+        return Arrays.stream(moves)
+                .limit(size())
+                .mapToObj(Move::fromLong)
+                .collect(Collectors.toList());
     }
 }

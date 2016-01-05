@@ -22,10 +22,6 @@ public interface MoveContainer {
 
     Move get(int i);
 
-    Move pop();
-
-    Move peek();
-
     boolean isEmpty();
 
     int size();

@@ -72,7 +72,7 @@ public class BoardTest {
 
         long origHash = b.getHashCode();
 
-        MoveContainer moveStack = new SimpleMoveContainer(b.getMoveHistory().size());
+        MoveStack moveStack = new MoveStack(b.getMoveHistory().size());
         while (b.canUndo()) {
             assertEquals(b.getHashCode(), b.generateHashCode());
             moveStack.add(b.undoMove());
