@@ -3,7 +3,6 @@ package com.gordoncaleb.chess.engine;
 import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.engine.score.BoardScorer;
-import com.gordoncaleb.chess.engine.score.Values;
 
 public class NegaMaxEngine implements Engine {
 
@@ -18,33 +17,29 @@ public class NegaMaxEngine implements Engine {
     }
 
     @Override
-    public MovePath search(final Board board, final int maxLevel) {
-        final int score = searchTree(board, 0, maxLevel);
+    public MovePath search(Board board, int depth) {
+        final int score = searchTree(board, 0, depth);
         movePath.setScore(score);
+        movePath.setDepth(depth);
 
-        final int checkMateFound = Values.CHECKMATE_MOVE - Math.abs(score);
-        if (checkMateFound < maxLevel) {
-            movePath.setDepth(checkMateFound);
-        } else {
-            movePath.setDepth(maxLevel);
-        }
+        EngineUtil.verifyPV(movePath, board);
 
         return movePath;
     }
 
     @Override
-    public MovePath search(final Board board, final int maxLevel, final int startAlpha, final int startBeta) {
-        return search(board, maxLevel);
+    public MovePath search(Board board, int depth, int startAlpha, int startBeta) {
+        throw new UnsupportedOperationException();
     }
 
-    private static int endOfGameValue(final Board board, final int level) {
-        if (board.isInCheck()) {
-            //checkmate
-            return level - Values.CHECKMATE_MOVE;
-        } else {
-            //stalemate
-            return Values.DRAW;
-        }
+    @Override
+    public MovePath iterativeSearch(final Board board, final int maxLevel) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MovePath iterativeSearch(final Board board, final int maxLevel, final int startAlpha, final int startBeta) {
+        throw new UnsupportedOperationException();
     }
 
     private int searchTree(final Board board, final int level, final int maxLevel) {
@@ -61,7 +56,7 @@ public class NegaMaxEngine implements Engine {
         final MoveContainer moves = board.generateValidMoves(moveContainers[level]);
 
         if (moves.isEmpty()) {
-            return endOfGameValue(board, level);
+            return scorer.endOfGameValue(board.isInCheck(), level);
         }
 
         int maxScore = Integer.MIN_VALUE;

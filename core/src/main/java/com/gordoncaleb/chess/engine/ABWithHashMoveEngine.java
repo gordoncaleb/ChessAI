@@ -2,6 +2,7 @@ package com.gordoncaleb.chess.engine;
 
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.BoardCondition;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
 import com.gordoncaleb.chess.engine.score.BoardScorer;
@@ -29,29 +30,39 @@ public class ABWithHashMoveEngine implements Engine {
     }
 
     @Override
-    public MovePath search(final Board board, final int maxLevel) {
-        return search(board, maxLevel, START_ALPHA, START_BETA);
+    public MovePath search(final Board board, final int depth, final int startAlpha, final int startBeta) {
+        this.iterativeDepth = depth;
+        this.board = board;
+
+        final int score = searchTree(0, startAlpha, startBeta);
+        movePath.setScore(score);
+        movePath.setDepth(iterativeDepth);
+
+        EngineUtil.verifyPV(movePath, board, hashTable);
+
+        return movePath;
     }
 
     @Override
-    public MovePath search(final Board board, final int maxLevel, final int startAlpha, final int startBeta) {
+    public MovePath search(final Board board, final int depth) {
+        return search(board, depth, START_ALPHA, START_BETA);
+    }
+
+    @Override
+    public MovePath iterativeSearch(final Board board, final int maxLevel) {
+        return iterativeSearch(board, maxLevel, START_ALPHA, START_BETA);
+    }
+
+    @Override
+    public MovePath iterativeSearch(final Board board, final int maxLevel, final int startAlpha, final int startBeta) {
         this.board = board;
 
-        for (iterativeDepth = 1; iterativeDepth <= maxLevel; iterativeDepth++) {
-
-            final int score = searchTree(0, startAlpha, startBeta);
-            movePath.setScore(score);
-
-            final int checkMateIn = checkMateIn(score);
-            if (checkMateIn < iterativeDepth) {
-                movePath.setDepth(checkMateIn);
-                return movePath;
+        for (int i = 1; i <= maxLevel; i++) {
+            search(board, i);
+            if (movePath.getEndBoardCondition() == BoardCondition.CHECKMATE) {
+                break;
             }
-
-            movePath.setDepth(iterativeDepth);
-            commitPVToHashTable(movePath);
         }
-
         return movePath;
     }
 
@@ -112,19 +123,6 @@ public class ABWithHashMoveEngine implements Engine {
         return alpha;
     }
 
-    private void commitPVToHashTable(final MovePath movePath) {
-        for (int i = 0; i < movePath.getDepth(); i++) {
-            board.makeMove(movePath.get(i));
-            hashTable.set(board.getHashCode(),
-                    0,
-                    0,
-                    movePath.getRaw(i),
-                    board.getMoveNumber(),
-                    BoardHashEntry.ValueBounds.PV);
-        }
-        board.undo(movePath.getDepth());
-    }
-
     private static void prioritizeHashEntry(final BoardHashEntry entry, final MoveContainer moveContainer) {
         if (entry != null) {
             moveContainer.prioritizeMove(entry.getBestMove(), 1);
@@ -135,10 +133,6 @@ public class ABWithHashMoveEngine implements Engine {
         if (entry != null) {
             moveContainer.unprioritizeMove(entry.getBestMove());
         }
-    }
-
-    private static int checkMateIn(final int score) {
-        return Values.CHECKMATE_MOVE - Math.abs(score);
     }
 
 }

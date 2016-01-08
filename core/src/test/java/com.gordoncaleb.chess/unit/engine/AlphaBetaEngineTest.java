@@ -6,7 +6,6 @@ import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
-import com.gordoncaleb.chess.engine.ABWithHashEngine;
 import com.gordoncaleb.chess.engine.AlphaBetaEngine;
 import com.gordoncaleb.chess.engine.MovePath;
 import com.gordoncaleb.chess.engine.NegaMaxEngine;

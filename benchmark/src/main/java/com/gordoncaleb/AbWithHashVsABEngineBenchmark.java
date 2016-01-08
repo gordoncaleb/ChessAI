@@ -5,12 +5,10 @@ import com.gordoncaleb.chess.board.Board;
 import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.engine.ABWithHashEngine;
 import com.gordoncaleb.chess.engine.AlphaBetaEngine;
-import com.gordoncaleb.chess.engine.NegaMaxEngine;
 import com.gordoncaleb.chess.engine.score.StaticScorer;
 import com.gordoncaleb.chess.util.Perft;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.results.RunResult;
-import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -53,7 +51,7 @@ public class AbWithHashVsABEngineBenchmark {
     @Warmup(iterations = 1)
     @Measurement(iterations = 5)
     public void testAbWithHash() {
-        abWithHashEngine.search(perftBoards[perftNum], 5);
+        abWithHashEngine.iterativeSearch(perftBoards[perftNum], 5);
     }
 
     @Benchmark

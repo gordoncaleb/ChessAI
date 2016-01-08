@@ -1,6 +1,7 @@
 package com.gordoncaleb.chess.engine;
 
 
+import com.gordoncaleb.chess.board.BoardCondition;
 import com.gordoncaleb.chess.board.Move;
 import com.gordoncaleb.chess.board.MoveContainer;
 
@@ -12,10 +13,12 @@ public class MovePath {
     private MoveContainer[] moveContainers;
     private int depth;
     private int score;
+    private int endBoardCondition;
 
     public MovePath(MoveContainer[] moveContainers) {
         this.moveContainers = moveContainers;
-        depth = 0;
+        this.depth = 0;
+        this.endBoardCondition = BoardCondition.IN_PLAY;
     }
 
     public int getDepth() {
@@ -32,6 +35,14 @@ public class MovePath {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public int getEndBoardCondition() {
+        return endBoardCondition;
+    }
+
+    public void setEndBoardCondition(int endBoardCondition) {
+        this.endBoardCondition = endBoardCondition;
     }
 
     public Move get(int i) {

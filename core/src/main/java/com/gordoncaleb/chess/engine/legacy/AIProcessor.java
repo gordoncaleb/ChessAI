@@ -106,7 +106,7 @@ public class AIProcessor extends Thread {
             final int startAlpha = -Values.CHECKMATE_MOVE + 1;
             final int startBeta = -ai.getAlpha();
 
-            MovePath movePath = engine.search(board, searchDepth, startAlpha, startBeta);
+            MovePath movePath = engine.iterativeSearch(board, searchDepth, startAlpha, startBeta);
             task.setHeadChild(movePath.get(0));
             task.setChosenPathValue(movePath.getScore());
 

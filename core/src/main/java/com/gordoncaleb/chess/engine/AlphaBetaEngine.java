@@ -25,24 +25,32 @@ public class AlphaBetaEngine implements Engine {
     }
 
     @Override
-    public MovePath search(final Board board, final int maxLevel) {
-        return search(board, maxLevel, START_ALPHA, START_BETA);
+    public MovePath search(Board board, int depth) {
+        return search(board, depth, START_ALPHA, START_BETA);
     }
 
-    public MovePath search(final Board board, final int maxLevel, final int startAlpha, final int startBeta) {
+    @Override
+    public MovePath search(Board board, int depth, int startAlpha, int startBeta) {
         this.board = board;
-        this.maxLevel = maxLevel;
+        this.maxLevel = depth;
         final int score = searchTree(0, startAlpha, startBeta);
 
         movePath.setScore(score);
+        movePath.setDepth(depth);
 
-        final int checkMateFound = Values.CHECKMATE_MOVE - Math.abs(score);
-        if (checkMateFound < maxLevel) {
-            movePath.setDepth(checkMateFound);
-        } else {
-            movePath.setDepth(maxLevel);
-        }
+        EngineUtil.verifyPV(movePath, board);
+
         return movePath;
+    }
+
+    @Override
+    public MovePath iterativeSearch(final Board board, final int maxLevel) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MovePath iterativeSearch(final Board board, final int maxLevel, final int startAlpha, final int startBeta) {
+        throw new UnsupportedOperationException();
     }
 
     public int searchTree(final int level, int alpha, final int beta) {

@@ -6,7 +6,6 @@ import com.gordoncaleb.chess.board.MoveContainerFactory;
 import com.gordoncaleb.chess.board.Side;
 import com.gordoncaleb.chess.board.serdes.JSONParser;
 import com.gordoncaleb.chess.board.serdes.PGNParser;
-import com.gordoncaleb.chess.engine.ABWithHashEngine;
 import com.gordoncaleb.chess.engine.ABWithHashMoveEngine;
 import com.gordoncaleb.chess.engine.AlphaBetaEngine;
 import com.gordoncaleb.chess.engine.MovePath;
@@ -56,7 +55,7 @@ public class ABWithHashMoveEngineTest {
         LOGGER.info("AlphaBetaEngine score: {} Move Path: {}", abMovePath.getScore(), MockBoard.movesToString(alphaBetaMoveList));
 
         LOGGER.info("Alpha Beta With hash level={}", level);
-        MovePath mp = engine.search(b2, level);
+        MovePath mp = engine.iterativeSearch(b2, level);
         List<Move> engineMoveList = mp.asList();
         LOGGER.info("Alpha Beta with Hash Move score: {} Path: {}", mp.getScore(), MockBoard.movesToString(engineMoveList));
 
@@ -80,7 +79,7 @@ public class ABWithHashMoveEngineTest {
                 MoveContainerFactory.buildMoveContainers(10));
 
         final long now = System.currentTimeMillis();
-        MovePath movePath = aBWithHashMoveEngine.search(b, 6);
+        MovePath movePath = aBWithHashMoveEngine.iterativeSearch(b, 6);
         final long timeTaken = System.currentTimeMillis() - now;
         List<Move> moveList = movePath.asList();
 
