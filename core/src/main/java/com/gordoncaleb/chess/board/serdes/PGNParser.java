@@ -5,13 +5,12 @@ import com.google.common.collect.Iterables;
 import com.gordoncaleb.chess.board.*;
 import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.board.pieces.Piece;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sun.util.cldr.CLDRLocaleDataMetaInfo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,7 +61,7 @@ public class PGNParser {
 
     public Map<Long, List<Move>> moveBookFromPGNFile(String fileName) throws Exception {
 
-        List<PGNGame> games = loadFile(fileName);
+        List<PGNGame> games = loadClassPathFile(fileName);
 
         return games.stream()
                 .map(g -> {
@@ -80,8 +79,14 @@ public class PGNParser {
                                 toUniqueList())));
     }
 
-    public static List<PGNGame> loadFile(String fileName) throws IOException, URISyntaxException {
+    public static List<PGNGame> loadClassPathFile(String fileName) throws IOException, URISyntaxException {
         try (BufferedReader lines = FileIO.getResourceAsBufferedReader(fileName)) {
+            return parseFileLines(lines);
+        }
+    }
+
+    public static List<PGNGame> loadFile(String fileName) throws IOException {
+        try (BufferedReader lines = Files.newBufferedReader(Paths.get(fileName))) {
             return parseFileLines(lines);
         }
     }

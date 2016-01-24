@@ -55,7 +55,7 @@ public class BoardTest {
 
     public void testFile(String fileName, Consumer<Board> boardConsumer) throws Exception {
         PGNParser parser = new PGNParser();
-        List<PGNParser.PGNGame> games = parser.loadFile(fileName);
+        List<PGNParser.PGNGame> games = parser.loadClassPathFile(fileName);
 
         for (PGNParser.PGNGame game : games) {
             try {
