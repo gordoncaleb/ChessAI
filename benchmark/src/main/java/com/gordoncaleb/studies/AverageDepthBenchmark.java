@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 public class AverageDepthBenchmark {
     private static final Logger LOGGER = LoggerFactory.getLogger(AverageDepthBenchmark.class);
@@ -26,6 +27,8 @@ public class AverageDepthBenchmark {
         PGNGameLibrary lib = new PGNGameLibrary("../pgnmentor");
         double averageDepth = lib.randomPositions()
                 .limit(10)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .mapToInt(b -> {
                     try {
                         LOGGER.info("\n" + b.toString());

@@ -7,6 +7,7 @@ import com.gordoncaleb.chess.util.FileIO;
 import com.gordoncaleb.chess.board.pieces.Piece;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -85,9 +86,11 @@ public class PGNParser {
         }
     }
 
-    public static List<PGNGame> loadFile(String fileName) throws IOException {
-        try (BufferedReader lines = Files.newBufferedReader(Paths.get(fileName))) {
-            return parseFileLines(lines);
+    public static Optional<List<PGNGame>> loadFile(File file) {
+        try (BufferedReader lines = Files.newBufferedReader(file.toPath())) {
+            return Optional.of(parseFileLines(lines));
+        } catch (Exception e) {
+            return Optional.empty();
         }
     }
 
