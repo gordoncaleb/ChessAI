@@ -11,6 +11,7 @@
     <modules>
         <module>core</module>
         <module>benchmark</module>
+        <module>ui</module>
     </modules>
 
 </project>

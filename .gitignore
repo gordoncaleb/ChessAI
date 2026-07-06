@@ -1,6 +1,12 @@
 target
 pgnmentor
 *.DS_Store
+
+# web frontend
+web/node_modules
+web/dist
+# built SPA bundle emitted by `npm run build` (see web/vite.config.ts)
+ui/src/main/resources/public
 .classpath
 .project
 .settings
