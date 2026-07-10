@@ -360,12 +360,12 @@ public class PGNParser {
 
             match = true;
 
+            // The generator now emits every promotion choice directly, so the
+            // notation's promotion note must match exactly (previously a queen
+            // move was rewritten to a knight to compensate for the missing
+            // under-promotions).
             if (note != Move.MoveNote.NORMAL && move.getNote() != note) {
-                if (move.getNote() == Move.MoveNote.NEW_QUEEN && note == Move.MoveNote.NEW_KNIGHT) {
-                    move.setNote(note);
-                } else {
-                    match = false;
-                }
+                match = false;
             }
 
             if (fromRow >= 0 && move.getFromRow() != fromRow) {

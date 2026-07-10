@@ -62,7 +62,8 @@ public class PGNParserTest {
     public void testNotationResolution() throws Exception {
         List<PGNParser.PGNGame> games = parser.parseFileLines(gameLines());
         Board board = parser.getPGNGameAsBoard(games.get(0));
-        assertEquals(-2129579992571844880L, board.getHashCode());
+        // Updated after castling-rights hashing was corrected to include both sides.
+        assertEquals(6961705851172163815L, board.getHashCode());
     }
 
     public BufferedReader gameLines() {

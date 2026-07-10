@@ -161,7 +161,7 @@ public class King {
             final long southEastSlideBlockers = southEastSlide & allExceptMeAndDiagonalSliders;
             if (southEastSlideBlockers == 0) {
                 nullMoveInfo[CHECK_VECTORS] &= southEastSlide;
-                nullMoveInfo[CHECK_COMPLIMENT] |= king >> 9;
+                nullMoveInfo[CHECK_COMPLIMENT] |= king >>> 9;
             } else if (hasOneBitOrLess(southEastSlideBlockers)) {
                 setBlocker(board, southEastSlideBlockers, southEastSlide);
             }

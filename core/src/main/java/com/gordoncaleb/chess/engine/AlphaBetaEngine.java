@@ -25,6 +25,11 @@ public class AlphaBetaEngine implements Engine {
     }
 
     @Override
+    public int getMaxSearchDepth() {
+        return moveContainers.length;
+    }
+
+    @Override
     public MovePath search(Board board, int depth) {
         return search(board, depth, START_ALPHA, START_BETA);
     }
@@ -69,6 +74,10 @@ public class AlphaBetaEngine implements Engine {
         if (moves.isEmpty()) {
             return scorer.endOfGameValue(board.isInCheck(), level);
         }
+
+        // Seed with the first legal move so a fail-low node still returns a valid
+        // move rather than a stale one left over from a sibling subtree.
+        movePath.markMove(level, maxLevel, 0);
 
         for (int m = 0; m < moves.size(); m++) {
 

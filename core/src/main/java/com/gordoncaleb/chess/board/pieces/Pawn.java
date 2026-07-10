@@ -80,7 +80,14 @@ public class Pawn {
         final long validHopsAndAttacks = valid & (hops | attacks & foes);
 
         Piece.buildValidMoves(validHopsAndAttacks & NOT_QUEENING_MASK, row, col, NORMAL, board, validMoves);
-        Piece.buildValidMoves(validHopsAndAttacks & QUEENING_MASK, row, col, NEW_QUEEN, board, validMoves);
+
+        // Promotions: generate all four piece choices, not just the queen.
+        final long queeningMoves = validHopsAndAttacks & QUEENING_MASK;
+        Piece.buildValidMoves(queeningMoves, row, col, NEW_QUEEN, board, validMoves);
+        Piece.buildValidMoves(queeningMoves, row, col, NEW_KNIGHT, board, validMoves);
+        Piece.buildValidMoves(queeningMoves, row, col, NEW_ROOK, board, validMoves);
+        Piece.buildValidMoves(queeningMoves, row, col, NEW_BISHOP, board, validMoves);
+
         Piece.buildValidMoves(validLeapMoves, row, col, PAWN_LEAP, board, validMoves);
 
         return validMoves;

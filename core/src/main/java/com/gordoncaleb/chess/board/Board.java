@@ -38,7 +38,7 @@ public class Board {
     public final long[][] kingToCastleMasks;
     public final long[][] rookToCastleMasks;
 
-    private Deque<Long> castleRightsHistory = new ArrayDeque<>();
+    private final LongStack castleRightsHistory = new LongStack(64);
 
     private final Piece[][] piecesArray;
     private MoveContainer validMoves = new SimpleMoveContainer();
@@ -54,7 +54,7 @@ public class Board {
     private long hashCode;
     private int hashCodeFreq;
     private final MoveStack moveHistory = new MoveStack(1000);
-    private final Deque<Long> hashCodeHistory = new ArrayDeque<>();
+    private final LongStack hashCodeHistory = new LongStack(64);
     private final Map<Long, Integer> hashCodeFrequencies = new HashMap<>();
 
     private final long[] nullMoveInfo = new long[5];
@@ -192,11 +192,9 @@ public class Board {
         // save off castle rights
         castleRightsHistory.push(castleRights);
 
-        // remove previous castle options
-        hashCode ^= rngTable.getCastlingRightsRandom(turn,
-                canCastleNear(turn) ? RNGTable.YES : RNGTable.NO,
-                canCastleFar(turn) ? RNGTable.YES : RNGTable.NO
-        );
+        // remove previous castle options (both sides: a capture can clear the
+        // opponent's rook-square castle right, so both terms may change)
+        hashCode ^= castlingRightsHash();
 
         // remove taken piece first
         if (move.hasPieceTaken()) {
@@ -262,11 +260,8 @@ public class Board {
             hashCode ^= rngTable.getEnPassantFile(move.getToCol());
         }
 
-        // add new castle options
-        hashCode ^= rngTable.getCastlingRightsRandom(nextSide,
-                canCastleNear(nextSide) ? RNGTable.YES : RNGTable.NO,
-                canCastleFar(nextSide) ? RNGTable.YES : RNGTable.NO
-        );
+        // add new castle options (both sides)
+        hashCode ^= castlingRightsHash();
 
         // either remove black and add white or reverse. Same operation.
         hashCode ^= rngTable.getBlackToMoveRandom();
@@ -387,6 +382,10 @@ public class Board {
             // retrieve what the hashCode was before move was made
             hashCode = hashCodeHistory.pop();
         }
+
+        // refresh the repetition count to reflect the position we just
+        // restored (the decrement above operated on the post-move hash).
+        hashCodeFreq = hashCodeFrequencies.getOrDefault(hashCode, 0);
 
         return lastMove;
     }
@@ -766,11 +765,8 @@ public class Board {
             }
         }
 
-        // add new castle options
-        hashCode ^= rngTable.getCastlingRightsRandom(turn,
-                canCastleNear(turn) ? RNGTable.YES : RNGTable.NO,
-                canCastleFar(turn) ? RNGTable.YES : RNGTable.NO
-        );
+        // add castle options for both sides
+        hashCode ^= castlingRightsHash();
 
         if (getLastMoveMade().getNote() == Move.MoveNote.PAWN_LEAP) {
             hashCode ^= rngTable.getEnPassantFile(getLastMoveMade().getToCol());
@@ -783,25 +779,36 @@ public class Board {
         return hashCode;
     }
 
+    /**
+     * Zobrist contribution of castling rights for BOTH sides. Including both
+     * sides (not just the side to move) is required so that positions differing
+     * only in the opponent's castling rights hash differently.
+     */
+    private long castlingRightsHash() {
+        return rngTable.getCastlingRightsRandom(WHITE,
+                canCastleNear(WHITE) ? RNGTable.YES : RNGTable.NO,
+                canCastleFar(WHITE) ? RNGTable.YES : RNGTable.NO)
+                ^ rngTable.getCastlingRightsRandom(BLACK,
+                canCastleNear(BLACK) ? RNGTable.YES : RNGTable.NO,
+                canCastleFar(BLACK) ? RNGTable.YES : RNGTable.NO);
+    }
+
     private int incrementHashCodeFrequency(long hashCode) {
-        return Optional.ofNullable(
-                hashCodeFrequencies.put(hashCode, Optional.ofNullable(
-                        hashCodeFrequencies.get(hashCode))
-                        .orElse(0) + 1))
-                .orElse(0) + 1;
+        return hashCodeFrequencies.merge(hashCode, 1, Integer::sum);
     }
 
     private int decrementHashCodeFrequency(long hashCode) {
-        return Optional.ofNullable(hashCodeFrequencies.get(hashCode))
-                .map(i -> {
-                    i--;
-                    if (i == 0) {
-                        hashCodeFrequencies.remove(hashCode);
-                    } else {
-                        hashCodeFrequencies.put(hashCode, i);
-                    }
-                    return i;
-                }).orElse(0);
+        Integer current = hashCodeFrequencies.get(hashCode);
+        if (current == null) {
+            return 0;
+        }
+        int updated = current - 1;
+        if (updated == 0) {
+            hashCodeFrequencies.remove(hashCode);
+        } else {
+            hashCodeFrequencies.put(hashCode, updated);
+        }
+        return updated;
     }
 
     public int getHashCodeFreq() {
@@ -814,6 +821,7 @@ public class Board {
 
     public boolean insufficientMaterial() {
 
+        // Any pawn, rook or queen means a forced mate is still possible.
         long pawnsQueensAndRooks = posBitBoard[PAWN][WHITE] |
                 posBitBoard[QUEEN][WHITE] |
                 posBitBoard[ROOK][WHITE] |
@@ -821,7 +829,18 @@ public class Board {
                 posBitBoard[QUEEN][BLACK] |
                 posBitBoard[ROOK][BLACK];
 
-        return pawnsQueensAndRooks == 0;
+        if (pawnsQueensAndRooks != 0) {
+            return false;
+        }
+
+        // Only minor pieces remain. It is a dead draw only when neither side
+        // has the material to force mate: at most a single minor per side.
+        // Two minors on one side (e.g. K+B+N or K+B+B) can win, so those must
+        // NOT be reported as insufficient.
+        int whiteMinors = Long.bitCount(posBitBoard[BISHOP][WHITE] | posBitBoard[KNIGHT][WHITE]);
+        int blackMinors = Long.bitCount(posBitBoard[BISHOP][BLACK] | posBitBoard[KNIGHT][BLACK]);
+
+        return whiteMinors <= 1 && blackMinors <= 1;
     }
 
     public boolean isInCheck() {

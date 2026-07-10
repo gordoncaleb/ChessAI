@@ -1,6 +1,7 @@
 package com.gordoncaleb.chess.engine;
 
 import com.gordoncaleb.chess.board.Board;
+import com.gordoncaleb.chess.board.BoardCondition;
 import com.gordoncaleb.chess.board.Move;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +37,19 @@ public class EngineMount {
             final List<Long> times = new ArrayList<>();
             times.add(now());
 
+            final int maxDepth = engine.getMaxSearchDepth();
             int depth = 1;
-            while (hasEnoughTime(times, endTime)) {
+            while (depth <= maxDepth && hasEnoughTime(times, endTime)) {
                 MovePath movePath = engine.search(board, depth);
                 times.add(now());
 
                 pvs.add(movePath.asList());
+
+                // A forced result won't improve with more depth; stop early.
+                if (movePath.getEndBoardCondition() == BoardCondition.CHECKMATE) {
+                    break;
+                }
+
                 depth++;
             }
 
@@ -64,7 +72,11 @@ public class EngineMount {
             final double d1 = timeMinus1 - timeMinus2;
             final double d2 = timeMinus2 - timeMinus3;
 
-            final double d3 = (d1 * d1 / d2);
+            // Guard against a zero (or negative) previous delta — two shallow
+            // iterations can complete within the same millisecond, which would
+            // otherwise make d3 Infinity/NaN and overflow the estimate. Fall
+            // back to a plausible branching-factor growth in that case.
+            final double d3 = (d2 > 0) ? (d1 * d1 / d2) : (d1 * 4);
 
             final long estimatedTime = timeMinus1 + (long) (d3);
 

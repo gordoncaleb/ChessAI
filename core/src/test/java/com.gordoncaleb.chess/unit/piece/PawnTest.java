@@ -184,7 +184,13 @@ public class PawnTest {
 
         testMovesExactly(b, 1, 6, new Move[]{
                 new Move(1, 6, 0, 6, Move.MoveNote.NEW_QUEEN),
+                new Move(1, 6, 0, 6, Move.MoveNote.NEW_KNIGHT),
+                new Move(1, 6, 0, 6, Move.MoveNote.NEW_ROOK),
+                new Move(1, 6, 0, 6, Move.MoveNote.NEW_BISHOP),
                 new Move(1, 6, 0, 7, Move.MoveNote.NEW_QUEEN, b.getPiece(0, 7)),
+                new Move(1, 6, 0, 7, Move.MoveNote.NEW_KNIGHT, b.getPiece(0, 7)),
+                new Move(1, 6, 0, 7, Move.MoveNote.NEW_ROOK, b.getPiece(0, 7)),
+                new Move(1, 6, 0, 7, Move.MoveNote.NEW_BISHOP, b.getPiece(0, 7)),
         });
     }
 
@@ -203,7 +209,10 @@ public class PawnTest {
         Board b = JSONParser.getFromSetup(Side.WHITE, setup);
 
         testMovesExactly(b, 1, 6, new Move[]{
-                new Move(1, 6, 0, 7, Move.MoveNote.NEW_QUEEN,b.getPiece(0, 7)),
+                new Move(1, 6, 0, 7, Move.MoveNote.NEW_QUEEN, b.getPiece(0, 7)),
+                new Move(1, 6, 0, 7, Move.MoveNote.NEW_KNIGHT, b.getPiece(0, 7)),
+                new Move(1, 6, 0, 7, Move.MoveNote.NEW_ROOK, b.getPiece(0, 7)),
+                new Move(1, 6, 0, 7, Move.MoveNote.NEW_BISHOP, b.getPiece(0, 7)),
         });
     }
 
@@ -240,6 +249,9 @@ public class PawnTest {
 
         testMovesExactly(b, 6, 1, new Move[]{
                 new Move(6, 1, 7, 0, Move.MoveNote.NEW_QUEEN, b.getPiece(7, 0)),
+                new Move(6, 1, 7, 0, Move.MoveNote.NEW_KNIGHT, b.getPiece(7, 0)),
+                new Move(6, 1, 7, 0, Move.MoveNote.NEW_ROOK, b.getPiece(7, 0)),
+                new Move(6, 1, 7, 0, Move.MoveNote.NEW_BISHOP, b.getPiece(7, 0)),
         });
     }
 

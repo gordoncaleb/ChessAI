@@ -13,7 +13,9 @@ public class Values {
     public static final int PAWN_VALUE = 100;
     public static final int CHECKMATE_MOVE = KING_VALUE;
     public static final int STALEMATE = 0;
-    public static final int DRAW = 3 * PAWN_VALUE;
+    // A draw is neutral (no contempt). Previously 3*PAWN_VALUE, which made the
+    // engine value a draw as being up three pawns and bail out of won positions.
+    public static final int DRAW = 0;
 
     public static final int BACKED_PAWN_BONUS = 2;
     public static final int DOUBLED_PAWN_BONUS = -5;

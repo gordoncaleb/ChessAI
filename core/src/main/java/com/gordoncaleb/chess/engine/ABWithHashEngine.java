@@ -12,6 +12,11 @@ public class ABWithHashEngine implements Engine {
     private static final int START_ALPHA = -Values.CHECKMATE_MOVE + 1;
     private static final int START_BETA = -START_ALPHA;
 
+    /** Sentinel best-move stored for fail-low (ALL) nodes that have no best move. */
+    private static final long NO_MOVE = 0L;
+    /** Sentinel returned by the TT probe when no cutoff/score is available. */
+    private static final int NO_CUTOFF = Integer.MIN_VALUE;
+
     private final BoardScorer scorer;
     private final MoveContainer[] moveContainers;
     private final MovePath movePath;
@@ -25,6 +30,11 @@ public class ABWithHashEngine implements Engine {
         this.moveContainers = moveContainers;
         this.movePath = new MovePath(moveContainers);
         this.hashTable = new EngineHashTable(20);
+    }
+
+    @Override
+    public int getMaxSearchDepth() {
+        return moveContainers.length;
     }
 
     @Override
@@ -76,26 +86,35 @@ public class ABWithHashEngine implements Engine {
 
         final MoveContainer moves = moveContainers[levelsToTop];
         final BoardHashEntry hashEntry = hashTable.get(board.getHashCode());
+        // Capture the hash move up front: the entry aliases a mutable table slot
+        // that a child search could overwrite before we unprioritize it.
+        final long hashMove = (hashEntry != null) ? hashEntry.getBestMove() : NO_MOVE;
 
         final int levelsToBottom = iterativeDepth - levelsToTop;
 
-        final Integer hashScoreCutoff = checkHashScoreForBetaCutoff(hashEntry, beta, levelsToBottom);
-        if (hashScoreCutoff != null) {
-            return hashScoreCutoff;
+        // Use the transposition table for a cutoff, but never at the root, where
+        // we must actually search to fill in the principal variation move.
+        if (levelsToTop > 0) {
+            final int ttScore = probeHashScore(hashEntry, alpha, beta, levelsToBottom, levelsToTop);
+            if (ttScore != NO_CUTOFF) {
+                return ttScore;
+            }
         }
 
-        prioritizeHashEntry(hashEntry, moves);
+        prioritizeMove(moves, hashMove);
 
         board.makeNullMove();
         board.generateValidMoves(moves);
 
         if (moves.isEmpty()) {
+            unprioritizeMove(moves, hashMove);
             return scorer.endOfGameValue(board.isInCheck(), levelsToTop);
         }
 
         moves.sort();
 
         int maxScore = alpha;
+        int bestIndex = -1;
         for (int m = 0; m < moves.size(); m++) {
 
             final Move move = moves.get(m);
@@ -109,6 +128,7 @@ public class ABWithHashEngine implements Engine {
             if (childScore > maxScore) {
                 //narrowing alpha beta window
                 maxScore = childScore;
+                bestIndex = m;
 
                 movePath.markMove(levelsToTop, iterativeDepth, m);
 
@@ -119,38 +139,91 @@ public class ABWithHashEngine implements Engine {
             }
         }
 
-        unprioritizeHashEntry(hashEntry, moves);
+        unprioritizeMove(moves, hashMove);
+
+        // Fail-low (ALL) nodes have no real best move; store a sentinel so we
+        // don't pollute move ordering with a leftover move from a sibling.
+        final long bestMove = (bestIndex >= 0) ? movePath.getRaw(levelsToTop) : NO_MOVE;
 
         hashTable.set(board.getHashCode(),
-                maxScore,
+                adjustScoreForStorage(maxScore, levelsToTop),
                 levelsToBottom,
-                movePath.getRaw(levelsToTop),
+                bestMove,
                 board.getMoveNumber(),
                 EngineUtil.nodeType(alpha, beta, maxScore));
 
         return maxScore;
     }
 
-    private static Integer checkHashScoreForBetaCutoff(final BoardHashEntry entry, final int beta, final int levelsToBottom) {
-        if (entry != null &&
-                (entry.getBounds() == BoardHashEntry.ValueBounds.CUT
-                        || entry.getBounds() == BoardHashEntry.ValueBounds.PV) &&
-                entry.getLevel() >= levelsToBottom &&
-                entry.getScore() >= beta) {
-            return entry.getScore();
+    /**
+     * Returns a usable score from the transposition table, or {@link #NO_CUTOFF}.
+     * Honors exact (PV), lower-bound (CUT) and upper-bound (ALL) entries, and
+     * re-adjusts mate scores from table-relative back to node-relative ply.
+     */
+    private static int probeHashScore(final BoardHashEntry entry,
+                                      final int alpha,
+                                      final int beta,
+                                      final int levelsToBottom,
+                                      final int levelsToTop) {
+        if (entry == null || entry.getLevel() < levelsToBottom) {
+            return NO_CUTOFF;
         }
-        return null;
+
+        final int score = adjustScoreForRetrieval(entry.getScore(), levelsToTop);
+        final int bounds = entry.getBounds();
+
+        // Only take a cutoff when the stored bound proves the score lies OUTSIDE
+        // the (alpha, beta) window. A within-window value belongs to a PV node,
+        // which must actually be searched so its move is marked and the principal
+        // variation stays reconstructable (verifyPV replays it). Short-circuiting
+        // a PV node here leaves a stale move in the PV and corrupts the board.
+        if (score >= beta
+                && (bounds == BoardHashEntry.ValueBounds.PV || bounds == BoardHashEntry.ValueBounds.CUT)) {
+            return score;
+        }
+        if (score <= alpha
+                && (bounds == BoardHashEntry.ValueBounds.PV || bounds == BoardHashEntry.ValueBounds.ALL)) {
+            return score;
+        }
+
+        return NO_CUTOFF;
     }
 
-    private static void prioritizeHashEntry(final BoardHashEntry entry, final MoveContainer moveContainer) {
-        if (entry != null) {
-            moveContainer.prioritizeMove(entry.getBestMove(), 1);
+    /**
+     * Mate scores encode distance from the root. Before storing in the TT they
+     * must be made relative to the current node (add ply), and converted back
+     * on retrieval (subtract ply), otherwise a mate found at one ply is reported
+     * with the wrong distance when the position transposes to a different ply.
+     */
+    private static int adjustScoreForStorage(final int score, final int ply) {
+        if (score >= Values.CHECKMATE_MASK) {
+            return score + ply;
+        }
+        if (score <= -Values.CHECKMATE_MASK) {
+            return score - ply;
+        }
+        return score;
+    }
+
+    private static int adjustScoreForRetrieval(final int score, final int ply) {
+        if (score >= Values.CHECKMATE_MASK) {
+            return score - ply;
+        }
+        if (score <= -Values.CHECKMATE_MASK) {
+            return score + ply;
+        }
+        return score;
+    }
+
+    private static void prioritizeMove(final MoveContainer moveContainer, final long move) {
+        if (move != NO_MOVE) {
+            moveContainer.prioritizeMove(move, 1);
         }
     }
 
-    private static void unprioritizeHashEntry(final BoardHashEntry entry, final MoveContainer moveContainer) {
-        if (entry != null) {
-            moveContainer.unprioritizeMove(entry.getBestMove());
+    private static void unprioritizeMove(final MoveContainer moveContainer, final long move) {
+        if (move != NO_MOVE) {
+            moveContainer.unprioritizeMove(move);
         }
     }
 

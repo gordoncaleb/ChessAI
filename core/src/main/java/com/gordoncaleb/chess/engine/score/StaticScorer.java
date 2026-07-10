@@ -168,14 +168,17 @@ public class StaticScorer implements BoardScorer {
         final int otherSide = Side.otherSide(side);
         final int phase = calcGamePhase(b);
 
-        final long yourPawns = b.getPosBitBoard()[PAWN][side];
-        final long myPawns = b.getPosBitBoard()[PAWN][Side.otherSide(side)];
+        final long sidePawns = b.getPosBitBoard()[PAWN][side];
+        final long otherPawns = b.getPosBitBoard()[PAWN][otherSide];
 
-        final int myPawnScore = pawnStructureScore(side, phase, myPawns, yourPawns);
-        final int yourPawnScore = pawnStructureScore(otherSide, phase, yourPawns, myPawns);
+        // friendPawns passed to pawnStructureScore must belong to the same side
+        // whose direction it evaluates, otherwise passed/isolated/backed pawns
+        // are computed for the wrong colour.
+        final int myPawnScore = pawnStructureScore(side, phase, sidePawns, otherPawns);
+        final int yourPawnScore = pawnStructureScore(otherSide, phase, otherPawns, sidePawns);
 
-        final long myOpenFiles = getOpenFiles(yourPawns);
-        final long yourOpenFiles = getOpenFiles(myPawns);
+        final long myOpenFiles = getOpenFiles(sidePawns);
+        final long yourOpenFiles = getOpenFiles(otherPawns);
 
         final int openingMyScore = openingPositionScore(b.getPiecesList()[side], yourOpenFiles);
         final int openingYourScore = openingPositionScore(b.getPiecesList()[otherSide], myOpenFiles);
@@ -214,14 +217,17 @@ public class StaticScorer implements BoardScorer {
         final int otherSide = Side.otherSide(side);
         final int phase = calcGamePhase(b);
 
-        final long yourPawns = b.getPosBitBoard()[PAWN][side];
-        final long myPawns = b.getPosBitBoard()[PAWN][Side.otherSide(side)];
+        final long sidePawns = b.getPosBitBoard()[PAWN][side];
+        final long otherPawns = b.getPosBitBoard()[PAWN][otherSide];
 
-        final int myPawnScore = pawnStructureScore(side, phase, myPawns, yourPawns);
-        final int yourPawnScore = pawnStructureScore(otherSide, phase, yourPawns, myPawns);
+        // friendPawns passed to pawnStructureScore must belong to the same side
+        // whose direction it evaluates, otherwise passed/isolated/backed pawns
+        // are computed for the wrong colour.
+        final int myPawnScore = pawnStructureScore(side, phase, sidePawns, otherPawns);
+        final int yourPawnScore = pawnStructureScore(otherSide, phase, otherPawns, sidePawns);
 
-        final long myOpenFiles = getOpenFiles(yourPawns);
-        final long yourOpenFiles = getOpenFiles(myPawns);
+        final long myOpenFiles = getOpenFiles(sidePawns);
+        final long yourOpenFiles = getOpenFiles(otherPawns);
 
         final int openingMyScore = openingPositionScore(b.getPiecesList()[side], yourOpenFiles);
         final int openingYourScore = openingPositionScore(b.getPiecesList()[otherSide], myOpenFiles);

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Perft {
     public static final Logger logger = LoggerFactory.getLogger(Perft.class);
@@ -64,30 +63,14 @@ public class Perft {
         return metrics;
     }
 
-    private static void addOtherQueeningMoveOptions(List<Move> queenings, List<Move> moves) {
-        for (Move m : queenings) {
-            Move altMoveKnight = m.copy();
-            altMoveKnight.setNote(Move.MoveNote.NEW_KNIGHT);
-            moves.add(altMoveKnight);
-
-            Move altMoveRook = m.copy();
-            altMoveRook.setNote(Move.MoveNote.NEW_ROOK);
-            moves.add(altMoveRook);
-
-            Move altMoveBishop = m.copy();
-            altMoveBishop.setNote(Move.MoveNote.NEW_BISHOP);
-            moves.add(altMoveBishop);
-        }
-    }
-
     private void perftBoardRecursiveFunctional(Board b, int depth, int stopDepth, long[][] metrics, MoveContainer[] moveContainers) {
         b.makeNullMove();
         MoveContainer moves = moveContainers[depth];
         b.generateValidMoves(moves);
         List<Move> moveList = moves.toList();
 
-        List<Move> queeningMoves = moveList.stream().filter(m -> m.getNote() == Move.MoveNote.NEW_QUEEN).collect(Collectors.toList());
-        addOtherQueeningMoveOptions(queeningMoves, moveList);
+        // The move generator now emits all four promotion choices directly, so
+        // the perft counts no longer need to synthesize the under-promotions.
 
         metrics[depth][0] += moveList.size();
         metrics[depth][1] += moveList.stream().filter(m -> m.hasPieceTaken()).count();

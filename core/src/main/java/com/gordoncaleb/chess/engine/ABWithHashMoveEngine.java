@@ -14,6 +14,8 @@ public class ABWithHashMoveEngine implements Engine {
     private static final int START_ALPHA = -Values.CHECKMATE_MOVE + 1;
     private static final int START_BETA = -START_ALPHA;
 
+    private static final long NO_MOVE = 0L;
+
     private final BoardScorer scorer;
     private final MoveContainer[] moveContainers;
     private final MovePath movePath;
@@ -27,6 +29,11 @@ public class ABWithHashMoveEngine implements Engine {
         this.moveContainers = moveContainers;
         this.movePath = new MovePath(moveContainers);
         this.hashTable = new EngineHashTable(20);
+    }
+
+    @Override
+    public int getMaxSearchDepth() {
+        return moveContainers.length;
     }
 
     @Override
@@ -78,16 +85,20 @@ public class ABWithHashMoveEngine implements Engine {
 
         final MoveContainer moves = moveContainers[levelsToTop];
         final BoardHashEntry hashEntry = hashTable.get(board.getHashCode());
+        // Capture the hash move up front; the entry aliases a mutable table slot.
+        final long hashMove = (hashEntry != null) ? hashEntry.getBestMove() : NO_MOVE;
 
-        prioritizeHashEntry(hashEntry, moves);
+        prioritizeMove(moves, hashMove);
 
         board.makeNullMove();
         board.generateValidMoves(moves);
 
         if (moves.isEmpty()) {
+            unprioritizeMove(moves, hashMove);
             return scorer.endOfGameValue(board.isInCheck(), levelsToTop);
         }
 
+        int bestIndex = -1;
         for (int m = 0; m < moves.size(); m++) {
 
             final Move move = moves.get(m);
@@ -101,6 +112,7 @@ public class ABWithHashMoveEngine implements Engine {
             if (childScore > alpha) {
                 //narrowing alpha beta window
                 alpha = childScore;
+                bestIndex = m;
 
                 movePath.markMove(levelsToTop, iterativeDepth, m);
 
@@ -111,27 +123,29 @@ public class ABWithHashMoveEngine implements Engine {
             }
         }
 
-        unprioritizeHashEntry(hashEntry, moves);
+        unprioritizeMove(moves, hashMove);
+
+        final long bestMove = (bestIndex >= 0) ? movePath.getRaw(levelsToTop) : NO_MOVE;
 
         hashTable.set(board.getHashCode(),
                 alpha,
                 0,
-                movePath.getRaw(levelsToTop),
+                bestMove,
                 board.getMoveNumber(),
                 BoardHashEntry.ValueBounds.PV);
 
         return alpha;
     }
 
-    private static void prioritizeHashEntry(final BoardHashEntry entry, final MoveContainer moveContainer) {
-        if (entry != null) {
-            moveContainer.prioritizeMove(entry.getBestMove(), 1);
+    private static void prioritizeMove(final MoveContainer moveContainer, final long move) {
+        if (move != NO_MOVE) {
+            moveContainer.prioritizeMove(move, 1);
         }
     }
 
-    private static void unprioritizeHashEntry(final BoardHashEntry entry, final MoveContainer moveContainer) {
-        if (entry != null) {
-            moveContainer.unprioritizeMove(entry.getBestMove());
+    private static void unprioritizeMove(final MoveContainer moveContainer, final long move) {
+        if (move != NO_MOVE) {
+            moveContainer.unprioritizeMove(move);
         }
     }
 

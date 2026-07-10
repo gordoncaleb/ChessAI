@@ -17,6 +17,11 @@ public class NegaMaxEngine implements Engine {
     }
 
     @Override
+    public int getMaxSearchDepth() {
+        return moveContainers.length;
+    }
+
+    @Override
     public MovePath search(Board board, int depth) {
         final int score = searchTree(board, 0, depth);
         movePath.setScore(score);

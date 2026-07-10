@@ -28,7 +28,15 @@ public class EngineHashTable {
     }
 
     public void set(final long hashCode, final int score, final int level, final long bestMove, final int moveNum, final int bounds) {
-        entries[(int) (hashCode & hashMask)]
-                .setAll(hashCode, score, level, bestMove, moveNum, bounds);
+        final BoardHashEntry entry = entries[(int) (hashCode & hashMask)];
+
+        // Depth-preferred replacement: keep a deeper result rather than letting a
+        // shallower search from a different position evict it. Always overwrite an
+        // empty slot or a re-visit of the same position.
+        if (entry.getBounds() == BoardHashEntry.ValueBounds.NA
+                || entry.getHashCode() == hashCode
+                || level >= entry.getLevel()) {
+            entry.setAll(hashCode, score, level, bestMove, moveNum, bounds);
+        }
     }
 }

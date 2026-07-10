@@ -105,7 +105,7 @@ public class SimpleMoveContainer implements MoveContainer {
 
     @Override
     public void prioritizeMove(long move, int priority) {
-        movePrioritization[Move.fromToAsInt(move)] = 1;
+        movePrioritization[Move.fromToAsInt(move)] = priority;
     }
 
     @Override
